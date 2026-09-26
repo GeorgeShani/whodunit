@@ -12,10 +12,8 @@
  */
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
-import { createInitialGameState } from "@/engine/game-state";
 import { commitTurn, planTurn } from "@/engine/interrogation";
-import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
-import type { GameState } from "@/engine/types";
+import { RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { cannedCharacterResponse } from "./canned-responses";
 import { allowedTimes, checkTimes, findModernWord } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
@@ -25,8 +23,7 @@ import { createFallbackCharacterResponse, type CharacterResponse } from "./schem
 
 type Env = Record<string, string | undefined>;
 
-export const RESET_NOTICE =
-  "A gust of wind blows the detective's notebook out of the window! The pages are gone. Best start the questioning afresh.";
+export { RESET_NOTICE };
 
 export interface HandlerResult {
   status: number;
@@ -56,16 +53,9 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const { characterId, question, presentedEvidenceId, stateToken } = parsed.data;
 
   // 1. Signed state (absent = new game; present but invalid = reset in character).
-  let game: GameState;
-  let notice: string | undefined;
-  const decoded = decodeStateToken(stateToken, caseData, env);
-  if (decoded.ok) game = decoded.game;
-  else {
-    game = createInitialGameState(caseData);
-    if (decoded.reason !== "missing") notice = RESET_NOTICE;
-  }
+  const { game, notice } = restoreSession(caseData, stateToken, env);
   const withNotice = (b: InterrogateResponseBody) => (notice ? { ...b, notice } : b);
-  const unchangedToken = () => encodeStateToken(game, env);
+  const unchangedToken = () => saveSession(game, env);
 
   // 2. Engine checks.
   if (!caseData.characters.some((c) => c.id === characterId) || !game.characters[characterId]) {
@@ -148,7 +138,7 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
     body: withNotice({
       response,
       source,
-      stateToken: encodeStateToken(game, env),
+      stateToken: saveSession(game, env),
       ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
     }),
     diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed: applied.revealed },

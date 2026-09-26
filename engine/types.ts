@@ -404,6 +404,8 @@ export const GameStateSchema = z.strictObject({
   /** Monotonic turn counter. */
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema).default([]),
+  /** Locations the player has searched (Investigate). */
+  searchedLocationIds: z.array(IdSchema).default([]),
   statements: z.array(StatementSchema).default([]),
   /** Runtime state keyed by character id. */
   characters: z.record(IdSchema, CharacterRuntimeStateSchema),

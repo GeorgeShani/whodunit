@@ -1,5 +1,6 @@
 "use client";
 
+import { CartoonButton } from "@/components/game/CartoonButton";
 import { motion } from "framer-motion";
 import type { PublicSuspect } from "@/engine/public-view";
 import type { Emotion } from "@/engine/types";
@@ -11,11 +12,17 @@ export function SuspectSelect({
   emotions,
   onSelect,
   onBack,
+  onInvestigate,
+  cluesFound,
 }: {
   suspects: PublicSuspect[];
   emotions: Record<string, Emotion>;
   onSelect: (id: string) => void;
   onBack: () => void;
+  /** Open the Investigate screen (location search). */
+  onInvestigate?: () => void;
+  /** Number of clues in the notebook. */
+  cluesFound?: number;
 }) {
   return (
     <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-8 bg-[radial-gradient(circle_at_top,#7b1fa2_0%,#1b1035_70%)] px-4 py-10">
@@ -26,7 +33,13 @@ export function SuspectSelect({
         <h1 className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
           PICK A SUSPECT!
         </h1>
-        <span className="w-20" />
+        {onInvestigate ? (
+          <CartoonButton tone="red" onClick={onInvestigate}>
+            🔍 Investigate{cluesFound !== undefined ? ` (${cluesFound} clue${cluesFound === 1 ? "" : "s"})` : ""}
+          </CartoonButton>
+        ) : (
+          <span className="w-20" />
+        )}
       </div>
       <ul className="grid w-full max-w-6xl grid-cols-2 gap-6 lg:grid-cols-4">
         {suspects.map((s, i) => {

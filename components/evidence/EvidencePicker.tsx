@@ -13,7 +13,7 @@ export function EvidencePicker({
   disabled?: boolean;
 }) {
   if (evidence.length === 0) {
-    return <p className="text-sm font-semibold italic text-yellow-100">No evidence discovered yet.</p>;
+    return <p className="text-sm font-semibold italic text-yellow-100">No clues in your notebook yet. Go and 🔍 Investigate the house!</p>;
   }
   return (
     <div className="flex flex-wrap gap-2">

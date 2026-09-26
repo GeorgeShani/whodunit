@@ -21,6 +21,7 @@ export function InterrogationScreen({
   evidence,
   messages,
   pending,
+  busyWith = null,
   speaking = false,
   onAsk,
   onBack,
@@ -31,17 +32,23 @@ export function InterrogationScreen({
   evidence: PublicEvidence[];
   messages: DialogueMessage[];
   pending: boolean;
+  /** Someone else is mid-reply (or a search is running): controls lock, typed text is kept (#8). */
+  busyWith?: string | null;
   speaking?: boolean;
-  onAsk: (input: AskInput) => void;
+  /** Returns false if the question was not accepted (e.g. another reply is pending). */
+  onAsk: (input: AskInput) => boolean;
   onBack: () => void;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
   const [text, setText] = useState("");
   const firstName = suspect.name.split(" ")[0];
+  const locked = pending || Boolean(busyWith);
 
-  const ask = (question: string, presentedEvidenceId?: string) => {
-    setMenu(null);
-    onAsk({ question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}) });
+  const ask = (question: string, presentedEvidenceId?: string): boolean => {
+    if (locked) return false;
+    const accepted = onAsk({ question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}) });
+    if (accepted) setMenu(null);
+    return accepted;
   };
 
   return (
@@ -68,22 +75,22 @@ export function InterrogationScreen({
           />
 
           <div className="flex flex-wrap gap-2">
-            <CartoonButton disabled={pending} onClick={() => ask("Where were you this evening, and what did you see?")}>
+            <CartoonButton disabled={locked} onClick={() => ask("Where were you this evening, and what did you see?")}>
               📍 Whereabouts
             </CartoonButton>
-            <CartoonButton disabled={pending} onClick={() => ask("Tell me about the victim. What were they like?")}>
+            <CartoonButton disabled={locked} onClick={() => ask("Tell me about the victim. What were they like?")}>
               💀 The victim
             </CartoonButton>
             <CartoonButton
               tone={menu === "suspects" ? "violet" : "yellow"}
-              disabled={pending || otherSuspects.length === 0}
+              disabled={locked || otherSuspects.length === 0}
               onClick={() => setMenu(menu === "suspects" ? null : "suspects")}
             >
               🕵️ Ask about…
             </CartoonButton>
             <CartoonButton
               tone={menu === "evidence" ? "violet" : "yellow"}
-              disabled={pending}
+              disabled={locked}
               onClick={() => setMenu(menu === "evidence" ? null : "evidence")}
             >
               🔍 Present evidence
@@ -105,7 +112,7 @@ export function InterrogationScreen({
                         <CartoonButton
                           key={o.id}
                           tone="white"
-                          disabled={pending}
+                          disabled={locked}
                           onClick={() => ask(`What can you tell me about ${o.name}?`)}
                         >
                           {o.name}
@@ -115,7 +122,7 @@ export function InterrogationScreen({
                   ) : (
                     <EvidencePicker
                       evidence={evidence}
-                      disabled={pending}
+                      disabled={locked}
                       onPick={(e) => ask(`Care to explain this? (${e.name})`, e.id)}
                     />
                   )}
@@ -124,14 +131,20 @@ export function InterrogationScreen({
             )}
           </AnimatePresence>
 
+          {busyWith && (
+            <p role="status" className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1 text-sm font-bold text-black">
+              ⏳ {busyWith}. Your question will keep.
+            </p>
+          )}
+
           <form
             className="flex gap-2"
             onSubmit={(e) => {
               e.preventDefault();
               const q = text.trim();
-              if (!q || pending) return;
-              setText("");
-              ask(q);
+              if (!q || locked) return;
+              // Only clear the box once the question has actually been accepted (#8).
+              if (ask(q)) setText("");
             }}
           >
             <input
@@ -142,7 +155,7 @@ export function InterrogationScreen({
               aria-label={`Ask ${suspect.name} a question`}
               className="min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 font-medium text-black shadow-[4px_4px_0_#000] outline-none focus:bg-yellow-50"
             />
-            <CartoonButton type="submit" tone="red" disabled={pending || !text.trim()}>
+            <CartoonButton type="submit" tone="red" disabled={locked || !text.trim()}>
               ASK!
             </CartoonButton>
           </form>

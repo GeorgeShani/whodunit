@@ -1,9 +1,10 @@
 /**
  * SERVER-ONLY. Stateless, tamper-resistant game state for a DB-less game.
  *
- * The server serialises the runtime state it cares about (per-character
- * stress, trust, emotion, memory, shown evidence, revealed secrets, statements,
- * plus discovered evidence), signs it with HMAC-SHA256 and hands the client an
+ * ONE token for the whole game, shared by every route (interrogate,
+ * investigate, ...): per-character stress, trust, emotion, memory, shown
+ * evidence, revealed secrets and statements, plus discovered evidence and
+ * searched locations. The server serialises it, signs it with HMAC-SHA256 and hands the client an
  * opaque token. The client sends it back on the next request. A token with a
  * bad signature, an unknown version, another case id or an invalid payload is
  * rejected and the game resets to the case's initial state.
@@ -59,6 +60,7 @@ const TokenPayloadSchema = z.strictObject({
   caseId: CaseIdSchema,
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema),
+  searchedLocationIds: z.array(IdSchema).default([]),
   characters: z.record(IdSchema, TokenCharacterSchema),
 });
 type TokenPayload = z.infer<typeof TokenPayloadSchema>;
@@ -92,6 +94,7 @@ function toPayload(game: GameState): TokenPayload {
     caseId: game.caseId,
     turn: game.turn,
     discoveredEvidenceIds: [...game.discoveredEvidenceIds],
+    searchedLocationIds: [...game.searchedLocationIds],
     characters: Object.fromEntries(
       Object.entries(game.characters).map(([id, r]) => [
         id,
@@ -151,7 +154,9 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   // Defence in depth: every id must still exist in the case (case edits between deploys).
   const evidence = new Set(caseData.evidence.map((e) => e.id));
   const chars = new Map(caseData.characters.map((c) => [c.id, c]));
+  const locations = new Set(caseData.locations.map((l) => l.id));
   if (!p.discoveredEvidenceIds.every((id) => evidence.has(id))) return { ok: false, reason: "invalid_payload" };
+  if (!p.searchedLocationIds.every((id) => locations.has(id))) return { ok: false, reason: "invalid_payload" };
   for (const [id, r] of Object.entries(p.characters)) {
     const ch = chars.get(id);
     const secrets = new Set(ch?.secrets.map((s) => s.id));
@@ -163,6 +168,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   const game = createInitialGameState(caseData);
   game.turn = p.turn;
   game.discoveredEvidenceIds = [...p.discoveredEvidenceIds];
+  game.searchedLocationIds = [...p.searchedLocationIds];
   for (const [id, r] of Object.entries(p.characters)) {
     const rt = game.characters[id];
     rt.emotion = r.emotion;

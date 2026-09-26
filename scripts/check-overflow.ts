@@ -117,6 +117,16 @@ async function run(): Promise<number> {
       await label(p, "investigate");
       await investigate.first().click({ force: true });
       await wait(2500);
+      await label(p, "investigate: search + discovery sting");
+      await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
+      await clickButton(p, /Search The Dining Room/);
+      await wait(2500);
+      for (let i = 0; i < 3; i++) {
+        const next = p.getByRole("button", { name: /Next clue|Into the notebook/ });
+        if (!(await next.count())) break;
+        await next.first().click({ force: true });
+        await wait(1200);
+      }
     }
 
     const { ovf, frames } = await p.evaluate(() => {
