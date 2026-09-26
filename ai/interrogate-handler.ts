@@ -17,6 +17,7 @@ import { commitTurn, planTurn } from "@/engine/interrogation";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { cannedCharacterResponse } from "./canned-responses";
+import { allowedTimes, checkTimes } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type TurnDirectives } from "./prompts/interrogation";
@@ -94,7 +95,15 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const system = buildSystemPrompt(ctx, directives);
   const user = buildUserMessage(ctx, question);
   deps.onPrompt?.({ system, user });
-  const grok = await callGrok({ system, user, env });
+  // Canon post-check (#6): every clock time in the reply must come from this character's context.
+  const allowed = allowedTimes(ctx, directives, question);
+  const validate = (r: { dialogue: string; action?: string }) => {
+    const res = checkTimes(`${r.dialogue} ${r.action ?? ""}`, allowed);
+    return res.ok
+      ? null
+      : `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, or stay vague ("I couldn't say, sir").`;
+  };
+  const grok = await callGrok({ system, user, env, validate });
 
   let response: CharacterResponse;
   let source: "model" | "fallback";

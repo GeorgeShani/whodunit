@@ -3,20 +3,22 @@
  *
  * Returns one character's view of the world: their persona, the facts THEY
  * know (from case facts or timeline entries), their beliefs (without truth
- * labels), their secrets (without reveal conditions), their own intended lies
- * (topic + claim only), goals, relationships, memory, emotion, stress/trust,
+ * labels), ONLY the secrets the engine has revealed, their own intended lies
+ * (topic + claim + maintain/exposed status), goals, relationships, memory, emotion, stress/trust,
  * what they've said, and only the evidence the player has discovered AND
  * shown to them.
  *
  * Never included: the solution or motive, any isMurderer-style flag, the
  * timeline as such, other characters' private data, secret reveal conditions,
- * lie-breaking evidence, or undiscovered/unshown evidence. A murderer "knows"
- * they did it only through their own authored knownFactIds.
+ * lie-breaking evidence, or undiscovered/unshown evidence. The truth behind a
+ * LOCKED secret or an UNEXPOSED lie is withheld (engine/knowledge-gate.ts), so
+ * the model cannot blurt it; it only gets the story to maintain.
  *
  * Lives in engine/ (not ai/) because it is a deterministic projection of engine
  * truth; ai/context-builder.ts re-exports it. See docs/ARCHITECTURE.md.
  */
 import type { CaseState } from "./game-state";
+import { knowledgeGate } from "./knowledge-gate";
 import type { EmotionalState, MemoryEntry, Personality } from "./types";
 
 export interface CharacterContext {
@@ -40,7 +42,8 @@ export interface CharacterContext {
     confidence: number;
   }[];
   beliefs: { id: string; statement: string; confidence: number }[];
-  secrets: { id: string; description: string; severity: string; revealed: boolean }[];
+  /** ONLY secrets the engine has revealed (truth + permission to discuss). Locked secrets are withheld entirely. */
+  secrets: { id: string; description: string; severity: string; revealed: true }[];
   relationships: {
     targetCharacterId: string;
     name: string;
@@ -52,8 +55,11 @@ export interface CharacterContext {
     kind?: string;
     description?: string;
   }[];
-  /** Lies this character intends to tell (so the performer can stay consistent). */
-  intendedLies: { id: string; topic?: string; claim: string }[];
+  /**
+   * Authored stories. "maintain" = keep telling it (truth withheld);
+   * "exposed" = evidence has broken it (stop insisting).
+   */
+  intendedLies: { id: string; topic?: string; claim: string; status: "maintain" | "exposed" }[];
   /** Engine-owned pressure gauges (0..100). */
   state: { stress: number; trust: number };
   memory: MemoryEntry[];
@@ -79,7 +85,8 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
   const personName = (id: string) =>
     id === c.victim.id ? c.victim.name : c.characters.find((x) => x.id === id)?.name ?? id;
 
-  const known = new Set(ch.knownFactIds);
+  const gate = knowledgeGate(c, ch, runtime);
+  const known = new Set(ch.knownFactIds.filter((id) => !gate.withheldFactIds.has(id)));
   const revealed = new Set(runtime?.revealedSecretIds ?? []);
   const discovered = new Set(game.discoveredEvidenceIds);
   const shownIds = (runtime?.evidenceShownIds ?? []).filter((id) => discovered.has(id));
@@ -119,14 +126,14 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
         confidence: f.confidence,
       })),
     // isAccurate is engine-only: the character just believes it.
-    beliefs: ch.beliefs.map((b) => ({ id: b.id, statement: b.statement, confidence: b.confidence })),
+    // Beliefs about withheld (locked) facts are withheld too.
+    beliefs: ch.beliefs
+      .filter((b) => !gate.withheldBeliefIds.has(b.id))
+      .map((b) => ({ id: b.id, statement: b.statement, confidence: b.confidence })),
     // revealConditions / relatedFactIds are engine metadata (may name undiscovered evidence).
-    secrets: ch.secrets.map((s) => ({
-      id: s.id,
-      description: s.description,
-      severity: s.severity,
-      revealed: revealed.has(s.id),
-    })),
+    secrets: ch.secrets
+      .filter((s) => revealed.has(s.id))
+      .map((s) => ({ id: s.id, description: s.description, severity: s.severity, revealed: true as const })),
     relationships: ch.relationships.map((r) => ({
       targetCharacterId: r.targetCharacterId,
       name: personName(r.targetCharacterId),
@@ -139,7 +146,12 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       ...(r.description ? { description: r.description } : {}),
     })),
     // aboutFactId / brokenByEvidenceIds stay engine-side.
-    intendedLies: ch.intendedLies.map((l) => ({ id: l.id, ...(l.topic ? { topic: l.topic } : {}), claim: l.claim })),
+    intendedLies: ch.intendedLies.map((l) => ({
+      id: l.id,
+      ...(l.topic ? { topic: l.topic } : {}),
+      claim: l.claim,
+      status: gate.exposedLieIds.has(l.id) ? ("exposed" as const) : ("maintain" as const),
+    })),
     state: { stress: runtime?.stress ?? 0, trust: runtime?.trust ?? 50 },
     memory: (runtime?.memory ?? [])
       .filter((m) => m.evidenceId === undefined || shownIds.includes(m.evidenceId))

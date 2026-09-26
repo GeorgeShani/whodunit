@@ -1,7 +1,7 @@
 /**
  * SERVER-ONLY. Minimal xAI (Grok) chat-completions client: plain fetch,
  * structured JSON output, hard timeout, Zod validation, one retry on schema
- * failure only. Never logs or returns the API key, the prompt, or raw output.
+ * failure or on a failed caller `validate` check (e.g. the canon time check). Never logs or returns the API key, the prompt, or raw output.
  */
 import { CharacterResponseSchema, type CharacterResponse } from "./schemas";
 import { CHARACTER_RESPONSE_JSON_SCHEMA } from "./prompts/interrogation";
@@ -13,10 +13,10 @@ export const XAI_CHAT_URL = "https://api.x.ai/v1/chat/completions";
 export const DEFAULT_XAI_MODEL = "grok-4.20-0309-non-reasoning";
 export const GROK_TIMEOUT_MS = 12_000;
 export const GROK_MAX_TOKENS = 400;
-/** Total attempts: the first call plus at most one retry, and only after a schema failure. */
+/** Total attempts: the first call plus at most one retry, only after a schema or validate failure. */
 export const GROK_MAX_ATTEMPTS = 2;
 
-export type GrokFailure = "missing_key" | "timeout" | "http_error" | "network_error" | "schema_invalid";
+export type GrokFailure = "missing_key" | "timeout" | "http_error" | "network_error" | "schema_invalid" | "canon_check_failed";
 
 export type GrokResult =
   | { ok: true; response: CharacterResponse; model: string; attempts: number; latencyMs: number }
@@ -44,6 +44,12 @@ export async function callGrok(opts: {
   user: string;
   env?: Env;
   timeoutMs?: number;
+  /**
+   * Optional deterministic post-check. Return null if the reply is acceptable,
+   * or a short correction for the model; the call is retried once with it, then
+   * fails with "canon_check_failed".
+   */
+  validate?: (r: CharacterResponse) => string | null;
 }): Promise<GrokResult> {
   const env = opts.env ?? process.env;
   const model = env.XAI_MODEL?.trim() || DEFAULT_XAI_MODEL;
@@ -53,6 +59,7 @@ export async function callGrok(opts: {
 
   let attempts = 0;
   let last: GrokResult = { ok: false, reason: "schema_invalid", model, attempts, latencyMs: 0 };
+  let retryNote = "Your previous reply was not valid. Reply again with ONLY a JSON object that matches the schema exactly.";
   while (attempts < GROK_MAX_ATTEMPTS) {
     attempts += 1;
     const messages = [
@@ -62,7 +69,7 @@ export async function callGrok(opts: {
     if (attempts > 1) {
       messages.push({
         role: "system",
-        content: "Your previous reply was not valid. Reply again with ONLY a JSON object that matches the schema exactly.",
+        content: retryNote,
       });
     }
     const controller = new AbortController();
@@ -106,8 +113,15 @@ export async function callGrok(opts: {
       clearTimeout(timer);
     }
     const response = parseModelReply(content);
-    if (response) return { ok: true, response, model, attempts, latencyMs: Date.now() - started };
+    if (response) {
+      const problem = opts.validate?.(response) ?? null;
+      if (problem === null) return { ok: true, response, model, attempts, latencyMs: Date.now() - started };
+      last = { ok: false, reason: "canon_check_failed", model, attempts, latencyMs: Date.now() - started };
+      retryNote = `Your previous reply broke the rules: ${problem} Reply again in character with ONLY the JSON object.`;
+      continue;
+    }
     last = { ok: false, reason: "schema_invalid", model, attempts, latencyMs: Date.now() - started };
+    retryNote = "Your previous reply was not valid. Reply again with ONLY a JSON object that matches the schema exactly.";
   }
   return last;
 }

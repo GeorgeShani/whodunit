@@ -228,7 +228,7 @@ describe("handleInterrogate", () => {
       const body = { ...ask, question: "Explain this letter.", presentedEvidenceId: "burned-letter", stateToken: token };
       const r = await run(body, TEST_ENV, (p) => (system = p.system));
       expect(system).toContain(`CONFESS this secret, in your own words and in character: ${theft.description}`);
-      expect(system).toContain("EXPOSED LIES");
+      expect(system).toContain("EXPOSED STORIES");
       const g = stateOf(r.body.stateToken);
       expect(g.characters.reginald.revealedSecretIds).toEqual(["s-reginald-theft"]);
       expect(g.characters.reginald.stress).toBe(30);
@@ -244,7 +244,7 @@ describe("handleInterrogate", () => {
       mockGrok({});
       let system = "";
       await run(ask, TEST_ENV, (p) => (system = p.system));
-      expect(system).toContain("Do not confess any hidden secret this turn.");
+      expect(system).toContain("Do not confess anything this turn.");
       expect(system).not.toContain("CONFESS this secret");
     });
   });
