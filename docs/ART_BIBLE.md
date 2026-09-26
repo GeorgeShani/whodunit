@@ -272,14 +272,69 @@ export const popIn: Variants = {
 
 ---
 
-## 7. Asset Pipeline Notes
+## 7. Backgrounds
+
+Backgrounds are the same 1940s ink-and-paint world as the characters, but kept **dark and muted** so the flat, saturated characters pop. The ink is softer and thinner than character outlines. The look is painted-cel gouache with dramatic shadows: warm amber lamplight pools (`#E8A64A` family) against cool blue-violet shade, and a storm visible through a tall window. Everything is original, with no text or legible writing anywhere (book spines use blank bands only), and no people in paintings.
+
+### LOCKED BACKGROUND STYLE PROMPT
+
+Prepend verbatim to every background generation, followed by the scene block, then the negative block:
+
+```
+Original 1940s theatrical cartoon background painting in the classic ink-and-paint animation style: hand-painted cel background with a soft gouache look, soft dark brown-black ink linework that is thinner and softer than character outlines, slightly exaggerated rubbery cartoon perspective and wobbly shapes. DARK, MUTED, desaturated palette of deep plum, bottle green, oxblood, umber and cool blue-violet shadows; dramatic chiaroscuro with deep cast shadows; warm amber lamplight pools (#E8A64A) glowing against cool blue-violet shade; a thunderstorm visible through a tall window with diagonal rain streaks and a lightning-lit sky. Empty stage-like set with no people. Cinematic 16:9 wide shot, eye-level camera, straight-on view.
+```
+
+### LOCKED BACKGROUND NEGATIVE
+
+```
+Avoid: people, characters, figures, animals, faces, portraits of people, silhouettes of people, text, letters, numbers, writing, legible titles on book spines, labels, signs, logos, signatures, watermarks, frames or borders, bright saturated background colors, high-key lighting, flat vector art, 3D render, photorealism, anime style, clutter or props in the center floor area, objects in the bottom foreground band, copyrighted designs.
+```
+
+### Gameplay composition rules (all interrogation backgrounds)
+- 16:9 frame. Deliver `1920×1080` lossy WebP q85 (target < 400 KB) plus a lossless `2560×1440` PNG master. The generator renders natively at 2816×1584 (`resolution: "2k"`), so masters are **downscaled** with Lanczos, never upscaled.
+- **Stage zone:** open, calm, low-detail floor across the center and center-left/right. The floor meets the back wall at about 55–60% of frame height. Busy detail (shelves, props) goes only in the upper part of the frame and the outer ~20% on each side.
+- **Bottom 25%** is reserved for dialogue UI: plain floor falling into shadow, no props.
+- **Window** placed high and central-ish so a lightning flash reads behind or near the characters without the bolt sitting on top of a face. The resting frame has **no bolt** in the window; the bolt only appears in the `_lightning` frame.
+- **Post-grade** (`toon-drafts/backgrounds/grade.py`): saturation ×0.85, smoothstep highlight compression (−22% at the top end), and an elliptical edge vignette that leaves the stage flat. Lightning frames get a lighter grade.
+
+### Sprite placement rule (applies to every character; relative scale is already baked into the 784×1224 sprites)
+- **Feet line:** sprite canvas y=1200 sits at **74% of frame height** (just above the dialogue box, which spans ~75.5–97.5%).
+- **Sprite canvas display height = 64% of frame height** (width = 41% of frame height). Reginald (scale 1.0) then stands at **≈61.3% of frame height** from feet to head (662 px at 1080p). Victoria is ≈56%, Archibald ≈48%, Gregory ≈38%.
+- CSS equivalent: sprite box `height: 64%` of stage, `top: 11.25%`, `left: <x>`, `transform: translateX(-50%)` (the feet center is the canvas's horizontal center).
+- **x positions:** single suspect at **50%** of frame width. Split-screen confrontation at **28%** and **72%**. Sprites face left, so the right-hand character is used as-is and the **left-hand character is mirrored** (`scaleX(-1)`) so the two face each other. The library's two amber floor pools sit on these split positions.
+- Add a soft contact shadow under the feet (black ~45% opacity, blurred ellipse ≈ 32% of the sprite box width; ≈ 68% for Archibald).
+- During a lightning flash, swap to the `_lightning` background and tint sprites to match, e.g. `filter: brightness(1.45) saturate(0.45)` plus a 25% `#CFE3FF` screen overlay for the same frames.
+
+### 7.1 Library (interrogation room) — v0.1
+| Field | Value |
+|---|---|
+| Files | `assets/backgrounds/library.webp` (1920×1080, q85, ~141 KB), `assets/backgrounds/library_lightning.webp` (1920×1080, q85, ~139 KB) |
+| Masters | `toon-drafts/backgrounds/raw/library_2560x1440.png`, `library_lightning_2560x1440.png` (+ `_1920x1080.png` lossless) |
+| Contents | Centered tall arched window (storm, rain, no bolt at rest), towering bookshelves left and right with blank spines, rolling ladder (right), stone fireplace with a low fire and a landscape painting (far right), oxblood wingback armchair (right edge), desk with a green-shaded banker's lamp (far left), antique globe (left), dark plank floor with a muted rug, and two amber light pools on the split-screen positions |
+| Window region | x 32.8–53.5%, y 0–48.3% of frame (center ≈ 43%, 24%). Use this for the `lightning` effect overlay anchor in this room |
+| Optional rain layer | `assets/effects/rain_tile.webp` (256×256, seamless) masked by `assets/backgrounds/library_window_mask.webp` (1920×1080 alpha, glass area). E.g. a full-frame div with `background: url(rain_tile.webp)`, `mask-image: url(library_window_mask.webp)`, `animation: background-position 0 0 → -70px 256px, 0.45s linear infinite`, `opacity: .6` |
+| Lightning swap | Show `library_lightning` for 2 frames (~33 ms at 60 fps), back to base for ~90 ms, then 1 more frame. Thunder SFX follows 300–600 ms later (see §6 beats) |
+| Placement mock | `docs/art/library_mock.jpg` (top: single suspect at x 50%; bottom: split-screen at 28% / 72%, left sprite mirrored; feet 74%, sprite box 64%) |
+| Scene prompt | See below |
+
+Library scene block (used after the locked style prompt):
+
+```
+Scene: a grand old mansion library at night during a storm. A tall arched window in the upper left-center of the back wall shows the stormy night sky with rain and a distant lightning bolt, its cold light falling across the room. Towering dark wooden bookshelves fill the left and right edges and rise out of frame at the top; book spines are plain with blank bands only. A rolling library ladder leans on the right-hand shelves. A stone fireplace with a low glowing fire on the far right side, with a dim framed landscape painting (no people) above it. A heavy desk with a green-shaded brass banker's lamp at the far left edge, a large antique globe on a wooden stand at the left edge, a worn oxblood leather wingback armchair at the right edge near the fire. Dark polished wood floor with a large muted rug; the floor meets the back wall at about 55 percent down the frame. The center and lower-middle floor is OPEN, calm and empty, softly lit by one warm pool of lamplight, with low detail, like a stage waiting for actors. The bottom quarter of the frame is plain dark floor falling into shadow with no objects. All busy detail is kept to the upper part of the frame and the outer left and right edges.
+```
+
+---
+
+## 8. Asset Pipeline Notes
 
 ### Repo layout (canonical paths)
 - Sprites: `assets/characters/<id>/<emotion>.webp` — ids `reginald`, `victoria`, `archibald`, `gregory`; emotions `neutral`, `talking`, `angry`, `nervous`, `shocked`, `smug`, `sad` (e.g. `assets/characters/gregory/nervous.webp`).
 - Effects: `assets/effects/<name>.webp` + placement spec `assets/effects/effects.json`; per-sprite anchors `assets/characters/anchors.json`.
+- Backgrounds: `assets/backgrounds/<room>.webp` + `<room>_lightning.webp` (1920×1080 q85); optional `<room>_window_mask.webp`; rain texture `assets/effects/rain_tile.webp`.
+- Serving: `assets/` is the source of truth. `npm run sync:assets` (auto via `predev`/`prebuild`) copies it to the gitignored `public/assets/`, so every file above is loaded at `/assets/...` (e.g. `/assets/backgrounds/library.webp`). Never commit into `public/assets/`.
 - Motion presets: `docs/toonMotion.ts`.
 - This bible: `docs/ART_BIBLE.md`.
-- Drafting workspace (not shipped): raw generations in `toon-drafts/raw/`, review sheets `toon-drafts/effects_sheet.png`, `toon-drafts/effects_composite.png`, `toon-drafts/characters/lineup_sheet.png`, `toon-drafts/characters/silhouette_test.png`, `toon-drafts/characters/reginald/reginald_contact_sheet.png`, scripts in `toon-drafts/tools/`.
+- Drafting workspace (not shipped): raw generations in `toon-drafts/raw/`, review sheets `toon-drafts/effects_sheet.png`, `toon-drafts/effects_composite.png`, `toon-drafts/characters/lineup_sheet.png`, `toon-drafts/characters/silhouette_test.png`, `toon-drafts/characters/reginald/reginald_contact_sheet.png`, scripts in `toon-drafts/tools/` and `toon-drafts/backgrounds/` (`bg_prompts.py`, `gen_bg.py`, `grade.py`, `mock.py`); background masters in `toon-drafts/backgrounds/raw/`.
 
 ### Sprite spec (all characters) — v0.2
 - RGBA lossy WebP (quality 86, alpha quality 90, method 6; about 1.8 MB for all 28; lossless masters are kept outside git), canvas **784 × 1224** (widened from 482 in v0.2 so Archibald fits at full size), feet on baseline **y = 1200**, strictly horizontally centered on the feet (feet center x = 392). No clamping needed at these scales.
@@ -304,7 +359,7 @@ Facing direction: his/her body and face are turned three-quarters toward the LEF
 Non-neutral poses use the xAI image edit endpoint with that character's approved neutral as the reference, prefixed by: "Redraw the exact same character from the reference image — identical design, face, hair, outfit, colors, proportions, line style, scale and facing direction — in a new pose."
 - Generator: xAI `grok-imagine-image-2.0`. Keying: Pillow/numpy chroma key (soft alpha ramp on G−max(R,B), green despill).
 
-## 8. Generation Log
+## 9. Generation Log
 
 ### Reginald v0.1 (director-approved)
 - Neutral = text-to-image (2 candidates) → v2 (v1 rejected: square "toothbrush" mustache).
@@ -319,3 +374,9 @@ Non-neutral poses use the xAI image edit endpoint with that character's approved
 
 ### Gregory v0.1
 - Neutral: 2 candidates → v2 (bigger eyes, clearer left facing). All six poses v1, no regenerations.
+
+### Library background v0.1
+- Base: 4 text-to-image candidates at 16:9 2k (2× `grok-imagine-image-2.0`, which came out too photographic/realistic and not ink-and-paint; 2× `grok-imagine-image-quality`). Chose quality_v2: symmetrical, centered window, calm open floor, amber pools on the split positions.
+- Bolt removal: 2 edits of the base ("remove the lightning bolt"). Chose v2 (kept the purple storm tone). Only the window glass region was composited back (diff-based feathered mask, zero measured shift), so the rest of the frame is the untouched base.
+- Lightning: 4 edits of the base. v1 and v2 came back at 1280×720 (edit default); after adding `resolution: "2k"`, v3 and v4 came back at 2816×1584. Chose v3 (zero global shift, best local edge correlation to the base: 0.71 mean / 0.49 min over a 4×4 grid).
+- Graded with `grade.py`; placement tested at 0.584 and then 0.64 sprite height (0.64 adopted).
