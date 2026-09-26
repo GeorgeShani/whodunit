@@ -9,7 +9,11 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "validate:case": "tsx scripts/validate-case.ts",
+    "sync:assets": "tsx scripts/sync-assets.ts",
+    "predev": "npm run sync:assets",
+    "prebuild": "npm run sync:assets"
   },
   "dependencies": {
     "framer-motion": "^13.4.4",
@@ -26,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^4.1.11"
   }

@@ -10,6 +10,8 @@ Next.js (App Router) · React · strict TypeScript · Tailwind · Framer Motion 
 - `npm run build` – production build
 - `npm test` – vitest
 - `npm run typecheck` – `tsc --noEmit`
+- `npm run validate:case -- <caseId>` – validate a case folder (see docs/CASE_FORMAT.md)
+- `npm run sync:assets` – copy assets/ to public/assets/ (runs automatically before dev/build)
 
 ## Environment
 Copy `.env.example` to `.env.local` and set `XAI_API_KEY`. Never commit real keys.
@@ -20,4 +22,6 @@ Copy `.env.example` to `.env.local` and set `XAI_API_KEY`. Never commit real key
 - `cases/` – authored case content
 - `app/api/{interrogate,confront,accuse}` – API routes
 - `components/` – UI
-- `tests/` – vitest suites
+- `tests/` – vitest suites (fixture case in tests/fixtures/cases)
+
+See docs/ARCHITECTURE.md, docs/CASE_FORMAT.md and docs/ART_BIBLE.md.

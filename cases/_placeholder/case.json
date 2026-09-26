@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "id": "_placeholder",
+    "title": "Placeholder Case",
+    "tagline": "A perfectly normal dinner party. Until somebody got murdered.",
+    "intro": "PLACEHOLDER INTRO. The real case (Blackwood) is being written. This stand-in case uses the cast's art-bible names and roles only, to exercise the game flow.\n\nPick a suspect and start asking questions.",
+    "dayStartsAt": "12:00"
+  },
+  "victim": {
+    "id": "placeholder-victim",
+    "name": "The Victim (placeholder)",
+    "description": "PLACEHOLDER (real case pending).",
+    "foundAtLocationId": "room-a",
+    "foundAt": "22:00",
+    "causeOfDeath": "PLACEHOLDER (real case pending)."
+  },
+  "locations": [
+    {
+      "id": "room-a",
+      "name": "Placeholder Room A",
+      "description": "PLACEHOLDER (real case pending)."
+    },
+    {
+      "id": "room-b",
+      "name": "Placeholder Room B",
+      "description": "PLACEHOLDER (real case pending)."
+    }
+  ],
+  "facts": [
+    {
+      "id": "placeholder-fact",
+      "statement": "PLACEHOLDER (real case pending).",
+      "category": "background",
+      "time": "21:30",
+      "locationId": "room-b"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "t-gregory",
+      "characterId": "gregory",
+      "locationId": "room-b",
+      "from": "21:15",
+      "to": "21:45"
+    },
+    {
+      "id": "t-reginald",
+      "characterId": "reginald",
+      "locationId": "room-a",
+      "from": "20:00",
+      "to": "22:00"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "placeholder-clue-1",
+      "name": "Placeholder Clue #1",
+      "description": "PLACEHOLDER (real case pending).",
+      "kind": "physical",
+      "locationId": "room-a",
+      "initiallyAvailable": true
+    },
+    {
+      "id": "placeholder-clue-2",
+      "name": "Placeholder Clue #2",
+      "description": "PLACEHOLDER (real case pending).",
+      "kind": "document",
+      "locationId": "room-b",
+      "initiallyAvailable": true
+    },
+    {
+      "id": "placeholder-weapon",
+      "name": "Placeholder Weapon",
+      "description": "PLACEHOLDER (real case pending).",
+      "kind": "physical",
+      "locationId": "room-b",
+      "initiallyAvailable": false
+    }
+  ]
+}

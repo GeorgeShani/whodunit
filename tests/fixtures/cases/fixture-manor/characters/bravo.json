@@ -1,0 +1,53 @@
+{
+  "id": "bravo",
+  "name": "Bravo Testperson",
+  "role": "The Gardener",
+  "bio": "Bravo public bio.",
+  "personality": {
+    "traits": [
+      "test-trait"
+    ],
+    "speechStyle": "Plain test voice.",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": []
+  },
+  "goals": [
+    "Bravo Testperson goal"
+  ],
+  "knownFactIds": [
+    "bravo-in-garden",
+    "dinner-served"
+  ],
+  "beliefs": [
+    {
+      "id": "bravo-belief",
+      "statement": "BRAVO_BELIEF: Charlie did it.",
+      "isAccurate": false,
+      "confidence": 0.7
+    }
+  ],
+  "secrets": [
+    {
+      "id": "bravo-secret",
+      "description": "BRAVO_SECRET: Owes gambling debts.",
+      "severity": "serious",
+      "pressuredByEvidenceIds": [
+        "torn-glove"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "characterId": "charlie",
+      "kind": "rival",
+      "sentiment": -0.4,
+      "description": "BRAVO_REL: Distrusts Charlie."
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "nervous",
+    "intensity": 0.3,
+    "composure": 0.8
+  }
+}

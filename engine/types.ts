@@ -28,6 +28,13 @@ export const IdSchema = z
   .max(64);
 export type Id = z.infer<typeof IdSchema>;
 
+/** Case id = folder name under cases/. A leading "_" marks internal/placeholder cases. */
+export const CaseIdSchema = z
+  .string()
+  .regex(/^_?[a-z0-9]+(?:[-_][a-z0-9]+)*$/, "case ids must be lowercase kebab/snake case (optional leading _)")
+  .max(64);
+export type CaseId = z.infer<typeof CaseIdSchema>;
+
 /** In-world clock time, 24h "HH:MM" (e.g. "21:45"). */
 export const GameTimeSchema = z
   .string()
@@ -290,7 +297,7 @@ export type Accusation = z.infer<typeof AccusationSchema>;
  * accusation against the server-only CaseSolution and writes `outcome`.
  */
 export const GameStateSchema = z.strictObject({
-  caseId: IdSchema,
+  caseId: CaseIdSchema,
   phase: z.enum(["investigating", "interrogating", "confronting", "accusing", "resolved"]),
   /** Monotonic turn counter. */
   turn: z.number().int().nonnegative(),

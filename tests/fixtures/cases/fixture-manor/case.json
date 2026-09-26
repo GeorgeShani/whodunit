@@ -1,0 +1,132 @@
+{
+  "meta": {
+    "id": "fixture-manor",
+    "title": "Fixture Manor",
+    "tagline": "Test fixture tagline.",
+    "intro": "Test fixture intro.",
+    "dayStartsAt": "12:00"
+  },
+  "victim": {
+    "id": "victim-v",
+    "name": "Victor Fixture",
+    "description": "The fixture victim.",
+    "foundAtLocationId": "hall",
+    "foundAt": "21:30",
+    "causeOfDeath": "Fixture trauma."
+  },
+  "locations": [
+    {
+      "id": "hall",
+      "name": "Hall",
+      "description": "Fixture hall."
+    },
+    {
+      "id": "study",
+      "name": "Study",
+      "description": "Fixture study."
+    },
+    {
+      "id": "garden",
+      "name": "Garden",
+      "description": "Fixture garden."
+    }
+  ],
+  "facts": [
+    {
+      "id": "alpha-struck-victim",
+      "statement": "ALPHA_GUILTY_FACT: Alpha struck the victim in the study.",
+      "category": "timeline",
+      "time": "21:00",
+      "locationId": "study",
+      "involvesCharacterIds": [
+        "alpha",
+        "victim-v"
+      ]
+    },
+    {
+      "id": "bravo-in-garden",
+      "statement": "BRAVO_PRIVATE_FACT: Bravo was pruning roses in the garden.",
+      "category": "alibi",
+      "time": "21:00",
+      "locationId": "garden",
+      "involvesCharacterIds": [
+        "bravo"
+      ]
+    },
+    {
+      "id": "charlie-in-hall",
+      "statement": "CHARLIE_PRIVATE_FACT: Charlie was polishing the hall mirror.",
+      "category": "alibi",
+      "time": "21:00",
+      "locationId": "hall",
+      "involvesCharacterIds": [
+        "charlie"
+      ]
+    },
+    {
+      "id": "dinner-served",
+      "statement": "PUBLIC_ISH_FACT: Dinner was served at 20:00.",
+      "category": "background",
+      "time": "20:00",
+      "locationId": "hall"
+    }
+  ],
+  "timeline": [
+    {
+      "id": "t-alpha-study",
+      "characterId": "alpha",
+      "locationId": "study",
+      "from": "20:50",
+      "to": "21:05",
+      "factId": "alpha-struck-victim"
+    },
+    {
+      "id": "t-bravo-garden",
+      "characterId": "bravo",
+      "locationId": "garden",
+      "from": "20:30",
+      "to": "21:30",
+      "factId": "bravo-in-garden"
+    },
+    {
+      "id": "t-charlie-hall",
+      "characterId": "charlie",
+      "locationId": "hall",
+      "from": "20:00",
+      "to": "22:00",
+      "factId": "charlie-in-hall"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "note",
+      "name": "Crumpled Note",
+      "description": "DISCOVERED_EVIDENCE_DESC",
+      "kind": "document",
+      "locationId": "hall",
+      "relatedFactIds": [
+        "dinner-served"
+      ],
+      "initiallyAvailable": true
+    },
+    {
+      "id": "torn-glove",
+      "name": "Torn Glove",
+      "description": "SECOND_DISCOVERED_DESC",
+      "kind": "physical",
+      "locationId": "garden",
+      "initiallyAvailable": true
+    },
+    {
+      "id": "heavy-wrench",
+      "name": "Heavy Wrench",
+      "description": "UNDISCOVERED_WEAPON_DESC",
+      "kind": "physical",
+      "locationId": "study",
+      "relatedFactIds": [
+        "alpha-struck-victim"
+      ],
+      "initiallyAvailable": false
+    }
+  ]
+}

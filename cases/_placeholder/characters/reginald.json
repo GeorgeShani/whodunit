@@ -1,0 +1,35 @@
+{
+  "id": "reginald",
+  "name": "Reginald",
+  "role": "The Butler",
+  "bio": "PLACEHOLDER (real case pending).",
+  "personality": {
+    "traits": [
+      "placeholder"
+    ],
+    "speechStyle": "PLACEHOLDER (real case pending).",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": []
+  },
+  "goals": [
+    "PLACEHOLDER (real case pending)."
+  ],
+  "knownFactIds": [
+    "placeholder-fact"
+  ],
+  "beliefs": [],
+  "secrets": [
+    {
+      "id": "reginald-secret",
+      "description": "PLACEHOLDER (real case pending).",
+      "severity": "embarrassing"
+    }
+  ],
+  "relationships": [],
+  "initialEmotion": {
+    "emotion": "calm",
+    "intensity": 0.3,
+    "composure": 0.8
+  }
+}
