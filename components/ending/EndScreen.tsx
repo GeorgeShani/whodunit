@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useRef } from "react";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { MotiveOption } from "@/engine/case-schema";
@@ -28,6 +29,9 @@ export function EndScreen({
   onPlayAgain: () => void;
 }) {
   const reduced = useReducedMotion() ?? false;
+  const heading = useRef<HTMLHeadingElement>(null);
+  // Keyboard/screen-reader users land on the verdict when the cut-scene hands over.
+  useEffect(() => heading.current?.focus({ preventScroll: true }), []);
   if (!result.accusation || !result.verdict || !result.ending) return null;
   const won = result.outcome === "won";
   const rows = summaryRows({ accusation: result.accusation, verdict: result.verdict, solution: result.solution, evidence: result.evidence }, { suspects, evidence, motives }, true);
@@ -40,6 +44,7 @@ export function EndScreen({
       data-end-screen={result.outcome}
     >
       <motion.h1
+        ref={heading}
         data-autofocus
         tabIndex={-1}
         className={`pe-12 text-center font-display text-[clamp(2.75rem,10vw,5.5rem)] leading-none tracking-wider [-webkit-text-stroke:3px_#000] drop-shadow-[6px_6px_0_#000] ${

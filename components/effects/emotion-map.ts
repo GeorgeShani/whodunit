@@ -27,6 +27,7 @@ export type AudioCue =
   | "fanfare"
   | "siren"
   | "thunder"
+  | "footsteps_sneak"
   | "ui_click"
   | "rain_loop";
 

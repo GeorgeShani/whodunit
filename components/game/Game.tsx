@@ -19,6 +19,7 @@ import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { AccuseScreen } from "@/components/accuse/AccuseScreen";
 import { EndScreen } from "@/components/ending/EndScreen";
+import { EndingScene } from "@/components/ending/EndingScene";
 import type { AccuseRequest, AccuseResponseBody } from "@/engine/accuse-schema";
 import type { Accusation } from "@/engine/types";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -139,6 +140,8 @@ export function Game({ view }: { view: PublicCaseView }) {
   /** Phase 8: the verdict (plus ending and solution) returned by /api/accuse. Nothing about the solution exists client-side before it. */
   const [result, setResult] = useState<AccuseResponseBody | null>(null);
   const [accusing, setAccusing] = useState(false);
+  /** Phase 9: the ending cut-scene plays first, then the end screen (a restored closed case opens on the end screen). */
+  const [endingPart, setEndingPart] = useState<"scene" | "summary">("summary");
   const [accuseError, setAccuseError] = useState<string | null>(null);
   const speakTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextId = useRef(0);
@@ -362,6 +365,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       // A replay after game over (409) still carries the original verdict and ending.
       if (r.outcome && r.ending && r.verdict && r.accusation) {
         setResult(r);
+        setEndingPart("scene");
         go("ending");
         return;
       }
@@ -369,6 +373,8 @@ export function Game({ view }: { view: PublicCaseView }) {
     },
     [caseId, go],
   );
+
+  const showSummary = useCallback(() => setEndingPart("summary"), []);
 
   const playAgain = useCallback(() => {
     clearGame(caseId);
@@ -465,8 +471,25 @@ export function Game({ view }: { view: PublicCaseView }) {
             onBack={() => go("suspects")}
           />
         )}
-        {screen === "ending" && result && (
-          <EndScreen result={result} suspects={view.suspects} evidence={evidence} motives={view.motives} onPlayAgain={playAgain} />
+        {screen === "ending" && result?.ending && endingPart === "scene" && (
+          <EndingScene
+            ending={result.ending}
+            suspects={view.suspects}
+            evidence={[...(result.evidence ?? []), ...evidence.filter((e) => !result.evidence?.some((x) => x.id === e.id))]}
+            stage={view.stage}
+            {...(result.outcome === "lost" && result.solution ? { escapedId: result.solution.murderer.id } : {})}
+            onDone={showSummary}
+          />
+        )}
+        {screen === "ending" && result && endingPart === "summary" && (
+          <EndScreen
+            result={result}
+            suspects={view.suspects}
+            evidence={evidence}
+            motives={view.motives}
+            onReplay={() => setEndingPart("scene")}
+            onPlayAgain={playAgain}
+          />
         )}
       </motion.div>
     </AnimatePresence>

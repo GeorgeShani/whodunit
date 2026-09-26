@@ -34,6 +34,7 @@ export const CUES: Record<AudioCue, CueDef> = {
   fanfare: { files: ["fanfare"], volume: 0.55, minGapMs: 2500 },
   siren: { files: ["siren"], volume: 0.45, minGapMs: 3000 },
   thunder: { files: ["thunder_1", "thunder_2"], volume: 0.5, minGapMs: 2500 },
+  footsteps_sneak: { files: ["footsteps_sneak"], volume: 0.55, minGapMs: 1500 },
   rain_loop: { files: ["rain_loop"], volume: 0.22, minGapMs: 0, loop: true },
 };
 
