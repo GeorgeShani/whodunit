@@ -1,0 +1,37 @@
+{
+  "id": "gregory",
+  "name": "Gregory",
+  "role": "The Gardener",
+  "bio": "PLACEHOLDER (real case pending).",
+  "personality": {
+    "traits": [
+      "placeholder"
+    ],
+    "speechStyle": "PLACEHOLDER (real case pending).",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
+  },
+  "goals": [
+    "PLACEHOLDER (real case pending)."
+  ],
+  "knownFactIds": [
+    "placeholder-fact"
+  ],
+  "beliefs": [],
+  "secrets": [],
+  "relationships": [],
+  "initialEmotion": {
+    "emotion": "nervous",
+    "intensity": 0.3,
+    "composure": 0.8
+  },
+  "intendedLies": []
+}

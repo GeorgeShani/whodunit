@@ -1,0 +1,55 @@
+{
+  "id": "fixture-manor",
+  "title": "Fixture Manor",
+  "tagline": "Test fixture tagline.",
+  "intro": "Test fixture intro.",
+  "dayStartsAt": "12:00",
+  "victim": {
+    "id": "victim-v",
+    "name": "Victor Fixture",
+    "description": "The fixture victim.",
+    "foundAtLocationId": "hall",
+    "foundAt": "21:30",
+    "causeOfDeath": "Fixture trauma."
+  },
+  "locations": [
+    {
+      "id": "hall",
+      "name": "Hall",
+      "description": "Fixture hall."
+    },
+    {
+      "id": "study",
+      "name": "Study",
+      "description": "Fixture study."
+    },
+    {
+      "id": "garden",
+      "name": "Garden",
+      "description": "Fixture garden."
+    }
+  ],
+  "facts": [
+    {
+      "id": "dinner-served",
+      "statement": "PUBLIC_ISH_FACT: Dinner was served at 20:00.",
+      "category": "background",
+      "time": "20:00",
+      "locationId": "hall"
+    }
+  ],
+  "motives": [
+    {
+      "id": "partnership-dispute",
+      "label": "A soured business partnership"
+    },
+    {
+      "id": "gambling-debt",
+      "label": "Gambling debts"
+    },
+    {
+      "id": "forged-will",
+      "label": "A forged will"
+    }
+  ]
+}

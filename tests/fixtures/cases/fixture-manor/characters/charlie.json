@@ -1,0 +1,56 @@
+{
+  "id": "charlie",
+  "name": "Charlie Testperson",
+  "role": "The Cousin",
+  "bio": "Charlie public bio.",
+  "personality": {
+    "traits": [
+      "test-trait"
+    ],
+    "speechStyle": "Plain test voice.",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
+  },
+  "goals": [
+    "Charlie Testperson goal"
+  ],
+  "knownFactIds": [
+    "charlie-in-hall"
+  ],
+  "beliefs": [
+    {
+      "id": "charlie-belief",
+      "statement": "CHARLIE_BELIEF: Bravo is hiding something.",
+      "isAccurate": true,
+      "confidence": 0.5
+    }
+  ],
+  "secrets": [
+    {
+      "id": "charlie-secret",
+      "description": "CHARLIE_SECRET: Forged the will.",
+      "severity": "damning",
+      "revealConditions": {
+        "evidenceIds": [
+          "note"
+        ],
+        "mode": "any"
+      }
+    }
+  ],
+  "relationships": [],
+  "initialEmotion": {
+    "emotion": "smug",
+    "intensity": 0.3,
+    "composure": 0.8
+  },
+  "intendedLies": []
+}

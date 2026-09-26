@@ -1,5 +1,5 @@
 /**
- * SERVER-ONLY. The ground-truth answer to a case.
+ * SERVER-ONLY. The ground-truth answer to a case (cases/<id>/solution.json).
  *
  * Never import this from a client component, never serialize it into a
  * response, and never pass it to the LLM. The engine alone uses it to judge
@@ -17,5 +17,11 @@ export const CaseSolutionSchema = z.strictObject({
   locationId: IdSchema,
   /** Time of the murder, 24h "HH:MM". */
   time: GameTimeSchema,
+  /** The true motive: one of case.json `motives[].id`. */
+  motiveId: IdSchema,
+  /** Evidence that proves the case; an accusation must cite these (judging rules come later). */
+  keyEvidenceIds: z.array(IdSchema).min(1),
+  /** Optional server-only write-up for the reveal screen. */
+  explanation: z.string().trim().min(1).optional(),
 });
 export type CaseSolution = z.infer<typeof CaseSolutionSchema>;

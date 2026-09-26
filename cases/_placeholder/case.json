@@ -1,0 +1,46 @@
+{
+  "id": "_placeholder",
+  "title": "Placeholder Case",
+  "tagline": "A perfectly normal dinner party. Until somebody got murdered.",
+  "intro": "PLACEHOLDER INTRO. The real case (Blackwood) is being written. This stand-in case uses the cast's art-bible names and roles only, to exercise the game flow.\n\nPick a suspect and start asking questions.",
+  "dayStartsAt": "12:00",
+  "victim": {
+    "id": "placeholder-victim",
+    "name": "The Victim (placeholder)",
+    "description": "PLACEHOLDER (real case pending).",
+    "foundAtLocationId": "room-a",
+    "foundAt": "22:00",
+    "causeOfDeath": "PLACEHOLDER (real case pending)."
+  },
+  "locations": [
+    {
+      "id": "room-a",
+      "name": "Placeholder Room A",
+      "description": "PLACEHOLDER (real case pending)."
+    },
+    {
+      "id": "room-b",
+      "name": "Placeholder Room B",
+      "description": "PLACEHOLDER (real case pending)."
+    }
+  ],
+  "facts": [
+    {
+      "id": "placeholder-fact",
+      "statement": "PLACEHOLDER (real case pending).",
+      "category": "background",
+      "time": "21:30",
+      "locationId": "room-b"
+    }
+  ],
+  "motives": [
+    {
+      "id": "placeholder-motive-a",
+      "label": "Placeholder motive A"
+    },
+    {
+      "id": "placeholder-motive-b",
+      "label": "Placeholder motive B"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "murdererId": "alpha",
+  "weaponId": "heavy-wrench",
+  "locationId": "study",
+  "time": "21:00",
+  "motiveId": "partnership-dispute",
+  "keyEvidenceIds": [
+    "heavy-wrench",
+    "note"
+  ],
+  "explanation": "SOLUTION_EXPLANATION: fixture reveal text."
+}

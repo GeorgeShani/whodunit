@@ -1,0 +1,47 @@
+{
+  "id": "archibald",
+  "name": "Archibald Crane",
+  "role": "The Business Partner",
+  "bio": "PLACEHOLDER (real case pending).",
+  "personality": {
+    "traits": [
+      "placeholder"
+    ],
+    "speechStyle": "PLACEHOLDER (real case pending).",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
+  },
+  "goals": [
+    "PLACEHOLDER (real case pending)."
+  ],
+  "knownFactIds": [
+    "placeholder-fact"
+  ],
+  "beliefs": [],
+  "secrets": [
+    {
+      "id": "archibald-secret",
+      "description": "PLACEHOLDER (real case pending).",
+      "severity": "embarrassing",
+      "revealConditions": {
+        "stressThreshold": 80,
+        "mode": "any"
+      }
+    }
+  ],
+  "relationships": [],
+  "initialEmotion": {
+    "emotion": "defensive",
+    "intensity": 0.3,
+    "composure": 0.8
+  },
+  "intendedLies": []
+}

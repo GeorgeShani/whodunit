@@ -1,0 +1,26 @@
+[
+  {
+    "id": "placeholder-clue-1",
+    "name": "Placeholder Clue #1",
+    "description": "PLACEHOLDER (real case pending).",
+    "kind": "physical",
+    "locationId": "room-a",
+    "initiallyAvailable": true
+  },
+  {
+    "id": "placeholder-clue-2",
+    "name": "Placeholder Clue #2",
+    "description": "PLACEHOLDER (real case pending).",
+    "kind": "document",
+    "locationId": "room-b",
+    "initiallyAvailable": true
+  },
+  {
+    "id": "placeholder-weapon",
+    "name": "Placeholder Weapon",
+    "description": "PLACEHOLDER (real case pending).",
+    "kind": "physical",
+    "locationId": "room-b",
+    "initiallyAvailable": false
+  }
+]

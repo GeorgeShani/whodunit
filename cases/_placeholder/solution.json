@@ -1,0 +1,10 @@
+{
+  "murdererId": "gregory",
+  "weaponId": "placeholder-weapon",
+  "locationId": "room-b",
+  "time": "21:30",
+  "motiveId": "placeholder-motive-a",
+  "keyEvidenceIds": [
+    "placeholder-weapon"
+  ]
+}
