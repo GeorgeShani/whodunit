@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useRef } from "react";
 
 export interface DialogueMessage {
@@ -21,14 +21,22 @@ export function DialogueLog({
   footer?: React.ReactNode;
 }) {
   const end = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion() ?? false;
   const hasFooter = Boolean(footer);
   useEffect(() => {
     // Braces matter: newer browsers return a Promise from scrollIntoView, which must not become the effect cleanup.
-    end.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [messages.length, hasFooter]);
+    end.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "end" });
+  }, [messages.length, hasFooter, reduced]);
 
   return (
-    <div className="scroll-area flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border-4 border-black bg-[#fff8e7]/95 p-4 shadow-[6px_6px_0_#000]">
+    // #10: role="log" is an implicit polite live region, so new replies are announced.
+    <div
+      role="log"
+      aria-live="polite"
+      aria-relevant="additions"
+      aria-label={`Conversation with ${characterName}`}
+      tabIndex={0}
+      className="scroll-area flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border-4 border-black bg-[#fff8e7]/95 p-4 shadow-[6px_6px_0_#000]">
       {messages.length === 0 && (
         <p className="m-auto max-w-xs text-center font-semibold italic text-neutral-600">
           {characterName} eyes you warily. Ask a question, detective.

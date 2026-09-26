@@ -52,3 +52,63 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+/*
+ * Keyboard focus (#10): a thick, high-contrast ring on every interactive
+ * element, visible on the purple backdrops and on the cream cards alike.
+ */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 0.25rem solid #facc15;
+  outline-offset: 0.2rem;
+  box-shadow: 0 0 0 0.45rem #000;
+}
+/* Programmatic focus targets (screen headings) don't need a ring. */
+[data-autofocus][tabindex="-1"]:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/*
+ * Interrogation stage rain (ART_BIBLE §7.1): a seamless 256px tile seen only
+ * through the window mask. The mask uses the same cover/center fit as the
+ * backdrop so the glass lines up at any frame size.
+ */
+.stage-rain {
+  background-size: 256px 256px;
+  background-repeat: repeat;
+  mask-size: cover;
+  mask-position: center;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: cover;
+  -webkit-mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+  opacity: 0.6;
+  animation: stage-rain 0.45s linear infinite;
+}
+@keyframes stage-rain {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -70px 256px;
+  }
+}
+
+/*
+ * Reduced motion (#9): CSS animations stop (rain freezes into a faint static
+ * layer). Framer Motion is covered globally by <MotionConfig reducedMotion="user">.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .stage-rain {
+    animation: none;
+    opacity: 0.35;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -9,6 +9,8 @@ export function IntroScreen({ view, onContinue }: { view: PublicCaseView; onCont
   return (
     <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-6 bg-[repeating-linear-gradient(45deg,#2a1650_0_24px,#1b1035_24px_48px)] px-6 py-10">
       <motion.h1
+        data-autofocus
+        tabIndex={-1}
         className="font-display text-5xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl"
         initial={{ y: -60, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

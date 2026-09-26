@@ -35,11 +35,11 @@ export function SuspectSelect({
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className="flex w-full max-w-6xl items-center justify-between">
+      <div className="flex w-full max-w-6xl items-center justify-between gap-2 max-xl:pe-12">
         <button type="button" onClick={onBack} className="cursor-pointer font-bold text-yellow-200 underline-offset-4 hover:underline">
           ← Case file
         </button>
-        <h1 className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
           PICK A SUSPECT!
         </h1>
         {onInvestigate ? (
@@ -69,7 +69,7 @@ export function SuspectSelect({
                 className="flex w-full cursor-pointer flex-col items-center rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-black shadow-[6px_6px_0_#000]"
               >
                 <div className="flex h-64 w-full items-end justify-center overflow-hidden rounded-2xl border-[3px] border-black bg-gradient-to-b from-sky-200 to-yellow-100">
-                  <Portrait suspect={s} emotion={emotion} className="h-60" />
+                  <Portrait suspect={s} emotion={emotion} className="h-60" decorative />
                 </div>
                 <span className="mt-3 font-display text-3xl tracking-wide">{s.name}</span>
                 <span className="text-sm font-semibold italic text-neutral-700">{s.role}</span>

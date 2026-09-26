@@ -37,11 +37,12 @@ export function InvestigateScreen({
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className="flex w-full max-w-6xl items-center justify-between gap-2">
-        <CartoonButton tone="white" onClick={onBack}>
-          ← Back to suspects
+      <div className="flex w-full max-w-6xl items-center justify-between gap-2 max-xl:pe-12">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="shrink-0">
+          ← <span className="max-sm:hidden">Back to suspects</span>
+          <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
           INVESTIGATE!
         </h1>
         <span className="hidden w-40 sm:block" />
