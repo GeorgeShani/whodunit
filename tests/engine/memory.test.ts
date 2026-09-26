@@ -149,6 +149,19 @@ describe("memory in the signed token", () => {
   });
 });
 
+describe("sealed memory (no spoilers in the readable token)", () => {
+  const payload = (t: string) => JSON.parse(Buffer.from(t.split(".")[1], "base64url").toString("utf8"));
+  it("told-lie ids are encrypted: the signed-but-readable payload never names a lie", () => {
+    const g = fresh((x) => (x.characters.victoria.liesToldIds = ["l-victoria-together"]));
+    const t = encodeStateToken(g, TEST_ENV);
+    expect(Buffer.from(t.split(".")[1], "base64url").toString("utf8")).not.toContain("l-victoria");
+    expect(payload(t).sealed).toEqual(expect.any(String));
+    expect(decode(t).characters.victoria.liesToldIds).toEqual(["l-victoria-together"]);
+    // Another key cannot open it (and cannot forge the signature either).
+    expect(decodeStateToken(t, c, { GAME_STATE_SECRET: "a-different-secret-0123456789" }).ok).toBe(false);
+  });
+});
+
 describe("stress relief (MASTER_PLAN §18, engine rules)", () => {
   it("suspicion moves elsewhere: a clue that bears only on someone else lowers stress", () => {
     const g = fresh((x) => {

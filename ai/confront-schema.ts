@@ -12,6 +12,9 @@ export const ConfrontRequestSchema = z.strictObject({
   /** [who the detective addresses, who faces them]. */
   characterIds: z.tuple([IdSchema, IdSchema]),
   question: z.string().trim().min(1).max(MAX_QUESTION_CHARS),
+  /** Optional: hold up a discovered clue OR a revealed testimony to the addressed suspect (same exchange). */
+  presentedEvidenceId: IdSchema.optional(),
+  presentedTestimonyId: IdSchema.optional(),
   stateToken: z.string().max(60_000).optional(),
 });
 export type ConfrontRequest = z.input<typeof ConfrontRequestSchema>;

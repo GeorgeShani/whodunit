@@ -161,6 +161,8 @@ export function Game({ view }: { view: PublicCaseView }) {
   /** Confrontation (MASTER_PLAN §32): the pair on stage and each pair's exchange count. */
   const [confrontPair, setConfrontPair] = useState<[string, string] | null>(null);
   const [confrontStatus, setConfrontStatus] = useState<Record<string, { turnsUsed: number; over: boolean }>>({});
+  /** Who the detective is questioning on the confront screen (the notebook presents to them). */
+  const [confrontTarget, setConfrontTarget] = useState<string | null>(null);
   const [notebookOpen, setNotebookOpen] = useState(false);
   /** Phase 8: the verdict (plus ending and solution) returned by /api/accuse. Nothing about the solution exists client-side before it. */
   const [result, setResult] = useState<AccuseResponseBody | null>(null);
@@ -351,7 +353,7 @@ export function Game({ view }: { view: PublicCaseView }) {
 
   /** One confrontation exchange: the detective questions `addressedId` in front of the other; both reply (server decides everything). */
   const onConfrontAsk = useCallback(
-    (addressedId: string, question: string): boolean => {
+    (addressedId: string, question: string, item?: NotebookItem): boolean => {
       if (!confrontPair || inFlight.current) return false;
       const partnerId = confrontPair[0] === addressedId ? confrontPair[1] : confrontPair[0];
       const key = pairKey(addressedId, partnerId);
@@ -361,7 +363,13 @@ export function Game({ view }: { view: PublicCaseView }) {
       push(logKey, { speaker: "player", text: `(to ${addressedName.split(" ")[0]}) ${question}` });
       setPendingId(addressedId);
       void (async () => {
-        const r = await confront({ caseId, characterIds: [addressedId, partnerId], question, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
+        const r = await confront({
+          caseId,
+          characterIds: [addressedId, partnerId],
+          question,
+          ...(item ? (item.kind === "evidence" ? { presentedEvidenceId: item.id } : { presentedTestimonyId: item.id }) : {}),
+          ...(stateToken.current ? { stateToken: stateToken.current } : {}),
+        });
         if (r.stateToken) stateToken.current = r.stateToken;
         if (r.notice) {
           resetProgress();
@@ -419,6 +427,11 @@ export function Game({ view }: { view: PublicCaseView }) {
     (item: NotebookItem, suspectId: string) => {
       if (inFlight.current) return;
       setNotebookOpen(false);
+      // In a confrontation the clue is held up to the suspect being questioned, as part of one exchange.
+      if (screen === "confront") {
+        onConfrontAsk(suspectId, presentQuestion(item, evidence, testimonies), item);
+        return;
+      }
       if (screen !== "interrogation" || activeId !== suspectId) {
         setActiveId(suspectId);
         go("interrogation");
@@ -428,7 +441,7 @@ export function Game({ view }: { view: PublicCaseView }) {
         ...(item.kind === "evidence" ? { presentedEvidenceId: item.id } : { presentedTestimonyId: item.id }),
       });
     },
-    [screen, activeId, go, askAs, evidence, testimonies],
+    [screen, activeId, go, askAs, evidence, testimonies, onConfrontAsk],
   );
 
   const onSearch = useCallback(
@@ -557,6 +570,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             onOpenNotebook={() => setNotebookOpen(true)}
             onConfront={(otherId) => {
               setConfrontPair([active.id, otherId]);
+              setConfrontTarget(active.id);
               getAudio().play("impact");
               go("confront");
             }}
@@ -581,6 +595,9 @@ export function Game({ view }: { view: PublicCaseView }) {
               max={MAX_CONFRONTATION_TURNS}
               over={st.over}
               onAsk={onConfrontAsk}
+              target={confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0]}
+              onTarget={setConfrontTarget}
+              onOpenNotebook={() => setNotebookOpen(true)}
               onBack={() => go("suspects")}
             />
           );
@@ -631,7 +648,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       </motion.div>
     </AnimatePresence>
     <AnimatePresence>
-      {notebookOpen && (screen === "suspects" || screen === "interrogation") && (
+      {notebookOpen && (screen === "suspects" || screen === "interrogation" || (screen === "confront" && confrontPair)) && (
         <Notebook
           evidence={evidence}
           testimonies={testimonies}
@@ -639,6 +656,13 @@ export function Game({ view }: { view: PublicCaseView }) {
           notes={notes}
           suspects={view.suspects}
           {...(screen === "interrogation" && active ? { presentTo: active } : {})}
+          {...(screen === "confront" && confrontPair
+            ? (() => {
+                const id = confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0];
+                const s = view.suspects.find((x) => x.id === id);
+                return s ? { presentTo: s } : {};
+              })()
+            : {})}
           disabled={pendingId !== null || searchingId !== null}
           onPresent={onPresent}
           onClose={closeNotebook}

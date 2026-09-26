@@ -27,6 +27,9 @@ export function ConfrontScreen({
   max,
   over,
   onAsk,
+  target,
+  onTarget,
+  onOpenNotebook,
   onBack,
 }: {
   pair: [PublicSuspect, PublicSuspect];
@@ -41,10 +44,15 @@ export function ConfrontScreen({
   over: boolean;
   /** Returns false if not accepted. */
   onAsk: (addressedId: string, question: string) => boolean;
+  /** Who is being questioned (controlled: the notebook presents to them). */
+  target: string;
+  onTarget: (id: string) => void;
+  /** Open the notebook to hold up a clue or testimony to `target` (counts as the exchange). */
+  onOpenNotebook?: () => void;
   onBack: () => void;
 }) {
   const [a, b] = pair;
-  const [target, setTarget] = useState(a.id);
+  const setTarget = onTarget;
   const [text, setText] = useState("");
   const hintId = useId();
   const first = (s: PublicSuspect) => s.name.split(" ")[0];
@@ -126,9 +134,16 @@ export function ConfrontScreen({
                   ASK!
                 </CartoonButton>
               </form>
-              <p id={hintId} className="px-1 text-xs font-bold text-yellow-100/70">
-                {first(other)} will react to {first(addressed)}&apos;s answer.
-              </p>
+              <div className="flex items-center gap-2">
+                <p id={hintId} className="min-w-0 flex-1 px-1 text-xs font-bold text-yellow-100/70">
+                  {first(other)} will react to {first(addressed)}&apos;s answer.
+                </p>
+                {onOpenNotebook && (
+                  <CartoonButton tone="yellow" disabled={locked} data-confront-present onClick={onOpenNotebook} className="shrink-0 px-3 py-1 text-sm">
+                    📓 Present to {first(addressed)}
+                  </CartoonButton>
+                )}
+              </div>
             </>
           )}
         </section>

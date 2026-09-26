@@ -19,7 +19,7 @@
  * OLDER token of their own (e.g. to undo stress). That is harmless for a
  * single-player game: they can only reach states the server itself issued.
  */
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
 import { CLAIM_LIMITS } from "./constants";
@@ -63,8 +63,9 @@ const TokenCharacterSchema = z.strictObject({
   interrogationCount: z.number().int().nonnegative(),
   /** Breakdown already performed (absent in older tokens). */
   brokeDown: z.boolean().default(false),
-  /** Own lies told to the detective and the detective's claims (absent in older tokens). */
+  /** Legacy (plain) told lies from tokens issued before they were sealed; new tokens carry them in `sealed`. */
   liesToldIds: z.array(IdSchema).max(40).default([]),
+  /** The detective's claims (absent in older tokens). The player wrote them, so they need no sealing. */
   playerClaims: z.array(PlayerClaimSchema).max(STATE_LIMITS.claimsPerCharacter).default([]),
 });
 
@@ -84,6 +85,12 @@ const TokenPayloadSchema = z.strictObject({
   /** Live confrontation and finished pairs (absent in older tokens). */
   confrontation: ConfrontationStateSchema.nullable().default(null),
   confrontedPairs: z.array(z.string().max(80)).max(20).default([]),
+  /**
+   * Engine-private memory, ENCRYPTED (AES-256-GCM): which answers were authored
+   * lies (liesTold). The rest of the payload is only signed, so it is readable by
+   * a curious player; lie ids there would spoil which answers were lies.
+   */
+  sealed: z.string().max(8000).optional(),
 });
 type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
@@ -109,9 +116,34 @@ function stateKey(env: Env = process.env): Buffer {
 
 const sign = (data: string, env?: Env) => createHmac("sha256", stateKey(env)).update(data).digest();
 
+const SEAL_LABEL = "whodunit/game-state-sealed/v1";
+const sealKey = (env?: Env) => createHmac("sha256", stateKey(env)).update(SEAL_LABEL).digest();
+const SealedSchema = z.strictObject({ liesTold: z.record(IdSchema, z.array(IdSchema).max(40)) });
+
+function seal(value: z.infer<typeof SealedSchema>, env?: Env): string {
+  const iv = randomBytes(12);
+  const cipher = createCipheriv("aes-256-gcm", sealKey(env), iv);
+  const body = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]);
+  return Buffer.concat([iv, cipher.getAuthTag(), body]).toString("base64url");
+}
+
+function unseal(sealed: string, env?: Env): z.infer<typeof SealedSchema> | null {
+  try {
+    const buf = Buffer.from(sealed, "base64url");
+    const decipher = createDecipheriv("aes-256-gcm", sealKey(env), buf.subarray(0, 12));
+    decipher.setAuthTag(buf.subarray(12, 28));
+    const json = Buffer.concat([decipher.update(buf.subarray(28)), decipher.final()]).toString("utf8");
+    const parsed = SealedSchema.safeParse(JSON.parse(json));
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
 const clip = (s: string) => (s.length > STATE_LIMITS.textChars ? s.slice(0, STATE_LIMITS.textChars - 1) + "…" : s);
 
-function toPayload(game: GameState): TokenPayload {
+function toPayload(game: GameState, env?: Env): TokenPayload {
+  const liesTold = Object.fromEntries(Object.entries(game.characters).filter(([, r]) => r.liesToldIds.length).map(([id, r]) => [id, [...r.liesToldIds]]));
   return {
     caseId: game.caseId,
     turn: game.turn,
@@ -135,7 +167,7 @@ function toPayload(game: GameState): TokenPayload {
             .map((s) => ({ text: clip(s.text), turn: s.turn })),
           interrogationCount: r.interrogationCount,
           brokeDown: r.brokeDown,
-          liesToldIds: [...r.liesToldIds],
+          liesToldIds: [],
           playerClaims: r.playerClaims.map((x) => ({ ...x })),
         },
       ]),
@@ -144,12 +176,13 @@ function toPayload(game: GameState): TokenPayload {
     outcome: game.outcome,
     confrontation: game.activeConfrontation ? { characterIds: [...game.activeConfrontation.characterIds], turnsUsed: game.activeConfrontation.turnsUsed } : null,
     confrontedPairs: [...game.confrontedPairs],
+    ...(Object.keys(liesTold).length ? { sealed: seal({ liesTold }, env) } : {}),
   };
 }
 
 /** Serialise + sign the runtime state. */
 export function encodeStateToken(game: GameState, env?: Env): string {
-  const body = Buffer.from(JSON.stringify(toPayload(game)), "utf8").toString("base64url");
+  const body = Buffer.from(JSON.stringify(toPayload(game, env)), "utf8").toString("base64url");
   const data = `${TOKEN_VERSION}.${body}`;
   return `${data}.${sign(data, env).toString("base64url")}`;
 }
@@ -215,6 +248,13 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   const revealed = new Set(p.revealedSecretIds);
   for (const r of Object.values(p.characters)) r.revealedSecretIds.forEach((s) => revealed.add(s));
   if (![...revealed].every((s) => allSecrets.has(s))) return { ok: false, reason: "invalid_payload" };
+  const sealed = p.sealed === undefined ? { liesTold: {} } : unseal(p.sealed, env);
+  if (!sealed) return { ok: false, reason: "invalid_payload" };
+  for (const [id, lies] of Object.entries(sealed.liesTold)) {
+    const r = p.characters[id];
+    if (!r) return { ok: false, reason: "invalid_payload" };
+    r.liesToldIds = [...new Set([...r.liesToldIds, ...lies])];
+  }
   for (const [id, r] of Object.entries(p.characters)) {
     const ch = chars.get(id);
     const secrets = new Set(ch?.secrets.map((s) => s.id));

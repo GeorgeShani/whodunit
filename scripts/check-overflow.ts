@@ -131,6 +131,14 @@ async function run(): Promise<number> {
           await p.waitForSelector("[data-confront-left]", { timeout: 5_000 }).catch(() => undefined);
           await wait(9000); // two model calls, lines delivered 1.4s apart
           await label(p, "confront replies");
+          const present = p.locator("[data-confront-present]:not([disabled])");
+          if (await present.count()) {
+            await label(p, "confront notebook");
+            await present.first().click({ force: true });
+            await wait(900);
+            await p.keyboard.press("Escape");
+            await wait(500);
+          }
         }
       } else await p.keyboard.press("Escape");
     }

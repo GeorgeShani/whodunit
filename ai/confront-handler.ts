@@ -8,13 +8,15 @@
  *  - both sides take CONFRONTATION_PRESSURE stress per exchange;
  *  - if A has admitted something that bears on one of B's lies, A says it to
  *    B's face, and it counts as that testimony being presented to B (lies break
- *    by the usual testimony rules, with the contradiction beat).
+ *    by the usual testimony rules, with the contradiction beat);
+ *  - the detective may hold up one discovered clue or revealed testimony to A
+ *    in the same exchange (the ordinary present rules; it still counts as one).
  */
 import type { LoadedCase } from "@/engine/case-schema";
 import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TURNS, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
 import { clampStress } from "@/engine/stress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
-import { publicTestimonies } from "@/engine/testimony";
+import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { ConfrontRequestSchema, type ConfrontLine, type ConfrontResponseBody } from "./confront-schema";
 import { performTurn } from "./perform-turn";
 import { buildUserMessage } from "./prompts/interrogation";
@@ -31,6 +33,9 @@ export interface ConfrontDeps {
 export const CONFRONT_LINES = {
   pair_finished: "The two of them fold their arms and turn their backs on each other. They have said all they are going to say to each other tonight.",
   same_character: "You can't very well sit someone down opposite themselves, detective.",
+  present_one_item: "One thing at a time, detective: a clue or a testimony, not both.",
+  evidence_not_discovered: "You pat your pockets. You haven't found that yet, detective.",
+  testimony_not_revealed: "Nobody has admitted any such thing, detective.",
   unknown_character: "You glance around the hall. There's nobody here by that name.",
 } as const;
 
@@ -38,7 +43,7 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
   const { caseData, env, legacyCaseId } = deps;
   const parsed = ConfrontRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: { lines: [], error: "invalid_request" } };
-  const { caseId, characterIds, question, stateToken } = parsed.data;
+  const { caseId, characterIds, question, stateToken, presentedEvidenceId, presentedTestimonyId } = parsed.data;
   if (caseId !== undefined && caseId !== caseData.id) return { status: 404, body: { lines: [], error: "unknown_case" } };
   const [aId, bId] = characterIds;
 
@@ -50,6 +55,16 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
   if (!a || !b || !game.characters[aId] || !game.characters[bId]) {
     return { status: 404, body: base({ lines: [], line: CONFRONT_LINES.unknown_character, error: "unknown_character" }) };
   }
+  // Presenting in a confrontation: the same checks as in an interrogation, before anything is spent.
+  const presentError =
+    presentedEvidenceId && presentedTestimonyId
+      ? "present_one_item"
+      : presentedEvidenceId && !game.discoveredEvidenceIds.includes(presentedEvidenceId)
+        ? "evidence_not_discovered"
+        : presentedTestimonyId && !revealedSecretIds(game).includes(presentedTestimonyId)
+          ? "testimony_not_revealed"
+          : null;
+  if (presentError) return { status: 400, body: base({ lines: [], line: CONFRONT_LINES[presentError], error: presentError, stateToken: saveSession(game, env) }) };
   const gate = openConfrontation(game, aId, bId);
   if (!gate.ok) return { status: gate.reason === "pair_finished" ? 409 : 400, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
 
@@ -66,6 +81,7 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
     game,
     characterId: aId,
     question,
+    move: { ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) },
     confrontation: { partnerName: b.name, role: "addressed", ...(thrownCard ? { throwTestimony: { summary: thrownCard.summary } } : {}) },
     memoryText: `(Face to face with ${b.name}) ${question}`,
     env,
