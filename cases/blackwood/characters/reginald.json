@@ -1,0 +1,221 @@
+{
+  "id": "reginald",
+  "name": "Reginald",
+  "role": "The Butler",
+  "bio": "Butler to the Blackwoods for twenty years, starched from collar to soul. Knows where every spoon is, and most of the secrets.",
+  "personality": {
+    "traits": [
+      "formal",
+      "observant",
+      "anxious",
+      "proper",
+      "secretive"
+    ],
+    "speechStyle": "Stiff, precise butler-speak, always 'sir' and 'madam'. Falls back on elaborate politeness when cornered.",
+    "catchphrases": [
+      "If I may be so bold...",
+      "It is not my place to say, sir."
+    ],
+    "quirks": [
+      "polishes things that are already clean",
+      "checks his pocket watch constantly"
+    ],
+    "tells": [
+      "his left eyebrow twitches",
+      "starts polishing furiously",
+      "over-explains the pantry"
+    ],
+    "confidence": 0.45,
+    "nervousness": 0.7,
+    "arrogance": 0.35,
+    "honesty": 0.35,
+    "impulsiveness": 0.15,
+    "empathy": 0.55,
+    "aggression": 0.1
+  },
+  "goals": [
+    "Keep his theft from the household accounts hidden",
+    "Keep his position under the new mistress",
+    "See Mr Crane hanged for it, as he believes"
+  ],
+  "knownFactIds": [
+    "loc-reginald-2030",
+    "loc-reginald-2040",
+    "loc-reginald-2045",
+    "loc-reginald-2050",
+    "loc-reginald-2054",
+    "loc-reginald-2057",
+    "loc-reginald-2058",
+    "loc-reginald-2100",
+    "loc-reginald-2110",
+    "loc-reginald-2111",
+    "loc-reginald-2112",
+    "loc-reginald-2113",
+    "loc-reginald-2114",
+    "loc-reginald-2115",
+    "loc-reginald-2116",
+    "loc-reginald-2117",
+    "loc-reginald-2118",
+    "loc-reginald-2119",
+    "loc-reginald-2120",
+    "loc-reginald-2121",
+    "loc-reginald-2122",
+    "loc-reginald-2130",
+    "loc-reginald-2131",
+    "loc-reginald-2132",
+    "loc-reginald-2135",
+    "loc-reginald-2136",
+    "loc-reginald-2140",
+    "loc-reginald-2145",
+    "f-lord-key-habit",
+    "f-library-single-key",
+    "f-library-windows-bolted",
+    "f-weapon-origin",
+    "f-reginald-theft",
+    "f-archibald-embezzlement",
+    "f-gregory-dismissed",
+    "ev-dinner-ends",
+    "ev-archibald-threat",
+    "ev-reginald-overhears",
+    "ev-victoria-passes-reginald",
+    "ev-reginald-serves-coffee",
+    "ev-blackout",
+    "ev-candlesticks-lit",
+    "ev-candlestick-delivered",
+    "ev-lord-relocks",
+    "ev-reginald-hears-phone",
+    "ev-pantry-exchange",
+    "ev-reginald-scream",
+    "ev-door-forced",
+    "ev-body-discovered",
+    "ev-gregory-arrives",
+    "ev-lights-restored",
+    "ev-household-waits"
+  ],
+  "beliefs": [
+    {
+      "id": "b-reginald-crane-did-it",
+      "statement": "Mr Crane did it. He threatened his lordship at dinner and went creeping about in the dark.",
+      "aboutFactId": "ev-murder",
+      "isAccurate": false,
+      "confidence": 0.65
+    },
+    {
+      "id": "b-reginald-lady-stayed",
+      "statement": "Her ladyship stayed in the dining room all through the blackout.",
+      "aboutFactId": "ev-victoria-alone",
+      "isAccurate": false,
+      "confidence": 0.6
+    },
+    {
+      "id": "b-reginald-will",
+      "statement": "His lordship meant to change his will against her ladyship.",
+      "aboutFactId": "f-new-will",
+      "isAccurate": true,
+      "confidence": 0.5
+    }
+  ],
+  "secrets": [
+    {
+      "id": "s-reginald-theft",
+      "description": "He has skimmed hundreds of pounds from the household accounts and spent the blackout counting it in his pantry.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "burned-letter"
+        ],
+        "mode": "any"
+      },
+      "relatedFactIds": [
+        "f-reginald-theft",
+        "f-letter-accuses-butler",
+        "ev-reginald-hears-phone",
+        "ev-pantry-exchange"
+      ]
+    },
+    {
+      "id": "s-reginald-overheard",
+      "description": "He eavesdropped on part of her ladyship's argument with his lordship about the new will.",
+      "severity": "embarrassing",
+      "revealConditions": {
+        "evidenceIds": [
+          "burned-letter"
+        ],
+        "mode": "any",
+        "afterSecretIds": [
+          "s-reginald-theft"
+        ]
+      },
+      "relatedFactIds": [
+        "ev-reginald-overhears"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "targetCharacterId": "lord-blackwood",
+      "trust": 35,
+      "fear": 65,
+      "affection": 30,
+      "resentment": 50,
+      "suspicion": 40,
+      "kind": "employer",
+      "description": "Twenty years of service to a hard, suspicious master. Duty without affection."
+    },
+    {
+      "targetCharacterId": "victoria",
+      "trust": 45,
+      "fear": 50,
+      "affection": 20,
+      "resentment": 25,
+      "suspicion": 30,
+      "kind": "mistress of the house",
+      "description": "Wary deference. She now holds his job in her hands."
+    },
+    {
+      "targetCharacterId": "archibald",
+      "trust": 10,
+      "fear": 35,
+      "affection": 5,
+      "resentment": 60,
+      "suspicion": 85,
+      "kind": "house guest",
+      "description": "Despises the vulgar, bullying partner and heard him threaten his lordship."
+    },
+    {
+      "targetCharacterId": "gregory",
+      "trust": 65,
+      "fear": 5,
+      "affection": 55,
+      "resentment": 5,
+      "suspicion": 20,
+      "kind": "fellow servant",
+      "description": "Mild, fatherly fondness for the nervous gardener."
+    }
+  ],
+  "intendedLies": [
+    {
+      "id": "l-reginald-heard-nothing",
+      "topic": "the blackout below stairs",
+      "aboutFactId": "ev-reginald-hears-phone",
+      "claim": "I was in the kitchen polishing silver, sir, and heard nothing at all.",
+      "brokenByEvidenceIds": [
+        "burned-letter"
+      ]
+    },
+    {
+      "id": "l-reginald-few-words",
+      "topic": "her ladyship's argument with his lordship",
+      "aboutFactId": "ev-reginald-overhears",
+      "claim": "Her ladyship and his lordship had a few words, sir. Nothing out of the ordinary.",
+      "brokenByEvidenceIds": [
+        "burned-letter"
+      ]
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "nervous",
+    "intensity": 0.6,
+    "composure": 0.6
+  }
+}

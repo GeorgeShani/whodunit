@@ -1,0 +1,172 @@
+{
+  "id": "blackwood",
+  "title": "Murder at Blackwood Manor",
+  "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
+  "intro": "Thunder rattles the windows of Blackwood Manor. The lights have gone out, the road has flooded, and nobody is going anywhere tonight.\n\nSomewhere between the port and the coffee, Lord Blackwood was found dead in his own locked library, and the key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+  "victim": {
+    "id": "lord-blackwood",
+    "name": "Lord Blackwood",
+    "description": "Master of Blackwood Manor: rich, sharp-tongued and famously hard to please. Everyone in the house owed him something, and he never let them forget it.",
+    "foundAtLocationId": "library",
+    "foundAt": "21:32",
+    "causeOfDeath": "A single heavy blow to the head. His monocle is still in shock."
+  },
+  "locations": [
+    {
+      "id": "library",
+      "name": "The Library",
+      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire."
+    },
+    {
+      "id": "dining-room",
+      "name": "The Dining Room",
+      "description": "Long table, a pair of silver candlesticks, a roaring hearth with a brass coal scuttle beside it."
+    },
+    {
+      "id": "hall",
+      "name": "The Hall",
+      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it, six paces from the library door."
+    },
+    {
+      "id": "garden",
+      "name": "The Garden",
+      "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters."
+    },
+    {
+      "id": "kitchen",
+      "name": "Kitchen & Servants' Quarters",
+      "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage."
+    }
+  ],
+  "facts": [
+    {
+      "id": "f-library-single-key",
+      "statement": "The library door has a single key and there is no spare.",
+      "category": "object",
+      "locationId": "library",
+      "involvesCharacterIds": [
+        "lord-blackwood"
+      ]
+    },
+    {
+      "id": "f-lord-key-habit",
+      "statement": "Lord Blackwood always locked himself in the library when he worked, leaving the key in the lock on the inside, and unlocked it only to admit someone.",
+      "category": "background",
+      "locationId": "library",
+      "involvesCharacterIds": [
+        "lord-blackwood"
+      ]
+    },
+    {
+      "id": "f-library-windows-bolted",
+      "statement": "Throughout the storm the library windows were shuttered and bolted from inside, so the hall door was the only way in or out.",
+      "category": "location",
+      "locationId": "library",
+      "involvesCharacterIds": []
+    },
+    {
+      "id": "f-weapon-origin",
+      "statement": "The silver candlestick found in the library is one of a matching pair that belongs on the dining table.",
+      "category": "object",
+      "locationId": "dining-room",
+      "involvesCharacterIds": []
+    },
+    {
+      "id": "f-candle-burn",
+      "statement": "The fresh candle Reginald fitted into the silver candlestick at 21:12 burned for only about five minutes before it fell over and went out.",
+      "category": "object",
+      "locationId": "library",
+      "involvesCharacterIds": []
+    },
+    {
+      "id": "f-new-will",
+      "statement": "Lord Blackwood had his solicitor draw up a new will that cut Victoria down to two hundred pounds a year. He was to sign it at ten o'clock the next morning.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "lord-blackwood",
+        "victoria"
+      ]
+    },
+    {
+      "id": "f-inheritance-motive",
+      "statement": "Under the existing will Victoria inherits nearly everything, so Lord Blackwood's death before the new will was signed would leave her the fortune.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "victoria"
+      ]
+    },
+    {
+      "id": "f-letter-accuses-butler",
+      "statement": "The solicitor's letter also says the household accounts point to the butler and advises an audit.",
+      "category": "object",
+      "involvesCharacterIds": [
+        "reginald",
+        "lord-blackwood"
+      ]
+    },
+    {
+      "id": "f-archibald-embezzlement",
+      "statement": "Archibald Crane had been embezzling money from his and Lord Blackwood's company, and Lord Blackwood had found out.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "archibald",
+        "lord-blackwood"
+      ]
+    },
+    {
+      "id": "f-reginald-theft",
+      "statement": "Reginald has been skimming money from the household accounts for years and keeps the cash hidden in his pantry.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "reginald"
+      ]
+    },
+    {
+      "id": "f-gregory-dismissed",
+      "statement": "Lord Blackwood dismissed Gregory that morning for drinking on duty.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "gregory",
+        "lord-blackwood"
+      ]
+    },
+    {
+      "id": "f-footprint-gregory",
+      "statement": "The muddy hobnail boot print in the hall alcove by the garden door was made by Gregory's boots.",
+      "category": "object",
+      "locationId": "hall",
+      "involvesCharacterIds": [
+        "gregory"
+      ]
+    },
+    {
+      "id": "f-no-mud-beyond-alcove",
+      "statement": "No mud was tracked beyond the garden-door alcove; the rest of the hall and the library carpet are free of mud.",
+      "category": "object",
+      "locationId": "hall",
+      "involvesCharacterIds": []
+    }
+  ],
+  "motives": [
+    {
+      "id": "inheritance",
+      "label": "Inheritance",
+      "description": "Someone stood to gain from Lord Blackwood's fortune, but only if he died at the right moment."
+    },
+    {
+      "id": "business-ruin",
+      "label": "Business ruin",
+      "description": "Someone faced disgrace, or prison, if Lord Blackwood talked."
+    },
+    {
+      "id": "stolen-money",
+      "label": "Stolen money",
+      "description": "Someone had been quietly helping themselves, and his lordship was getting close."
+    },
+    {
+      "id": "revenge",
+      "label": "Revenge",
+      "description": "Someone had a score to settle with his lordship."
+    }
+  ]
+}

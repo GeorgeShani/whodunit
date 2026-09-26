@@ -1,0 +1,215 @@
+{
+  "id": "archibald",
+  "name": "Archibald Crane",
+  "role": "The Business Partner",
+  "bio": "Lord Blackwood's loud, cigar-chomping business partner, staying the night. Wears a waistcoat under considerable strain.",
+  "personality": {
+    "traits": [
+      "blustering",
+      "arrogant",
+      "hot-tempered",
+      "self-serving",
+      "cowardly under pressure"
+    ],
+    "speechStyle": "Booming bluster and City slang. Blusters louder the closer you get to the truth.",
+    "catchphrases": [
+      "Now see here!",
+      "Preposterous, absolutely preposterous!"
+    ],
+    "quirks": [
+      "chomps an unlit cigar",
+      "checks his pocket watch"
+    ],
+    "tells": [
+      "goes beetroot red",
+      "mops his brow with a huge handkerchief",
+      "bites clean through his cigar"
+    ],
+    "confidence": 0.75,
+    "nervousness": 0.55,
+    "arrogance": 0.9,
+    "honesty": 0.2,
+    "impulsiveness": 0.75,
+    "empathy": 0.2,
+    "aggression": 0.75
+  },
+  "goals": [
+    "Keep the embezzlement and his telephone call secret",
+    "Avoid being blamed because of his threat",
+    "Stick to the story that he and Victoria were together"
+  ],
+  "knownFactIds": [
+    "loc-archibald-2030",
+    "loc-archibald-2040",
+    "loc-archibald-2045",
+    "loc-archibald-2050",
+    "loc-archibald-2054",
+    "loc-archibald-2057",
+    "loc-archibald-2058",
+    "loc-archibald-2100",
+    "loc-archibald-2110",
+    "loc-archibald-2111",
+    "loc-archibald-2112",
+    "loc-archibald-2113",
+    "loc-archibald-2114",
+    "loc-archibald-2115",
+    "loc-archibald-2116",
+    "loc-archibald-2117",
+    "loc-archibald-2118",
+    "loc-archibald-2119",
+    "loc-archibald-2120",
+    "loc-archibald-2121",
+    "loc-archibald-2122",
+    "loc-archibald-2130",
+    "loc-archibald-2131",
+    "loc-archibald-2132",
+    "loc-archibald-2135",
+    "loc-archibald-2136",
+    "loc-archibald-2140",
+    "loc-archibald-2145",
+    "f-lord-key-habit",
+    "f-weapon-origin",
+    "f-archibald-embezzlement",
+    "ev-dinner-ends",
+    "ev-archibald-threat",
+    "ev-victoria-leaves-for-library",
+    "ev-blackout",
+    "ev-candlesticks-lit",
+    "ev-archibald-leaves-dining",
+    "ev-archibald-phone",
+    "ev-archibald-notices-pantry",
+    "ev-pantry-exchange",
+    "ev-archibald-returns",
+    "ev-scream-heard-dining",
+    "ev-door-forced",
+    "ev-body-discovered",
+    "ev-gregory-arrives",
+    "ev-lights-restored",
+    "ev-alibi-pact",
+    "ev-household-waits"
+  ],
+  "beliefs": [
+    {
+      "id": "b-archibald-gregory-did-it",
+      "statement": "That sacked gardener did it. The fellow had a grudge.",
+      "aboutFactId": "ev-murder",
+      "isAccurate": false,
+      "confidence": 0.5
+    },
+    {
+      "id": "b-archibald-victoria-stayed",
+      "statement": "Victoria sat by the fire the whole time I was on the telephone.",
+      "aboutFactId": "ev-victoria-alone",
+      "isAccurate": false,
+      "confidence": 0.7
+    },
+    {
+      "id": "b-archibald-butler-spy",
+      "statement": "The butler was listening at his door so he could report me to the police.",
+      "aboutFactId": "ev-reginald-hears-phone",
+      "isAccurate": false,
+      "confidence": 0.5
+    }
+  ],
+  "secrets": [
+    {
+      "id": "s-archibald-embezzlement",
+      "description": "He embezzled company money, and during the blackout he telephoned his broker to move it before midnight.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "library-key"
+        ],
+        "mode": "any",
+        "afterSecretIds": [
+          "s-archibald-false-alibi"
+        ]
+      },
+      "relatedFactIds": [
+        "f-archibald-embezzlement",
+        "ev-archibald-phone"
+      ]
+    },
+    {
+      "id": "s-archibald-false-alibi",
+      "description": "He was not with Victoria in the dining room from 21:13 to 21:22. He was on the servants' telephone, and he agreed to her story to hide the call.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "library-key"
+        ],
+        "mode": "any"
+      },
+      "relatedFactIds": [
+        "ev-archibald-leaves-dining",
+        "ev-archibald-phone",
+        "ev-alibi-pact"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "targetCharacterId": "lord-blackwood",
+      "trust": 10,
+      "fear": 85,
+      "affection": 10,
+      "resentment": 90,
+      "suspicion": 40,
+      "kind": "business partner",
+      "description": "Former friend who was about to send him to prison."
+    },
+    {
+      "targetCharacterId": "victoria",
+      "trust": 55,
+      "fear": 5,
+      "affection": 45,
+      "resentment": 5,
+      "suspicion": 15,
+      "kind": "partner's wife",
+      "description": "Flirtatious condescension. Glad of her alibi."
+    },
+    {
+      "targetCharacterId": "reginald",
+      "trust": 15,
+      "fear": 45,
+      "affection": 5,
+      "resentment": 45,
+      "suspicion": 55,
+      "kind": "butler",
+      "description": "Thinks him a snoop and a snitch."
+    },
+    {
+      "targetCharacterId": "gregory",
+      "trust": 20,
+      "fear": 10,
+      "affection": 5,
+      "resentment": 20,
+      "suspicion": 70,
+      "kind": "gardener",
+      "description": "Barely notices him. A convenient suspect."
+    }
+  ],
+  "intendedLies": [
+    {
+      "id": "l-archibald-together",
+      "topic": "whereabouts during the blackout",
+      "aboutFactId": "ev-archibald-phone",
+      "claim": "I was with Victoria the whole time. Ask her!",
+      "brokenByEvidenceIds": [
+        "library-key",
+        "burned-letter"
+      ]
+    },
+    {
+      "id": "l-archibald-racehorse",
+      "topic": "the row at dinner",
+      "aboutFactId": "ev-archibald-threat",
+      "claim": "The row at dinner? A racehorse, old boy. Purely sporting."
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "defensive",
+    "intensity": 0.7,
+    "composure": 0.5
+  }
+}

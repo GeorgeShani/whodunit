@@ -1,0 +1,202 @@
+{
+  "id": "gregory",
+  "name": "Gregory",
+  "role": "The Gardener",
+  "bio": "The Blackwoods' gardener, sacked that very morning. Soaked, shaking, and not keen on talking.",
+  "personality": {
+    "traits": [
+      "timid",
+      "superstitious",
+      "honest at heart",
+      "jumpy",
+      "mumbling"
+    ],
+    "speechStyle": "Mumbled country speech, trailing off mid-sentence. Hides behind his cap.",
+    "catchphrases": [
+      "I didn't see nothin', sir.",
+      "Beggin' your pardon..."
+    ],
+    "quirks": [
+      "wrings his cap",
+      "jumps at thunder"
+    ],
+    "tells": [
+      "looks at his boots",
+      "glances towards Lady Victoria",
+      "stammers on the word 'library'"
+    ],
+    "confidence": 0.15,
+    "nervousness": 0.9,
+    "arrogance": 0.05,
+    "honesty": 0.7,
+    "impulsiveness": 0.45,
+    "empathy": 0.6,
+    "aggression": 0.1
+  },
+  "goals": [
+    "Not be blamed for the murder",
+    "Stay out of Lady Victoria's way",
+    "Keep quiet about what he saw unless it's safe to speak"
+  ],
+  "knownFactIds": [
+    "loc-gregory-2030",
+    "loc-gregory-2040",
+    "loc-gregory-2045",
+    "loc-gregory-2050",
+    "loc-gregory-2054",
+    "loc-gregory-2057",
+    "loc-gregory-2058",
+    "loc-gregory-2100",
+    "loc-gregory-2110",
+    "loc-gregory-2111",
+    "loc-gregory-2112",
+    "loc-gregory-2113",
+    "loc-gregory-2114",
+    "loc-gregory-2115",
+    "loc-gregory-2116",
+    "loc-gregory-2117",
+    "loc-gregory-2118",
+    "loc-gregory-2119",
+    "loc-gregory-2120",
+    "loc-gregory-2121",
+    "loc-gregory-2122",
+    "loc-gregory-2130",
+    "loc-gregory-2131",
+    "loc-gregory-2132",
+    "loc-gregory-2135",
+    "loc-gregory-2136",
+    "loc-gregory-2140",
+    "loc-gregory-2145",
+    "f-gregory-dismissed",
+    "f-footprint-gregory",
+    "f-no-mud-beyond-alcove",
+    "f-lord-key-habit",
+    "ev-blackout",
+    "ev-gregory-enters-hall",
+    "ev-gregory-hears-thud",
+    "ev-victoria-locks-door",
+    "ev-gregory-sees-victoria",
+    "ev-shouting-heard-garden",
+    "ev-gregory-arrives",
+    "ev-lights-restored",
+    "ev-household-waits"
+  ],
+  "beliefs": [
+    {
+      "id": "b-gregory-it-was-her",
+      "statement": "It was her ladyship I saw come out of that library and lock it.",
+      "aboutFactId": "ev-victoria-locks-door",
+      "isAccurate": true,
+      "confidence": 0.85
+    },
+    {
+      "id": "b-gregory-will-hang",
+      "statement": "They'll hang it on me: the sacked man with the muddy boots.",
+      "aboutFactId": "f-footprint-gregory",
+      "isAccurate": false,
+      "confidence": 0.8
+    }
+  ],
+  "secrets": [
+    {
+      "id": "s-gregory-in-hall",
+      "description": "During the blackout he was in the hall alcove by the garden door, six paces from the library door, and heard the thud.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "muddy-footprint"
+        ],
+        "mode": "any"
+      },
+      "relatedFactIds": [
+        "ev-gregory-enters-hall",
+        "ev-gregory-hears-thud"
+      ]
+    },
+    {
+      "id": "s-gregory-saw-victoria",
+      "description": "He saw Lady Victoria leave the library at the lightning flash, lock the door and pocket the key.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "library-key"
+        ],
+        "mode": "any",
+        "afterSecretIds": [
+          "s-gregory-in-hall"
+        ]
+      },
+      "relatedFactIds": [
+        "ev-gregory-sees-victoria",
+        "ev-victoria-locks-door"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "targetCharacterId": "lord-blackwood",
+      "trust": 30,
+      "fear": 60,
+      "affection": 30,
+      "resentment": 55,
+      "suspicion": 10,
+      "kind": "former employer",
+      "description": "Sacked him this morning. Hurt and resentful, but no hatred."
+    },
+    {
+      "targetCharacterId": "victoria",
+      "trust": 5,
+      "fear": 95,
+      "affection": 5,
+      "resentment": 40,
+      "suspicion": 90,
+      "kind": "mistress of the house",
+      "description": "Terrified of her, even more so now."
+    },
+    {
+      "targetCharacterId": "archibald",
+      "trust": 25,
+      "fear": 45,
+      "affection": 10,
+      "resentment": 15,
+      "suspicion": 20,
+      "kind": "house guest",
+      "description": "Nervous of the loud gentleman."
+    },
+    {
+      "targetCharacterId": "reginald",
+      "trust": 70,
+      "fear": 20,
+      "affection": 60,
+      "resentment": 5,
+      "suspicion": 10,
+      "kind": "fellow servant",
+      "description": "Trusts him more than anyone else in the house."
+    }
+  ],
+  "intendedLies": [
+    {
+      "id": "l-gregory-shed",
+      "topic": "whereabouts during the blackout",
+      "aboutFactId": "ev-gregory-enters-hall",
+      "claim": "I was in the potting shed all night, sir. Only came in when I heard the shouting.",
+      "brokenByEvidenceIds": [
+        "muddy-footprint"
+      ]
+    },
+    {
+      "id": "l-gregory-saw-nothing",
+      "topic": "who came out of the library",
+      "aboutFactId": "ev-gregory-sees-victoria",
+      "claim": "I didn't see nothin' in the dark, sir.",
+      "brokenByEvidenceIds": [
+        "library-key"
+      ]
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "scared",
+    "intensity": 0.9,
+    "composure": 0.2
+  }
+}
