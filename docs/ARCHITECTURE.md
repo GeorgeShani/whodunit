@@ -77,5 +77,5 @@ One exchange (`ai/interrogate-handler.ts`):
 - `app/layout.tsx` uses the metadata API: title template `%s | WHODUNIT?!`, description, `metadataBase` (`https://whodunit-nu.vercel.app`), Open Graph and `summary_large_image` Twitter cards, plus a `viewport` export (`themeColor` `#1b1035`). Shared values live in `lib/site.ts`.
 - Metadata is case-agnostic: no suspect names, clues or solution details.
 - `app/robots.ts`, `app/sitemap.ts` (root URL only) and `app/manifest.ts` generate `/robots.txt`, `/sitemap.xml` and `/manifest.webmanifest`.
-- `app/opengraph-image.tsx` / `app/twitter-image.tsx` are a TEMPORARY generated image (next/og). TODO: replace with Toon's OG art as `app/opengraph-image.png` and `app/twitter-image.png`.
+- Share images and icons are static files using the app/ file conventions: `app/opengraph-image.jpg` (1200×630), `app/twitter-image.jpg` (1200×600), each with an `.alt.txt`, plus `app/favicon.ico` (16/32/48), `app/icon.png` (512) and `app/apple-icon.png` (180). Manifest-only icons live in `assets/icons/`. Art notes are in `docs/art/share/README.md`. Don't declare `icons`/`images` in `lib/metadata.ts`, because the files already generate those tags.
 - Headings: each screen renders one `h1` (title screen: "WHODUNIT?!"; then the case title, "PICK A SUSPECT!", or the suspect's name).
