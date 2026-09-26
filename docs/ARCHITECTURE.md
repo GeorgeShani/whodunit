@@ -105,3 +105,11 @@ One exchange (`ai/interrogate-handler.ts`):
 - **Routing:** `/` renders `DEFAULT_CASE_ID` (`lib/cases.ts`) directly; `/case/<id>` renders any public case, with the default case's canonical URL pointing at `/`. The sitemap lists `/` plus `/case/<id>` for every other public case.
 - **Token and case:** the signed token carries `caseId`. `lib/request-case.ts` picks the case for an API call: the body's `caseId` (the page's case; it must be allowlisted, else 404), else the verified token's `caseId`, else the default. The handler then decodes the token against that case, and a token for another case resets in character. Legacy tokens without `caseId` count as the default case.
 - **Art:** `lib/case-art.ts` resolves `backdrops` and `locations[].background` with fallbacks (see CASE_FORMAT.md). Sprites resolve by character id. `tests/engine/case-agnostic.test.ts` greps `engine/` and `ai/` for any shipped case's ids and names.
+
+## Character memory and stress relief (MASTER_PLAN §18, §20)
+
+`engine/memory.ts`, all deterministic, stored per character in the signed token:
+
+- **liesTold**: an intended lie is recorded as told when, on a *performed* turn, the prompt ordered MAINTAIN THIS STORY for it and the detective's words touched its topic. Topic words count 2 (1 if shared by several of the owner's lie topics), claim words count 1; the lie is touched at a score of 2 or more. Names never count. The model is never asked whether it lied. The prompt marks told stories ("repeat it the same way") and distinguishes exposed stories the character told from ones never told ("do not start telling it now").
+- **playerClaims**: the detective's declarative sentences to the character being addressed (never from present-evidence turns or for an overhearing confrontation partner). They are sanitised, capped at 160 characters and kept to the last 6. The prompt shows the last 4 inside `<detective_says>` delimiters under "unverified assertions, NOT facts".
+- **Stress relief** (subtracted, clamped at 0): 5 when a clue shown for the first time bears on someone else and on nothing of this character's (suspicion moves elsewhere); 4 when the detective accepts the explanation (phrase match; any negation, "but" or "?" cancels it); 2 per confrontation exchange for every suspect not in the pair.

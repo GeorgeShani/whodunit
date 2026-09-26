@@ -13,6 +13,7 @@
  *    move stress/trust by more than the clamp.
  */
 import type { LoadedCase } from "./case-schema";
+import { acceptsExplanation, extractClaims, mergeClaims, questionTouchesLie, RELIEF } from "./memory";
 import { secretsToReveal } from "./secrets";
 import { BREAKDOWN_STRESS, escalateEmotion, POST_BREAKDOWN_STRESS } from "./stress";
 import { brokenLieIds, liesTouchedByTestimony, secretIndex } from "./testimony";
@@ -64,12 +65,23 @@ export interface TurnPlan {
   retiredLieIds: string[];
   /** Stress is at breakdown level and this character hasn't broken down yet: the performance is the breakdown. */
   breakdown: boolean;
+  /** Lies the prompt tells the character to MAINTAIN whose topic the detective touched: recorded as told if performed. */
+  toldLieIds: string[];
+  /** The detective's assertions this turn (addressed character only, typed lines only). */
+  claims: string[];
+  /** Engine stress relief applied this turn (>= 0), and why. */
+  relief: number;
+  reliefReason?: "suspicion_elsewhere" | "explanation_accepted";
 }
 
 /** The player's move this turn: at most one of evidence / testimony. */
 export interface PresentMove {
   presentedEvidenceId?: string;
   presentedTestimonyId?: string;
+  /** What the detective said this turn (topic matching for liesTold, claims, acceptance). */
+  playerText?: string;
+  /** false for a confrontation partner who only overheard the line: no claims or acceptance relief for them. */
+  addressed?: boolean;
 }
 
 /**
@@ -84,7 +96,8 @@ export function planTurn(
   characterId: string,
   move?: string | PresentMove,
 ): TurnPlan {
-  const { presentedEvidenceId, presentedTestimonyId } = typeof move === "string" ? { presentedEvidenceId: move } : (move ?? {});
+  const { presentedEvidenceId, presentedTestimonyId, playerText = "", addressed = true }: PresentMove =
+    typeof move === "string" ? { presentedEvidenceId: move } : (move ?? {});
   const ch = caseData.characters.find((c) => c.id === characterId);
   const rt = game.characters[characterId];
   if (!ch || !rt) throw new Error(`planTurn: unknown character "${characterId}"`);
@@ -92,6 +105,8 @@ export function planTurn(
 
   const before = brokenLieIds(caseData, ch, rt);
   let engineStressDelta = 0;
+  let relief = 0;
+  let reliefReason: TurnPlan["reliefReason"];
 
   if (presentedEvidenceId) {
     if (rt.evidenceShownIds.includes(presentedEvidenceId)) {
@@ -107,6 +122,11 @@ export function planTurn(
         (pressures ? STRESS_RULES.secretEvidence : 0) +
         (related && !breaks && !pressures ? STRESS_RULES.relatedEvidence : 0);
       engineStressDelta = Math.min(engineStressDelta, STRESS_RULES.maxPerPresentation);
+      // §18 "suspicion moves elsewhere": the clue bears on someone else and on nothing of theirs.
+      if (!engineStressDelta && ev && ev.relatedCharacters.some((id) => id !== characterId && caseData.characters.some((c) => c.id === id))) {
+        relief = RELIEF.suspicionElsewhere;
+        reliefReason = "suspicion_elsewhere";
+      }
     }
     rt.stress = clamp(rt.stress + engineStressDelta, 0, 100);
   }
@@ -126,6 +146,14 @@ export function planTurn(
     rt.stress = clamp(rt.stress + engineStressDelta, 0, 100);
   }
 
+  // §18 "player accepts their explanation" (typed line to this character, no clue or testimony on the table).
+  if (!relief && addressed && !presentedEvidenceId && !presentedTestimonyId && acceptsExplanation(playerText)) {
+    relief = RELIEF.explanationAccepted;
+    reliefReason = "explanation_accepted";
+  }
+  relief = Math.min(relief, rt.stress);
+  rt.stress = clamp(rt.stress - relief, 0, 100);
+
   const brokenByMove = brokenLieIds(caseData, ch, rt);
   // At most ONE new reveal per exchange (authored order, prerequisites respected): no cascades, no loops.
   // A breakdown never unlocks anything by itself: reveals follow the authored conditions only.
@@ -136,6 +164,11 @@ export function planTurn(
     : [];
   const exposedLieIds = [...brokenByMove, ...retiredLieIds];
   const breakdown = rt.stress >= BREAKDOWN_STRESS && !rt.brokeDown;
+  // Told = the prompt orders MAINTAIN (not exposed / retired) and the detective's words touch the topic.
+  const toldLieIds = playerText
+    ? ch.intendedLies.filter((l) => !exposedLieIds.includes(l.id) && !rt.liesToldIds.includes(l.id) && questionTouchesLie(caseData, ch, l, playerText)).map((l) => l.id)
+    : [];
+  const claims = addressed && !presentedEvidenceId && !presentedTestimonyId ? extractClaims(playerText) : [];
 
   return {
     characterId,
@@ -147,6 +180,10 @@ export function planTurn(
     newlyExposedLieIds: brokenByMove.filter((id) => !before.includes(id)),
     retiredLieIds,
     breakdown,
+    toldLieIds,
+    claims,
+    relief,
+    ...(reliefReason ? { reliefReason } : {}),
   };
 }
 
@@ -180,6 +217,11 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
   if (revealed && !game.revealedSecretIds.includes(plan.revealSecretId as string)) {
     game.revealedSecretIds.push(plan.revealSecretId as string);
   }
+
+  // Stories told: only when a validated reply performed the turn the prompt ordered.
+  if (out.performed) for (const id of plan.toldLieIds) if (!rt.liesToldIds.includes(id)) rt.liesToldIds.push(id);
+  // The detective said it either way (untrusted; see engine/memory.ts).
+  if (plan.claims.length) rt.playerClaims = mergeClaims(rt.playerClaims, plan.claims, game.turn);
 
   const stressDelta = out.performed ? clampDelta(out.stressDelta) : 0;
   const trustDelta = out.performed ? clampDelta(out.trustDelta) : 0;

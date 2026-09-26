@@ -89,13 +89,13 @@ describe("buildCharacterContext", () => {
     expect(json).not.toContain("ALPHA_SECRET");
     expect(ctx.secrets).toEqual([]);
     expect(Object.keys(ctx).sort()).toEqual([
-      "beliefs", "case", "emotion", "evidenceShown", "goals", "intendedLies", "knowledge", "memory", "persona",
+      "beliefs", "case", "emotion", "evidenceShown", "goals", "intendedLies", "knowledge", "memory", "persona", "playerClaims",
       "relationships", "secrets", "state", "statements", "testimonyShown",
     ]);
     expect(ctx.relationships[0]).toMatchObject({ targetCharacterId: "victim-v", name: "Victor Fixture" });
     expect(ctx.relationships[0]).toHaveProperty("resentment");
     // Own lie: claim + status only, no fact/evidence links.
-    expect(ctx.intendedLies).toEqual([{ id: "alpha-lie", claim: "ALPHA_LIE: I never left the hall all evening.", status: "maintain" }]);
+    expect(ctx.intendedLies).toEqual([{ id: "alpha-lie", claim: "ALPHA_LIE: I never left the hall all evening.", status: "maintain", told: false }]);
   });
 
   it("gives the murderer their guilty knowledge only once the engine has revealed the secret", () => {
@@ -145,7 +145,7 @@ describe("buildCharacterContext", () => {
     expect(ctx.case.otherCharacters.map((o) => o.id)).toEqual(["alpha", "charlie"]);
     expect(ctx.knowledge.find((k) => k.id === "bravo-in-garden")).toMatchObject({ from: "20:30", to: "21:30", source: "witnessed", confidence: 0.9 });
     expect(ctx.persona.personality.honesty).toBeTypeOf("number");
-    expect(ctx.intendedLies).toEqual([{ id: "bravo-lie", topic: "money", claim: "BRAVO_LIE: I have never gambled in my life.", status: "maintain" }]);
+    expect(ctx.intendedLies).toEqual([{ id: "bravo-lie", topic: "money", claim: "BRAVO_LIE: I have never gambled in my life.", status: "maintain", told: false }]);
     expect(ctx.state).toEqual({ stress: 0, trust: 50, band: "calm", brokeDown: false });
   });
 

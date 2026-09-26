@@ -50,7 +50,7 @@ export interface TurnOutput {
 export async function performTurn(t: TurnInput): Promise<TurnOutput> {
   const { caseData, game, characterId, question, move = {}, env } = t;
   const { presentedEvidenceId, presentedTestimonyId } = move;
-  const plan = planTurn(caseData, game, characterId, move);
+  const plan = planTurn(caseData, game, characterId, { ...move, playerText: question, addressed: t.confrontation?.role !== "reacting" });
   const ch = caseData.characters.find((c) => c.id === characterId)!;
   const ev = presentedEvidenceId ? caseData.evidence.find((e) => e.id === presentedEvidenceId) : undefined;
   const secret = plan.revealSecretId ? ch.secrets.find((s) => s.id === plan.revealSecretId) : undefined;

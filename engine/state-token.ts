@@ -22,6 +22,7 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
+import { CLAIM_LIMITS } from "./constants";
 import { createInitialGameState } from "./game-state";
 import { revealedSecretIds, secretIndex } from "./testimony";
 import {
@@ -33,6 +34,7 @@ import {
   IdSchema,
   MemoryEntrySchema,
   PercentSchema,
+  PlayerClaimSchema,
   type GameState,
 } from "./types";
 
@@ -44,7 +46,7 @@ const KEY_LABEL = "whodunit/game-state-token/v1";
 const DEV_KEY_LABEL = "whodunit/dev-only-insecure-game-state-key";
 
 /** Caps that keep the token small (it rides in every request body). */
-export const STATE_LIMITS = { memoryPerCharacter: 12, statementsPerCharacter: 8, textChars: 400, tokenChars: 60_000 };
+export const STATE_LIMITS = { memoryPerCharacter: 12, statementsPerCharacter: 8, claimsPerCharacter: CLAIM_LIMITS.perCharacter, textChars: 400, tokenChars: 60_000 };
 
 const TokenCharacterSchema = z.strictObject({
   emotion: EmotionalStateSchema,
@@ -61,6 +63,9 @@ const TokenCharacterSchema = z.strictObject({
   interrogationCount: z.number().int().nonnegative(),
   /** Breakdown already performed (absent in older tokens). */
   brokeDown: z.boolean().default(false),
+  /** Own lies told to the detective and the detective's claims (absent in older tokens). */
+  liesToldIds: z.array(IdSchema).max(40).default([]),
+  playerClaims: z.array(PlayerClaimSchema).max(STATE_LIMITS.claimsPerCharacter).default([]),
 });
 
 const TokenPayloadSchema = z.strictObject({
@@ -130,6 +135,8 @@ function toPayload(game: GameState): TokenPayload {
             .map((s) => ({ text: clip(s.text), turn: s.turn })),
           interrogationCount: r.interrogationCount,
           brokeDown: r.brokeDown,
+          liesToldIds: [...r.liesToldIds],
+          playerClaims: r.playerClaims.map((x) => ({ ...x })),
         },
       ]),
     ),
@@ -214,6 +221,8 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     if (!ch || !r.evidenceShownIds.every((e) => evidence.has(e)) || !r.revealedSecretIds.every((s) => secrets.has(s))) {
       return { ok: false, reason: "invalid_payload" };
     }
+    // Told lies must be this character's own intended lies.
+    if (!r.liesToldIds.every((l) => ch.intendedLies.some((x) => x.id === l))) return { ok: false, reason: "invalid_payload" };
     // Only revealed testimony can ever have been presented.
     if (!r.testimonyShownIds.every((s) => revealed.has(s))) return { ok: false, reason: "invalid_payload" };
   }
@@ -251,6 +260,8 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     rt.testimonyShownIds = r.testimonyShownIds;
     rt.interrogationCount = r.interrogationCount;
     rt.brokeDown = r.brokeDown;
+    rt.liesToldIds = r.liesToldIds;
+    rt.playerClaims = r.playerClaims;
     r.statements.forEach((s, i) =>
       game.statements.push({
         id: `st-${id}-${s.turn}-${i}`,

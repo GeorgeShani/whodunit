@@ -15,7 +15,7 @@
  * character's view of the world.
  */
 import { z } from "zod";
-import { MAX_CONFRONTATION_TURNS } from "./constants";
+import { CLAIM_LIMITS, MAX_CONFRONTATION_TURNS } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Primitives
@@ -410,6 +410,13 @@ export const MemoryEntrySchema = z.strictObject({
 });
 export type MemoryEntry = z.infer<typeof MemoryEntrySchema>;
 
+/** Something the detective asserted to a character. NOT a fact: never used as truth by the engine. */
+export const PlayerClaimSchema = z.strictObject({
+  text: z.string().min(1).max(CLAIM_LIMITS.chars),
+  turn: z.number().int().nonnegative(),
+});
+export type PlayerClaim = z.infer<typeof PlayerClaimSchema>;
+
 /** Mutable, engine-owned state for a single character during play. */
 export const CharacterRuntimeStateSchema = z.strictObject({
   characterId: IdSchema,
@@ -432,6 +439,10 @@ export const CharacterRuntimeStateSchema = z.strictObject({
   trust: PercentSchema.default(50),
   /** Has this character had their (once-per-game) breakdown? (engine/stress.ts) */
   brokeDown: z.boolean().default(false),
+  /** Own intended lies the character has TOLD the detective (engine/memory.ts: maintained + topic asked, on a performed turn). */
+  liesToldIds: z.array(IdSchema).default([]),
+  /** The detective's assertions to this character (untrusted; engine/memory.ts), newest last. */
+  playerClaims: z.array(PlayerClaimSchema).max(CLAIM_LIMITS.perCharacter).default([]),
 });
 export type CharacterRuntimeState = z.infer<typeof CharacterRuntimeStateSchema>;
 

@@ -66,7 +66,9 @@ export interface CharacterContext {
    * "exposed" = evidence has broken it (stop insisting);
    * "retired" = the character has confessed a secret that replaces it (supersededBySecretIds).
    */
-  intendedLies: { id: string; topic?: string; claim: string; status: "maintain" | "exposed" | "retired" }[];
+  intendedLies: { id: string; topic?: string; claim: string; status: "maintain" | "exposed" | "retired"; /** Has told the detective this story (engine/memory.ts). */ told: boolean }[];
+  /** The detective's recent assertions to THIS character: untrusted, never facts (engine/memory.ts). */
+  playerClaims: { text: string; turn: number }[];
   /** Engine-owned pressure gauges (0..100) and the stress band (engine/stress.ts). */
   state: { stress: number; trust: number; band: StressBand; brokeDown: boolean };
   memory: MemoryEntry[];
@@ -169,7 +171,9 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
         : gate.exposedLieIds.has(l.id)
           ? ("exposed" as const)
           : ("maintain" as const),
+      told: (runtime?.liesToldIds ?? []).includes(l.id),
     })),
+    playerClaims: (runtime?.playerClaims ?? []).slice(-4).map((x) => ({ ...x })),
     state: { stress: runtime?.stress ?? 0, trust: runtime?.trust ?? 50, band: stressBand(runtime?.stress ?? 0), brokeDown: runtime?.brokeDown ?? false },
     memory: (runtime?.memory ?? [])
       .filter((m) => m.evidenceId === undefined || shownIds.includes(m.evidenceId))

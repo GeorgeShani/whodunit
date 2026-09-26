@@ -11,7 +11,7 @@
  *    by the usual testimony rules, with the contradiction beat).
  */
 import type { LoadedCase } from "@/engine/case-schema";
-import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TURNS, openConfrontation, spendExchange, testimonyToThrow } from "@/engine/confrontation";
+import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TURNS, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
 import { clampStress } from "@/engine/stress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies } from "@/engine/testimony";
@@ -55,6 +55,7 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
 
   // Face-to-face pressure (engine rule), before either side's reveal is decided.
   for (const id of [aId, bId]) game.characters[id].stress = clampStress(game.characters[id].stress + CONFRONTATION_PRESSURE);
+  relieveBystanders(game, [aId, bId]);
   const thrown = testimonyToThrow(caseData, game, aId, bId);
   const thrownCard = thrown ? publicTestimonies(caseData, game).find((t) => t.id === thrown) : undefined;
   const onPrompt = (id: string) => (deps.onPrompt ? (p: { system: string; user: string }) => deps.onPrompt!({ ...p, characterId: id }) : undefined);

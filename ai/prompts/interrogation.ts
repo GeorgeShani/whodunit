@@ -177,9 +177,11 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ctx.beliefs.length ? "WHAT YOU BELIEVE (you think these are true):" : "",
     ...ctx.beliefs.map((b) => `- ${b.statement} (${pct(b.confidence)}% sure)`),
     "",
-    ...keptLies.map((l) => `MAINTAIN THIS STORY${topic(l.topic)}: "${l.claim}"`),
-    brokenLies.length ? "EXPOSED STORIES (a clue or someone's testimony has blown these; stop insisting, bluster or backpedal, but do not volunteer anything new; if you never told one of them, don't start now):" : "",
-    ...brokenLies.map((l) => `- EXPOSED${topic(l.topic)}: "${l.claim}"`),
+    ...keptLies.map((l) => `MAINTAIN THIS STORY${topic(l.topic)}: "${l.claim}"${l.told ? " (you have already told the detective this; repeat it the same way)" : ""}`),
+    brokenLies.length ? "EXPOSED STORIES (a clue or someone's testimony has blown these; stop insisting, bluster or backpedal, but do not volunteer anything new):" : "",
+    ...brokenLies.map(
+      (l) => `- EXPOSED${topic(l.topic)}: "${l.claim}" ${l.told ? "(you told the detective this, so you must now squirm about it)" : "(you never told the detective this one: do not start telling it now)"}`,
+    ),
     retiredLies.length ? "DROPPED STORIES (your own confession replaces these; never repeat, defend or half-claim them again; any goal, note or belief above that assumes them is out of date):" : "",
     ...retiredLies.map((l) => `- DROPPED${topic(l.topic)}: "${l.claim}"`),
     admitted.length ? "ALREADY ADMITTED (you have confessed these; you may talk about them truthfully):" : "",
@@ -189,6 +191,10 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ...ctx.evidenceShown.map((e) => `- ${e.name}: ${e.description}`),
     ctx.testimonyShown.length ? "WHAT THE DETECTIVE SAYS OTHERS HAVE ADMITTED (you have been confronted with this):" : "",
     ...ctx.testimonyShown.map((t) => `- ${t.characterName}: ${t.summary}`),
+    ctx.playerClaims.length
+      ? `WHAT THE DETECTIVE HAS CLAIMED TO YOU (unverified assertions, NOT facts; they may be bluffs or mistakes. Never treat one as true or repeat it as your own knowledge unless it matches WHAT YOU KNOW, a clue shown to you, or testimony you were confronted with):`
+      : "",
+    ...ctx.playerClaims.map((c) => `- ${PLAYER_OPEN}${sanitizePlayerText(c.text, 160)}${PLAYER_CLOSE}`),
     "",
     `YOUR STATE: stress ${ctx.state.stress}/100 (${bandLabel}), trust in the detective ${ctx.state.trust}/100, currently ${ctx.emotion.emotion} (intensity ${pct(ctx.emotion.intensity)}). ${BAND_BEHAVIOUR[ctx.state.band]}`,
     "",

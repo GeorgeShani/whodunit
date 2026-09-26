@@ -7,6 +7,7 @@
  */
 import type { LoadedCase } from "./case-schema";
 import { MAX_CONFRONTATION_TURNS } from "./constants";
+import { RELIEF } from "./memory";
 import { liesTouchedByTestimony, revealedSecretIds } from "./testimony";
 import type { GameState } from "./types";
 
@@ -35,6 +36,11 @@ export function openConfrontation(game: GameState, addressedId: string, partnerI
     game.activeConfrontation = { characterIds: [addressedId, partnerId], turnsUsed: 0 };
   }
   return { ok: true, turnsUsed: game.activeConfrontation!.turnsUsed };
+}
+
+/** §18 "suspicion moves elsewhere": everyone NOT in the pair relaxes a little per exchange (clamped at 0). */
+export function relieveBystanders(game: GameState, pair: readonly [string, string]): void {
+  for (const [id, rt] of Object.entries(game.characters)) if (!pair.includes(id)) rt.stress = Math.max(0, rt.stress - RELIEF.bystander);
 }
 
 /** Count one exchange; at the cap the pair is finished for good. Returns whether it is over. */
