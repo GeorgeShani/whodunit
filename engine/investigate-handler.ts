@@ -5,7 +5,7 @@
 import type { LoadedCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { searchLocation } from "./investigation";
-import { restoreSession, saveSession } from "./session";
+import { CASE_CLOSED_SEARCH_LINE, isCaseClosed, restoreSession, saveSession } from "./session";
 import type { Env } from "./state-token";
 import type { Evidence } from "./types";
 
@@ -38,6 +38,13 @@ export function handleInvestigate(
   }
   const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env, { legacyCaseId });
   const withNotice = (b: InvestigateResponseBody) => (notice ? { ...b, notice } : b);
+
+  if (isCaseClosed(game)) {
+    return {
+      status: 409,
+      body: { found: [], lines: [CASE_CLOSED_SEARCH_LINE], searchedLocationIds: [...game.searchedLocationIds], stateToken: saveSession(game, env), error: "case_closed" },
+    };
+  }
 
   if (!caseData.locations.some((l) => l.id === parsed.data.locationId)) {
     return {

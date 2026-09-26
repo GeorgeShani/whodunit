@@ -15,6 +15,7 @@ export function SuspectSelect({
   onBack,
   onInvestigate,
   onOpenNotebook,
+  onAccuse,
   cluesFound,
   backdrop,
 }: {
@@ -26,6 +27,8 @@ export function SuspectSelect({
   onInvestigate?: () => void;
   /** Open the detective's notebook (evidence + testimony, present to anyone). */
   onOpenNotebook?: () => void;
+  /** Open the accusation form; offered once at least one clue is found (Phase 8). */
+  onAccuse?: () => void;
   /** Number of clues in the notebook. */
   cluesFound?: number;
   /** Case backdrop (e.g. the manor hall, ART_BIBLE §7.2); falls back to the purple radial. */
@@ -60,6 +63,16 @@ export function SuspectSelect({
           <span className="w-20" />
         )}
       </div>
+      {onAccuse && (
+        <CartoonButton
+          tone="red"
+          onClick={onAccuse}
+          data-accuse-open
+          className="-my-4 font-display text-3xl tracking-widest ring-4 ring-yellow-300"
+        >
+          ⚖️ ACCUSE!
+        </CartoonButton>
+      )}
       <ul className="grid w-full max-w-6xl grid-cols-2 gap-6 lg:grid-cols-4">
         {suspects.map((s, i) => {
           const emotion = emotions[s.id] ?? s.emotion.emotion;

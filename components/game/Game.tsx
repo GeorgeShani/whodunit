@@ -17,13 +17,17 @@ import type { Contradiction } from "@/ai/interrogate-schema";
 import { getAudio } from "@/components/effects/audio";
 import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
+import { AccuseScreen } from "@/components/accuse/AccuseScreen";
+import { EndScreen } from "@/components/ending/EndScreen";
+import type { AccuseRequest, AccuseResponseBody } from "@/engine/accuse-schema";
+import type { Accusation } from "@/engine/types";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
-import { loadGame, saveGame, SESSION_VERSION } from "@/lib/game-session";
+import { clearGame, loadGame, saveGame, SESSION_VERSION } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
 
-type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate";
+type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate" | "accuse" | "ending";
 
 interface InterrogateResult {
   response: CharacterResponse;
@@ -69,6 +73,16 @@ interface InvestigateResult {
 }
 
 /** Search a location. Network/shape failure degrades to an in-character line. */
+/** POST /api/accuse. Network failures come back as an in-character line, never a throw. */
+async function accuse(req: AccuseRequest): Promise<AccuseResponseBody> {
+  try {
+    const res = await fetch("/api/accuse", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
+    return (await res.json()) as AccuseResponseBody;
+  } catch {
+    return { error: "network", line: "The telephone lines are down. Try accusing again in a moment." };
+  }
+}
+
 async function investigate(req: InvestigateRequest): Promise<InvestigateResult> {
   try {
     const res = await fetch("/api/investigate", {
@@ -122,6 +136,10 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [notes, setNotes] = useState<ContradictionNotes>({});
   const [beat, setBeat] = useState<ContradictionBeatData | null>(null);
   const [notebookOpen, setNotebookOpen] = useState(false);
+  /** Phase 8: the verdict (plus ending and solution) returned by /api/accuse. Nothing about the solution exists client-side before it. */
+  const [result, setResult] = useState<AccuseResponseBody | null>(null);
+  const [accusing, setAccusing] = useState(false);
+  const [accuseError, setAccuseError] = useState<string | null>(null);
   const speakTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextId = useRef(0);
   /** Opaque server-signed game state (stress, trust, memory, reveals). The client cannot edit it. */
@@ -178,9 +196,12 @@ export function Game({ view }: { view: PublicCaseView }) {
       setSearched(saved.searched);
       setSearchLines(saved.searchLines);
       setNotes(saved.notes ?? {});
+      if (saved.result) setResult(saved.result as AccuseResponseBody);
       const validActive = saved.activeId && view.suspects.some((s) => s.id === saved.activeId) ? saved.activeId : null;
       setActiveId(validActive);
-      setScreen(saved.screen === "interrogation" && !validActive ? "suspects" : saved.screen);
+      setScreen(
+        saved.screen === "interrogation" && !validActive ? "suspects" : saved.screen === "ending" && !saved.result ? "suspects" : saved.screen,
+      );
     }
     setRestored(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount
@@ -204,8 +225,9 @@ export function Game({ view }: { view: PublicCaseView }) {
       searchLines,
       nextId: nextId.current,
       notes,
+      ...(result ? { result } : {}),
     });
-  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes]);
+  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes, result]);
 
   const push = useCallback((characterId: string, msg: Omit<DialogueMessage, "id">) => {
     const id = `m${nextId.current++}`;
@@ -324,6 +346,35 @@ export function Game({ view }: { view: PublicCaseView }) {
     [caseId, view.evidence, resetProgress],
   );
 
+  const onAccuse = useCallback(
+    async (accusation: Accusation) => {
+      if (inFlight.current || !stateToken.current) {
+        if (!stateToken.current) setAccuseError("You'll need to find some evidence before you can accuse anyone.");
+        return;
+      }
+      inFlight.current = true;
+      setAccusing(true);
+      setAccuseError(null);
+      const r = await accuse({ caseId, accusation, stateToken: stateToken.current });
+      inFlight.current = false;
+      setAccusing(false);
+      if (r.stateToken) stateToken.current = r.stateToken;
+      // A replay after game over (409) still carries the original verdict and ending.
+      if (r.outcome && r.ending && r.verdict && r.accusation) {
+        setResult(r);
+        go("ending");
+        return;
+      }
+      setAccuseError(r.line ?? "The inspector frowns. Something about that accusation doesn't add up. Try again.");
+    },
+    [caseId, go],
+  );
+
+  const playAgain = useCallback(() => {
+    clearGame(caseId);
+    window.location.reload();
+  }, [caseId]);
+
   const closeNotebook = useCallback(() => setNotebookOpen(false), []);
   const clearBeat = useCallback(() => setBeat(null), []);
 
@@ -365,6 +416,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             onBack={() => go("intro")}
             onInvestigate={() => go("investigate")}
             onOpenNotebook={() => setNotebookOpen(true)}
+            {...(evidence.length > 0 ? { onAccuse: () => go(result ? "ending" : "accuse") } : {})}
             cluesFound={evidence.length}
             onSelect={(id) => {
               setActiveId(id);
@@ -401,6 +453,20 @@ export function Game({ view }: { view: PublicCaseView }) {
             onSearch={onSearch}
             onBack={() => go("suspects")}
           />
+        )}
+        {screen === "accuse" && (
+          <AccuseScreen
+            suspects={view.suspects}
+            evidence={evidence}
+            motives={view.motives}
+            busy={accusing}
+            error={accuseError}
+            onSubmit={onAccuse}
+            onBack={() => go("suspects")}
+          />
+        )}
+        {screen === "ending" && result && (
+          <EndScreen result={result} suspects={view.suspects} evidence={evidence} motives={view.motives} onPlayAgain={playAgain} />
         )}
       </motion.div>
     </AnimatePresence>

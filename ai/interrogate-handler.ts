@@ -13,7 +13,7 @@
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
 import { commitTurn, planTurn } from "@/engine/interrogation";
-import { RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
+import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { cannedCharacterResponse } from "./canned-responses";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
@@ -63,6 +63,19 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   const withNotice = (b: InterrogateResponseBody) => (notice ? { ...b, notice } : b);
   const unchangedToken = () => saveSession(game, env);
+  // Game over: everyone has gone quiet (no model call, state unchanged).
+  if (isCaseClosed(game)) {
+    return {
+      status: 409,
+      body: {
+        response: { ...createFallbackCharacterResponse({ seed: game.turn }), dialogue: CASE_CLOSED_LINE, emotion: "calm", evidenceReactions: [], stressDelta: 0, trustDelta: 0 },
+        source: "fallback",
+        stateToken: unchangedToken(),
+        error: "case_closed",
+      },
+      diag: { reason: "case_closed" },
+    };
+  }
   if (presentedEvidenceId && presentedTestimonyId) {
     return { status: 400, body: withNotice(fallbackBody("present_one_item", unchangedToken(), game.turn)), diag: { reason: "present_one_item" } };
   }

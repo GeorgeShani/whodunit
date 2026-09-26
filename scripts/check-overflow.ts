@@ -148,6 +148,40 @@ async function run(): Promise<number> {
         await p.keyboard.press("Escape");
         await wait(600);
       }
+      // Phase 8/9: accusation form → confirm → ending cut-scene → end screen.
+      const accuseBtn = p.locator("[data-accuse-open]");
+      if (await accuseBtn.count()) {
+        await label(p, "suspects→accuse");
+        await accuseBtn.first().click({ force: true });
+        await wait(1500);
+        await label(p, "accuse form");
+        await p.locator("[data-accuse-suspect]").first().click({ force: true });
+        await p.locator("[data-accuse-weapon]").first().click({ force: true });
+        await p.locator("[data-accuse-motive]").first().click({ force: true });
+        await p.locator("[data-accuse-proof]").first().click({ force: true });
+        await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
+        await wait(500);
+        await clickButton(p, /SUBMIT ACCUSATION/);
+        await wait(800);
+        await label(p, "accuse confirm → ending");
+        await clickButton(p, /Yes, accuse/);
+        await p.waitForSelector("[data-ending-scene], [data-end-screen]", { timeout: 30_000 });
+        await wait(2500);
+        if (await p.locator("[data-ending-scene]").count()) {
+          await label(p, "ending cut-scene");
+          for (let i = 0; i < 3; i++) {
+            await p.keyboard.press("Space");
+            await wait(1200);
+          }
+          await label(p, "ending skip → end screen");
+          await clickButton(p, /Skip/);
+          await p.waitForSelector("[data-end-screen]", { timeout: 15_000 });
+          await wait(2000);
+        }
+        await label(p, "end screen (scrolled)");
+        await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
+        await wait(800);
+      }
     }
 
     const { ovf, frames } = await p.evaluate(() => {

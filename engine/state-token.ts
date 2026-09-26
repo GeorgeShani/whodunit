@@ -25,6 +25,7 @@ import type { LoadedCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
 import { revealedSecretIds, secretIndex } from "./testimony";
 import {
+  AccusationSchema,
   CaseIdSchema,
   EmotionalStateSchema,
   GameStateSchema,
@@ -68,6 +69,10 @@ const TokenPayloadSchema = z.strictObject({
   /** Case-wide revealed secrets (absent in older tokens: rebuilt from the per-character sets). */
   revealedSecretIds: z.array(IdSchema).default([]),
   characters: z.record(IdSchema, TokenCharacterSchema),
+  /** The graded accusation (absent before one is made, and in older tokens). */
+  accusation: AccusationSchema.nullable().default(null),
+  /** Game over once not "pending": interrogate/investigate answer "the case is closed", accuse replays the verdict. */
+  outcome: z.enum(["pending", "won", "lost"]).default("pending"),
 });
 type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
@@ -121,6 +126,8 @@ function toPayload(game: GameState): TokenPayload {
         },
       ]),
     ),
+    accusation: game.accusation ? { ...game.accusation, keyEvidenceIds: [...game.accusation.keyEvidenceIds] } : null,
+    outcome: game.outcome,
   };
 }
 
@@ -202,8 +209,20 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     if (!r.testimonyShownIds.every((s) => revealed.has(s))) return { ok: false, reason: "invalid_payload" };
   }
 
+  // A game-over token must carry a valid accusation for this case.
+  if ((p.outcome === "pending") !== (p.accusation === null)) return { ok: false, reason: "invalid_payload" };
+  if (p.accusation) {
+    const a = p.accusation;
+    if (!chars.has(a.murdererId) || !evidence.has(a.weaponId) || !caseData.motives.some((m) => m.id === a.motiveId) || !a.keyEvidenceIds.every((e) => evidence.has(e))) {
+      return { ok: false, reason: "invalid_payload" };
+    }
+  }
+
   const game = createInitialGameState(caseData);
   game.turn = p.turn;
+  game.accusation = p.accusation;
+  game.outcome = p.outcome;
+  if (p.outcome !== "pending") game.phase = "resolved";
   game.discoveredEvidenceIds = [...p.discoveredEvidenceIds];
   game.searchedLocationIds = [...p.searchedLocationIds];
   game.revealedSecretIds = [...revealed];

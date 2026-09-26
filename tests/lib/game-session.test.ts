@@ -41,6 +41,20 @@ describe("game session persistence (#11)", () => {
     expect(parseSavedGame(raw, "blackwood")).toBeNull();
   });
 
+  it("keeps the closed-case result and the ending screen (Phase 8)", () => {
+    const result = {
+      outcome: "lost" as const,
+      accusation: { murdererId: "gregory", weaponId: "burned-letter", motiveId: "revenge", keyEvidenceIds: ["burned-letter"] },
+      verdict: { murdererCorrect: false, weaponCorrect: false, motiveCorrect: false, hasKeyEvidence: true, keyEvidenceCited: ["burned-letter"] },
+      ending: { outcome: "lost" as const, headline: "THE MURDERER ESCAPED!", accusedId: "gregory", beats: [] },
+    };
+    const g = parseSavedGame(JSON.stringify({ ...sample, screen: "ending", result }), "blackwood");
+    expect(g?.screen).toBe("ending");
+    expect(g?.result?.verdict?.hasKeyEvidence).toBe(true);
+    // A half-formed result is dropped (the game then falls back to the suspects screen).
+    expect(parseSavedGame(JSON.stringify({ ...sample, screen: "ending", result: { outcome: "won" } }), "blackwood")?.result).toBeUndefined();
+  });
+
   it("survives storage that throws", () => {
     const bad = { getItem: () => { throw new Error("denied"); }, setItem: () => { throw new Error("quota"); }, removeItem: () => { throw new Error("x"); } };
     expect(loadGame("blackwood", bad)).toBeNull();

@@ -11,6 +11,7 @@ import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
 import type { PublicEvidence } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
+import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { ContradictionNotes } from "@/components/evidence/notebook-model";
 
 export const SESSION_VERSION = 1;
@@ -18,7 +19,7 @@ export const SESSION_VERSION = 1;
 export interface SavedGame {
   v: typeof SESSION_VERSION;
   caseId: string;
-  screen: "suspects" | "interrogation" | "investigate";
+  screen: "suspects" | "interrogation" | "investigate" | "accuse" | "ending";
   activeId: string | null;
   stateToken?: string;
   conversations: Record<string, DialogueMessage[]>;
@@ -31,6 +32,8 @@ export interface SavedGame {
   nextId: number;
   /** Engine contradiction verdicts noted on notebook cards. Optional: older saves lack it. */
   notes?: ContradictionNotes;
+  /** The /api/accuse result once the case is closed (verdict, ending, solution). */
+  result?: AccuseResponseBody;
 }
 
 export const sessionKey = (caseId: string) => `whodunit:game:${caseId}`;
@@ -60,7 +63,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     return null;
   }
   if (!isObj(j) || j.v !== SESSION_VERSION || j.caseId !== caseId) return null;
-  if (!["suspects", "interrogation", "investigate"].includes(String(j.screen))) return null;
+  if (!["suspects", "interrogation", "investigate", "accuse", "ending"].includes(String(j.screen))) return null;
   if (!isObj(j.conversations) || !isObj(j.emotions) || !Array.isArray(j.evidence) || !Array.isArray(j.searched) || !isObj(j.searchLines)) return null;
   if (j.stateToken !== undefined && typeof j.stateToken !== "string") return null;
   return {
@@ -77,6 +80,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     searchLines: j.searchLines as SavedGame["searchLines"],
     nextId: typeof j.nextId === "number" ? j.nextId : 0,
     ...(isObj(j.notes) ? { notes: j.notes as ContradictionNotes } : {}),
+    ...(isObj(j.result) && isObj(j.result.verdict) && isObj(j.result.ending) && isObj(j.result.accusation) ? { result: j.result as AccuseResponseBody } : {}),
   };
 }
 

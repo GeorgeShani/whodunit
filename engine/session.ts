@@ -37,3 +37,9 @@ export function restoreSession(
 export function saveSession(game: GameState, env?: Env): string {
   return encodeStateToken(game, env);
 }
+
+/** In-character replies once the case is closed (after the accusation). */
+export const CASE_CLOSED_LINE = "The case is closed, detective. The constable has everyone's statements, and I've nothing more to say.";
+export const CASE_CLOSED_SEARCH_LINE = "The constable has sealed the house. The case is closed, detective: there's nothing left to search.";
+
+export const isCaseClosed = (game: GameState) => game.outcome !== "pending";
