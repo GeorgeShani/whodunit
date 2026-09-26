@@ -1,7 +1,7 @@
 import { rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { ACTIVE_CASE_ID } from "@/engine/active-case";
+import { DEFAULT_CASE_ID } from "@/lib/cases";
 import { CaseValidationError, loadCase, validateCase } from "@/engine/case-loader";
 import { getPublicCaseView } from "@/engine/public-view";
 import { FIXTURE_ID, FIXTURES_DIR, makeBrokenCopy } from "../helpers/fixture";
@@ -27,8 +27,8 @@ describe("loadCase (valid fixture)", () => {
     expect(c.solution.murdererId).toBe("alpha");
   });
 
-  it("loads the active (running-game) case", async () => {
-    const c = await loadCase(ACTIVE_CASE_ID);
+  it("loads the default (running-game) case", async () => {
+    const c = await loadCase(DEFAULT_CASE_ID);
     expect(c.characters.length).toBeGreaterThanOrEqual(2);
   });
 

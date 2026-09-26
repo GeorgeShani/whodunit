@@ -6,6 +6,7 @@
  * Exits 0 when valid, 1 when invalid, 2 on bad usage.
  */
 import path from "node:path";
+import { assetExists } from "../lib/case-art";
 import { validateCase } from "../engine/case-loader";
 import { formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
 
@@ -36,6 +37,13 @@ async function main() {
     console.log(d.endings ? "   endings.json: present and valid." : "   endings.json: not present (optional for now).");
     const unfindable = d.evidence.filter((e) => !e.locationId && !e.initiallyAvailable).map((e) => e.id);
     if (unfindable.length) console.log(`   ⚠ evidence with no locationId and not initially available (unreachable): ${unfindable.join(", ")}`);
+    const art = [
+      ...Object.entries(d.backdrops ?? {}).map(([screen, p]) => [`backdrops.${screen}`, p] as const),
+      ...d.locations.filter((l) => l.background).map((l) => [`locations.${l.id}.background`, l.background as string] as const),
+    ];
+    const missingArt = art.filter(([, p]) => p && !assetExists(p));
+    for (const [field, p] of missingArt) console.log(`   ⚠ ${field}: ${p} not found under assets/ (the screen falls back to its default look)`);
+    if (art.length && !missingArt.length) console.log(`   art: ${art.length} asset path(s) found.`);
     return;
   }
   console.error(`❌ Case "${caseId}" has ${result.issues.length} problem(s) (${where}):\n`);

@@ -12,7 +12,10 @@ The validator lists every problem as `file -> path: message` and exits non-zero 
 Working examples:
 
 - `tests/fixtures/cases/fixture-manor/`: shows every feature, including point and window timeline entries, lies and reveal conditions.
-- `cases/_placeholder/`: a small stand-in case kept for development. The running game uses `blackwood`; switch cases by changing `ACTIVE_CASE_ID` in `engine/active-case.ts`.
+- `tests/fixtures/cases/harbor-light/`: a minimal second case (3 characters, one clue per mechanic, endings, art fields) used by the end-to-end test.
+- `cases/_placeholder/`: a small stand-in case kept for development.
+
+Every folder in `cases/` whose name is a plain id (no leading `_`) and that contains a `case.json` is served at `/case/<caseId>`; `/` plays the default case (`DEFAULT_CASE_ID` in `lib/cases.ts`, currently `blackwood`). Folders starting with `_` (templates) and test fixtures are never routable.
 
 ## Layout
 
@@ -32,7 +35,7 @@ cases/<caseId>/
 - **Ids** use lowercase kebab or snake case: `^[a-z0-9]+([-_][a-z0-9]+)*$`, max 64 characters.
   - Ids must be unique within their kind.
   - Facts (`case.json` `facts`) and timeline entries share one id namespace, so characters can list either in `knownFactIds`.
-  - Character ids should match the art ids (`reginald`, `victoria`, `archibald`, `gregory`). The portrait is loaded from `assets/characters/<portrait ?? id>/<pose>.webp`.
+  - Character ids should match the art folder ids under `assets/characters/` (for Blackwood: `reginald`, `victoria`, `archibald`, `gregory`), or set `portrait` to the folder name. The portrait is loaded from `assets/characters/<portrait ?? id>/<pose>.webp`.
   - The victim's id must differ from every character id. It may be used wherever a "person" is expected: facts, timeline, relationships, `relatedCharacters`.
 - **Case id** = the folder name. `case.json` `id` must equal it.
 - **Times** use a 24-hour `"HH:MM"` clock.
@@ -69,9 +72,27 @@ cases/<caseId>/
   "facts": [ /* Fact[]: world truths not pinned to the timeline (see Fact) */ ],
   "motives": [                          // PUBLIC multiple-choice options for the accusation (≥ 2; include red herrings)
     { "id": "inheritance", "label": "The new will", "description": "optional" }
-  ]
+  ],
+  "backdrops": {                        // optional, PUBLIC: per-screen scene art (asset paths)
+    "title": "/assets/title/title_bg.webp",           // title screen
+    "suspects": "/assets/backgrounds/manor.webp",     // suspect selection (ART_BIBLE §7.2)
+    "interrogation": "/assets/backgrounds/….webp",   // interrogation scene
+    "investigate": "/assets/backgrounds/….webp"      // Investigate screen behind the room cards
+  }
 }
 ```
+
+### Art fields (optional, additive)
+
+- **Asset paths** look like `/assets/<folder>/<file>.webp` (png/jpg/svg also allowed). They must live under `assets/` (copied to `public/assets/` by `sync:assets`); no `..`, no URLs, no query strings.
+- **`locations[].background`**: the room's picture, used on its Investigate card.
+  - Fallback 1: `assets/backgrounds/<locationId>.webp` if that file exists.
+  - Fallback 2: an icon.
+- **`backdrops.title | suspects | interrogation | investigate`**: whole-screen backdrops.
+  - Each falls back to the screen's built-in look.
+  - `lib/case-art.ts` `ART_DEFAULTS` can hold a stopgap per case; case data always wins.
+- `validate:case` warns (it doesn't fail) when an art path doesn't exist under `assets/`.
+- Sprites need no field: they resolve from `assets/characters/<portrait ?? characterId>/`.
 
 ### Fact
 
@@ -205,7 +226,7 @@ Endings spell out the solution, so they never reach the public view, the charact
 - **The player** (`getPublicCaseView`) sees:
   - the case id, title, tagline and intro;
   - the victim;
-  - the locations (including `searchFlavor`);
+  - the locations (including `searchFlavor` and `background`) and the case `backdrops`;
   - the motive **options**;
   - each suspect's name, role, bio, portrait and starting emotion;
   - the evidence discovered so far (name, description, kind, location, image, `discoveryLine`).
@@ -215,8 +236,8 @@ Endings spell out the solution, so they never reach the public view, the charact
   - their persona (including personality scores), goals and relationships;
   - their own known facts, with source and confidence;
   - their beliefs, without `isAccurate`;
-  - their secrets, without reveal conditions;
-  - their own intended lies (topic and claim only);
+  - only the secrets the engine has already revealed (truth plus permission to talk about them); locked secrets are withheld entirely;
+  - their own intended lies (topic and claim, plus `maintain` / `exposed` status). While a lie is unbroken or a secret locked, the facts behind it, the character's own timeline entries in that time window and beliefs about them are withheld (`engine/knowledge-gate.ts`), so link every fact that would give the game away via `aboutFactId` / `relatedFactIds`;
   - their stress and trust, memory and statements;
   - the discovered evidence the player has shown them.
 

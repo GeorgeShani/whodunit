@@ -1,0 +1,80 @@
+{
+  "id": "cook-marlow",
+  "name": "Nell Marlow",
+  "role": "The Cook",
+  "bio": "HL marlow bio.",
+  "personality": {
+    "traits": [
+      "hl-trait"
+    ],
+    "speechStyle": "Salty test voice.",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
+  },
+  "goals": [
+    "HL marlow goal"
+  ],
+  "knownFactIds": [
+    "marlow-rum",
+    "hl-storm"
+  ],
+  "beliefs": [
+    {
+      "id": "marlow-belief",
+      "statement": "HL_MARLOW_BELIEF: Finch did it.",
+      "isAccurate": false,
+      "confidence": 0.6
+    }
+  ],
+  "secrets": [
+    {
+      "id": "marlow-secret",
+      "description": "HL_MARLOW_SECRET: I smuggle rum for the captain.",
+      "severity": "serious",
+      "relatedFactIds": [
+        "marlow-rum"
+      ],
+      "revealConditions": {
+        "stressThreshold": 70,
+        "evidenceIds": [
+          "wet-logbook"
+        ],
+        "mode": "any"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "targetCharacterId": "finch",
+      "trust": 50,
+      "fear": 10,
+      "affection": 30,
+      "resentment": 20,
+      "suspicion": 30
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "calm",
+    "intensity": 0.3,
+    "composure": 0.8
+  },
+  "intendedLies": [
+    {
+      "id": "marlow-lie",
+      "topic": "the rum",
+      "claim": "HL_MARLOW_LIE: There's no rum in my galley.",
+      "aboutFactId": "marlow-rum",
+      "brokenByEvidenceIds": [
+        "wet-logbook"
+      ]
+    }
+  ]
+}

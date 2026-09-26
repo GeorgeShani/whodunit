@@ -26,6 +26,13 @@ const stateOf = (token: string | undefined) => {
 
 const ask = { characterId: "reginald", question: "Where were you when the lights went out?" };
 
+/** No clue starts in the notebook: a legitimately signed state in which the library (candlestick) has been searched. */
+const candlestickToken = () => {
+  const g = createInitialGameState(c);
+  g.discoveredEvidenceIds.push("silver-candlestick");
+  return encodeStateToken(g, TEST_ENV);
+};
+
 describe("POST /api/interrogate (route wrapper)", () => {
   const call = async (body: unknown) => {
     const res = await POST(
@@ -147,7 +154,11 @@ describe("handleInterrogate", () => {
   it("presenting a discovered clue applies the engine's stress rule and tells the model", async () => {
     mockGrok({ content: goodReply({ stressDelta: 0, evidenceReactions: [{ evidenceId: "silver-candlestick", reaction: "nervous" }] }) });
     let system = "";
-    const r = await run({ ...ask, question: "Explain this.", presentedEvidenceId: "silver-candlestick" }, TEST_ENV, (p) => (system = p.system));
+    const r = await run(
+      { ...ask, question: "Explain this.", presentedEvidenceId: "silver-candlestick", stateToken: candlestickToken() },
+      TEST_ENV,
+      (p) => (system = p.system),
+    );
     expect(system).toContain('evidenceId "silver-candlestick"');
     expect(r.body.response.evidenceReactions).toHaveLength(1);
     expect(stateOf(r.body.stateToken).characters.reginald.stress).toBe(5);
@@ -165,7 +176,7 @@ describe("handleInterrogate", () => {
     expect(r.body.notice).toBe(RESET_NOTICE);
     expect(r.body.error).toBe("evidence_not_discovered"); // forged discovery did not stick
     const g = stateOf(r.body.stateToken);
-    expect(g.discoveredEvidenceIds).toEqual(["silver-candlestick"]);
+    expect(g.discoveredEvidenceIds).toEqual([]); // no clue starts in the notebook
     expect(g.characters.reginald.revealedSecretIds).toEqual([]);
   });
 
@@ -185,7 +196,7 @@ describe("handleInterrogate", () => {
       const r = await run({ characterId: "reginald", question: q }, TEST_ENV, (p) => (prompt = p));
       const g = stateOf(r.body.stateToken);
       expect(g.characters.reginald).toMatchObject({ stress: 10, trust: 60, revealedSecretIds: [] });
-      expect(g.discoveredEvidenceIds).toEqual(["silver-candlestick"]);
+      expect(g.discoveredEvidenceIds).toEqual([]);
       expect(g.outcome).toBe("pending");
       // Only one opening + one closing delimiter around the player's line (they cannot break out).
       const userTurn = prompt.user.split("THE DETECTIVE NOW SAYS:")[1];
@@ -203,7 +214,7 @@ describe("handleInterrogate", () => {
       async (id) => {
         mockGrok({});
         let prompt = { system: "", user: "" };
-        const first = await run({ characterId: id, question: "Hello." });
+        const first = await run({ characterId: id, question: "Hello.", stateToken: candlestickToken() });
         await run(
           { characterId: id, question: "Explain this.", presentedEvidenceId: "silver-candlestick", stateToken: first.body.stateToken },
           TEST_ENV,
@@ -212,7 +223,7 @@ describe("handleInterrogate", () => {
         const all = prompt.system + prompt.user;
         for (const s of forbiddenPromptStrings(c, c.solution, id)) expect(all, s.slice(0, 60)).not.toContain(s);
         // Undiscovered evidence descriptions never appear.
-        for (const e of c.evidence.filter((e) => !e.initiallyAvailable)) expect(all).not.toContain(e.description);
+        for (const e of c.evidence.filter((e) => e.id !== "silver-candlestick")) expect(all).not.toContain(e.description);
       },
     );
 

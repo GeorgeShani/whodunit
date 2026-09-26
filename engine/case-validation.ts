@@ -15,7 +15,7 @@ import type { TimelineEntry } from "./types";
 export const OPPORTUNITY_WINDOW_MINUTES = 15;
 
 export interface CaseIssue {
-  /** File the problem lives in, relative to the case directory (e.g. "characters/reginald.json"). */
+  /** File the problem lives in, relative to the case directory (e.g. "characters/the-butler.json"). */
   file: string;
   /** Dotted path inside the file, if applicable (e.g. "secrets.0.revealConditions.evidenceIds.1"). */
   path?: string;

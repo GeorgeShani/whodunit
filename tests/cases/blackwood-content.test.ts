@@ -28,14 +28,21 @@ describe("Blackwood location search", () => {
     });
   });
 
-  it("every location has search flavour; exactly the clue-less ones have an emptyLine", () => {
-    const withClues = new Set(c.evidence.map((e) => e.locationId));
+  it("every location has search flavour and a repeat-search emptyLine", () => {
     for (const loc of c.locations) {
       expect(loc.searchFlavor, loc.id).toBeDefined();
-      if (withClues.has(loc.id)) expect(loc.searchFlavor?.emptyLine, loc.id).toBeUndefined();
-      else expect(loc.searchFlavor?.emptyLine, loc.id).toBeDefined();
+      expect(loc.searchFlavor?.emptyLine, loc.id).toBeTruthy();
     }
+    const withClues = new Set(c.evidence.map((e) => e.locationId));
     expect(c.locations.filter((l) => !withClues.has(l.id)).map((l) => l.id).sort()).toEqual(["garden", "kitchen"]);
+  });
+
+  it("the candlestick is not in the notebook at the start; searching the library finds it", () => {
+    const candlestick = c.evidence.find((e) => e.id === "silver-candlestick")!;
+    expect(candlestick.initiallyAvailable).toBe(false);
+    expect(candlestick.locationId).toBe("library");
+    expect(candlestick.discoveryLine).toBeTruthy();
+    expect(c.evidence.filter((e) => e.initiallyAvailable)).toEqual([]);
   });
 
   it("every clue has a discovery line", () => {

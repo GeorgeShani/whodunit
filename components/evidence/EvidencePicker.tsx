@@ -13,7 +13,7 @@ export function EvidencePicker({
   disabled?: boolean;
 }) {
   if (evidence.length === 0) {
-    return <p className="text-sm font-semibold italic text-yellow-100">No evidence discovered yet.</p>;
+    return <p className="text-sm font-semibold italic text-yellow-100">No clues in your notebook yet. Go and 🔍 Investigate the house!</p>;
   }
   return (
     <div className="flex flex-wrap gap-2">
@@ -23,6 +23,7 @@ export function EvidencePicker({
           type="button"
           disabled={disabled}
           onClick={() => onPick(e)}
+          data-evidence-id={e.id}
           title={e.description}
           whileHover={{ rotate: -2, scale: 1.05 }}
           className="cursor-pointer rounded-lg border-[3px] border-black bg-amber-200 px-3 py-1 text-sm font-bold text-black shadow-[3px_3px_0_#000] disabled:cursor-not-allowed disabled:opacity-50"

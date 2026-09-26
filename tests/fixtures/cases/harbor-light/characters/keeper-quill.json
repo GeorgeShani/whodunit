@@ -1,0 +1,83 @@
+{
+  "id": "keeper-quill",
+  "name": "Ezra Quill",
+  "role": "The Lighthouse Keeper",
+  "bio": "HL quill bio.",
+  "personality": {
+    "traits": [
+      "hl-trait"
+    ],
+    "speechStyle": "Salty test voice.",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
+  },
+  "goals": [
+    "HL quill goal"
+  ],
+  "knownFactIds": [
+    "quill-strikes",
+    "quill-on-dock",
+    "hl-storm"
+  ],
+  "beliefs": [],
+  "secrets": [
+    {
+      "id": "quill-secret",
+      "description": "HL_QUILL_SECRET: I went down to the dock to throw the spyglass in.",
+      "severity": "damning",
+      "relatedFactIds": [
+        "quill-strikes",
+        "quill-on-dock"
+      ],
+      "revealConditions": {
+        "stressThreshold": 90,
+        "evidenceIds": [
+          "brass-spyglass"
+        ],
+        "mode": "any"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "targetCharacterId": "captain-brine",
+      "trust": 50,
+      "fear": 10,
+      "affection": 30,
+      "resentment": 20,
+      "suspicion": 30
+    },
+    {
+      "targetCharacterId": "cook-marlow",
+      "trust": 50,
+      "fear": 10,
+      "affection": 30,
+      "resentment": 20,
+      "suspicion": 30
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "calm",
+    "intensity": 0.3,
+    "composure": 0.8
+  },
+  "intendedLies": [
+    {
+      "id": "quill-lie",
+      "topic": "the dock",
+      "claim": "HL_QUILL_LIE: I never left the lamp room all night.",
+      "aboutFactId": "quill-on-dock",
+      "brokenByEvidenceIds": [
+        "brass-spyglass"
+      ]
+    }
+  ]
+}

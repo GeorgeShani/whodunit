@@ -1,0 +1,12 @@
+{
+  "murdererId": "keeper-quill",
+  "weaponId": "brass-spyglass",
+  "locationId": "lamp-room",
+  "time": "22:30",
+  "motiveId": "salvage-rights",
+  "keyEvidenceIds": [
+    "brass-spyglass",
+    "wet-logbook"
+  ],
+  "explanation": "HL_SOLUTION_EXPLANATION"
+}

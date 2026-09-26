@@ -12,10 +12,8 @@
  */
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
-import { createInitialGameState } from "@/engine/game-state";
 import { commitTurn, planTurn } from "@/engine/interrogation";
-import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
-import type { GameState } from "@/engine/types";
+import { RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { cannedCharacterResponse } from "./canned-responses";
 import { allowedTimes, checkTimes, findModernWord } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
@@ -25,8 +23,7 @@ import { createFallbackCharacterResponse, type CharacterResponse } from "./schem
 
 type Env = Record<string, string | undefined>;
 
-export const RESET_NOTICE =
-  "A gust of wind blows the detective's notebook out of the window! The pages are gone. Best start the questioning afresh.";
+export { RESET_NOTICE };
 
 export interface HandlerResult {
   status: number;
@@ -38,6 +35,8 @@ export interface HandlerResult {
 export interface HandlerDeps {
   caseData: LoadedCase;
   env?: Env;
+  /** Case assumed for legacy state tokens that predate caseId (the app's default case). */
+  legacyCaseId?: string;
   /** Test hook: observe the exact prompt sent to the model. */
   onPrompt?: (p: { system: string; user: string }) => void;
 }
@@ -50,22 +49,19 @@ const fallbackBody = (error: string, stateToken?: string, seed = 0): Interrogate
 });
 
 export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promise<HandlerResult> {
-  const { caseData, env } = deps;
+  const { caseData, env, legacyCaseId } = deps;
   const parsed = InterrogateRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: fallbackBody("invalid_request"), diag: { reason: "invalid_request" } };
-  const { characterId, question, presentedEvidenceId, stateToken } = parsed.data;
+  const { characterId, question, presentedEvidenceId, stateToken, caseId } = parsed.data;
+  // The route resolves the case; a body naming a different one is a client bug, not a new game.
+  if (caseId !== undefined && caseId !== caseData.id) {
+    return { status: 404, body: fallbackBody("unknown_case"), diag: { reason: "unknown_case" } };
+  }
 
   // 1. Signed state (absent = new game; present but invalid = reset in character).
-  let game: GameState;
-  let notice: string | undefined;
-  const decoded = decodeStateToken(stateToken, caseData, env);
-  if (decoded.ok) game = decoded.game;
-  else {
-    game = createInitialGameState(caseData);
-    if (decoded.reason !== "missing") notice = RESET_NOTICE;
-  }
+  const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   const withNotice = (b: InterrogateResponseBody) => (notice ? { ...b, notice } : b);
-  const unchangedToken = () => encodeStateToken(game, env);
+  const unchangedToken = () => saveSession(game, env);
 
   // 2. Engine checks.
   if (!caseData.characters.some((c) => c.id === characterId) || !game.characters[characterId]) {
@@ -148,7 +144,7 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
     body: withNotice({
       response,
       source,
-      stateToken: encodeStateToken(game, env),
+      stateToken: saveSession(game, env),
       ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
     }),
     diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed: applied.revealed },

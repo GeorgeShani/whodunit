@@ -19,7 +19,7 @@ The spec asked for `ai/context-builder.ts`.
 
 ## Client/server split
 
-- `app/page.tsx` is a server component. It loads the active case and passes only `getPublicCaseView()` to the client `<Game>`. That view contains no solution, facts, timeline, private character data, or undiscovered evidence.
+- `app/page.tsx` (the default case, canonical `/`) and `app/case/[caseId]/page.tsx` (`generateStaticParams` from the allowlist, `dynamicParams = false`, `notFound()` otherwise) are server components. They render `lib/render-case.tsx`, which loads the case and passes only `resolveCaseArt(getPublicCaseView())` to the client `<Game>`. That view contains no solution, facts, timeline, private character data, or undiscovered evidence.
 - `POST /api/interrogate` receives `{ characterId, question (<= 500 chars), presentedEvidenceId?, stateToken? }` and returns `{ response, source: "model" | "fallback", stateToken, notice?, error? }`. See "Live interrogation" below.
 
 - **Vercel file tracing:** `next.config.ts` sets `outputFileTracingIncludes` so `cases/**/*.json` ships with the API functions on Vercel.
@@ -89,3 +89,18 @@ One exchange (`ai/interrogate-handler.ts`):
 - `html, body` use `overflow-x: clip`. `<Game>` renders a `.stage` root (`100vh` fallback, then `100dvh`, `overflow: hidden`, `contain: paint`); each screen is an absolutely positioned `AnimatePresence mode="wait"` layer, so enter/exit scale transforms, shakes, sprites and overlays never push the document into overflow.
 - Screens that can be taller than a phone (intro, suspects) scroll inside themselves (`.screen-scroll`); the transcript is a genuine scroll area (`.scroll-area`, `scrollbar-gutter: stable`). Layout is flex plus fluid units; no fixed-pixel stage sizes.
 - `npm run check:overflow -- <baseUrl>` (`scripts/check-overflow.ts`, playwright-core with the system Chrome) drives title → intro → suspects → interrogation (a reply with an emotion overlay, presenting evidence) → back (→ Investigate when present) at 1280x800 and 390x844, samples document `scrollWidth`/`scrollHeight` against the viewport on every animation frame, and exits 1 on any overflow.
+
+## Investigate (spec §46)
+
+- `engine/investigation.ts` `searchLocation()` is deterministic and model-free: searching a location reveals every evidence item whose `locationId` matches, marks the location searched, and returns Agatha's `searchFlavor` lines (or the `emptyLine`). Repeat searches are idempotent.
+- `POST /api/investigate` (`engine/investigate-handler.ts`) validates `{ locationId, stateToken? }`, restores the SAME signed token interrogate uses (`engine/session.ts`; the token now also carries `searchedLocationIds`, defaulting to `[]` for older tokens), and returns only public clue fields (`id, name, description, kind, image?, discoveryLine?`). Unknown location → 400 with an in-character line; tampered token → reset + notice.
+- Client: `components/investigate/InvestigateScreen.tsx` (location cards, searched state, background from `assets/backgrounds/<id>.webp` when present, else an icon) reached from the suspects screen; `components/evidence/DiscoverySting.tsx` (discovery overlay popIn → throb, `fanfare.mp3` best effort, `discoveryLine`). Found clues go into the notebook, and Present evidence lists only notebook (discovered) items.
+- One request at a time (interrogate and investigate share the token): a reply stays bound to the suspect who was asked; other suspects' controls lock with a visible hint, and typed text is kept (#8).
+- `lib/game-session.ts` keeps the signed token, transcripts, notebook, searched rooms and current screen in `sessionStorage` and restores them after a reload (#11). The server still re-verifies the token on every request.
+
+## Multiple cases
+
+- **Allowlist (`engine/case-registry.ts`):** built from the `cases/` directory listing. A folder counts only if its name matches `^[a-z0-9]+([-_][a-z0-9]+)*$` (no leading `_`, so `_placeholder` and other templates are excluded) and it contains `case.json`. Request input is only compared against that list; it is never path-joined unchecked. Test fixtures live outside `cases/` and are never routable.
+- **Routing:** `/` renders `DEFAULT_CASE_ID` (`lib/cases.ts`) directly; `/case/<id>` renders any public case, with the default case's canonical URL pointing at `/`. The sitemap lists `/` plus `/case/<id>` for every other public case.
+- **Token and case:** the signed token carries `caseId`. `lib/request-case.ts` picks the case for an API call: the body's `caseId` (the page's case; it must be allowlisted, else 404), else the verified token's `caseId`, else the default. The handler then decodes the token against that case, and a token for another case resets in character. Legacy tokens without `caseId` count as the default case.
+- **Art:** `lib/case-art.ts` resolves `backdrops` and `locations[].background` with fallbacks (see CASE_FORMAT.md). Sprites resolve by character id. `tests/engine/case-agnostic.test.ts` greps `engine/` and `ai/` for any shipped case's ids and names.

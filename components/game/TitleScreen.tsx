@@ -1,13 +1,14 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { backdropStyle } from "./backdrop";
 import Image from "next/image";
 
 // Title card art: docs/ART_BIBLE.md §7.0 (assets/title/ -> /assets/title/ via sync:assets).
 // Phones (max-sm): tighter tagline + button and less bottom padding so the stack clears the mansion base.
-export function TitleScreen({ tagline, onStart }: { tagline: string; onStart: () => void }) {
+export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; backdrop?: string; onStart: () => void }) {
   return (
-    <main className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6vh] text-center max-sm:pb-[3vh]">
+    <main className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6vh] text-center max-sm:pb-[3vh]" style={backdropStyle(backdrop)}>
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[22%] w-[130vmin] -translate-x-1/2 -translate-y-1/2">
         <motion.img
           src="/assets/title/sunburst.webp"

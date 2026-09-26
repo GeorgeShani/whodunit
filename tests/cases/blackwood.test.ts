@@ -8,6 +8,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadCase, validateCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
+import { knowledgeGate } from "@/engine/knowledge-gate";
 import { shouldRevealSecret } from "@/engine/secrets";
 import { gameMinutes } from "@/engine/time";
 import type { Character, TimelineEntry } from "@/engine/types";
@@ -268,3 +269,128 @@ describe("Blackwood characters: relationships, beliefs and secrets", () => {
     expect(shouldRevealSecret(murder, { stress: 90, evidenceShownIds: all, revealedSecretIds: cracked })).toBe(true);
   });
 });
+
+/**
+ * QA #7 / #6: the engine withholds a character's known facts only when they are
+ * linked to one of that character's LOCKED secrets (relatedFactIds) or UNEXPOSED
+ * lies (aboutFactId); everything else reaches the model as-is (engine/knowledge-gate.ts).
+ */
+describe("Blackwood knowledge gating (QA #6, #7)", () => {
+  /** Known facts that would give a secret away or contradict a lie if the model saw them unguarded. */
+  const SENSITIVE: Record<string, string[]> = {
+    victoria: [
+      "ev-murder", "ev-victoria-admitted", "ev-victoria-takes-letter", "ev-victoria-locks-door", "ev-victoria-alone",
+      "ev-key-hidden", "ev-letter-burned", "ev-archibald-leaves-dining", "ev-archibald-returns", "ev-alibi-pact",
+      "ev-victoria-argument", "f-new-will", "f-inheritance-motive", "f-letter-accuses-butler",
+      "loc-victoria-2050", "loc-victoria-2054",
+      ...["13", "14", "15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-victoria-21${m}`),
+    ],
+    archibald: [
+      "f-archibald-embezzlement", "ev-archibald-threat", "ev-archibald-leaves-dining", "ev-archibald-phone",
+      "ev-archibald-notices-pantry", "ev-pantry-exchange", "ev-archibald-returns", "ev-alibi-pact",
+      ...["13", "14", "15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-archibald-21${m}`),
+    ],
+    reginald: [
+      "f-reginald-theft", "ev-reginald-hears-phone", "ev-pantry-exchange", "ev-reginald-overhears", "loc-reginald-2054",
+      ...["15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-reginald-21${m}`),
+    ],
+    gregory: [
+      "ev-gregory-enters-hall", "ev-gregory-hears-thud", "ev-gregory-sees-victoria", "ev-victoria-locks-door",
+      "f-footprint-gregory", "f-no-mud-beyond-alcove",
+      ...["15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-gregory-21${m}`),
+    ],
+  };
+  /** Known, character-involving entries inside the blackout window (21:13-21:22) that are safe to show: they match the cover story. */
+  const SAFE_IN_WINDOW: Record<string, string[]> = {
+    victoria: [],
+    archibald: [],
+    reginald: ["loc-reginald-2113", "loc-reginald-2114", "ev-lord-relocks"],
+    gregory: ["loc-gregory-2113", "loc-gregory-2114"],
+  };
+  const covered = (ch: Character) =>
+    new Set([...ch.secrets.flatMap((s) => s.relatedFactIds), ...ch.intendedLies.flatMap((l) => (l.aboutFactId ? [l.aboutFactId] : []))]);
+  const locked = { evidenceShownIds: [], revealedSecretIds: [] };
+
+  it("every incriminating or secret-related fact a character knows is linked to their own secret or lie", () => {
+    for (const ch of c.characters) {
+      const cov = covered(ch);
+      for (const id of SENSITIVE[ch.id]) {
+        if (!ch.knownFactIds.includes(id)) continue;
+        expect(cov.has(id), `${ch.id}: ${id} is not linked to any of their secrets/lies`).toBe(true);
+      }
+      // Anything they know about themselves during the blackout must be linked explicitly or listed as safe.
+      for (const id of ch.knownFactIds) {
+        const e = c.timeline.find((t) => t.id === id);
+        if (!e || !e.involvesCharacterIds.includes(ch.id)) continue;
+        const [from, to] = range(e);
+        if (to < toMin("21:13") || from > toMin("21:22")) continue;
+        expect(cov.has(id) || SAFE_IN_WINDOW[ch.id].includes(id), `${ch.id}: unclassified blackout entry ${id}`).toBe(true);
+      }
+    }
+  });
+
+  it("with nothing shown or revealed, the gate withholds every sensitive fact and the beliefs about them", () => {
+    for (const ch of c.characters) {
+      const gate = knowledgeGate(c, ch, locked);
+      for (const id of SENSITIVE[ch.id]) {
+        if (ch.knownFactIds.includes(id)) expect(gate.withheldFactIds.has(id), `${ch.id}: ${id} leaks`).toBe(true);
+      }
+    }
+    const withheld = (id: string) => knowledgeGate(c, byId(id), locked).withheldBeliefIds;
+    expect([...withheld("victoria")]).toEqual(expect.arrayContaining(["b-victoria-archibald-loyal", "b-victoria-brandy-errand"]));
+    expect([...withheld("reginald")]).toEqual(expect.arrayContaining(["b-reginald-will"]));
+    // Red-herring beliefs must still reach the model.
+    expect(withheld("reginald").has("b-reginald-crane-did-it")).toBe(false);
+    expect(withheld("archibald").has("b-archibald-gregory-did-it")).toBe(false);
+    expect(withheld("gregory").has("b-gregory-will-hang")).toBe(false);
+  });
+
+  it("revealing the secrets releases the facts again (each is gated by a real, reachable secret)", () => {
+    for (const ch of c.characters) {
+      const gate = knowledgeGate(c, ch, {
+        evidenceShownIds: c.evidence.map((e) => e.id),
+        revealedSecretIds: ch.secrets.map((s) => s.id),
+      });
+      expect([...gate.withheldFactIds], ch.id).toEqual([]);
+    }
+  });
+
+  it("Reginald saw nobody at the library door in the blackout, and the model is told so (#6)", () => {
+    const reg = byId("reginald");
+    const gate = knowledgeGate(c, reg, locked);
+    const fact = factById("f-reginald-saw-no-one")!;
+    expect(fact.source).toBe("witnessed");
+    expect(reg.knownFactIds).toContain("f-reginald-saw-no-one");
+    expect(gate.withheldFactIds.has("f-reginald-saw-no-one")).toBe(false);
+    const belief = reg.beliefs.find((b) => b.aboutFactId === "f-reginald-saw-no-one")!;
+    expect(belief.isAccurate).toBe(true);
+    expect(gate.withheldBeliefIds.has(belief.id)).toBe(false);
+    // His only sighting of Victoria is 20:57; nothing he knows puts her in the hall or library during the blackout.
+    for (const id of reg.knownFactIds) {
+      const e = c.timeline.find((t) => t.id === id);
+      if (!e || !e.involvesCharacterIds.includes("victoria") || !["hall", "library"].includes(e.locationId ?? "")) continue;
+      const [, to] = range(e);
+      expect(to < toMin("21:10") || range(e)[0] >= toMin("21:30"), `${id} puts Victoria in the ${e.locationId}`).toBe(true);
+    }
+    // And the model still gets the times he does know: 20:57, 21:12, 21:13.
+    for (const id of ["ev-victoria-passes-reginald", "ev-candlestick-delivered", "ev-lord-relocks"]) expect(gate.withheldFactIds.has(id), id).toBe(false);
+  });
+});
+
+/** QA #7: free text reaches the model verbatim, so it must read as the cover story, never the truth. */
+describe("Blackwood free text tells no secrets", () => {
+  const TELLTALE = /\b(alibi|secret|theft|steal|stole|embezzl|telephon|phone|hidden money|what he saw|overheard|new will|prison|never left|hated him)\b/i;
+  it("goals, personality and relationship notes contain no giveaway wording", () => {
+    for (const ch of c.characters) {
+      const p = ch.personality;
+      const texts = [
+        ...ch.goals,
+        ...p.traits,
+        p.speechStyle,
+        ...ch.relationships.flatMap((r) => [r.kind ?? "", r.description ?? ""]),
+      ];
+      for (const t of texts) expect(t, `${ch.id}: "${t}"`).not.toMatch(TELLTALE);
+    }
+  });
+});
+
