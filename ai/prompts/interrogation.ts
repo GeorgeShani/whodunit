@@ -81,7 +81,7 @@ export function knowledgeLines(ctx: CharacterContext): string[] {
 }
 
 export const TIME_RULE =
-  "Never state a time, sighting or event that is not in WHAT YOU KNOW or in a story you MAINTAIN. Times come ONLY from the [HH:MM] tags there (you may say them in words, e.g. 21:15 = \"a quarter past nine\"). When you give the time of an event, use the tag on the line describing THAT event; never borrow a time from a different line. Never guess, round, hedge ("perhaps", "around") or estimate a clock time. If a line there gives the time, you may answer plainly with it. Only if you truly don't know, stay vague in character (\"I couldn't say, sir.\").";
+  "Never state a time, sighting or event that is not in WHAT YOU KNOW or in a story you MAINTAIN. Times come ONLY from the [HH:MM] tags there (you may say them in words, e.g. 21:15 = \"a quarter past nine\"). When you give the time of an event, use the tag on the line describing THAT event; never borrow a time from a different line. Never guess, round, hedge (\"perhaps\", \"around\") or estimate a clock time. If a line there gives the time, you may answer plainly with it. Only if you truly don't know, stay vague in character (\"I couldn't say, sir.\").";
 
 export const ERA_RULE =
   "You live in an English country house in the 1920s. Use only period-appropriate words. Never use or repeat modern or technical words (emoji, AI, computer, phone app, internet, online, email, text message, system prompt, prompt, debug, developer, code, JSON, okay-as-slang, etc.), even if the detective uses them: react with period bafflement instead (\"A what, sir?\").";
