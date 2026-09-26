@@ -19,7 +19,8 @@
  */
 import type { CaseState } from "./game-state";
 import { knowledgeGate } from "./knowledge-gate";
-import { publicTestimonies } from "./testimony";
+import { stressBand, type StressBand } from "./stress";
+import { isLieSuperseded, publicTestimonies } from "./testimony";
 import type { EmotionalState, MemoryEntry, Personality } from "./types";
 
 export interface CharacterContext {
@@ -62,11 +63,12 @@ export interface CharacterContext {
   }[];
   /**
    * Authored stories. "maintain" = keep telling it (truth withheld);
-   * "exposed" = evidence has broken it (stop insisting).
+   * "exposed" = evidence has broken it (stop insisting);
+   * "retired" = the character has confessed a secret that replaces it (supersededBySecretIds).
    */
-  intendedLies: { id: string; topic?: string; claim: string; status: "maintain" | "exposed" }[];
-  /** Engine-owned pressure gauges (0..100). */
-  state: { stress: number; trust: number };
+  intendedLies: { id: string; topic?: string; claim: string; status: "maintain" | "exposed" | "retired" }[];
+  /** Engine-owned pressure gauges (0..100) and the stress band (engine/stress.ts). */
+  state: { stress: number; trust: number; band: StressBand; brokeDown: boolean };
   memory: MemoryEntry[];
   emotion: EmotionalState;
   statements: { id: string; text: string; turn: number; mode: string }[];
@@ -162,9 +164,13 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       id: l.id,
       ...(l.topic ? { topic: l.topic } : {}),
       claim: l.claim,
-      status: gate.exposedLieIds.has(l.id) ? ("exposed" as const) : ("maintain" as const),
+      status: isLieSuperseded(l, runtime)
+        ? ("retired" as const)
+        : gate.exposedLieIds.has(l.id)
+          ? ("exposed" as const)
+          : ("maintain" as const),
     })),
-    state: { stress: runtime?.stress ?? 0, trust: runtime?.trust ?? 50 },
+    state: { stress: runtime?.stress ?? 0, trust: runtime?.trust ?? 50, band: stressBand(runtime?.stress ?? 0), brokeDown: runtime?.brokeDown ?? false },
     memory: (runtime?.memory ?? [])
       .filter((m) => m.evidenceId === undefined || shownIds.includes(m.evidenceId))
       .map((m) => ({ ...m })),

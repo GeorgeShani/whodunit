@@ -146,7 +146,7 @@ describe("buildCharacterContext", () => {
     expect(ctx.knowledge.find((k) => k.id === "bravo-in-garden")).toMatchObject({ from: "20:30", to: "21:30", source: "witnessed", confidence: 0.9 });
     expect(ctx.persona.personality.honesty).toBeTypeOf("number");
     expect(ctx.intendedLies).toEqual([{ id: "bravo-lie", topic: "money", claim: "BRAVO_LIE: I have never gambled in my life.", status: "maintain" }]);
-    expect(ctx.state).toEqual({ stress: 0, trust: 50 });
+    expect(ctx.state).toEqual({ stress: 0, trust: 50, band: "calm", brokeDown: false });
   });
 
   it("does not mutate or alias the loaded case", () => {

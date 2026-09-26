@@ -10,6 +10,7 @@
  *  -> engine commits (clamped deltas, reveal only if performed) -> new token.
  * Any failure yields the in-character fallback. Logs are non-secret only.
  */
+import { isOutburst, stressBand, type StressReading } from "@/engine/stress";
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
 import { commitTurn, planTurn } from "@/engine/interrogation";
@@ -109,6 +110,8 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const testimony = presentedTestimonyId ? publicTestimonies(caseData, game).find((t) => t.id === presentedTestimonyId) : undefined;
   const directives: TurnDirectives = {
     exposedLieIds: plan.exposedLieIds,
+    ...(plan.retiredLieIds.length ? { retiredLieIds: plan.retiredLieIds } : {}),
+    ...(plan.breakdown ? { breakdown: true } : {}),
     ...(secret ? { revealSecret: { id: secret.id, description: secret.description } } : {}),
     ...(ev ? { presentedEvidence: { id: ev.id, name: ev.name, description: ev.description } } : {}),
     ...(testimony ? { presentedTestimony: { id: testimony.id, characterName: testimony.characterName, summary: testimony.summary } } : {}),
@@ -128,6 +131,10 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
     const res = checkTimes(said, allowed);
     if (!res.ok) {
       return `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir").`;
+    }
+    // Breakdown turns must actually read as an outburst (performance only; the engine already decided it).
+    if (directives.breakdown && !isOutburst(r.dialogue)) {
+      return "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.";
     }
     const modern = findModernWord(said);
     return modern
@@ -164,7 +171,9 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
     performed: source === "model",
   });
   // Report the deltas the engine actually applied, never the raw suggestion.
-  response = { ...response, stressDelta: applied.stressDelta, trustDelta: applied.trustDelta };
+  // ...and the emotion after the engine's stress floor (the pose always matches the meter).
+  response = { ...response, emotion: applied.emotion, stressDelta: applied.stressDelta, trustDelta: applied.trustDelta };
+  const stress: StressReading = { value: applied.stress, band: stressBand(applied.stress), breakdown: applied.brokeDown };
 
   // Deterministic verdict from the engine's plan (independent of the model's performance).
   const contradiction: Contradiction | undefined =
@@ -186,6 +195,7 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
       source,
       stateToken: saveSession(game, env),
       testimonies: publicTestimonies(caseData, game),
+      stress,
       ...(contradiction ? { contradiction } : {}),
       ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
     }),

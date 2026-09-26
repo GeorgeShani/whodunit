@@ -82,6 +82,7 @@ describe("commitTurn", () => {
   it("keeps stress within 0..100", () => {
     const g = createInitialGameState(c);
     g.characters.reginald.stress = 98;
+    g.characters.reginald.brokeDown = true; // (a first breakdown would settle stress at 85; see stress.test.ts)
     commitTurn(g, planTurn(c, g, "reginald"), perf({ stressDelta: 10 }));
     expect(g.characters.reginald.stress).toBe(100);
   });

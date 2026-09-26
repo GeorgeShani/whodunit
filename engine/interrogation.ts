@@ -14,6 +14,7 @@
  */
 import type { LoadedCase } from "./case-schema";
 import { secretsToReveal } from "./secrets";
+import { BREAKDOWN_STRESS, escalateEmotion, POST_BREAKDOWN_STRESS } from "./stress";
 import { brokenLieIds, liesTouchedByTestimony, secretIndex } from "./testimony";
 import type { CharacterRuntimeState, EmotionalState, Emotion, GameState } from "./types";
 
@@ -53,8 +54,16 @@ export interface TurnPlan {
   revealSecretId: string | null;
   /** Intended lies that shown evidence or presented testimony has broken (the character can no longer maintain them). */
   exposedLieIds: string[];
-  /** Lies broken for the first time by this turn's evidence or testimony. */
+  /** Lies broken for the first time by this turn's evidence or testimony (drives the contradiction beat). */
   newlyExposedLieIds: string[];
+  /**
+   * The character's own lies retired by the secret confessed THIS turn
+   * (supersededBySecretIds). Already included in exposedLieIds, so the model is
+   * never told to confess the secret and keep the lie in the same prompt.
+   */
+  retiredLieIds: string[];
+  /** Stress is at breakdown level and this character hasn't broken down yet: the performance is the breakdown. */
+  breakdown: boolean;
 }
 
 /** The player's move this turn: at most one of evidence / testimony. */
@@ -117,9 +126,16 @@ export function planTurn(
     rt.stress = clamp(rt.stress + engineStressDelta, 0, 100);
   }
 
-  const exposedLieIds = brokenLieIds(caseData, ch, rt);
+  const brokenByMove = brokenLieIds(caseData, ch, rt);
   // At most ONE new reveal per exchange (authored order, prerequisites respected): no cascades, no loops.
+  // A breakdown never unlocks anything by itself: reveals follow the authored conditions only.
   const revealSecretId = secretsToReveal(ch.secrets, rt)[0] ?? null;
+  // Same-turn retirement: lies superseded by the secret being confessed now count as exposed already.
+  const retiredLieIds = revealSecretId
+    ? ch.intendedLies.filter((l) => l.supersededBySecretIds.includes(revealSecretId) && !brokenByMove.includes(l.id)).map((l) => l.id)
+    : [];
+  const exposedLieIds = [...brokenByMove, ...retiredLieIds];
+  const breakdown = rt.stress >= BREAKDOWN_STRESS && !rt.brokeDown;
 
   return {
     characterId,
@@ -128,7 +144,9 @@ export function planTurn(
     engineStressDelta,
     revealSecretId,
     exposedLieIds,
-    newlyExposedLieIds: exposedLieIds.filter((id) => !before.includes(id)),
+    newlyExposedLieIds: brokenByMove.filter((id) => !before.includes(id)),
+    retiredLieIds,
+    breakdown,
   };
 }
 
@@ -167,9 +185,16 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
   const trustDelta = out.performed ? clampDelta(out.trustDelta) : 0;
   rt.stress = clamp(rt.stress + stressDelta, 0, 100);
   rt.trust = clamp(rt.trust + trustDelta, 0, 100);
+  // The breakdown happens once it has been performed (a fallback turn leaves it pending), then stress settles.
+  const brokeDown = plan.breakdown && out.performed;
+  if (brokeDown) {
+    rt.brokeDown = true;
+    rt.stress = POST_BREAKDOWN_STRESS;
+  }
 
   const emotion: EmotionalState = {
-    emotion: out.emotion,
+    // Engine floor: the pose follows the stress gauge, whatever the model picked.
+    emotion: escalateEmotion(out.emotion, rt.stress, brokeDown),
     intensity: clamp(out.intensity, 0, 1),
     composure: clamp(1 - rt.stress / 100, 0, 1),
   };
@@ -204,5 +229,5 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
       game.statements = game.statements.filter((s) => !drop.has(s.id));
     }
   }
-  return { stressDelta, trustDelta, revealed };
+  return { stressDelta, trustDelta, revealed, brokeDown, emotion: emotion.emotion, stress: rt.stress };
 }

@@ -256,6 +256,7 @@ All eleven gaps from the first draft are closed by contract v2 (commit 3608125).
 3. **The accusation no longer contains time or location.** WHEN (21:17) and WHERE stay engine truth and are used by the opportunity check, but the player isn't graded on them. The deduction in §5 still derives them, because they are needed to break the alibi.
 
 4. **A stress reveal doesn't expose the owner's own lie.** If Victoria reaches stress 70 before any clue or testimony breaks `l-victoria-together`, the engine tells her to confess `s-victoria-left-dining` while that lie is still marked MAINTAIN. The data can't fix this: a lie can't break on its owner's own secret, and the validator flags that as self-referential. In practice most pressure comes from presenting the clues and testimony that break the lie anyway (`library-key`, `burned-letter`, or three testimony cards). Engine suggestion: when a secret is revealed, expose the owner's lies whose `aboutFactId` is in that secret's `relatedFactIds`.
+   **Resolved (engine, Phase 7):** lies now take an optional `supersededBySecretIds` (the owner's own secrets). `l-victoria-together` lists `s-victoria-left-dining`, so the stress confession retires the lie in the same turn. The prompt shows it as DROPPED and never as MAINTAIN (tested in `tests/engine/stress.test.ts`).
 
 ## 9. Decisions made without the product owner
 - **Mutual alibi instead of the gramophone.** With five rooms and four clues, Victoria's "seemingly solid" alibi is Archibald vouching for her. He lies to cover his own phone call.

@@ -1,5 +1,6 @@
 "use client";
 
+import { StressMeter } from "@/components/stress/StressMeter";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
 import { motion } from "framer-motion";
@@ -17,6 +18,7 @@ export function SuspectSelect({
   onOpenNotebook,
   onAccuse,
   cluesFound,
+  stress = {},
   backdrop,
 }: {
   suspects: PublicSuspect[];
@@ -29,6 +31,8 @@ export function SuspectSelect({
   onOpenNotebook?: () => void;
   /** Open the accusation form; offered once at least one clue is found (Phase 8). */
   onAccuse?: () => void;
+  /** Engine stress per suspect (Phase 7); a meter shows once someone has been rattled. */
+  stress?: Record<string, number>;
   /** Number of clues in the notebook. */
   cluesFound?: number;
   /** Case backdrop (e.g. the manor hall, ART_BIBLE §7.2); falls back to the purple radial. */
@@ -99,6 +103,7 @@ export function SuspectSelect({
                 <span className="mt-2">
                   <EmotionBadge emotion={emotion} />
                 </span>
+                {(stress[s.id] ?? 0) > 0 && <StressMeter value={stress[s.id]} name={s.name} compact className="mt-2 w-full max-w-44" />}
               </motion.button>
             </motion.li>
           );

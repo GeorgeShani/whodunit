@@ -34,6 +34,8 @@ export interface SavedGame {
   notes?: ContradictionNotes;
   /** The /api/accuse result once the case is closed (verdict, ending, solution). */
   result?: AccuseResponseBody;
+  /** Engine stress per suspect, as last reported (display only; the token is authoritative). */
+  stress?: Record<string, number>;
 }
 
 export const sessionKey = (caseId: string) => `whodunit:game:${caseId}`;
@@ -80,6 +82,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     searchLines: j.searchLines as SavedGame["searchLines"],
     nextId: typeof j.nextId === "number" ? j.nextId : 0,
     ...(isObj(j.notes) ? { notes: j.notes as ContradictionNotes } : {}),
+    ...(isObj(j.stress) ? { stress: Object.fromEntries(Object.entries(j.stress).filter(([, v]) => typeof v === "number" && v >= 0 && v <= 100)) as Record<string, number> } : {}),
     ...(isObj(j.result) && isObj(j.result.verdict) && isObj(j.result.ending) && isObj(j.result.accusation) ? { result: j.result as AccuseResponseBody } : {}),
   };
 }

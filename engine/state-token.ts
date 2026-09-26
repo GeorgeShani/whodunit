@@ -58,6 +58,8 @@ const TokenCharacterSchema = z.strictObject({
     .array(z.strictObject({ text: z.string().min(1).max(STATE_LIMITS.textChars), turn: z.number().int().nonnegative() }))
     .max(STATE_LIMITS.statementsPerCharacter),
   interrogationCount: z.number().int().nonnegative(),
+  /** Breakdown already performed (absent in older tokens). */
+  brokeDown: z.boolean().default(false),
 });
 
 const TokenPayloadSchema = z.strictObject({
@@ -123,6 +125,7 @@ function toPayload(game: GameState): TokenPayload {
             .slice(-STATE_LIMITS.statementsPerCharacter)
             .map((s) => ({ text: clip(s.text), turn: s.turn })),
           interrogationCount: r.interrogationCount,
+          brokeDown: r.brokeDown,
         },
       ]),
     ),
@@ -236,6 +239,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     rt.revealedSecretIds = r.revealedSecretIds;
     rt.testimonyShownIds = r.testimonyShownIds;
     rt.interrogationCount = r.interrogationCount;
+    rt.brokeDown = r.brokeDown;
     r.statements.forEach((s, i) =>
       game.statements.push({
         id: `st-${id}-${s.turn}-${i}`,

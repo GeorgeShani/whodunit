@@ -12,11 +12,19 @@
  *  - each breaksOnFactIds id: some testimony presented to the owner is a
  *    revealed secret whose relatedFactIds include that fact.
  * breakMode "any" (default): one condition suffices; "all": every listed one.
+ * A lie is also broken (retired) once its owner confesses one of its
+ * supersededBySecretIds, whatever the breakMode.
  */
 import type { LoadedCase } from "./case-schema";
 import type { Character, CharacterRuntimeState, GameState, IntendedLie, Secret } from "./types";
 
-export type LieState = Pick<CharacterRuntimeState, "evidenceShownIds"> & Partial<Pick<CharacterRuntimeState, "testimonyShownIds">>;
+export type LieState = Pick<CharacterRuntimeState, "evidenceShownIds"> & Partial<Pick<CharacterRuntimeState, "testimonyShownIds" | "revealedSecretIds">>;
+
+/** Has the owner confessed a secret that retires this lie (supersededBySecretIds)? */
+export function isLieSuperseded(lie: IntendedLie, rt: Pick<LieState, "revealedSecretIds"> | undefined): boolean {
+  const own = rt?.revealedSecretIds ?? [];
+  return (lie.supersededBySecretIds ?? []).some((id) => own.includes(id));
+}
 
 /** Every secret in the case by id, with its owner. */
 export function secretIndex(c: Pick<LoadedCase, "characters">): Map<string, { secret: Secret; owner: Character }> {
@@ -35,6 +43,7 @@ function factsFrom(c: Pick<LoadedCase, "characters">, secretIds: readonly string
 
 /** Is this lie broken for its owner, given the owner's runtime state? */
 export function isLieBroken(c: Pick<LoadedCase, "characters">, lie: IntendedLie, rt: LieState | undefined): boolean {
+  if (isLieSuperseded(lie, rt)) return true;
   const shown = new Set(rt?.evidenceShownIds ?? []);
   const testimony = rt?.testimonyShownIds ?? [];
   const heard = new Set(testimony);

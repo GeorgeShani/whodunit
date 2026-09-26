@@ -55,6 +55,11 @@ describe("game session persistence (#11)", () => {
     expect(parseSavedGame(JSON.stringify({ ...sample, screen: "ending", result: { outcome: "won" } }), "blackwood")?.result).toBeUndefined();
   });
 
+  it("keeps the stress meters, dropping junk values (Phase 7)", () => {
+    const g = parseSavedGame(JSON.stringify({ ...sample, stress: { victoria: 72, gregory: "lots", reginald: 400 } }), "blackwood");
+    expect(g?.stress).toEqual({ victoria: 72 });
+  });
+
   it("survives storage that throws", () => {
     const bad = { getItem: () => { throw new Error("denied"); }, setItem: () => { throw new Error("quota"); }, removeItem: () => { throw new Error("x"); } };
     expect(loadGame("blackwood", bad)).toBeNull();

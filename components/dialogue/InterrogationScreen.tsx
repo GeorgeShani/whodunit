@@ -8,6 +8,7 @@ import { usePreloadPoses } from "@/components/characters/Portrait";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AskInput } from "@/components/game/Game";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
+import { StressMeter } from "@/components/stress/StressMeter";
 import type { PublicEvidence, PublicSuspect, StageArt } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
@@ -27,6 +28,7 @@ export function InterrogationScreen({
   stage,
   busyWith = null,
   speaking = false,
+  stress = 0,
   onAsk,
   onOpenNotebook,
   onBack,
@@ -44,6 +46,8 @@ export function InterrogationScreen({
   /** Someone else is mid-reply (or a search is running): controls lock, typed text is kept (#8). */
   busyWith?: string | null;
   speaking?: boolean;
+  /** Engine stress 0..100 (Phase 7 meter). */
+  stress?: number;
   /** Returns false if the question was not accepted (e.g. another reply is pending). */
   onAsk: (input: AskInput) => boolean;
   /** Open the notebook in "present to <name>" mode. */
@@ -184,11 +188,14 @@ export function InterrogationScreen({
           </form>
         </section>
 
-        <InterrogationStage
-          art={stage}
-          actors={[{ suspect, emotion, speaking, pending }]}
-          className="h-[34dvh] shrink-0 rounded-2xl border-4 border-black shadow-[6px_6px_0_#000] md:h-auto md:flex-[1.15]"
-        />
+        <div className="relative flex h-[34dvh] shrink-0 md:h-auto md:flex-[1.15]">
+          <InterrogationStage
+            art={stage}
+            actors={[{ suspect, emotion, speaking, pending }]}
+            className="h-full w-full rounded-2xl border-4 border-black shadow-[6px_6px_0_#000]"
+          />
+          <StressMeter value={stress} name={suspect.name} className="absolute left-2 top-2 w-32 sm:w-44" />
+        </div>
       </div>
     </main>
   );

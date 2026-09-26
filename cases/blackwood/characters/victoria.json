@@ -288,6 +288,9 @@
       "topic": "whereabouts during the blackout",
       "aboutFactId": "ev-victoria-alone",
       "claim": "Archibald and I sat by the dining-room fire the whole blackout, darling. Neither of us left.",
+      "supersededBySecretIds": [
+        "s-victoria-left-dining"
+      ],
       "brokenByEvidenceIds": [
         "library-key",
         "burned-letter"

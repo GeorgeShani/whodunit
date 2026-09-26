@@ -155,6 +155,18 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       l.brokenByEvidenceIds.forEach((id, k) => ref(evidenceIds, "evidence", id, f, `${p}.brokenByEvidenceIds.${k}`));
       l.breaksOnSecretIds.forEach((id, k) => ref(allSecretIds, "secret", id, f, `${p}.breaksOnSecretIds.${k}`));
       l.breaksOnFactIds.forEach((id, k) => ref(factIds, "fact", id, f, `${p}.breaksOnFactIds.${k}`));
+      // Superseding secrets must be the lie owner's OWN secrets (their confession retires their own story).
+      (l.supersededBySecretIds ?? []).forEach((id, k) => {
+        if (ownSecretIds.has(id)) return;
+        const owner = c.characters.find((o) => o.secrets.some((x) => x.id === id));
+        issues.push({
+          file: f,
+          path: `${p}.supersededBySecretIds.${k}`,
+          message: owner
+            ? `secret "${id}" belongs to ${owner.id}; a lie can only be superseded by its owner's (${ch.id}'s) own secret (use breaksOnSecretIds for another character's testimony)`
+            : `unknown own secret "${id}" (not in ${ch.id}'s secrets)`,
+        });
+      });
     });
     ch.relationships.forEach((r, j) => {
       ref(personIds, "character/victim", r.targetCharacterId, f, `relationships.${j}.targetCharacterId`);

@@ -3,6 +3,7 @@
  * The client says WHAT the player did and hands back the opaque, server-signed
  * state token; the server resolves everything else from the case it holds.
  */
+import type { StressReading } from "@/engine/stress";
 import { z } from "zod";
 import { CaseIdSchema, IdSchema } from "@/engine/types";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -49,6 +50,8 @@ export interface InterrogateResponseBody {
   testimonies?: PublicTestimony[];
   /** Set only when the presented item newly broke one of the character's lies. */
   contradiction?: Contradiction;
+  /** Engine stress for the character just questioned (meter + breakdown beat). */
+  stress?: StressReading;
   /** In-character narrator line, e.g. when a tampered/stale state was reset. */
   notice?: string;
   /** Non-secret machine-readable reason for a fallback or rejection. */

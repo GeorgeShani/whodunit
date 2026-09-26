@@ -9,6 +9,8 @@ export interface ContradictionBeatData {
   key: string;
   title: string;
   line: string;
+  /** "breakdown": the stress breakdown beat (shock burst, thunder + surprise sting). Default: contradiction (impact). */
+  kind?: "contradiction" | "breakdown";
 }
 
 /**
@@ -22,7 +24,7 @@ export function ContradictionBeat({ beat, onDone }: { beat: ContradictionBeatDat
   useEffect(() => {
     if (!beat) return;
     const audio = getAudio();
-    audio.play("impact");
+    audio.play(beat.kind === "breakdown" ? "thunder" : "impact");
     const t1 = setTimeout(() => audio.play("surprise_sting", { gain: 0.7 }), 180);
     const t2 = setTimeout(onDone, 2200);
     return () => {
@@ -37,7 +39,7 @@ export function ContradictionBeat({ beat, onDone }: { beat: ContradictionBeatDat
         <motion.div
           key={beat.key}
           role="alert"
-          data-contradiction-beat
+          data-contradiction-beat={beat.kind ?? "contradiction"}
           className="absolute inset-0 z-50 flex cursor-pointer items-center justify-center bg-black/35 p-4"
           onClick={onDone}
           initial={{ opacity: 0 }}
@@ -47,7 +49,7 @@ export function ContradictionBeat({ beat, onDone }: { beat: ContradictionBeatDat
         >
           <div className="relative flex w-[min(92vw,44rem)] flex-col items-center">
             <motion.img
-              src={effectSrc("impact")}
+              src={effectSrc(beat.kind === "breakdown" ? "shock" : "impact")}
               alt=""
               aria-hidden
               className="pointer-events-none absolute left-1/2 top-1/2 w-[120%] -translate-x-1/2 -translate-y-1/2"
@@ -56,7 +58,7 @@ export function ContradictionBeat({ beat, onDone }: { beat: ContradictionBeatDat
               transition={{ duration: 0.45, times: [0, 0.6, 1] }}
             />
             <motion.p
-              className="relative font-display text-[clamp(2.75rem,11vw,6.5rem)] leading-none tracking-wider text-red-600 [-webkit-text-stroke:3px_#000] drop-shadow-[6px_6px_0_#000]"
+              className={`relative font-display text-[clamp(2.75rem,11vw,6.5rem)] leading-none tracking-wider ${beat.kind === "breakdown" ? "text-fuchsia-500" : "text-red-600"} [-webkit-text-stroke:3px_#000] drop-shadow-[6px_6px_0_#000]`}
               initial={{ scale: 0.4, opacity: 0 }}
               animate={{ scale: [0.4, 1.2, 1], opacity: 1 }}
               transition={{ duration: 0.4, delay: 0.08 }}

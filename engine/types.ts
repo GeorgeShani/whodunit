@@ -303,6 +303,12 @@ export const IntendedLieSchema = z
     breaksOnFactIds: z.array(IdSchema).default([]),
     /** "any" (default): one listed condition breaks the lie; "all": every listed evidence/secret/fact condition must hold. */
     breakMode: z.enum(["any", "all"]).default("any"),
+    /**
+     * The owner's OWN secrets whose confession retires this lie (e.g. admitting
+     * "I was alone" retires "we were together"). When any listed secret is
+     * revealed the lie counts as broken, in the same turn, regardless of breakMode.
+     */
+    supersededBySecretIds: z.array(IdSchema).default([]),
   })
   .refine((l) => l.topic !== undefined || l.aboutFactId !== undefined, {
     message: 'intended lies need a "topic" and/or "aboutFactId"',
@@ -424,6 +430,8 @@ export const CharacterRuntimeStateSchema = z.strictObject({
   stress: PercentSchema.default(0),
   /** Trust toward the detective, 0..100. */
   trust: PercentSchema.default(50),
+  /** Has this character had their (once-per-game) breakdown? (engine/stress.ts) */
+  brokeDown: z.boolean().default(false),
 });
 export type CharacterRuntimeState = z.infer<typeof CharacterRuntimeStateSchema>;
 

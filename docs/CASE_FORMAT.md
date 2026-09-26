@@ -200,7 +200,8 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
       "brokenByEvidenceIds": ["…"],                    // optional: clues that break it when shown to this character
       "breaksOnSecretIds": ["s-archibald-false-alibi"],// optional: testimony (anyone's revealed secret) presented to this character
       "breaksOnFactIds": ["ev-pantry-exchange"],       // optional: presenting a revealed secret whose relatedFactIds include this fact
-      "breakMode": "any" }                             // optional: "any" (default) one condition breaks it; "all" needs every listed one
+      "breakMode": "any",                              // optional: "any" (default) one condition breaks it; "all" needs every listed one
+      "supersededBySecretIds": ["s-reginald-cash"] }   // optional: this character's OWN secrets; confessing one retires the lie (same turn)
   ],
   "relationships": [                                   // directional; target = a character or the victim
     { "targetCharacterId": "lord-blackwood", "trust": 30, "fear": 60, "affection": 10,
@@ -210,6 +211,12 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
   "portrait": "reginald"                               // optional; defaults to id
 }
 ```
+
+**Retiring a lie by confession (`supersededBySecretIds`).** A character who confesses a secret can't keep telling the story it contradicts (e.g. admitting "I was alone in the dining room" retires "Archibald and I were together"). List those secrets, which must be the lie owner's own (the validator rejects anyone else's), in `supersededBySecretIds`. When any of them is revealed, the lie counts as broken in that same turn, whatever the `breakMode`. The prompt then lists it under DROPPED STORIES and never as MAINTAIN THIS STORY, so the model is never told both to confess and to keep the lie. Retiring a lie adds no stress and doesn't trigger the contradiction beat, because no clue broke it.
+
+### Stress bands and breakdowns
+
+Stress (0–100, engine-owned) falls into MASTER_PLAN §18 bands: calm 0–30, defensive 31–60, nervous 61–80, panicking 81–95, breakdown 96–100 (`engine/stress.ts`). The band is told to the model as behaviour, and it sets a floor on the pose: no serene faces when nervous, no composure when panicking. The first time a character's stress is 96 or more at the start of a turn, that turn is their **breakdown**, a scripted outburst. A breakdown is not a confession and unlocks nothing by itself; reveals still follow `revealConditions`. Once the breakdown has been performed, stress settles at 85.
 
 The engine (`engine/secrets.ts` `shouldRevealSecret`) evaluates reveal conditions against the character's runtime state (stress, evidence shown, secrets already revealed). The model never decides a reveal.
 
