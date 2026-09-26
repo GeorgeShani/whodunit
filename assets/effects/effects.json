@@ -1,0 +1,210 @@
+{
+ "units": "sprite canvas px (784x1224). Multiply by the character's effectScale and by the on-screen sprite scale.",
+ "facing": "Sprites face LEFT. offset.x > 0 = toward the back of the character. If you mirror a sprite, mirror offset.x and the overlay.",
+ "effectScale": {
+  "reginald": 1.0,
+  "victoria": 0.92,
+  "archibald": 0.85,
+  "gregory": 0.8
+ },
+ "effects": {
+  "impact": {
+   "file": "impact.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "faceFront",
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "width": 340,
+   "offset": [
+    -70,
+    0
+   ],
+   "layer": "front"
+  },
+  "sweat": {
+   "file": "sweat.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "headTop",
+   "pivot": [
+    0.5,
+    0.62
+   ],
+   "width": 300,
+   "offset": [
+    40,
+    50
+   ],
+   "layer": "front"
+  },
+  "anger": {
+   "file": "anger.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "headTop",
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "width": 180,
+   "offset": [
+    120,
+    10
+   ],
+   "layer": "front"
+  },
+  "confusion": {
+   "file": "confusion.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "headTop",
+   "pivot": [
+    0.5,
+    0.85
+   ],
+   "width": 260,
+   "offset": [
+    0,
+    -5
+   ],
+   "layer": "front"
+  },
+  "surprise": {
+   "file": "surprise.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "headTop",
+   "pivot": [
+    0.5,
+    0.8
+   ],
+   "width": 280,
+   "offset": [
+    0,
+    -5
+   ],
+   "layer": "front"
+  },
+  "speed": {
+   "file": "speed.webp",
+   "size": [
+    1024,
+    512
+   ],
+   "anchor": "bodyBack",
+   "pivot": [
+    0.0,
+    0.5
+   ],
+   "width": 620,
+   "offset": [
+    -40,
+    0
+   ],
+   "layer": "behind"
+  },
+  "discovery": {
+   "file": "discovery.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "headTop",
+   "pivot": [
+    0.5,
+    0.95
+   ],
+   "width": 240,
+   "offset": [
+    0,
+    -5
+   ],
+   "layer": "front"
+  },
+  "shock": {
+   "file": "shock.webp",
+   "size": [
+    768,
+    768
+   ],
+   "anchor": "headCenter",
+   "pivot": [
+    0.5,
+    0.5
+   ],
+   "width": 820,
+   "offset": [
+    0,
+    0
+   ],
+   "layer": "behind"
+  },
+  "lightning": {
+   "file": "lightning.webp",
+   "size": [
+    512,
+    1024
+   ],
+   "anchor": "screen",
+   "pivot": [
+    0.5,
+    0.0
+   ],
+   "height": "100vh",
+   "offset": [
+    0,
+    0
+   ],
+   "layer": "scene-flash"
+  },
+  "smoke": {
+   "file": "smoke.webp",
+   "size": [
+    512,
+    512
+   ],
+   "anchor": "feet",
+   "pivot": [
+    0.5,
+    0.85
+   ],
+   "width": 560,
+   "offset": [
+    0,
+    0
+   ],
+   "layer": "front"
+  },
+  "dust": {
+   "file": "dust.webp",
+   "size": [
+    768,
+    384
+   ],
+   "anchor": "feet",
+   "pivot": [
+    0.5,
+    0.72
+   ],
+   "width": 620,
+   "offset": [
+    0,
+    0
+   ],
+   "layer": "front"
+  }
+ }
+}
