@@ -35,6 +35,8 @@ export interface HandlerResult {
 export interface HandlerDeps {
   caseData: LoadedCase;
   env?: Env;
+  /** Case assumed for legacy state tokens that predate caseId (the app's default case). */
+  legacyCaseId?: string;
   /** Test hook: observe the exact prompt sent to the model. */
   onPrompt?: (p: { system: string; user: string }) => void;
 }
@@ -47,13 +49,17 @@ const fallbackBody = (error: string, stateToken?: string, seed = 0): Interrogate
 });
 
 export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promise<HandlerResult> {
-  const { caseData, env } = deps;
+  const { caseData, env, legacyCaseId } = deps;
   const parsed = InterrogateRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: fallbackBody("invalid_request"), diag: { reason: "invalid_request" } };
-  const { characterId, question, presentedEvidenceId, stateToken } = parsed.data;
+  const { characterId, question, presentedEvidenceId, stateToken, caseId } = parsed.data;
+  // The route resolves the case; a body naming a different one is a client bug, not a new game.
+  if (caseId !== undefined && caseId !== caseData.id) {
+    return { status: 404, body: fallbackBody("unknown_case"), diag: { reason: "unknown_case" } };
+  }
 
   // 1. Signed state (absent = new game; present but invalid = reset in character).
-  const { game, notice } = restoreSession(caseData, stateToken, env);
+  const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   const withNotice = (b: InterrogateResponseBody) => (notice ? { ...b, notice } : b);
   const unchangedToken = () => saveSession(game, env);
 

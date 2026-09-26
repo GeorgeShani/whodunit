@@ -1,0 +1,46 @@
+[
+  {
+    "id": "quill-strikes",
+    "statement": "HL_GUILTY: Quill strikes the captain with the spyglass in the lamp room.",
+    "category": "timeline",
+    "time": "22:30",
+    "locationId": "lamp-room",
+    "involvesCharacterIds": [
+      "keeper-quill",
+      "captain-brine"
+    ]
+  },
+  {
+    "id": "quill-on-dock",
+    "statement": "HL_QUILL_DOCK: Quill hurries back from the dock, dripping.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "dock",
+    "involvesCharacterIds": [
+      "keeper-quill"
+    ]
+  },
+  {
+    "id": "marlow-rum",
+    "statement": "HL_MARLOW_RUM: Marlow hides smuggled rum in the galley.",
+    "category": "object",
+    "time": "22:00",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "cook-marlow"
+    ]
+  },
+  {
+    "id": "finch-asleep",
+    "statement": "HL_FINCH: Finch dozes in the galley.",
+    "category": "alibi",
+    "from": "22:00",
+    "to": "22:45",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "finch"
+    ],
+    "source": "witnessed",
+    "confidence": 0.8
+  }
+]

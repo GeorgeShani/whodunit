@@ -1,0 +1,69 @@
+{
+  "id": "harbor-light",
+  "title": "Murder at Harbor Light",
+  "tagline": "Second fixture tagline.",
+  "intro": "Second fixture intro.",
+  "dayStartsAt": "12:00",
+  "victim": {
+    "id": "captain-brine",
+    "name": "Captain Brine",
+    "description": "HL_VICTIM_DESC",
+    "foundAtLocationId": "lamp-room",
+    "foundAt": "22:40",
+    "causeOfDeath": "HL blow to the head."
+  },
+  "locations": [
+    {
+      "id": "lamp-room",
+      "name": "Lamp Room",
+      "description": "HL lamp room.",
+      "searchFlavor": {
+        "lines": [
+          "HL_SEARCH_lamp-room"
+        ],
+        "emptyLine": "HL_EMPTY_lamp-room"
+      },
+      "background": "/assets/backgrounds/manor.webp"
+    },
+    {
+      "id": "galley",
+      "name": "Galley",
+      "description": "HL galley.",
+      "searchFlavor": {
+        "lines": [
+          "HL_SEARCH_galley"
+        ]
+      }
+    },
+    {
+      "id": "dock",
+      "name": "Dock",
+      "description": "HL dock.",
+      "searchFlavor": {
+        "lines": [
+          "HL_SEARCH_dock"
+        ]
+      }
+    }
+  ],
+  "facts": [
+    {
+      "id": "hl-storm",
+      "statement": "HL_FACT: A gale blew all night.",
+      "category": "background"
+    }
+  ],
+  "motives": [
+    {
+      "id": "salvage-rights",
+      "label": "A quarrel over salvage rights"
+    },
+    {
+      "id": "rum-debt",
+      "label": "An unpaid rum debt"
+    }
+  ],
+  "backdrops": {
+    "suspects": "/assets/backgrounds/library.webp"
+  }
+}

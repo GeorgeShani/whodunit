@@ -6,6 +6,10 @@
  *
  *   npx tsx scripts/check-overflow.ts [baseUrl] [--chrome /path/to/chrome]
  *
+ * Case-agnostic: it picks the first suspect, the first notebook clue and
+ * searches rooms until a clue turns up (data-* hooks), so it works on
+ * /case/<id> for any case (pass the full URL as baseUrl).
+ *
  * Defaults: http://localhost:3000, /usr/bin/google-chrome (or $CHROME_PATH).
  * Exits 1 on any overflow sample. Interrogation talks to /api/interrogate, so
  * against a server with a model key it makes a couple of live calls.
@@ -96,7 +100,7 @@ async function run(): Promise<number> {
     await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
     await wait(500);
     await label(p, "suspects→interrogation");
-    await clickButton(p, /Reginald/);
+    await p.locator("[data-suspect-id]").first().click({ force: true });
     await wait(1500);
     await label(p, "interrogation reply (emotion)");
     await clickButton(p, /The victim/);
@@ -105,7 +109,7 @@ async function run(): Promise<number> {
     await label(p, "present evidence menu");
     await clickButton(p, /Present evidence/);
     await wait(800);
-    await clickButton(p, /Silver Candlestick/);
+    if (await p.locator("[data-evidence-id]").count()) await p.locator("[data-evidence-id]").first().click({ force: true });
     await wait(300);
     await waitReply(p).catch(() => undefined);
     await wait(2500);
@@ -119,8 +123,12 @@ async function run(): Promise<number> {
       await wait(2500);
       await label(p, "investigate: search + discovery sting");
       await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
-      await clickButton(p, /Search The Dining Room/);
-      await wait(2500);
+      const rooms = p.locator("[data-location-id]");
+      for (let i = 0; i < (await rooms.count()); i++) {
+        await rooms.nth(i).click({ force: true });
+        await wait(2000);
+        if (await p.getByRole("button", { name: /Next clue|Into the notebook/ }).count()) break;
+      }
       for (let i = 0; i < 3; i++) {
         const next = p.getByRole("button", { name: /Next clue|Into the notebook/ });
         if (!(await next.count())) break;

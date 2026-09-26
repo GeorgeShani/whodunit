@@ -21,7 +21,7 @@ import { MAX_CONFRONTATION_TURNS } from "./constants";
 // Primitives
 // ---------------------------------------------------------------------------
 
-/** Stable, human-authored id: lowercase kebab/snake case, e.g. "lady-blackwood". */
+/** Stable, human-authored id: lowercase kebab/snake case, e.g. "lady-ashford". */
 export const IdSchema = z
   .string()
   .regex(/^[a-z0-9]+(?:[-_][a-z0-9]+)*$/, "ids must be lowercase kebab/snake case")
@@ -123,12 +123,24 @@ export const SearchFlavorSchema = z.strictObject({
 });
 export type SearchFlavor = z.infer<typeof SearchFlavorSchema>;
 
+/**
+ * A public art asset path under /assets (served from assets/ via sync:assets),
+ * e.g. "/assets/backgrounds/manor.webp". No "..", no query strings, image types only.
+ */
+export const AssetPathSchema = z
+  .string()
+  .max(200)
+  .regex(/^\/assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_.-]+\.(?:webp|png|jpe?g|svg)$/i, "asset paths look like /assets/<folder>/<file>.webp")
+  .refine((p) => !p.includes(".."), "asset paths may not contain ..");
+
 export const LocationSchema = z.strictObject({
   id: IdSchema,
   name: NonEmptyText,
   description: NonEmptyText,
   /** Optional PUBLIC search flavour (Investigate screen). */
   searchFlavor: SearchFlavorSchema.optional(),
+  /** Optional PUBLIC background art for this location (Investigate card, scenes). Falls back to assets/backgrounds/<id>.webp, then an icon. */
+  background: AssetPathSchema.optional(),
 });
 export type Location = z.infer<typeof LocationSchema>;
 

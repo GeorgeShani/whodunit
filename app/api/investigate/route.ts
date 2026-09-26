@@ -1,12 +1,11 @@
 /**
  * POST /api/investigate: deterministic location search (no model).
- * Request:  { locationId, stateToken? }   (same signed token as /api/interrogate)
+ * Request:  { caseId?, locationId, stateToken? }   (same signed token and case resolution as /api/interrogate)
  * Response: { locationId, found: FoundEvidence[], lines, searchedLocationIds, stateToken, notice?, error? }
  */
 import { NextResponse } from "next/server";
-import { ACTIVE_CASE_ID } from "@/engine/active-case";
-import { getCase } from "@/engine/case-loader";
-import { BAD_REQUEST_LINE, handleInvestigate } from "@/engine/investigate-handler";
+import { BAD_REQUEST_LINE, handleInvestigate, UNKNOWN_CASE_LINE } from "@/engine/investigate-handler";
+import { resolveRequestCase } from "@/lib/request-case";
 import type { InvestigateResponseBody } from "@/engine/investigate-schema";
 
 export const dynamic = "force-dynamic";
@@ -22,8 +21,14 @@ export async function POST(request: Request) {
     return fail(400, "invalid_json");
   }
   try {
-    const caseData = await getCase(ACTIVE_CASE_ID);
-    const { status, body } = handleInvestigate(json, { caseData });
+    const rc = await resolveRequestCase(json);
+    if (!rc.ok) {
+      return NextResponse.json<InvestigateResponseBody>(
+        { found: [], lines: [UNKNOWN_CASE_LINE], searchedLocationIds: [], error: rc.error },
+        { status: 404 },
+      );
+    }
+    const { status, body } = handleInvestigate(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
     return NextResponse.json<InvestigateResponseBody>(body, { status });
   } catch (e) {
     console.error("[investigate] failed:", (e as Error).name);

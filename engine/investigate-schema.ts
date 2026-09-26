@@ -1,8 +1,10 @@
 /** Request/response contract for POST /api/investigate (client-safe). */
 import { z } from "zod";
-import { IdSchema, type Evidence } from "./types";
+import { CaseIdSchema, IdSchema, type Evidence } from "./types";
 
 export const InvestigateRequestSchema = z.strictObject({
+  /** The case being played (from the page route). Omitted: the token's case, else the default case. */
+  caseId: CaseIdSchema.optional(),
   locationId: IdSchema,
   /** The SAME signed game-state token interrogate uses (omit on a new game). */
   stateToken: z.string().max(60_000).optional(),

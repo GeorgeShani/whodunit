@@ -1,0 +1,44 @@
+[
+  {
+    "id": "oil-can",
+    "name": "Oil Can",
+    "description": "HL_OILCAN_DESC",
+    "kind": "physical",
+    "locationId": "lamp-room",
+    "initiallyAvailable": true,
+    "relatedCharacters": [
+      "keeper-quill"
+    ],
+    "discoveryLine": "HL_DISC_oil-can"
+  },
+  {
+    "id": "wet-logbook",
+    "name": "Wet Logbook",
+    "description": "HL_LOGBOOK_DESC",
+    "kind": "document",
+    "locationId": "galley",
+    "relatedFactIds": [
+      "marlow-rum"
+    ],
+    "initiallyAvailable": false,
+    "relatedCharacters": [
+      "cook-marlow"
+    ],
+    "discoveryLine": "HL_DISC_wet-logbook"
+  },
+  {
+    "id": "brass-spyglass",
+    "name": "Brass Spyglass",
+    "description": "HL_SPYGLASS_DESC",
+    "kind": "physical",
+    "locationId": "dock",
+    "relatedFactIds": [
+      "quill-strikes"
+    ],
+    "initiallyAvailable": false,
+    "relatedCharacters": [
+      "keeper-quill"
+    ],
+    "discoveryLine": "HL_DISC_brass-spyglass"
+  }
+]

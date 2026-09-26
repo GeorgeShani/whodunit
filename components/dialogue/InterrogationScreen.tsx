@@ -6,6 +6,7 @@ import { EmotionBadge } from "@/components/characters/EmotionBadge";
 import { Portrait } from "@/components/characters/Portrait";
 import { EvidencePicker } from "@/components/evidence/EvidencePicker";
 import { CartoonButton } from "@/components/game/CartoonButton";
+import { backdropStyle } from "@/components/game/backdrop";
 import type { AskInput } from "@/components/game/Game";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { Emotion } from "@/engine/types";
@@ -21,6 +22,7 @@ export function InterrogationScreen({
   evidence,
   messages,
   pending,
+  backdrop,
   busyWith = null,
   speaking = false,
   onAsk,
@@ -32,6 +34,8 @@ export function InterrogationScreen({
   evidence: PublicEvidence[];
   messages: DialogueMessage[];
   pending: boolean;
+  /** Case interrogation backdrop; falls back to the night gradient. */
+  backdrop?: string;
   /** Someone else is mid-reply (or a search is running): controls lock, typed text is kept (#8). */
   busyWith?: string | null;
   speaking?: boolean;
@@ -52,7 +56,12 @@ export function InterrogationScreen({
   };
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-4">
+    <main
+      className={`flex min-h-0 flex-1 flex-col overflow-hidden p-4 ${
+        backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)]"
+      }`}
+      style={backdropStyle(backdrop)}
+    >
       <header className="mb-3 flex items-center justify-between gap-2">
         <CartoonButton tone="white" onClick={onBack}>
           ← Back to suspects

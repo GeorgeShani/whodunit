@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CartoonButton } from "@/components/game/CartoonButton";
+import { backdropStyle } from "@/components/game/backdrop";
 import type { Location } from "@/engine/types";
 
 const ICONS = ["🕯️", "🍽️", "🚪", "🌧️", "🫖", "📚", "🛏️", "🗝️"];
@@ -11,7 +12,7 @@ export function InvestigateScreen({
   locations,
   searched,
   lines,
-  backgrounds,
+  backdrop,
   pendingId,
   otherBusy = false,
   onSearch,
@@ -21,7 +22,8 @@ export function InvestigateScreen({
   searched: string[];
   /** Last flavour lines per location. */
   lines: Record<string, string[]>;
-  backgrounds: Record<string, string>;
+  /** Case investigate backdrop; falls back to the purple radial. Card art comes from location.background. */
+  backdrop?: string;
   pendingId: string | null;
   /** Another request (an interrogation reply) is in flight: searching waits for it. */
   otherBusy?: boolean;
@@ -29,7 +31,12 @@ export function InvestigateScreen({
   onBack: () => void;
 }) {
   return (
-    <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-6 bg-[radial-gradient(circle_at_top,#3b1d6e_0%,#1b1035_70%)] px-4 py-8">
+    <main
+      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-6 px-4 py-8 ${
+        backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#3b1d6e_0%,#1b1035_70%)]"
+      }`}
+      style={backdropStyle(backdrop)}
+    >
       <div className="flex w-full max-w-6xl items-center justify-between gap-2">
         <CartoonButton tone="white" onClick={onBack}>
           ← Back to suspects
@@ -46,7 +53,7 @@ export function InvestigateScreen({
         {locations.map((l, i) => {
           const done = searched.includes(l.id);
           const busy = pendingId === l.id;
-          const bg = backgrounds[l.id];
+          const bg = l.background;
           return (
             <motion.li
               key={l.id}
@@ -57,7 +64,7 @@ export function InvestigateScreen({
             >
               <div
                 className="relative flex h-36 items-center justify-center border-b-4 border-black bg-gradient-to-br from-violet-300 via-amber-200 to-orange-300 bg-cover bg-center"
-                style={bg ? { backgroundImage: `url(${bg})` } : undefined}
+                style={backdropStyle(bg)}
               >
                 {!bg && (
                   <span className="text-6xl drop-shadow-[3px_3px_0_#000]" aria-hidden>
@@ -86,6 +93,7 @@ export function InvestigateScreen({
                   disabled={pendingId !== null || otherBusy}
                   onClick={() => onSearch(l.id)}
                   aria-label={`Search ${l.name}`}
+                  data-location-id={l.id}
                 >
                   {busy ? "🔎 Searching…" : done ? "🔎 Search again" : "🔎 Search"}
                 </CartoonButton>

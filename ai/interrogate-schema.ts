@@ -4,12 +4,14 @@
  * state token; the server resolves everything else from the case it holds.
  */
 import { z } from "zod";
-import { IdSchema } from "@/engine/types";
+import { CaseIdSchema, IdSchema } from "@/engine/types";
 import type { CharacterResponse } from "./schemas";
 
 export const MAX_QUESTION_CHARS = 500;
 
 export const InterrogateRequestSchema = z.strictObject({
+  /** The case being played (from the page route). Omitted: the token's case, else the default case. */
+  caseId: CaseIdSchema.optional(),
   characterId: IdSchema,
   /** What the detective says (free text or a quick-question button's line). */
   question: z.string().trim().min(1).max(MAX_QUESTION_CHARS),

@@ -57,7 +57,8 @@ const TokenCharacterSchema = z.strictObject({
 });
 
 const TokenPayloadSchema = z.strictObject({
-  caseId: CaseIdSchema,
+  /** Optional only for legacy tokens; decode maps a missing id to options.legacyCaseId. */
+  caseId: CaseIdSchema.optional(),
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema),
   searchedLocationIds: z.array(IdSchema).default([]),
@@ -131,7 +132,13 @@ export type DecodeResult =
  * Verify + decode a token against the loaded case. On any failure the caller
  * should start from createInitialGameState(caseData).
  */
-export function decodeStateToken(token: string | undefined, caseData: LoadedCase, env?: Env): DecodeResult {
+export interface DecodeOptions {
+  /** Case assumed for legacy tokens signed before caseId was part of the payload. */
+  legacyCaseId?: string;
+}
+
+/** Verify the signature and parse the payload (no case checks). */
+function verifiedPayload(token: string | undefined, env?: Env): { ok: true; p: TokenPayload } | { ok: false; reason: "missing" | "malformed" | "bad_signature" | "invalid_payload" } {
   if (!token) return { ok: false, reason: "missing" };
   if (token.length > STATE_LIMITS.tokenChars) return { ok: false, reason: "malformed" };
   const parts = token.split(".");
@@ -148,8 +155,24 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   }
   const parsed = TokenPayloadSchema.safeParse(raw);
   if (!parsed.success) return { ok: false, reason: "invalid_payload" };
-  const p = parsed.data;
-  if (p.caseId !== caseData.id) return { ok: false, reason: "wrong_case" };
+  return { ok: true, p: parsed.data };
+}
+
+/**
+ * The case a token was issued for, if its signature verifies (legacy tokens
+ * without caseId map to legacyCaseId). Used to pick which case to load; the
+ * id must still be allowlisted by the caller.
+ */
+export function peekStateTokenCaseId(token: string | undefined, env?: Env, options: DecodeOptions = {}): string | undefined {
+  const v = verifiedPayload(token, env);
+  return v.ok ? (v.p.caseId ?? options.legacyCaseId) : undefined;
+}
+
+export function decodeStateToken(token: string | undefined, caseData: LoadedCase, env?: Env, options: DecodeOptions = {}): DecodeResult {
+  const v = verifiedPayload(token, env);
+  if (!v.ok) return v;
+  const p = v.p;
+  if ((p.caseId ?? options.legacyCaseId) !== caseData.id) return { ok: false, reason: "wrong_case" };
 
   // Defence in depth: every id must still exist in the case (case edits between deploys).
   const evidence = new Set(caseData.evidence.map((e) => e.id));

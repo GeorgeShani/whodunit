@@ -15,6 +15,7 @@ import { EndingsSchema } from "./endings";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
 import {
+  AssetPathSchema,
   CaseIdSchema,
   CharacterSchema,
   EvidenceSchema,
@@ -52,6 +53,15 @@ export const MotiveOptionSchema = z.strictObject({
 export type MotiveOption = z.infer<typeof MotiveOptionSchema>;
 
 /** cases/<id>/case.json */
+/** Per-screen backdrop art for a case (all optional). */
+export const CaseBackdropsSchema = z.strictObject({
+  title: AssetPathSchema.optional(),
+  suspects: AssetPathSchema.optional(),
+  interrogation: AssetPathSchema.optional(),
+  investigate: AssetPathSchema.optional(),
+});
+export type CaseBackdrops = z.infer<typeof CaseBackdropsSchema>;
+
 export const CaseEnvelopeSchema = z.strictObject({
   /** Must equal the case folder name. */
   id: CaseIdSchema,
@@ -67,6 +77,8 @@ export const CaseEnvelopeSchema = z.strictObject({
   facts: z.array(FactSchema).default([]),
   /** Motive options for the accusation screen (include red herrings). */
   motives: z.array(MotiveOptionSchema).min(2),
+  /** Optional PUBLIC scene backdrops per screen (asset paths). Each falls back to the default look. */
+  backdrops: CaseBackdropsSchema.optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 

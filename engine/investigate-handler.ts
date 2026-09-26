@@ -11,6 +11,8 @@ import type { Evidence } from "./types";
 
 export const UNKNOWN_LOCATION_LINE =
   "You march off confidently... straight into a broom cupboard. There's no such place in this house, detective.";
+export const UNKNOWN_CASE_LINE =
+  "You knock at the door of a house that isn't there. Wrong address, detective.";
 export const BAD_REQUEST_LINE = "You scribble in your notebook, but even you can't read it. Try that again, detective.";
 
 const toFound = (e: Evidence): FoundEvidence => ({
@@ -24,14 +26,17 @@ const toFound = (e: Evidence): FoundEvidence => ({
 
 export function handleInvestigate(
   json: unknown,
-  deps: { caseData: LoadedCase; env?: Env },
+  deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string },
 ): { status: number; body: InvestigateResponseBody } {
-  const { caseData, env } = deps;
+  const { caseData, env, legacyCaseId } = deps;
   const parsed = InvestigateRequestSchema.safeParse(json);
   if (!parsed.success) {
     return { status: 400, body: { found: [], lines: [BAD_REQUEST_LINE], searchedLocationIds: [], error: "invalid_request" } };
   }
-  const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env);
+  if (parsed.data.caseId !== undefined && parsed.data.caseId !== caseData.id) {
+    return { status: 404, body: { found: [], lines: [UNKNOWN_CASE_LINE], searchedLocationIds: [], error: "unknown_case" } };
+  }
+  const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env, { legacyCaseId });
   const withNotice = (b: InvestigateResponseBody) => (notice ? { ...b, notice } : b);
 
   if (!caseData.locations.some((l) => l.id === parsed.data.locationId)) {

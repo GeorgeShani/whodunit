@@ -6,7 +6,7 @@
  * the player has not discovered, and the endings (endings.json). Pure (no fs), so client components may import
  * its TYPES.
  */
-import type { LoadedCase, MotiveOption, Victim } from "./case-schema";
+import type { CaseBackdrops, LoadedCase, MotiveOption, Victim } from "./case-schema";
 import type { EmotionalState, Evidence, Location } from "./types";
 
 export interface PublicSuspect {
@@ -35,6 +35,8 @@ export interface PublicCaseView {
   /** Motive OPTIONS for the accusation screen (authored as public choices; never flags the true one). */
   motives: MotiveOption[];
   victim: Victim;
+  /** Public per-screen backdrop art (asset paths), resolved with fallbacks by the page. */
+  backdrops: CaseBackdrops;
   locations: Location[];
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
@@ -58,6 +60,7 @@ export function getPublicCaseView(
     meta: { id: c.id, title: c.title, tagline: c.tagline, intro: c.intro },
     motives: c.motives.map(({ id, label, description }) => ({ id, label, ...(description ? { description } : {}) })),
     victim: { ...c.victim },
+    backdrops: { ...(c.backdrops ?? {}) },
     locations: c.locations.map((l) => ({ ...l })),
     suspects: c.characters.map((ch) => {
       const portrait = ch.portrait ?? ch.id;

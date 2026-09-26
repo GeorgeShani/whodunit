@@ -85,7 +85,7 @@ export interface AskInput {
 }
 
 /** Client-side game shell. The server holds the case; this holds UI state only. */
-export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgrounds?: Record<string, string> }) {
+export function Game({ view }: { view: PublicCaseView }) {
   const caseId = view.meta.id;
   const [screen, setScreen] = useState<Screen>("title");
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -185,6 +185,7 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
             characterId,
             question,
             ...(presentedEvidenceId ? { presentedEvidenceId } : {}),
+            caseId,
             ...(stateToken.current ? { stateToken: stateToken.current } : {}),
           },
           turn,
@@ -209,7 +210,7 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
       })();
       return true;
     },
-    [active, conversations, push, resetProgress],
+    [active, caseId, conversations, push, resetProgress],
   );
 
   const onSearch = useCallback(
@@ -217,7 +218,7 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
       if (inFlight.current) return;
       inFlight.current = true;
       setSearchingId(locationId);
-      const r = await investigate({ locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
+      const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
       if (r.stateToken) stateToken.current = r.stateToken;
       if (r.notice) resetProgress();
       if (r.searchedLocationIds) setSearched(r.searchedLocationIds);
@@ -235,7 +236,7 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
       inFlight.current = false;
       setSearchingId(null);
     },
-    [view.evidence, resetProgress],
+    [caseId, view.evidence, resetProgress],
   );
 
   const pendingName = pendingId ? view.suspects.find((s) => s.id === pendingId)?.name.split(" ")[0] : undefined;
@@ -259,10 +260,11 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
       >
-        {screen === "title" && <TitleScreen tagline={view.meta.tagline} onStart={() => setScreen("intro")} />}
+        {screen === "title" && <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => setScreen("intro")} />}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => setScreen("suspects")} />}
         {screen === "suspects" && (
           <SuspectSelect
+            backdrop={view.backdrops.suspects}
             suspects={view.suspects}
             emotions={emotions}
             onBack={() => setScreen("intro")}
@@ -276,6 +278,7 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
         )}
         {screen === "interrogation" && active && (
           <InterrogationScreen
+            backdrop={view.backdrops.interrogation}
             suspect={active}
             emotion={emotions[active.id] ?? active.emotion.emotion}
             otherSuspects={view.suspects.filter((s) => s.id !== active.id)}
@@ -293,7 +296,7 @@ export function Game({ view, backgrounds = {} }: { view: PublicCaseView; backgro
             locations={view.locations}
             searched={searched}
             lines={searchLines}
-            backgrounds={backgrounds}
+            backdrop={view.backdrops.investigate}
             pendingId={searchingId}
             otherBusy={pendingId !== null}
             onSearch={onSearch}

@@ -65,3 +65,28 @@ describe("SITE_URL", () => {
     expect(resolveSiteUrl("not a url")).toBe(DEFAULT_SITE_URL);
   });
 });
+
+describe("case routes", () => {
+  it("/case/[caseId] builds only public cases and 404s everything else", async () => {
+    const mod = await import("@/app/case/[caseId]/page");
+    expect(mod.dynamicParams).toBe(false);
+    const params = mod.generateStaticParams().map((p) => p.caseId);
+    expect(params).toContain("blackwood");
+    expect(params.some((id) => id.startsWith("_") || id.startsWith("fixture"))).toBe(false);
+    await expect(mod.default({ params: Promise.resolve({ caseId: "_placeholder" }) })).rejects.toThrow();
+    await expect(mod.default({ params: Promise.resolve({ caseId: "nonexistent" }) })).rejects.toThrow();
+  });
+
+  it("the default case's canonical URL is / (no duplicate with /case/<default>)", async () => {
+    const mod = await import("@/app/case/[caseId]/page");
+    const md = await mod.generateMetadata({ params: Promise.resolve({ caseId: "blackwood" }) });
+    expect(md.alternates?.canonical).toBe("/");
+    expect(await mod.generateMetadata({ params: Promise.resolve({ caseId: "_placeholder" }) })).toEqual({});
+  });
+
+  it("the sitemap lists / and no hidden cases", () => {
+    const urls = sitemap().map((e) => e.url);
+    expect(urls[0]).toBe(DEFAULT_SITE_URL);
+    expect(urls.some((u) => /_placeholder|fixture|harbor-light|\/case\/blackwood/.test(u))).toBe(false);
+  });
+});
