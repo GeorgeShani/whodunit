@@ -24,7 +24,14 @@
       "goes beetroot red",
       "mops his brow with a huge handkerchief",
       "bites clean through his cigar"
-    ]
+    ],
+    "confidence": 0.75,
+    "nervousness": 0.55,
+    "arrogance": 0.9,
+    "honesty": 0.2,
+    "impulsiveness": 0.75,
+    "empathy": 0.2,
+    "aggression": 0.75
   },
   "goals": [
     "Keep the embezzlement and his telephone call secret",
@@ -109,9 +116,15 @@
       "id": "s-archibald-embezzlement",
       "description": "He embezzled company money, and during the blackout he telephoned his broker to move it before midnight.",
       "severity": "serious",
-      "pressuredByEvidenceIds": [
-        "library-key"
-      ],
+      "revealConditions": {
+        "evidenceIds": [
+          "library-key"
+        ],
+        "mode": "any",
+        "afterSecretIds": [
+          "s-archibald-false-alibi"
+        ]
+      },
       "relatedFactIds": [
         "f-archibald-embezzlement",
         "ev-archibald-phone"
@@ -121,9 +134,12 @@
       "id": "s-archibald-false-alibi",
       "description": "He was not with Victoria in the dining room from 21:13 to 21:22. He was on the servants' telephone, and he agreed to her story to hide the call.",
       "severity": "serious",
-      "pressuredByEvidenceIds": [
-        "library-key"
-      ],
+      "revealConditions": {
+        "evidenceIds": [
+          "library-key"
+        ],
+        "mode": "any"
+      },
       "relatedFactIds": [
         "ev-archibald-leaves-dining",
         "ev-archibald-phone",
@@ -133,28 +149,62 @@
   ],
   "relationships": [
     {
-      "characterId": "lord-blackwood",
+      "targetCharacterId": "lord-blackwood",
+      "trust": 10,
+      "fear": 85,
+      "affection": 10,
+      "resentment": 90,
+      "suspicion": 40,
       "kind": "business partner",
-      "sentiment": -0.8,
       "description": "Former friend who was about to send him to prison."
     },
     {
-      "characterId": "victoria",
+      "targetCharacterId": "victoria",
+      "trust": 55,
+      "fear": 5,
+      "affection": 45,
+      "resentment": 5,
+      "suspicion": 15,
       "kind": "partner's wife",
-      "sentiment": 0.3,
       "description": "Flirtatious condescension. Glad of her alibi."
     },
     {
-      "characterId": "reginald",
+      "targetCharacterId": "reginald",
+      "trust": 15,
+      "fear": 45,
+      "affection": 5,
+      "resentment": 45,
+      "suspicion": 55,
       "kind": "butler",
-      "sentiment": -0.4,
       "description": "Thinks him a snoop and a snitch."
     },
     {
-      "characterId": "gregory",
+      "targetCharacterId": "gregory",
+      "trust": 20,
+      "fear": 10,
+      "affection": 5,
+      "resentment": 20,
+      "suspicion": 70,
       "kind": "gardener",
-      "sentiment": -0.3,
       "description": "Barely notices him. A convenient suspect."
+    }
+  ],
+  "intendedLies": [
+    {
+      "id": "l-archibald-together",
+      "topic": "whereabouts during the blackout",
+      "aboutFactId": "ev-archibald-phone",
+      "claim": "I was with Victoria the whole time. Ask her!",
+      "brokenByEvidenceIds": [
+        "library-key",
+        "burned-letter"
+      ]
+    },
+    {
+      "id": "l-archibald-racehorse",
+      "topic": "the row at dinner",
+      "aboutFactId": "ev-archibald-threat",
+      "claim": "The row at dinner? A racehorse, old boy. Purely sporting."
     }
   ],
   "initialEmotion": {

@@ -24,7 +24,14 @@
       "his left eyebrow twitches",
       "starts polishing furiously",
       "over-explains the pantry"
-    ]
+    ],
+    "confidence": 0.45,
+    "nervousness": 0.7,
+    "arrogance": 0.35,
+    "honesty": 0.35,
+    "impulsiveness": 0.15,
+    "empathy": 0.55,
+    "aggression": 0.1
   },
   "goals": [
     "Keep his theft from the household accounts hidden",
@@ -113,9 +120,12 @@
       "id": "s-reginald-theft",
       "description": "He has skimmed hundreds of pounds from the household accounts and spent the blackout counting it in his pantry.",
       "severity": "serious",
-      "pressuredByEvidenceIds": [
-        "burned-letter"
-      ],
+      "revealConditions": {
+        "evidenceIds": [
+          "burned-letter"
+        ],
+        "mode": "any"
+      },
       "relatedFactIds": [
         "f-reginald-theft",
         "f-letter-accuses-butler",
@@ -127,9 +137,15 @@
       "id": "s-reginald-overheard",
       "description": "He eavesdropped on part of her ladyship's argument with his lordship about the new will.",
       "severity": "embarrassing",
-      "pressuredByEvidenceIds": [
-        "burned-letter"
-      ],
+      "revealConditions": {
+        "evidenceIds": [
+          "burned-letter"
+        ],
+        "mode": "any",
+        "afterSecretIds": [
+          "s-reginald-theft"
+        ]
+      },
       "relatedFactIds": [
         "ev-reginald-overhears"
       ]
@@ -137,28 +153,64 @@
   ],
   "relationships": [
     {
-      "characterId": "lord-blackwood",
+      "targetCharacterId": "lord-blackwood",
+      "trust": 35,
+      "fear": 65,
+      "affection": 30,
+      "resentment": 50,
+      "suspicion": 40,
       "kind": "employer",
-      "sentiment": -0.1,
       "description": "Twenty years of service to a hard, suspicious master. Duty without affection."
     },
     {
-      "characterId": "victoria",
+      "targetCharacterId": "victoria",
+      "trust": 45,
+      "fear": 50,
+      "affection": 20,
+      "resentment": 25,
+      "suspicion": 30,
       "kind": "mistress of the house",
-      "sentiment": 0.0,
       "description": "Wary deference. She now holds his job in her hands."
     },
     {
-      "characterId": "archibald",
+      "targetCharacterId": "archibald",
+      "trust": 10,
+      "fear": 35,
+      "affection": 5,
+      "resentment": 60,
+      "suspicion": 85,
       "kind": "house guest",
-      "sentiment": -0.6,
       "description": "Despises the vulgar, bullying partner and heard him threaten his lordship."
     },
     {
-      "characterId": "gregory",
+      "targetCharacterId": "gregory",
+      "trust": 65,
+      "fear": 5,
+      "affection": 55,
+      "resentment": 5,
+      "suspicion": 20,
       "kind": "fellow servant",
-      "sentiment": 0.4,
       "description": "Mild, fatherly fondness for the nervous gardener."
+    }
+  ],
+  "intendedLies": [
+    {
+      "id": "l-reginald-heard-nothing",
+      "topic": "the blackout below stairs",
+      "aboutFactId": "ev-reginald-hears-phone",
+      "claim": "I was in the kitchen polishing silver, sir, and heard nothing at all.",
+      "brokenByEvidenceIds": [
+        "burned-letter"
+      ]
+    },
+    {
+      "id": "l-reginald-few-words",
+      "topic": "her ladyship's argument with his lordship",
+      "aboutFactId": "ev-reginald-overhears",
+      "claim": "Her ladyship and his lordship had a few words, sir. Nothing out of the ordinary.",
+      "brokenByEvidenceIds": [
+        "burned-letter"
+      ]
     }
   ],
   "initialEmotion": {

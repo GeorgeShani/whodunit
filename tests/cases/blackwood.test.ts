@@ -1,272 +1,270 @@
 /**
- * Case 001 "Murder at Blackwood Manor": parses every authored file with the
- * engine's Zod schemas and runs cross-reference / logic checks that the
- * schemas alone cannot express.
- *
- * NOTE (schema gap): engine/types.ts has no schema for the case.json envelope
- * (id, title, victim, locations, facts). `CaseEnvelopeSchema` below is a
- * TEST-LOCAL, provisional wrapper built only from engine schemas. Replace it
- * with the engine's case-file schema once one lands on main.
+ * Case 001 "Murder at Blackwood Manor": loads the case through the engine's
+ * loader/validator (contract v2, docs/CASE_FORMAT.md) and adds story-logic
+ * checks the validator does not run: one place per checkpoint, opportunity and
+ * weapon access, window presence, knowledge boundaries, relationship/belief
+ * consistency and secret-reveal ordering.
  */
-import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
-import { describe, expect, it } from "vitest";
-import { z } from "zod";
-import {
-  CharacterSchema,
-  EvidenceSchema,
-  FactSchema,
-  GameTimeSchema,
-  IdSchema,
-  LocationSchema,
-  type Character,
-  type Evidence,
-  type Fact,
-} from "@/engine";
-import { CaseSolutionSchema } from "@/engine/solution";
+import { beforeAll, describe, expect, it } from "vitest";
+import { loadCase, validateCase } from "@/engine/case-loader";
+import type { LoadedCase } from "@/engine/case-schema";
+import { shouldRevealSecret } from "@/engine/secrets";
+import { gameMinutes } from "@/engine/time";
+import type { Character, TimelineEntry } from "@/engine/types";
 
-const CASE_DIR = join(process.cwd(), "cases", "blackwood");
-const readJson = (rel: string): unknown => JSON.parse(readFileSync(join(CASE_DIR, rel), "utf8"));
+let c: LoadedCase;
+let toMin: (t: string) => number;
+let whereabouts: Map<string, Array<[number, string]>>;
+let checkpoints: number[];
 
-const CaseEnvelopeSchema = z.strictObject({
-  id: IdSchema,
-  title: z.string().trim().min(1),
-  victimId: IdSchema,
-  locations: z.array(LocationSchema).min(1),
-  facts: z.array(FactSchema).default([]),
-});
-
-const caseFile = CaseEnvelopeSchema.parse(readJson("case.json"));
-const timeline: Fact[] = z.array(FactSchema).parse(readJson("timeline.json"));
-const evidence: Evidence[] = z.array(EvidenceSchema).parse(readJson("evidence.json"));
-const solution = CaseSolutionSchema.parse(readJson("solution.json"));
-const characterFiles = readdirSync(join(CASE_DIR, "characters")).filter((f) => f.endsWith(".json")).sort();
-const characters: Character[] = characterFiles.map((f) => CharacterSchema.parse(readJson(join("characters", f))));
-
-const allFacts: Fact[] = [...caseFile.facts, ...timeline];
-const factById = new Map(allFacts.map((f) => [f.id, f]));
-const locationIds = new Set(caseFile.locations.map((l) => l.id));
-const evidenceIds = new Set(evidence.map((e) => e.id));
-const characterIds = new Set(characters.map((c) => c.id));
-const personIds = new Set([...characterIds, caseFile.victimId]);
-const byId = (id: string) => {
-  const c = characters.find((ch) => ch.id === id);
-  if (!c) throw new Error(`no character ${id}`);
-  return c;
+const byId = (id: string): Character => {
+  const ch = c.characters.find((x) => x.id === id);
+  if (!ch) throw new Error(`no character ${id}`);
+  return ch;
 };
+const factById = (id: string) => [...c.facts, ...c.timeline].find((f) => f.id === id);
 
-const toMin = (t: string) => {
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
-};
+/** [from, to] in game minutes for a timeline entry (points have from === to). */
+const range = (e: TimelineEntry): [number, number] =>
+  e.time !== undefined ? [toMin(e.time), toMin(e.time)] : [toMin(e.from!), toMin(e.to!)];
 
-/** Ground-truth whereabouts from `location` facts: person -> sorted [minute, locationId]. */
-const whereabouts = new Map<string, Array<[number, string]>>();
-for (const f of timeline) {
-  if (f.category !== "location" || !f.time || !f.locationId) continue;
-  for (const p of f.involvesCharacterIds) {
-    const list = whereabouts.get(p) ?? [];
-    list.push([toMin(f.time), f.locationId]);
-    whereabouts.set(p, list);
-  }
-}
-for (const list of whereabouts.values()) list.sort((a, b) => a[0] - b[0]);
-
-/** Where was `personId` at `time`? (latest location fact at or before that time) */
-function locationAt(personId: string, time: string): string | undefined {
-  const list = whereabouts.get(personId);
-  if (!list) return undefined;
+/** Where was `personId` at minute `m`? Latest point location entry at or before m. */
+function locationAt(personId: string, m: number): string | undefined {
   let loc: string | undefined;
-  for (const [m, l] of list) if (m <= toMin(time)) loc = l;
+  for (const [t, l] of whereabouts.get(personId) ?? []) if (t <= m) loc = l;
   return loc;
 }
 
-describe("Blackwood case files parse with the engine schemas", () => {
-  it("parses case.json, timeline.json, evidence.json, solution.json and all characters", () => {
-    expect(caseFile.id).toBe("blackwood");
-    expect(caseFile.victimId).toBe("lord-blackwood");
-    expect(timeline.length).toBeGreaterThan(0);
-    expect(characters.map((c) => c.id).sort()).toEqual(["archibald", "gregory", "reginald", "victoria"]);
-  });
+/** Minutes of the entry that we can check: its endpoints plus every checkpoint inside it. */
+const probeMinutes = (e: TimelineEntry): number[] => {
+  const [from, to] = range(e);
+  return [...new Set([from, to, ...checkpoints.filter((m) => m >= from && m <= to)])];
+};
 
-  it("character file names match their ids", () => {
-    characterFiles.forEach((f, i) => expect(f).toBe(`${characters[i].id}.json`));
-  });
-
-  it("keeps locations to the agreed five", () => {
-    expect([...locationIds].sort()).toEqual(["dining-room", "garden", "hall", "kitchen", "library"]);
-  });
-
-  it("has exactly the four agreed clues", () => {
-    expect([...evidenceIds].sort()).toEqual(["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"]);
-  });
-
-  it("uses HH:MM times everywhere", () => {
-    for (const f of allFacts) if (f.time) expect(GameTimeSchema.safeParse(f.time).success).toBe(true);
-    expect(GameTimeSchema.safeParse(solution.time).success).toBe(true);
-  });
+beforeAll(async () => {
+  c = await loadCase("blackwood");
+  toMin = (t) => gameMinutes(t, c.dayStartsAt);
+  whereabouts = new Map();
+  for (const e of c.timeline) {
+    if (e.category !== "location" || e.time === undefined || !e.locationId) continue;
+    for (const p of e.involvesCharacterIds) {
+      const list = whereabouts.get(p) ?? [];
+      list.push([toMin(e.time), e.locationId]);
+      whereabouts.set(p, list);
+    }
+  }
+  for (const list of whereabouts.values()) list.sort((a, b) => a[0] - b[0]);
+  checkpoints = [
+    ...new Set(c.timeline.filter((e) => e.category === "location" && e.time).map((e) => toMin(e.time!))),
+  ].sort((a, b) => a - b);
 });
 
-describe("Blackwood cross-references", () => {
-  it("has globally unique fact, evidence, belief and secret ids", () => {
-    const ids = [
-      ...allFacts.map((f) => f.id),
-      ...evidence.map((e) => e.id),
-      ...characters.flatMap((c) => [...c.beliefs.map((b) => b.id), ...c.secrets.map((s) => s.id)]),
-    ];
-    expect(new Set(ids).size).toBe(ids.length);
+describe("Blackwood loads with the engine loader (contract v2)", () => {
+  it("validateCase reports no issues", async () => {
+    expect((await validateCase("blackwood")).issues).toEqual([]);
   });
 
-  it("victim id does not collide with a character id", () => {
-    expect(characterIds.has(caseFile.victimId)).toBe(false);
+  it("has the agreed cast, rooms, clues and solution", () => {
+    expect(c.victim.id).toBe("lord-blackwood");
+    expect(c.characters.map((ch) => ch.id)).toEqual(["archibald", "gregory", "reginald", "victoria"]);
+    expect(c.locations.map((l) => l.id).sort()).toEqual(["dining-room", "garden", "hall", "kitchen", "library"]);
+    expect(c.evidence.map((e) => e.id).sort()).toEqual(["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"]);
+    expect(c.solution).toMatchObject({
+      murdererId: "victoria",
+      weaponId: "silver-candlestick",
+      locationId: "library",
+      time: "21:17",
+      motiveId: "inheritance",
+    });
+    expect(c.solution.keyEvidenceIds.length).toBeGreaterThan(0);
   });
 
-  it("facts reference existing locations and people", () => {
-    for (const f of allFacts) {
-      if (f.locationId) expect(locationIds, `${f.id}.locationId`).toContain(f.locationId);
-      for (const p of f.involvesCharacterIds) expect(personIds, `${f.id} involves ${p}`).toContain(p);
+  it("offers red-herring motives alongside the true one", () => {
+    const ids = c.motives.map((m) => m.id);
+    expect(ids).toContain(c.solution.motiveId);
+    expect(ids.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("keeps the public intro spoiler-free", () => {
+    const publicText = `${c.tagline} ${c.intro} ${c.victim.description} ${c.victim.causeOfDeath}`.toLowerCase();
+    for (const spoiler of ["victoria", "candlestick", "will", "letter", "coal scuttle", "telephone"]) {
+      expect(publicText, spoiler).not.toMatch(new RegExp(`\\b${spoiler}\\b`));
     }
-  });
-
-  it("evidence references existing locations and facts", () => {
-    for (const e of evidence) {
-      if (e.locationId) expect(locationIds).toContain(e.locationId);
-      expect(e.relatedFactIds.length).toBeGreaterThan(0);
-      for (const id of e.relatedFactIds) expect(factById.has(id), `${e.id} -> ${id}`).toBe(true);
-    }
-  });
-
-  it("characters reference existing facts, evidence and people", () => {
-    for (const c of characters) {
-      for (const id of c.knownFactIds) expect(factById.has(id), `${c.id} knows ${id}`).toBe(true);
-      for (const b of c.beliefs) if (b.aboutFactId) expect(factById.has(b.aboutFactId), `${c.id}/${b.id}`).toBe(true);
-      for (const s of c.secrets) {
-        for (const e of s.pressuredByEvidenceIds) expect(evidenceIds, `${c.id}/${s.id}`).toContain(e);
-        for (const f of s.relatedFactIds) expect(factById.has(f), `${c.id}/${s.id} -> ${f}`).toBe(true);
-      }
-      for (const r of c.relationships) {
-        expect(personIds, `${c.id} -> ${r.characterId}`).toContain(r.characterId);
-        expect(r.characterId).not.toBe(c.id);
-      }
-    }
-  });
-
-  it("solution points at a real character, evidence item (weapon) and location", () => {
-    expect(characterIds).toContain(solution.murdererId);
-    expect(evidenceIds).toContain(solution.weaponId);
-    expect(locationIds).toContain(solution.locationId);
-    expect(solution).toEqual({ murdererId: "victoria", weaponId: "silver-candlestick", locationId: "library", time: "21:17" });
-  });
-
-  it("every innocent has at least one secret and at least one wrong belief", () => {
-    for (const c of characters.filter((ch) => ch.id !== solution.murdererId)) {
-      expect(c.secrets.length, c.id).toBeGreaterThan(0);
-      expect(c.beliefs.some((b) => !b.isAccurate), c.id).toBe(true);
-    }
-    expect(byId("reginald").beliefs.find((b) => b.id === "b-reginald-crane-did-it")?.isAccurate).toBe(false);
   });
 });
 
 describe("Blackwood timeline consistency", () => {
-  const checkpoints = [
-    ...new Set(timeline.filter((f) => f.category === "location" && f.time).map((f) => f.time as string)),
-  ].sort((a, b) => toMin(a) - toMin(b));
-
-  it("places every suspect somewhere at every checkpoint, never in two places at once", () => {
-    for (const c of characters) {
-      for (const t of checkpoints) {
-        const here = timeline.filter(
-          (f) => f.category === "location" && f.time === t && f.involvesCharacterIds.includes(c.id),
+  it("places every suspect in exactly one place at every checkpoint", () => {
+    for (const ch of c.characters) {
+      for (const m of checkpoints) {
+        const here = c.timeline.filter(
+          (e) => e.category === "location" && e.time !== undefined && toMin(e.time) === m && e.involvesCharacterIds.includes(ch.id),
         );
-        expect(here.length, `${c.id} at ${t}`).toBe(1);
+        expect(here.length, `${ch.id} at minute ${m}`).toBe(1);
       }
     }
   });
 
-  it("every time+place fact only involves people who are there at that time", () => {
-    for (const f of timeline) {
-      if (!f.time || !f.locationId) continue;
-      for (const p of f.involvesCharacterIds) {
+  it("every located entry (point or window) only involves people who are there throughout", () => {
+    for (const e of c.timeline) {
+      if (!e.locationId) continue;
+      for (const p of e.involvesCharacterIds) {
         if (!whereabouts.has(p)) continue;
-        expect(locationAt(p, f.time), `${f.id}: ${p} at ${f.time}`).toBe(f.locationId);
+        for (const m of probeMinutes(e)) expect(locationAt(p, m), `${e.id}: ${p} @${m}`).toBe(e.locationId);
       }
     }
   });
 
-  it("the murderer is at the scene at the murder time and had access to the weapon there", () => {
-    expect(locationAt(solution.murdererId, solution.time)).toBe(solution.locationId);
-    const weapon = evidence.find((e) => e.id === solution.weaponId);
-    expect(weapon?.locationId).toBe(solution.locationId);
-    // The weapon was brought into the scene before the murder, while the murderer watched it go.
-    const delivered = factById.get("ev-candlestick-delivered");
-    expect(delivered?.locationId).toBe(solution.locationId);
-    expect(toMin(delivered!.time!)).toBeLessThan(toMin(solution.time));
-    expect(byId(solution.murdererId).knownFactIds).toContain("ev-candlesticks-lit");
-    const murder = timeline.find(
-      (f) =>
-        f.time === solution.time &&
-        f.locationId === solution.locationId &&
-        f.involvesCharacterIds.includes(solution.murdererId) &&
-        f.involvesCharacterIds.includes(caseFile.victimId),
+  it("uses windows for the time ranges", () => {
+    for (const id of ["ev-victoria-argument", "ev-archibald-phone", "ev-reginald-hears-phone"]) {
+      const e = c.timeline.find((t) => t.id === id)!;
+      expect(e.from && e.to, id).toBeTruthy();
+    }
+  });
+
+  it("the murderer is at the scene at the murder time, with prior access to the weapon", () => {
+    const t = toMin(c.solution.time);
+    expect(locationAt(c.solution.murdererId, t)).toBe(c.solution.locationId);
+    expect(c.evidence.find((e) => e.id === c.solution.weaponId)?.locationId).toBe(c.solution.locationId);
+    const delivered = c.timeline.find((e) => e.id === "ev-candlestick-delivered")!;
+    expect(delivered.locationId).toBe(c.solution.locationId);
+    expect(range(delivered)[0]).toBeLessThan(t);
+    expect(byId(c.solution.murdererId).knownFactIds).toContain("ev-candlesticks-lit");
+    const murder = c.timeline.find(
+      (e) =>
+        e.time === c.solution.time &&
+        e.locationId === c.solution.locationId &&
+        e.involvesCharacterIds.includes(c.solution.murdererId) &&
+        e.involvesCharacterIds.includes(c.victim.id),
     );
-    expect(murder, "a murder fact at the solution time/place").toBeDefined();
+    expect(murder).toBeDefined();
   });
 
   it("no innocent is at the scene at the murder time", () => {
-    for (const c of characters.filter((ch) => ch.id !== solution.murdererId)) {
-      expect(locationAt(c.id, solution.time), c.id).not.toBe(solution.locationId);
+    for (const ch of c.characters.filter((x) => x.id !== c.solution.murdererId)) {
+      expect(locationAt(ch.id, toMin(c.solution.time)), ch.id).not.toBe(c.solution.locationId);
     }
   });
 
-  it("the victim is alive in the library before the murder (seen at 21:12)", () => {
-    expect(locationAt(caseFile.victimId, "21:12")).toBe("library");
-    expect(byId("reginald").knownFactIds).toContain("ev-candlestick-delivered");
+  it("the body is found where and when the victim card says", () => {
+    const found = c.timeline.find((e) => e.id === "ev-body-discovered")!;
+    expect(found.time).toBe(c.victim.foundAt);
+    expect(found.locationId).toBe(c.victim.foundAtLocationId);
   });
 });
 
 describe("Blackwood knowledge boundaries", () => {
-  it("nobody knows a time+place fact from a place they weren't in at that time", () => {
-    for (const c of characters) {
-      for (const id of c.knownFactIds) {
-        const f = factById.get(id)!;
-        if (!f.time || !f.locationId) continue;
-        expect(locationAt(c.id, f.time), `${c.id} knows ${id} (${f.time} @ ${f.locationId})`).toBe(f.locationId);
+  it("nobody knows a located timeline entry from somewhere they weren't", () => {
+    for (const ch of c.characters) {
+      for (const id of ch.knownFactIds) {
+        const e = c.timeline.find((t) => t.id === id);
+        if (!e || !e.locationId) continue;
+        for (const m of probeMinutes(e)) expect(locationAt(ch.id, m), `${ch.id} knows ${id} @${m}`).toBe(e.locationId);
       }
     }
   });
 
   it("everyone knows their own whereabouts", () => {
-    for (const c of characters) {
-      const own = timeline.filter((f) => f.category === "location" && f.involvesCharacterIds.includes(c.id));
-      for (const f of own) expect(c.knownFactIds, `${c.id} ${f.id}`).toContain(f.id);
+    for (const ch of c.characters) {
+      for (const e of c.timeline.filter((t) => t.category === "location" && t.involvesCharacterIds.includes(ch.id))) {
+        expect(ch.knownFactIds, `${ch.id} ${e.id}`).toContain(e.id);
+      }
     }
   });
 
-  // Facts a character was physically near but must NOT know (hidden, behind a door, or another's secret).
+  it("perception facts (non-canonical source) are known only by the perceivers they involve", () => {
+    const perceived = c.timeline.filter((e) => e.source !== "canonical");
+    expect(perceived.length).toBeGreaterThan(0);
+    for (const e of perceived) {
+      const knowers = c.characters.filter((ch) => ch.knownFactIds.includes(e.id)).map((ch) => ch.id);
+      expect(knowers.length, e.id).toBeGreaterThan(0);
+      for (const k of knowers) expect(e.involvesCharacterIds, `${e.id} known by ${k}`).toContain(k);
+      expect(e.confidence, e.id).toBeLessThan(1);
+    }
+  });
+
   const mustNotKnow: Record<string, string[]> = {
     victoria: ["ev-gregory-sees-victoria", "ev-gregory-enters-hall", "ev-gregory-hears-thud", "ev-reginald-overhears", "ev-archibald-phone", "ev-reginald-hears-phone", "ev-pantry-exchange", "f-reginald-theft"],
     archibald: ["ev-victoria-alone", "ev-victoria-admitted", "ev-murder", "ev-victoria-locks-door", "ev-letter-burned", "ev-key-hidden", "ev-victoria-argument", "f-new-will", "f-reginald-theft"],
     reginald: ["ev-murder", "ev-victoria-alone", "ev-victoria-locks-door", "ev-key-hidden", "ev-letter-burned", "ev-archibald-phone", "f-new-will", "ev-alibi-pact"],
     gregory: ["ev-murder", "ev-key-hidden", "ev-letter-burned", "ev-archibald-threat", "ev-victoria-argument", "f-new-will", "ev-body-discovered"],
   };
-  it.each(Object.entries(mustNotKnow))("%s does not hold knowledge they could not have", (cid, forbidden) => {
+  it.each(Object.entries(mustNotKnow))("%s holds no knowledge they could not have", (cid, forbidden) => {
     const known = new Set(byId(cid).knownFactIds);
     for (const id of forbidden) {
-      expect(factById.has(id), `fixture references unknown fact ${id}`).toBe(true);
+      expect(factById(id), `fixture references unknown fact ${id}`).toBeDefined();
       expect(known.has(id), `${cid} must not know ${id}`).toBe(false);
     }
   });
 
-  it("only the murderer knows the murder itself, the hidden key and the burned letter", () => {
+  it("only the murderer knows the murder, the hidden key and the burned letter", () => {
     for (const id of ["ev-murder", "ev-key-hidden", "ev-letter-burned", "ev-victoria-takes-letter"]) {
-      const knowers = characters.filter((c) => c.knownFactIds.includes(id)).map((c) => c.id);
-      expect(knowers, id).toEqual([solution.murdererId]);
+      expect(c.characters.filter((ch) => ch.knownFactIds.includes(id)).map((ch) => ch.id), id).toEqual([c.solution.murdererId]);
     }
   });
 
-  it("the witness who saw the murderer leave is present in the hall at 21:19", () => {
-    expect(locationAt("gregory", "21:19")).toBe("hall");
-    expect(locationAt("victoria", "21:19")).toBe("hall");
-    expect(byId("gregory").knownFactIds).toContain("ev-gregory-sees-victoria");
+  it("each intended lie is about something the liar actually knows", () => {
+    for (const ch of c.characters) {
+      expect(ch.intendedLies.length, ch.id).toBeGreaterThan(0);
+      for (const l of ch.intendedLies) if (l.aboutFactId) expect(ch.knownFactIds, `${ch.id}/${l.id}`).toContain(l.aboutFactId);
+    }
+  });
+});
+
+describe("Blackwood characters: relationships, beliefs and secrets", () => {
+  it("every suspect has a relationship toward every other suspect and the victim", () => {
+    const people = [...c.characters.map((ch) => ch.id), c.victim.id];
+    for (const ch of c.characters) {
+      expect(ch.relationships.map((r) => r.targetCharacterId).sort(), ch.id).toEqual(people.filter((p) => p !== ch.id).sort());
+    }
+  });
+
+  const topSuspect = (cid: string) =>
+    byId(cid)
+      .relationships.filter((r) => r.targetCharacterId !== c.victim.id)
+      .sort((a, b) => b.suspicion - a.suspicion)[0].targetCharacterId;
+
+  it("suspicion matches beliefs (Reginald→Archibald, Archibald→Gregory, Gregory→Victoria)", () => {
+    expect(byId("reginald").beliefs.find((b) => b.id === "b-reginald-crane-did-it")?.isAccurate).toBe(false);
+    expect(topSuspect("reginald")).toBe("archibald");
+    expect(topSuspect("archibald")).toBe("gregory");
+    expect(topSuspect("gregory")).toBe("victoria");
+  });
+
+  it("every innocent has a secret and a wrong belief; every secret is revealable by the engine", () => {
+    for (const ch of c.characters) {
+      if (ch.id !== c.solution.murdererId) expect(ch.beliefs.some((b) => !b.isAccurate), ch.id).toBe(true);
+      for (const s of ch.secrets) expect(s.revealConditions, `${ch.id}/${s.id}`).toBeDefined();
+    }
+  });
+
+  it("Gregory names Victoria only after admitting the footprint, and only when shown the key", () => {
+    const g = byId("gregory");
+    const saw = g.secrets.find((s) => s.id === "s-gregory-saw-victoria")!;
+    const base = { stress: 0, evidenceShownIds: [] as string[], revealedSecretIds: [] as string[] };
+    expect(shouldRevealSecret(saw, { ...base, evidenceShownIds: ["library-key"] })).toBe(false);
+    expect(shouldRevealSecret(saw, { ...base, revealedSecretIds: ["s-gregory-in-hall"] })).toBe(false);
+    expect(
+      shouldRevealSecret(saw, { ...base, evidenceShownIds: ["library-key"], revealedSecretIds: ["s-gregory-in-hall"] }),
+    ).toBe(true);
+    const inHall = g.secrets.find((s) => s.id === "s-gregory-in-hall")!;
+    expect(shouldRevealSecret(inHall, { ...base, evidenceShownIds: ["muddy-footprint"] })).toBe(true);
+  });
+
+  it("the alibi-breaking testimonies unlock from the four clues alone (no stress needed)", () => {
+    const base = { stress: 0, revealedSecretIds: [] as string[] };
+    const reg = byId("reginald").secrets.find((s) => s.id === "s-reginald-theft")!;
+    const arch = byId("archibald").secrets.find((s) => s.id === "s-archibald-false-alibi")!;
+    expect(shouldRevealSecret(reg, { ...base, evidenceShownIds: ["burned-letter"] })).toBe(true);
+    expect(shouldRevealSecret(arch, { ...base, evidenceShownIds: ["library-key"] })).toBe(true);
+  });
+
+  it("Victoria's confession needs all the proof, prior cracks and high stress", () => {
+    const murder = byId("victoria").secrets.find((s) => s.id === "s-victoria-murder")!;
+    const all = ["silver-candlestick", "library-key", "burned-letter", "muddy-footprint"];
+    const cracked = ["s-victoria-left-dining", "s-victoria-new-will"];
+    expect(shouldRevealSecret(murder, { stress: 100, evidenceShownIds: all, revealedSecretIds: [] })).toBe(false);
+    expect(shouldRevealSecret(murder, { stress: 50, evidenceShownIds: all, revealedSecretIds: cracked })).toBe(false);
+    expect(shouldRevealSecret(murder, { stress: 90, evidenceShownIds: all, revealedSecretIds: cracked })).toBe(true);
   });
 });

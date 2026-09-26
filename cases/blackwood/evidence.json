@@ -13,6 +13,11 @@
       "ev-murder",
       "ev-victoria-takes-letter"
     ],
+    "relatedCharacters": [
+      "victoria",
+      "reginald",
+      "lord-blackwood"
+    ],
     "initiallyAvailable": true
   },
   {
@@ -27,6 +32,9 @@
       "ev-gregory-enters-hall",
       "ev-gregory-hears-thud",
       "ev-gregory-sees-victoria"
+    ],
+    "relatedCharacters": [
+      "gregory"
     ],
     "initiallyAvailable": false
   },
@@ -44,6 +52,11 @@
       "ev-reginald-overhears",
       "ev-candlestick-delivered",
       "ev-letter-burned"
+    ],
+    "relatedCharacters": [
+      "victoria",
+      "reginald",
+      "lord-blackwood"
     ],
     "initiallyAvailable": false
   },
@@ -63,6 +76,12 @@
       "ev-key-hidden",
       "ev-reginald-scream",
       "ev-body-discovered"
+    ],
+    "relatedCharacters": [
+      "victoria",
+      "archibald",
+      "gregory",
+      "lord-blackwood"
     ],
     "initiallyAvailable": false
   }

@@ -14,7 +14,7 @@ IDs in `code` refer to the case data: `ev-*` / `loc-*` facts live in `timeline.j
 | **When** | 21:17 |
 | **Why** | Inheritance. The new will, to be signed at 10:00 the next morning, cut her to £200 a year (`f-new-will`, `f-inheritance-motive`) |
 
-Server-only truth: `solution.json` = `{ murdererId: "victoria", weaponId: "silver-candlestick", locationId: "library", time: "21:17" }`. The motive cannot be stored there (see §8, gap G2), so it exists only as the world facts above.
+Server-only truth (`solution.json`): `murdererId: "victoria"`, `weaponId: "silver-candlestick"`, `locationId: "library"`, `time: "21:17"`, `motiveId: "inheritance"`, `keyEvidenceIds: ["library-key", "burned-letter"]`, plus a short `explanation` for the reveal screen. The player picks the motive from four public options in `case.json` `motives`: `inheritance` (true), and the red herrings `business-ruin` (Archibald), `stolen-money` (Reginald) and `revenge` (Gregory). The key evidence is the key (locked from outside and carried to the dining room) plus the letter (motive, burned in the dining room). The weapon is already cited through `weaponId`.
 
 ## 2. What happened (canonical timeline, condensed)
 
@@ -44,7 +44,7 @@ Server-only truth: `solution.json` = `{ murdererId: "victoria", weaponId: "silve
 | 21:40 | Victoria murmurs to Archibald that they were "together the whole time" and he agrees (`ev-alibi-pact`). |
 | 21:45 | Flooded road; the household waits in the hall (`ev-household-waits`). |
 
-Every suspect has a `loc-<id>-<HHMM>` fact at each of the 28 checkpoints from 20:30 to 21:45. The test asserts exactly one location per suspect per checkpoint.
+Every suspect has a `loc-<id>-<HHMM>` point entry at each of the 28 checkpoints from 20:30 to 21:45, and the test asserts exactly one location per suspect per checkpoint. Time ranges are `from`/`to` windows: `ev-victoria-argument` 20:50–20:56, `ev-archibald-phone` and `ev-reginald-hears-phone` 21:15–21:20. The test checks that everyone a window involves is at its location at every checkpoint inside it.
 
 ## 3. The four clues
 
@@ -60,18 +60,21 @@ Every suspect has a `loc-<id>-<HHMM>` fact at each of the 28 checkpoints from 20
 - **Where it ends up:** Victoria locked the door from outside at 21:19 and dropped the key into the dining-room coal scuttle at 21:20.
 - **What that shows:** the killer walked out of the library door and into the dining room. The dining room is the room covered by Victoria and Archibald's "mutual" alibi.
 
-## 4. Pressured testimony (how the engine unlocks it)
+## 4. Pressured testimony (engine reveal rules)
 
-Victoria's alibi is: *"Archibald and I sat by the dining-room fire through the whole blackout."* Archibald backs it up. Two people vouching for each other sounds solid. Three testimonies, each unlocked by showing evidence, break it.
+Victoria's alibi is: *"Archibald and I sat by the dining-room fire through the whole blackout."* Archibald backs it up. Three testimonies break it. Each is a secret with `revealConditions`, evaluated by `engine/secrets.ts`, never by the model.
 
-| Who | Secret | Pressured by | What they then admit (fact ids) |
+| Who | Secret | revealConditions | What they then admit (fact ids) |
 |---|---|---|---|
-| Reginald | `s-reginald-theft`, `s-reginald-overheard` | `burned-letter` (the solicitor's line about the butler) | He was skimming the accounts and spent the blackout counting cash in the pantry, where he heard Mr Crane on the servants' telephone from 21:15 and called out to him at 21:18 (`ev-reginald-hears-phone`, `ev-pantry-exchange`). He also saw her ladyship's quarrel at 20:54: "Ten o'clock tomorrow… not a penny more" (`ev-reginald-overhears`). |
-| Archibald | `s-archibald-false-alibi`, `s-archibald-embezzlement` | `library-key` (found in "his" dining room, so he now looks like an accomplice) | He left the dining room at 21:13 and phoned his broker 21:15–21:20 to move the money (`ev-archibald-leaves-dining`, `ev-archibald-phone`). **Victoria asked him at 21:40 to say they were together** (`ev-alibi-pact`). He saw the pantry candlelight and heard coins (`ev-archibald-notices-pantry`). |
-| Gregory | `s-gregory-in-hall` | `muddy-footprint` | He came in by the garden door just after the quarter chime, stood in the alcove, heard a thud and saw the light under the library door dim (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`). |
-| Gregory | `s-gregory-saw-victoria` | `library-key` | In the lightning flash he saw **Lady Victoria** step out, lock the door, slip the key into her gown and head for the dining room (`ev-gregory-sees-victoria`, `ev-victoria-locks-door`). |
-
-Victoria's own secrets (`s-victoria-*`) are pressured by all four clues. A confession from her is flavour only; nothing below depends on one.
+| Reginald | `s-reginald-theft` | `burned-letter` (the solicitor's line about the butler) | Skimming the accounts. He spent the blackout counting cash in the pantry, heard Mr Crane on the servants' telephone 21:15–21:20 and called out to him at 21:18 (`ev-reginald-hears-phone`, `ev-pantry-exchange`). |
+| Reginald | `s-reginald-overheard` | `burned-letter`, **after** `s-reginald-theft` | The 20:54 quarrel: "Ten o'clock tomorrow… not a penny more" (`ev-reginald-overhears`). |
+| Archibald | `s-archibald-false-alibi` | `library-key` (found in "his" dining room) | He left at 21:13 for the telephone (`ev-archibald-leaves-dining`, `ev-archibald-phone`). **Victoria asked him to say they were together** (`ev-alibi-pact`). |
+| Archibald | `s-archibald-embezzlement` | `library-key`, **after** `s-archibald-false-alibi` | Moving the embezzled money before midnight (`f-archibald-embezzlement`). |
+| Gregory | `s-gregory-in-hall` | `muddy-footprint` | In the hall alcove from just after the quarter chime. Heard the thud and saw the light under the door dim (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`). |
+| Gregory | `s-gregory-saw-victoria` | `library-key`, **after** `s-gregory-in-hall` | **Lady Victoria** stepped out, locked the door, pocketed the key and went to the dining room (`ev-gregory-sees-victoria`, `ev-victoria-locks-door`). |
+| Victoria | `s-victoria-new-will` | `burned-letter` | She knew about the new will and burned the letter. |
+| Victoria | `s-victoria-left-dining` | `library-key` **and** `muddy-footprint` (mode `all`) | She left the dining room during the blackout. |
+| Victoria | `s-victoria-murder` | all of `silver-candlestick`, `library-key`, `burned-letter` **and** stress ≥ 80, after both secrets above | Confession, as flavour only. Nothing below depends on it. |
 
 ## 5. Deduction chain (fair play)
 
@@ -115,6 +118,8 @@ Victoria's own secrets (`s-victoria-*`) are pressured by all four clues. A confe
 
 ## 6. Intended lies and contradictions
 
+Each row is authored as an `intendedLies` entry (`l-*`) in the character's file, with `aboutFactId` (the truth it contradicts) and `brokenByEvidenceIds`. Lies broken by testimony list the clue that unlocks that testimony: `burned-letter` for Reginald's, `library-key` for Archibald's and Gregory's.
+
 | Who | Says (intended lie) | Why they lie | Exposed by |
 |---|---|---|---|
 | Victoria | "Archibald and I sat by the fire the whole blackout." | Her alibi | Reginald `ev-reginald-hears-phone` / `ev-pantry-exchange`; Archibald cracks (`ev-archibald-leaves-dining`, `ev-alibi-pact`) |
@@ -131,49 +136,37 @@ Victoria's own secrets (`s-victoria-*`) are pressured by all four clues. A confe
 
 **Honest true belief that misleads:** Reginald sincerely believes Archibald did it (`b-reginald-crane-did-it`, wrong). Archibald believes Gregory did it (`b-archibald-gregory-did-it`, wrong).
 
-## 7. Knowledge sources (documentation only; schema gap G4)
+## 7. Knowledge sources and boundaries
 
-`CharacterSchema.knownFactIds` holds ids only, with no source or confidence. The intended sources are recorded here so the engine and the prompts can adopt them once the schema supports them:
+Source and confidence now live on the facts themselves. By convention, a perception across a wall or door is authored as its own entry located where the **perceiver** is, with a non-canonical source:
 
-| Character | Fact | Source | Confidence |
+| Fact | Known by | source | confidence |
 |---|---|---|---|
-| Victoria | own `loc-victoria-*`, `ev-murder`, `ev-key-hidden`, `ev-letter-burned`, `ev-victoria-*` | canonical | 1.0 |
-| Victoria | `f-new-will`, `f-letter-accuses-butler` | told (the Lord at 20:50) and read (the letter) | 1.0 |
-| Victoria | `ev-archibald-threat`, `f-archibald-embezzlement` | heard (dinner) | 0.9 |
-| Victoria | `f-gregory-dismissed` | told (the Lord) | 1.0 |
-| Reginald | `ev-reginald-overhears` | witnessed and heard, partially, through the ajar door | 0.85 |
-| Reginald | `ev-reginald-hears-phone` | heard (voice through the pantry door) | 0.8 |
-| Reginald | `ev-lord-relocks` | heard | 0.9 |
-| Reginald | `ev-candlestick-delivered`, `ev-reginald-serves-coffee` | witnessed | 1.0 |
-| Archibald | `ev-archibald-notices-pantry` | witnessed (candlelight) and heard (coins) | 0.7 |
-| Archibald | `ev-pantry-exchange` | heard | 0.95 |
-| Gregory | `ev-gregory-hears-thud` | heard (thud) and witnessed (light dimming) | 0.8 |
-| Gregory | `ev-gregory-sees-victoria`, `ev-victoria-locks-door` | witnessed by lightning flash, about 6 m away | 0.85 (also as belief `b-gregory-it-was-her`) |
-| Gregory | times relative to the hall clock's quarter chime | heard | 0.7 |
+| `ev-reginald-overhears` (hall, 20:54) | Reginald | witnessed (partly heard through the ajar door) | 0.85 |
+| `ev-reginald-hears-phone` (kitchen, 21:15–21:20) | Reginald | heard | 0.8 |
+| `ev-lord-relocks` (hall, 21:13) | Reginald | heard | 0.9 |
+| `ev-archibald-notices-pantry` (kitchen, 21:15) | Archibald | witnessed (candlelight, coins) | 0.7 |
+| `ev-gregory-hears-thud` (hall, 21:17) | Gregory | heard | 0.8 |
+| `ev-gregory-sees-victoria` (hall, 21:19) | Gregory | witnessed (lightning flash, ~6 m) | 0.85 (also belief `b-gregory-it-was-her`) |
+| `ev-scream-heard-dining` (dining room, 21:30) | Victoria, Archibald | heard | 0.95 |
+| `ev-shouting-heard-garden` (garden, 21:30) | Gregory | heard | 0.7 |
+
+Everything else is `canonical`, meaning objective truth that every knower of it holds with certainty. See §8 for shared facts learned in different ways.
 
 **Boundary rules enforced by `tests/cases/blackwood.test.ts`:**
-- Every known fact that has a time and a place requires the knower to be in that place at that time.
-- Every time-and-place fact involves only people who are present.
+- A character may only know a located timeline entry if they were at that location for the whole point or window.
+- Non-canonical perception facts are known only by the perceivers they involve.
 - Only Victoria knows `ev-murder`, `ev-key-hidden`, `ev-letter-burned` and `ev-victoria-takes-letter`.
-- Explicit must-not-know lists cover facts a character was near but hidden from. For example, Victoria was in the hall at 21:19 but cannot know `ev-gregory-sees-victoria`. Reginald was in the kitchen but only *heard* the call, so he does not hold `ev-archibald-phone`.
+- Explicit must-not-know lists cover facts a character was near but hidden from. For example, Victoria was in the hall at 21:19 but cannot know `ev-gregory-sees-victoria`.
+- Every intended lie is about a fact the liar actually knows.
 
-Modelling convention: a perception across a wall or door (overhearing through a door, seeing into a room) is authored as its own fact located where the **perceiver** is, e.g. `ev-reginald-overhears` @ hall.
+## 8. Remaining modelling notes (contract v2)
 
-## 8. Schema gaps (not worked around)
+All eleven gaps from the first draft are closed by contract v2 (commit 3608125). What's left:
 
-| # | Where | Gap | What I did |
-|---|---|---|---|
-| G1 | `case.json` envelope | No case-file schema on `main` (id, title, victim, list of locations/facts). | Kept the envelope minimal (`id`, `title`, `victimId`, `locations`, `facts`), using only engine sub-schemas. The test validates it with a clearly marked **test-local provisional** wrapper. |
-| G2 | `CaseSolutionSchema` | No `motive` field, so the motive can't be judged or stored server-side. | Motive exists only as world facts (`f-new-will`, `f-inheritance-motive`). Not put in the solution. |
-| G3 | Victim | No victim schema. `lord-blackwood` is only an id used in facts and relationships. | `victimId` in the envelope; the test checks it doesn't collide with character ids. |
-| G4 | `CharacterSchema.knownFactIds` | No per-fact **source** (witnessed/heard/told/inferred/canonical) or **confidence**. | Ids only; sources documented in §7. Low-confidence knowledge is also mirrored as a `Belief` where it was already a belief (`b-gregory-it-was-her`). |
-| G5 | `PersonalitySchema` | No numeric (0–1) trait scores, only keyword `traits`. | Keywords, speech style, quirks and tells only. |
-| G6 | `RelationshipSchema` | `sentiment` is −1..1, not 0–100, and a single axis (no trust/fear split). | Used −1..1 sentiment. |
-| G7 | `EvidenceSchema` | No `relatedCharacterIds`. | Character links only through facts' `involvesCharacterIds`. |
-| G8 | `EvidenceSchema` | No core / supporting / red-herring classification. | Documented here (§3). |
-| G9 | Timeline | No timeline schema and no intervals (`from`/`to`). `FactSchema.time` is a single point. | Timeline = `Fact[]` sampled at 28 checkpoints for every suspect. Ranges such as "21:15–21:20" appear in prose only as description, and the engine does not rely on them. |
-| G10 | `SecretSchema.pressuredByEvidenceIds` | No AND or ordering (Gregory should name Victoria only after admitting the footprint), and no pressure by *testimony* or facts. | Listed each secret's single strongest evidence. The ordering is documented in §4. |
-| G11 | Lies / cover stories | No field for a character's intended claims or lies (`StatementSchema` is runtime, with no authored container per case). | Lies documented in §6 only. |
+1. **Source and confidence are per fact, not per knower.** A shared fact such as `ev-archibald-threat` is canonical to Archibald but only *heard* by Victoria and Reginald, and it cannot carry both. I kept shared world facts `canonical` and gave non-canonical sources only to single-perceiver entries. The same limitation keeps `f-new-will` (told to and read by Victoria) canonical.
+2. **`keyEvidenceIds` judging rules are TBD** (contract: "judging rules come later"). This case expects `library-key` and `burned-letter`. If the engine ends up requiring *all* key evidence, the accusation needs both.
+3. **The accusation no longer contains time or location.** WHEN (21:17) and WHERE stay engine truth and are used by the opportunity check, but the player isn't graded on them. The deduction in §5 still derives them, because they are needed to break the alibi.
 
 ## 9. Decisions made without the product owner
 - **Mutual alibi instead of the gramophone.** With five rooms and four clues, Victoria's "seemingly solid" alibi is Archibald vouching for her. He lies to cover his own phone call.
@@ -182,4 +175,6 @@ Modelling convention: a perception across a wall or door (overhearing through a 
 - **The telephone lives in the servants' area**, so Archibald's secret call gives Reginald and Archibald interlocking but imperfect alibis.
 - **Reason for Gregory's dismissal:** drinking on duty. No named off-stage characters (no solicitor or broker names).
 - **`solution.json` sits in the case folder**; it must only ever be read server-side.
-- **Portrait and image asset keys omitted**, because the assets don't exist on `main` yet.
+- **No `portrait` or `image` keys.** Portraits default to the character id (`assets/characters/<id>/`), and evidence art doesn't exist yet.
+- **Motive options:** four, one per suspect, with spoiler-free descriptions.
+- **Relationship numbers** are my own proposals. Suspicion follows beliefs: Reginald suspects Archibald most, Archibald suspects Gregory, and Gregory suspects Victoria.

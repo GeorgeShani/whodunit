@@ -226,9 +226,10 @@
   },
   {
     "id": "ev-victoria-argument",
-    "statement": "From 20:50 to 20:57 Victoria and Lord Blackwood argue in the library with the door ajar. He waves his solicitor's letter at her and tells her the new will is signed at ten tomorrow.",
+    "statement": "Victoria and Lord Blackwood argue in the library with the door ajar. He waves his solicitor's letter at her and tells her the new will is signed at ten tomorrow.",
     "category": "motive",
-    "time": "20:50",
+    "from": "20:50",
+    "to": "20:56",
     "locationId": "library",
     "involvesCharacterIds": [
       "victoria",
@@ -283,7 +284,9 @@
     "locationId": "hall",
     "involvesCharacterIds": [
       "reginald"
-    ]
+    ],
+    "source": "witnessed",
+    "confidence": 0.85
   },
   {
     "id": "loc-archibald-2057",
@@ -636,7 +639,9 @@
     "locationId": "hall",
     "involvesCharacterIds": [
       "reginald"
-    ]
+    ],
+    "source": "heard",
+    "confidence": 0.9
   },
   {
     "id": "loc-archibald-2114",
@@ -736,13 +741,16 @@
     "locationId": "kitchen",
     "involvesCharacterIds": [
       "archibald"
-    ]
+    ],
+    "source": "witnessed",
+    "confidence": 0.7
   },
   {
     "id": "ev-archibald-phone",
-    "statement": "From 21:15 to 21:20 Archibald is on the servants' telephone, telling his broker to move the company money before midnight.",
+    "statement": "Archibald is on the servants' telephone, telling his broker to move the company money before midnight.",
     "category": "alibi",
-    "time": "21:15",
+    "from": "21:15",
+    "to": "21:20",
     "locationId": "kitchen",
     "involvesCharacterIds": [
       "archibald"
@@ -752,11 +760,14 @@
     "id": "ev-reginald-hears-phone",
     "statement": "From behind his closed pantry door Reginald hears Mr Crane's voice on the servants' telephone, talking about 'moving it all before midnight'.",
     "category": "alibi",
-    "time": "21:15",
+    "from": "21:15",
+    "to": "21:20",
     "locationId": "kitchen",
     "involvesCharacterIds": [
       "reginald"
-    ]
+    ],
+    "source": "heard",
+    "confidence": 0.8
   },
   {
     "id": "ev-victoria-admitted",
@@ -867,7 +878,9 @@
     "locationId": "hall",
     "involvesCharacterIds": [
       "gregory"
-    ]
+    ],
+    "source": "heard",
+    "confidence": 0.8
   },
   {
     "id": "ev-murder",
@@ -990,7 +1003,9 @@
     "involvesCharacterIds": [
       "gregory",
       "victoria"
-    ]
+    ],
+    "source": "witnessed",
+    "confidence": 0.85
   },
   {
     "id": "ev-victoria-locks-door",
@@ -1212,7 +1227,9 @@
     "involvesCharacterIds": [
       "victoria",
       "archibald"
-    ]
+    ],
+    "source": "heard",
+    "confidence": 0.95
   },
   {
     "id": "ev-shouting-heard-garden",
@@ -1222,7 +1239,9 @@
     "locationId": "garden",
     "involvesCharacterIds": [
       "gregory"
-    ]
+    ],
+    "source": "heard",
+    "confidence": 0.7
   },
   {
     "id": "loc-archibald-2131",
