@@ -10,6 +10,7 @@ import { loadCase, validateCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { knowledgeGate } from "@/engine/knowledge-gate";
 import { shouldRevealSecret } from "@/engine/secrets";
+import { isLieBroken } from "@/engine/testimony";
 import { gameMinutes } from "@/engine/time";
 import type { Character, TimelineEntry } from "@/engine/types";
 
@@ -282,33 +283,43 @@ describe("Blackwood knowledge gating (QA #6, #7)", () => {
       "ev-murder", "ev-victoria-admitted", "ev-victoria-takes-letter", "ev-victoria-locks-door", "ev-victoria-alone",
       "ev-key-hidden", "ev-letter-burned", "ev-archibald-leaves-dining", "ev-archibald-returns", "ev-alibi-pact",
       "ev-victoria-argument", "f-new-will", "f-inheritance-motive", "f-letter-accuses-butler",
-      "loc-victoria-2050", "loc-victoria-2054",
+      "loc-victoria-2050", "loc-victoria-2054", "ev-victoria-passes-reginald",
       ...["13", "14", "15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-victoria-21${m}`),
     ],
     archibald: [
-      "f-archibald-embezzlement", "ev-archibald-threat", "ev-archibald-leaves-dining", "ev-archibald-phone",
+      "f-archibald-embezzlement", "ev-archibald-threat", "loc-archibald-2040", "ev-archibald-leaves-dining", "ev-archibald-phone",
       "ev-archibald-notices-pantry", "ev-pantry-exchange", "ev-archibald-returns", "ev-alibi-pact",
       ...["13", "14", "15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-archibald-21${m}`),
     ],
     reginald: [
       "f-reginald-theft", "ev-reginald-hears-phone", "ev-pantry-exchange", "ev-reginald-overhears", "loc-reginald-2054",
-      ...["15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-reginald-21${m}`),
+      ...["14", "15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-reginald-21${m}`),
     ],
     gregory: [
       "ev-gregory-enters-hall", "ev-gregory-hears-thud", "ev-gregory-sees-victoria", "ev-victoria-locks-door",
       "f-footprint-gregory", "f-no-mud-beyond-alcove",
-      ...["15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-gregory-21${m}`),
+      ...["14", "15", "16", "17", "18", "19", "20", "21", "22"].map((m) => `loc-gregory-21${m}`),
     ],
   };
   /** Known, character-involving entries inside the blackout window (21:13-21:22) that are safe to show: they match the cover story. */
   const SAFE_IN_WINDOW: Record<string, string[]> = {
     victoria: [],
     archibald: [],
-    reginald: ["loc-reginald-2113", "loc-reginald-2114", "ev-lord-relocks"],
-    gregory: ["loc-gregory-2113", "loc-gregory-2114"],
+    reginald: ["loc-reginald-2113", "ev-lord-relocks"],
+    gregory: ["loc-gregory-2113"],
   };
-  const covered = (ch: Character) =>
-    new Set([...ch.secrets.flatMap((s) => s.relatedFactIds), ...ch.intendedLies.flatMap((l) => (l.aboutFactId ? [l.aboutFactId] : []))]);
+  /** Facts gated for this character: own secrets' relatedFactIds, own lies' aboutFactId, or hiddenUntil naming an own secret/lie. */
+  const covered = (ch: Character) => {
+    const own = new Set([...ch.secrets.map((s) => s.id), ...ch.intendedLies.map((l) => l.id)]);
+    const explicit = [...c.facts, ...c.timeline]
+      .filter((f) => f.hiddenUntil && [...f.hiddenUntil.secretIds, ...f.hiddenUntil.lieIds].some((id) => own.has(id)))
+      .map((f) => f.id);
+    return new Set([
+      ...ch.secrets.flatMap((s) => s.relatedFactIds),
+      ...ch.intendedLies.flatMap((l) => (l.aboutFactId ? [l.aboutFactId] : [])),
+      ...explicit,
+    ]);
+  };
   const locked = { evidenceShownIds: [], revealedSecretIds: [] };
 
   it("every incriminating or secret-related fact a character knows is linked to their own secret or lie", () => {
@@ -337,12 +348,63 @@ describe("Blackwood knowledge gating (QA #6, #7)", () => {
       }
     }
     const withheld = (id: string) => knowledgeGate(c, byId(id), locked).withheldBeliefIds;
-    expect([...withheld("victoria")]).toEqual(expect.arrayContaining(["b-victoria-archibald-loyal", "b-victoria-brandy-errand"]));
-    expect([...withheld("reginald")]).toEqual(expect.arrayContaining(["b-reginald-will"]));
+    expect([...withheld("victoria")].sort()).toEqual([
+      "b-victoria-archibald-loyal", "b-victoria-brandy-errand", "b-victoria-letter-gone", "b-victoria-reginald-deaf", "b-victoria-unseen",
+    ]);
+    expect([...withheld("archibald")].sort()).toEqual(["b-archibald-butler-spy", "b-archibald-victoria-stayed"]);
+    expect([...withheld("reginald")]).toEqual(["b-reginald-will"]);
     // Red-herring beliefs must still reach the model.
     expect(withheld("reginald").has("b-reginald-crane-did-it")).toBe(false);
     expect(withheld("archibald").has("b-archibald-gregory-did-it")).toBe(false);
     expect(withheld("gregory").has("b-gregory-will-hang")).toBe(false);
+    expect(withheld("reginald").has("b-reginald-lady-stayed")).toBe(false);
+  });
+
+  it("uses the explicit gate; every fact the proximity rule used to hide was reviewed", () => {
+    expect(c.knowledgeGate).toBe("explicit");
+    // Reviewed and deliberately visible: they match the cover story and nobody learns anything they couldn't know.
+    const VISIBLE_AFTER_REVIEW: Record<string, string[]> = {
+      victoria: ["loc-victoria-2057", "loc-victoria-2058", "loc-victoria-2112", "loc-victoria-2140"],
+      archibald: ["loc-archibald-2112", "loc-archibald-2140"],
+      reginald: ["b-reginald-lady-stayed"],
+      gregory: [],
+    };
+    for (const ch of c.characters) {
+      const prox = knowledgeGate({ ...c, knowledgeGate: "proximity" }, ch, locked);
+      const expl = knowledgeGate(c, ch, locked);
+      const nowVisible = [
+        ...ch.knownFactIds.filter((id) => prox.withheldFactIds.has(id) && !expl.withheldFactIds.has(id)),
+        ...ch.beliefs.filter((b) => prox.withheldBeliefIds.has(b.id) && !expl.withheldBeliefIds.has(b.id)).map((b) => b.id),
+      ];
+      expect(nowVisible.sort(), ch.id).toEqual(VISIBLE_AFTER_REVIEW[ch.id].sort());
+    }
+    // Explicit per-fact hiding, including Reginald's 21:14 pantry entry (his 21:13 lock-turn stays visible).
+    expect(factById("loc-reginald-2114")!.hiddenUntil).toEqual({ secretIds: ["s-reginald-theft"], lieIds: [] });
+    expect(factById("loc-gregory-2114")!.hiddenUntil).toEqual({ secretIds: ["s-gregory-in-hall"], lieIds: [] });
+    expect(factById("loc-archibald-2040")!.hiddenUntil).toEqual({ secretIds: [], lieIds: ["l-archibald-racehorse"] });
+    const reg = knowledgeGate(c, byId("reginald"), locked);
+    expect(reg.withheldFactIds.has("loc-reginald-2114")).toBe(true);
+    expect(reg.withheldFactIds.has("loc-reginald-2113")).toBe(false);
+    expect(reg.withheldFactIds.has("ev-lord-relocks")).toBe(false);
+    expect(knowledgeGate(c, byId("reginald"), { ...locked, revealedSecretIds: ["s-reginald-theft"] }).withheldFactIds.has("loc-reginald-2114")).toBe(false);
+  });
+
+  it("visible false beliefs are red herrings that don't contradict what the believer witnessed", () => {
+    // Reginald: 'her ladyship stayed in the dining room'. He last saw her there at 21:11 and saw nobody after 21:13.
+    const reg = byId("reginald");
+    expect(reg.knownFactIds).toContain("loc-reginald-2111");
+    expect(reg.knownFactIds).not.toContain("ev-victoria-alone");
+    expect(reg.knownFactIds).not.toContain("ev-gregory-sees-victoria");
+    // Reginald's and Archibald's culprit beliefs name people they never saw during the blackout.
+    for (const [who, target] of [["reginald", "archibald"], ["archibald", "gregory"]] as const) {
+      const seen = byId(who).knownFactIds
+        .map((id) => c.timeline.find((t) => t.id === id))
+        .filter((t): t is TimelineEntry => Boolean(t) && t!.involvesCharacterIds.includes(target) && !t!.id.startsWith(`loc-${target}`))
+        .filter((t) => { const [a, b] = range(t); return b >= toMin("21:13") && a <= toMin("21:22"); })
+        .map((t) => t.id);
+      // Reginald did hear Crane at 21:15-21:20 (behind his theft secret), which only supports his suspicion.
+      expect(seen.filter((id) => id !== "ev-pantry-exchange"), `${who} on ${target}`).toEqual([]);
+    }
   });
 
   it("revealing the secrets releases the facts again (each is gated by a real, reachable secret)", () => {
@@ -351,7 +413,7 @@ describe("Blackwood knowledge gating (QA #6, #7)", () => {
         evidenceShownIds: c.evidence.map((e) => e.id),
         revealedSecretIds: ch.secrets.map((s) => s.id),
       });
-      expect([...gate.withheldFactIds], ch.id).toEqual([]);
+      expect(ch.knownFactIds.filter((id) => gate.withheldFactIds.has(id)), ch.id).toEqual([]);
     }
   });
 
@@ -394,3 +456,97 @@ describe("Blackwood free text tells no secrets", () => {
   });
 });
 
+/** Testimony: revealed secrets become notebook cards that break other suspects' lies (docs/CASE_FORMAT.md). */
+describe("Blackwood testimony", () => {
+  const secretOf = (id: string) => c.characters.flatMap((ch) => ch.secrets.map((s) => ({ s, owner: ch }))).find((x) => x.s.id === id)!;
+
+  it("has public summaries for every testimony secret, none for the murder or the locked-door admission", () => {
+    for (const id of ["s-reginald-theft", "s-archibald-false-alibi", "s-gregory-saw-victoria", "s-reginald-overheard", "s-gregory-in-hall"]) {
+      expect(secretOf(id).s.testimonySummary, id).toBeTruthy();
+    }
+    expect(secretOf("s-victoria-murder").s.testimonySummary).toBeUndefined();
+    expect(secretOf("s-victoria-locked-door").s.testimonySummary).toBeUndefined();
+    for (const ch of c.characters) for (const s of ch.secrets) if (s.testimonySummary) expect(s.testimonySummary.length, s.id).toBeLessThanOrEqual(240);
+  });
+
+  it("each summary's clock times come from the owner's own knowledge", () => {
+    for (const ch of c.characters) {
+      const known = new Set<number>();
+      for (const id of ch.knownFactIds) {
+        const f = factById(id)!;
+        if (f.time) known.add(toMin(f.time));
+        if (f.from && f.to) for (let m = toMin(f.from); m <= toMin(f.to); m++) known.add(m);
+      }
+      for (const s of ch.secrets) {
+        for (const t of s.testimonySummary?.match(/\b\d{2}:\d{2}\b/g) ?? []) expect(known.has(toMin(t)), `${s.id} says ${t}`).toBe(true);
+      }
+    }
+  });
+
+  it("each testimony breaks exactly the lies it contradicts in canon", () => {
+    const revealable = c.characters.flatMap((ch) => ch.secrets.filter((s) => s.testimonySummary).map((s) => s.id));
+    const matrix: Record<string, string[]> = {};
+    for (const ch of c.characters) {
+      for (const l of ch.intendedLies) {
+        const by = revealable.filter((sid) => isLieBroken(c, l, { evidenceShownIds: [], testimonyShownIds: [sid] }));
+        if (by.length) matrix[l.id] = by.sort();
+      }
+    }
+    expect(matrix).toEqual({
+      "l-victoria-together": ["s-archibald-false-alibi", "s-gregory-saw-victoria", "s-reginald-theft"],
+      "l-victoria-locked-in": ["s-gregory-saw-victoria"],
+      "l-victoria-never-in-hall": ["s-gregory-saw-victoria"],
+      "l-victoria-menu": ["s-reginald-overheard"],
+      "l-archibald-together": ["s-reginald-theft"],
+      "l-reginald-heard-nothing": ["s-archibald-false-alibi"],
+    });
+    // The canon behind each break is inside the breaking secret (what the card says the witness knows).
+    const has = (sid: string, fid: string) => expect(secretOf(sid).s.relatedFactIds, `${sid} -> ${fid}`).toContain(fid);
+    has("s-reginald-theft", "ev-reginald-hears-phone"); // Crane on the servants' telephone 21:15-21:20
+    expect(factById("ev-reginald-hears-phone")).toMatchObject({ from: "21:15", to: "21:20", locationId: "kitchen", source: "heard" });
+    expect(factById("ev-reginald-hears-phone")!.statement).toContain("Mr Crane");
+    has("s-archibald-false-alibi", "ev-archibald-leaves-dining"); // left Victoria at 21:13
+    has("s-archibald-false-alibi", "ev-pantry-exchange"); // the butler called out to him: Reginald heard something
+    has("s-gregory-saw-victoria", "ev-gregory-sees-victoria"); // Victoria in the hall at 21:19, locking the door
+    has("s-reginald-overheard", "ev-reginald-overhears");
+    expect(factById("ev-reginald-overhears")!.statement).toContain("new will");
+  });
+
+  it("the dinner-row and Gregory lies stay evidence-only", () => {
+    const lies = c.characters.flatMap((ch) => ch.intendedLies);
+    for (const id of ["l-archibald-racehorse", "l-gregory-shed", "l-gregory-saw-nothing"]) {
+      const l = lies.find((x) => x.id === id)!;
+      expect(l.breaksOnSecretIds, id).toEqual([]);
+      expect(l.breaksOnFactIds, id).toEqual([]);
+      expect(l.brokenByEvidenceIds.length, id).toBeGreaterThan(0);
+    }
+  });
+});
+
+describe("Blackwood reveal paths: stress and evidence", () => {
+  const secret = (id: string) => byId("victoria").secrets.find((s) => s.id === id)!;
+  const st = (stress: number, evidenceShownIds: string[] = [], revealedSecretIds: string[] = []) => ({ stress, evidenceShownIds, revealedSecretIds });
+
+  it("enough pressure makes Victoria admit she left the dining room, but nothing more", () => {
+    expect(secret("s-victoria-left-dining").revealConditions?.stressThreshold).toBe(70);
+    expect(shouldRevealSecret(secret("s-victoria-left-dining"), st(69))).toBe(false);
+    expect(shouldRevealSecret(secret("s-victoria-left-dining"), st(70))).toBe(true);
+    // Stress never unlocks the library visit or the murder on its own.
+    expect(shouldRevealSecret(secret("s-victoria-locked-door"), st(100, [], ["s-victoria-left-dining"]))).toBe(false);
+    expect(shouldRevealSecret(secret("s-victoria-murder"), st(100, [], ["s-victoria-left-dining", "s-victoria-new-will"]))).toBe(false);
+    expect(secret("s-victoria-left-dining").description).not.toMatch(/library|key|candlestick|killed/i);
+  });
+
+  it("with the four clues and zero stress every non-confession secret unlocks and every lie breaks", () => {
+    const all = c.evidence.map((e) => e.id);
+    for (const ch of c.characters) {
+      const revealed: string[] = [];
+      for (let pass = 0; pass < ch.secrets.length; pass++) {
+        for (const s of ch.secrets) if (!revealed.includes(s.id) && shouldRevealSecret(s, st(0, all, revealed))) revealed.push(s.id);
+      }
+      const expected = ch.secrets.filter((s) => s.id !== "s-victoria-murder").map((s) => s.id);
+      expect(revealed.sort(), ch.id).toEqual(expected.sort());
+      for (const l of ch.intendedLies) expect(isLieBroken(c, l, { evidenceShownIds: all }), l.id).toBe(true);
+    }
+  });
+});

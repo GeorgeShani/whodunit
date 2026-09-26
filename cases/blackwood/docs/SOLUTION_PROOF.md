@@ -73,8 +73,40 @@ Victoria's alibi is: *"Archibald and I sat by the dining-room fire through the w
 | Gregory | `s-gregory-in-hall` | `muddy-footprint` | In the hall alcove from just after the quarter chime. Heard the thud and saw the light under the door dim (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`). |
 | Gregory | `s-gregory-saw-victoria` | `library-key`, **after** `s-gregory-in-hall` | **Lady Victoria** stepped out, locked the door, pocketed the key and went to the dining room (`ev-gregory-sees-victoria`, `ev-victoria-locks-door`). |
 | Victoria | `s-victoria-new-will` | `burned-letter` | She knew about the new will and burned the letter. |
-| Victoria | `s-victoria-left-dining` | `library-key` **and** `muddy-footprint` (mode `all`) | She left the dining room during the blackout. |
-| Victoria | `s-victoria-murder` | all of `silver-candlestick`, `library-key`, `burned-letter` **and** stress ≥ 80, after both secrets above | Confession, as flavour only. Nothing below depends on it. |
+| Victoria | `s-victoria-left-dining` | `library-key` **or** stress ≥ 70 (mode `any`) | She was alone in the dining room while Archibald was away, and got him to agree to the "together" story at 21:40 (`ev-victoria-alone`, `ev-archibald-leaves-dining`, `ev-alibi-pact`). Nothing about the library. |
+| Victoria | `s-victoria-locked-door` | `library-key` **and** `muddy-footprint` (mode `all`), after `s-victoria-left-dining` | She went to the library, locked it from outside at 21:19 and dropped the key in the scuttle at 21:20 (`ev-victoria-locks-door`, `ev-key-hidden`). |
+| Victoria | `s-victoria-murder` | all of `silver-candlestick`, `library-key`, `burned-letter` **and** stress ≥ 80, after `s-victoria-left-dining` and `s-victoria-new-will` | Confession, as flavour only. Nothing below depends on it. |
+
+The old `s-victoria-left-dining` (library, lock and key included) is split in two, so that the new stress path only makes her admit leaving the dining room. Stress alone never unlocks the library visit or the murder.
+
+### 4.1 Testimony paths (revealed secrets presented to another suspect)
+
+A revealed secret becomes a notebook card (`testimonySummary`, public) that the player can present to another suspect (`engine/testimony.ts`). Every lie still has an evidence path, so testimony is a second route, never a required one.
+
+| Lie | Evidence path (`brokenByEvidenceIds`) | Testimony path (`breaksOnSecretIds`, mode `any`) | Canon that makes the testimony break it |
+|---|---|---|---|
+| `l-victoria-together` "Neither of us left." | `library-key`, `burned-letter` | `s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria` | Crane on the servants' telephone 21:15–21:20 (`ev-reginald-hears-phone`); Crane left at 21:13 (`ev-archibald-leaves-dining`); she was in the hall at 21:19 (`ev-gregory-sees-victoria`) |
+| `l-archibald-together` "I was with Victoria the whole time." | `library-key`, `burned-letter` | `s-reginald-theft` | Reginald heard Crane's voice on the telephone 21:15–21:20, and Crane answered him at 21:18 |
+| `l-reginald-heard-nothing` "In the kitchen polishing silver, heard nothing." | `burned-letter` | `s-archibald-false-alibi` | Crane's card says the butler called out to him from the pantry at 21:18 (`ev-pantry-exchange`) |
+| `l-victoria-never-in-hall` "I never went near the library after nine." | `muddy-footprint`, `library-key` | `s-gregory-saw-victoria` | Gregory saw her step out of the library at 21:19 |
+| `l-victoria-locked-in` "Edmund must have locked himself in." | `library-key` | `s-gregory-saw-victoria` | Gregory saw her lock the door from outside |
+| `l-victoria-menu` "The Sunday menu, darling." | `burned-letter` | `s-reginald-overheard` | Reginald saw and heard the 20:54 quarrel: "…what the new will allows" |
+| `l-victoria-letter`, `l-archibald-racehorse`, `l-gregory-shed`, `l-gregory-saw-nothing` | `burned-letter` / `library-key` / `muddy-footprint` / `library-key` | none (evidence only) | |
+
+**Testimony cards** (each states only what the owner knows, with the data's source; every clock time is one the owner knows, and a test checks this):
+
+| Secret | `testimonySummary` |
+|---|---|
+| `s-reginald-theft` | Reginald admits he hid in his pantry with money skimmed from the household accounts. Through the door he heard Mr Crane's voice on the servants' telephone from 21:15 to 21:20; at 21:18 Mr Crane told him to mind his own business. |
+| `s-reginald-overheard` | At 20:54, through the ajar library door, Reginald saw her ladyship clutch his lordship's sleeve crying 'You wouldn't dare, Edmund!' as he held up a letter: 'Ten o'clock tomorrow... what the new will allows.' |
+| `s-archibald-false-alibi` | Mr Crane admits he left the dining room at 21:13 and only came back at 21:22. He was on the servants' telephone, and at 21:18 the butler called out to him from the pantry. At 21:40 he agreed to Lady Victoria's story. |
+| `s-archibald-embezzlement` | Mr Crane admits he embezzled company money, and that during the blackout he telephoned his broker to move it before midnight. |
+| `s-gregory-in-hall` | Gregory admits that at 21:16 he slipped in by the garden door and stood in the dark hall alcove, six paces from the library door. At 21:17 he heard a heavy thud in the library and saw the light under the door dim. |
+| `s-gregory-saw-victoria` | Gregory says that at 21:19, in a lightning flash, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room. |
+| `s-victoria-left-dining` | Lady Victoria admits she sat alone in the dining room during the blackout while Mr Crane was away, and that at 21:40 she asked him to say they had been together the whole time. |
+| `s-victoria-new-will` | Lady Victoria admits she knew before the murder that his lordship meant to sign a new will, and that she burned the solicitor's letter. |
+
+`s-victoria-locked-door` and `s-victoria-murder` have no summary on purpose: either card would name the killer by itself. If one is revealed, the engine's generic card ("Victoria Blackwood admitted something under questioning.") is used.
 
 ## 5. Deduction chain (fair play)
 
@@ -96,6 +128,16 @@ Victoria's alibi is: *"Archibald and I sat by the dining-room fire through the w
 
 ### WHY: inheritance
 11. The burned letter says the new will leaves Lady Victoria £200 a year and was to be signed at ten tomorrow (`burned-letter`, `f-new-will`). Reginald saw the Lord brandish that letter at her at 20:54: "Ten o'clock tomorrow… not a penny more" (`ev-reginald-overhears`). **She knew before 21:17.** Killing him first keeps the old will, under which she inherits nearly everything (`f-inheritance-motive`). Only she loses under the new will, and she is the one who burned the letter.
+
+### Proof without any confession
+
+WHO, HOW, WHY and WHEN all follow from the four discoverable clues plus testimony that those clues unlock at **zero stress** (a test checks this: with all four clues shown and stress 0, every secret except `s-victoria-murder` unlocks and every lie breaks):
+- **WHEN (21:17):** `silver-candlestick` (candle burned about 5 minutes) + Reginald's freely given 21:12 delivery (`ev-candlestick-delivered`). Cross-checked by Gregory's thud (`muddy-footprint` → `s-gregory-in-hall`).
+- **HOW:** `silver-candlestick` + `f-weapon-origin` + the lock turned from outside (`library-key`).
+- **WHO:** `library-key` in the dining-room scuttle and `burned-letter` in the dining-room fire; the "together" alibi is broken by Reginald (`burned-letter` → `s-reginald-theft`) and Archibald (`library-key` → `s-archibald-false-alibi`); Gregory's eyewitness account (`muddy-footprint` then `library-key`).
+- **WHY:** `burned-letter` (the new will), backed up by Reginald (`s-reginald-overheard`).
+
+Stress (the 70 on `s-victoria-left-dining` and the 80 on the confession) only adds shortcuts and flavour. Nothing in the chain needs it.
 
 ### Eliminating the others (each alibi is plausible but imperfect)
 
@@ -124,7 +166,7 @@ Each row is authored as an `intendedLies` entry (`l-*`) in the character's file,
 |---|---|---|---|
 | Victoria | "Archibald and I sat by the fire the whole blackout." | Her alibi | Reginald `ev-reginald-hears-phone` / `ev-pantry-exchange`; Archibald cracks (`ev-archibald-leaves-dining`, `ev-alibi-pact`) |
 | Victoria | "Edmund must have locked himself in, he always did." | Explains the locked room | `library-key`: no key inside, so it was locked from outside. `f-lord-key-habit`: he left it in the lock *inside*. |
-| Victoria | "I never set foot in the hall after nine." | Hides the 21:15–21:19 trip | Gregory `ev-gregory-sees-victoria` (after `muddy-footprint`, then `library-key`) |
+| Victoria | "I never went near the library after our little chat at nine." (was: "I never set foot in the hall after our little chat at nine.") | Hides the 21:15–21:19 trip; reworded so it doesn't clash with her stress admission that she left the dining room | Gregory `ev-gregory-sees-victoria` (after `muddy-footprint`, then `library-key`) |
 | Victoria | "Our little chat at nine? The Sunday menu, darling." | Hides the motive | Reginald `ev-reginald-overhears`; `burned-letter` |
 | Victoria | "I've never seen that letter." | Hides the motive and the burning | `burned-letter` found in *her* dining-room fire; Reginald saw the Lord wave it at her (`ev-reginald-overhears`) and saw it on the desk at 21:12 (`ev-candlestick-delivered`) |
 | Archibald | "I was with Victoria the whole time, ask her!" | Hides the phone call and moving embezzled money | Reginald `ev-reginald-hears-phone`, `ev-pantry-exchange`; cracks on `library-key` |
@@ -167,19 +209,41 @@ The engine (`engine/knowledge-gate.ts`) withholds a character's known facts whil
 | Character | Secret | Facts linked in `relatedFactIds` (besides the original ones) |
 |---|---|---|
 | Victoria | `s-victoria-murder` | `ev-victoria-takes-letter`, `loc-victoria-2115`–`2119` |
-| Victoria | `s-victoria-left-dining` | `ev-archibald-leaves-dining`, `ev-archibald-returns`, `ev-alibi-pact`, `loc-victoria-2113`, `2114`, `2120`–`2122` |
-| Victoria | `s-victoria-new-will` | `f-inheritance-motive`, `f-letter-accuses-butler`, `loc-victoria-2050`, `loc-victoria-2054` |
+| Victoria | `s-victoria-left-dining` | (now the full list) `ev-victoria-alone`, `ev-archibald-leaves-dining`, `ev-archibald-returns`, `ev-alibi-pact`, `loc-victoria-2113`, `2114`, `2122` |
+| Victoria | `s-victoria-locked-door` (new) | `ev-victoria-admitted`, `ev-victoria-locks-door`, `ev-key-hidden`, `loc-victoria-2119`–`2121` |
+| Victoria | `s-victoria-new-will` | `f-inheritance-motive`, `f-letter-accuses-butler`, `loc-victoria-2050`, `loc-victoria-2054`, `ev-victoria-passes-reginald` |
 | Archibald | `s-archibald-false-alibi` | `ev-archibald-returns`, `ev-archibald-notices-pantry`, `ev-pantry-exchange`, `loc-archibald-2113`–`2122` |
 | Archibald | `s-archibald-embezzlement` | `ev-archibald-threat` |
 | Reginald | `s-reginald-theft` | `loc-reginald-2115`–`2122` ("counting his hidden money", calling through the pantry door) |
 | Reginald | `s-reginald-overheard` | `loc-reginald-2054`, `f-new-will` (gates `b-reginald-will`) |
 | Gregory | `s-gregory-in-hall` | `f-footprint-gregory`, `f-no-mud-beyond-alcove`, `loc-gregory-2115`–`2122` |
 
-`loc-reginald-2114` is deliberately **not** linked. Linking it would widen the window back to 21:13 and hide `ev-lord-relocks`, which Reginald should be able to state. With nothing unlocked the model still sees, for each suspect, the parts of the evening that match their cover story (for example Victoria's "by the fire with Archibald" at 21:11 and 21:30), and none of the blackout truth.
+`loc-reginald-2114` is not a direct link. Linking it would widen the old proximity window back to 21:13 and hide `ev-lord-relocks`. Since the case switched to the explicit gate, it is hidden with `hiddenUntil` instead (§7.2).
 
 Red-herring beliefs are pointed at a fact the character can see, so the gate doesn't swallow them: `b-reginald-crane-did-it` and `b-archibald-gregory-did-it` are about `ev-body-discovered` (before: `ev-murder`, inside the window), and `b-gregory-will-hang` is about `f-gregory-dismissed` (before: `f-footprint-gregory`).
 
 **Reginald saw no one (QA #6).** New world fact `f-reginald-saw-no-one` (`source: witnessed`, confidence 1): after the lock turned at 21:13 he stayed below stairs until the coal at 21:30, and in that time saw no one in the hall or at the library door and did not see Victoria at all. He has a matching accurate belief, `b-reginald-saw-nobody`. It is a `case.json` fact, not a timeline window, on purpose. A timeline entry involving Reginald from 21:14 to 21:30 would overlap his theft window and be withheld, and a gap is exactly what the model filled with an invented sighting. His only sighting of Victoria stays `ev-victoria-passes-reginald` at 20:57.
+
+### 7.2 Explicit gate (`"knowledgeGate": "explicit"`)
+
+The proximity heuristic is off. Only direct links and `hiddenUntil` apply. Every fact and belief the heuristic used to hide was reviewed:
+
+| Fact / belief | Decision | Why |
+|---|---|---|
+| `loc-reginald-2114` (21:14, shutting himself in his pantry) | `hiddenUntil: { secretIds: [s-reginald-theft] }` | Requested. The pantry is where the theft happens. His 21:13 lock-turn (`loc-reginald-2113`, `ev-lord-relocks`) stays visible. |
+| `loc-archibald-2040` ("threatening Lord Blackwood across the table") | `hiddenUntil: { lieIds: [l-archibald-racehorse] }` | Calls it a threat, which contradicts his "just a racehorse" story. |
+| `loc-archibald-2112` (by candlelight with Victoria) | visible | True, and matches the cover story. Gives nothing away. |
+| `loc-archibald-2140` (with the household in the hall) | visible | Harmless. The pact itself (`ev-alibi-pact`) stays linked to his false-alibi secret. |
+| `loc-gregory-2114` ("stumbling about after his lantern blows out") | `hiddenUntil: { secretIds: [s-gregory-in-hall] }` | Contradicts "in the potting shed all night", and the lantern is why he came into the hall. |
+| `loc-victoria-2057` (leaving the library, sweeping past Reginald) | visible | Her "menu chat" story already admits the 20:50 visit. Neutral wording, and she witnessed it herself. |
+| `loc-victoria-2058` (back at the table with Archibald) | visible | Harmless, matches the cover story. |
+| `loc-victoria-2112` (by candlelight with Archibald) | visible | Harmless, matches the cover story. |
+| `loc-victoria-2140` (with the household in the hall) | visible | Harmless. The pact stays linked. |
+| `ev-victoria-passes-reginald` ("flushed … without a word") | Victoria: linked to `s-victoria-new-will`. Reginald: visible | "Flushed" hints at the quarrel her menu story hides. `hiddenUntil` would hide it from Reginald too, and he needs his 20:57 sighting (#6), so this is a per-character direct link instead. |
+| `b-reginald-lady-stayed` (false) | visible | Wanted red herring. He last saw her in the dining room at 21:11 and saw nobody after 21:13, so it contradicts nothing he witnessed. |
+| `b-reginald-crane-did-it` (false) | visible, reworded | Old: "…threatened his lordship at dinner and went creeping about in the dark." New: "…threatened his lordship at dinner, and he has the temper for it." "Creeping about" came from the telephone he heard, which is behind his theft secret. |
+| `b-victoria-unseen`, `b-victoria-reginald-deaf`, `b-victoria-brandy-errand` | hidden: `aboutFactId` moved to `ev-victoria-locks-door`, `ev-victoria-argument`, `ev-archibald-leaves-dining` | Each gives something away ("in the hall", "our quarrel", "he went off"). The facts they were about were facts she doesn't know, so they had no gate. |
+| `b-archibald-victoria-stayed`, `b-archibald-butler-spy` | hidden: `aboutFactId` moved to `ev-archibald-phone`, `ev-pantry-exchange` | Both mention or imply the telephone. They come back as honest, wrong beliefs once his false alibi is revealed. |
 
 **Tests** (`tests/cases/blackwood.test.ts`, "knowledge gating"): a curated per-character list of sensitive facts must each be linked to one of that character's own secrets or lies. Every known self-involving entry from 21:13 to 21:22 must be linked or on a short safe list. With nothing shown, the gate must withhold all of them. Once every secret is revealed and every clue shown, nothing is withheld. Reginald's no-sighting fact and belief must reach the model. A regex check keeps giveaway words (alibi, telephone, theft, new will, what he saw, and so on) out of goals, traits, speech style and relationship notes.
 
@@ -190,6 +254,8 @@ All eleven gaps from the first draft are closed by contract v2 (commit 3608125).
 1. **Source and confidence are per fact, not per knower.** A shared fact such as `ev-archibald-threat` is canonical to Archibald but only *heard* by Victoria and Reginald, and it cannot carry both. I kept shared world facts `canonical` and gave non-canonical sources only to single-perceiver entries. The same limitation keeps `f-new-will` (told to and read by Victoria) canonical.
 2. **`keyEvidenceIds` judging rules are TBD** (contract: "judging rules come later"). This case expects `library-key` and `burned-letter`. If the engine ends up requiring *all* key evidence, the accusation needs both.
 3. **The accusation no longer contains time or location.** WHEN (21:17) and WHERE stay engine truth and are used by the opportunity check, but the player isn't graded on them. The deduction in §5 still derives them, because they are needed to break the alibi.
+
+4. **A stress reveal doesn't expose the owner's own lie.** If Victoria reaches stress 70 before any clue or testimony breaks `l-victoria-together`, the engine tells her to confess `s-victoria-left-dining` while that lie is still marked MAINTAIN. The data can't fix this: a lie can't break on its owner's own secret, and the validator flags that as self-referential. In practice most pressure comes from presenting the clues and testimony that break the lie anyway (`library-key`, `burned-letter`, or three testimony cards). Engine suggestion: when a secret is revealed, expose the owner's lies whose `aboutFactId` is in that secret's `relatedFactIds`.
 
 ## 9. Decisions made without the product owner
 - **Mutual alibi instead of the gramophone.** With five rooms and four clues, Victoria's "seemingly solid" alibi is Archibald vouching for her. He lies to cover his own phone call.

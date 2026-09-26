@@ -1,6 +1,9 @@
 {
   "id": "archibald",
   "name": "Archibald Crane",
+  "aliases": [
+    "Mr Crane"
+  ],
   "role": "The Business Partner",
   "bio": "Lord Blackwood's loud, cigar-chomping business partner, staying the night. Wears a waistcoat under considerable strain.",
   "personality": {
@@ -99,14 +102,14 @@
     {
       "id": "b-archibald-victoria-stayed",
       "statement": "Victoria sat by the fire the whole time I was on the telephone.",
-      "aboutFactId": "ev-victoria-alone",
+      "aboutFactId": "ev-archibald-phone",
       "isAccurate": false,
       "confidence": 0.7
     },
     {
       "id": "b-archibald-butler-spy",
       "statement": "The butler was listening at his door so he could report me to the police.",
-      "aboutFactId": "ev-reginald-hears-phone",
+      "aboutFactId": "ev-pantry-exchange",
       "isAccurate": false,
       "confidence": 0.5
     }
@@ -129,7 +132,8 @@
         "f-archibald-embezzlement",
         "ev-archibald-phone",
         "ev-archibald-threat"
-      ]
+      ],
+      "testimonySummary": "Mr Crane admits he embezzled company money, and that during the blackout he telephoned his broker to move it before midnight."
     },
     {
       "id": "s-archibald-false-alibi",
@@ -158,7 +162,8 @@
         "loc-archibald-2120",
         "loc-archibald-2121",
         "loc-archibald-2122"
-      ]
+      ],
+      "testimonySummary": "Mr Crane admits he left the dining room at 21:13 and only came back at 21:22. He was on the servants' telephone, and at 21:18 the butler called out to him from the pantry. At 21:40 he agreed to Lady Victoria's story."
     }
   ],
   "relationships": [
@@ -212,7 +217,11 @@
       "brokenByEvidenceIds": [
         "library-key",
         "burned-letter"
-      ]
+      ],
+      "breaksOnSecretIds": [
+        "s-reginald-theft"
+      ],
+      "breakMode": "any"
     },
     {
       "id": "l-archibald-racehorse",

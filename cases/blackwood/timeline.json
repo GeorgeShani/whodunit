@@ -70,7 +70,12 @@
     "locationId": "dining-room",
     "involvesCharacterIds": [
       "archibald"
-    ]
+    ],
+    "hiddenUntil": {
+      "lieIds": [
+        "l-archibald-racehorse"
+      ]
+    }
   },
   {
     "id": "loc-gregory-2040",
@@ -661,7 +666,12 @@
     "locationId": "garden",
     "involvesCharacterIds": [
       "gregory"
-    ]
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gregory-in-hall"
+      ]
+    }
   },
   {
     "id": "loc-reginald-2114",
@@ -671,7 +681,12 @@
     "locationId": "kitchen",
     "involvesCharacterIds": [
       "reginald"
-    ]
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-reginald-theft"
+      ]
+    }
   },
   {
     "id": "loc-victoria-2114",

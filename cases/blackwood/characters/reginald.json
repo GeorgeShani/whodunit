@@ -1,6 +1,9 @@
 {
   "id": "reginald",
   "name": "Reginald",
+  "aliases": [
+    "the butler"
+  ],
   "role": "The Butler",
   "bio": "Butler to the Blackwoods for twenty years, starched from collar to soul. Knows where every spoon is, and most of the secrets.",
   "personality": {
@@ -96,7 +99,7 @@
   "beliefs": [
     {
       "id": "b-reginald-crane-did-it",
-      "statement": "Mr Crane did it. He threatened his lordship at dinner and went creeping about in the dark.",
+      "statement": "Mr Crane did it. He threatened his lordship at dinner, and he has the temper for it.",
       "aboutFactId": "ev-body-discovered",
       "isAccurate": false,
       "confidence": 0.65
@@ -147,7 +150,8 @@
         "loc-reginald-2120",
         "loc-reginald-2121",
         "loc-reginald-2122"
-      ]
+      ],
+      "testimonySummary": "Reginald admits he hid in his pantry with money skimmed from the household accounts. Through the door he heard Mr Crane's voice on the servants' telephone from 21:15 to 21:20; at 21:18 Mr Crane told him to mind his own business."
     },
     {
       "id": "s-reginald-overheard",
@@ -166,7 +170,8 @@
         "ev-reginald-overhears",
         "loc-reginald-2054",
         "f-new-will"
-      ]
+      ],
+      "testimonySummary": "At 20:54, through the ajar library door, Reginald saw her ladyship clutch his lordship's sleeve crying 'You wouldn't dare, Edmund!' as he held up a letter: 'Ten o'clock tomorrow... what the new will allows.'"
     }
   ],
   "relationships": [
@@ -219,7 +224,11 @@
       "claim": "I was in the kitchen polishing silver, sir, and heard nothing at all.",
       "brokenByEvidenceIds": [
         "burned-letter"
-      ]
+      ],
+      "breaksOnSecretIds": [
+        "s-archibald-false-alibi"
+      ],
+      "breakMode": "any"
     },
     {
       "id": "l-reginald-few-words",
