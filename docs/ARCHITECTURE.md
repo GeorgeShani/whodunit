@@ -78,8 +78,14 @@ One exchange (`ai/interrogate-handler.ts`):
 
 ## SEO and metadata
 
-- `app/layout.tsx` uses the metadata API: title template `%s | WHODUNIT?!`, description, `metadataBase` (`https://whodunit-nu.vercel.app`), Open Graph and `summary_large_image` Twitter cards, plus a `viewport` export (`themeColor` `#1b1035`). Shared values live in `lib/site.ts`.
+- `app/layout.tsx` uses the metadata API: title template `%s | WHODUNIT?!`, description, `metadataBase` (`SITE_URL` from `lib/site.ts`: `https://whodunit-game.vercel.app`, overridable with `NEXT_PUBLIC_SITE_URL`; the old `whodunit-nu.vercel.app` alias is not canonical), Open Graph and `summary_large_image` Twitter cards, plus a `viewport` export (`themeColor` `#1b1035`). Shared values live in `lib/site.ts`.
 - Metadata is case-agnostic: no suspect names, clues or solution details.
 - `app/robots.ts`, `app/sitemap.ts` (root URL only) and `app/manifest.ts` generate `/robots.txt`, `/sitemap.xml` and `/manifest.webmanifest`.
 - Share images and icons are static files using the app/ file conventions: `app/opengraph-image.jpg` (1200×630), `app/twitter-image.jpg` (1200×600), each with an `.alt.txt`, plus `app/favicon.ico` (16/32/48), `app/icon.png` (512) and `app/apple-icon.png` (180). Manifest-only icons live in `assets/icons/`. Art notes are in `docs/art/share/README.md`. Don't declare `icons`/`images` in `lib/metadata.ts`, because the files already generate those tags.
 - Headings: each screen renders one `h1` (title screen: "WHODUNIT?!"; then the case title, "PICK A SUSPECT!", or the suspect's name).
+
+## Viewport stage (no scrollbar flashes)
+
+- `html, body` use `overflow-x: clip`. `<Game>` renders a `.stage` root (`100vh` fallback, then `100dvh`, `overflow: hidden`, `contain: paint`); each screen is an absolutely positioned `AnimatePresence mode="wait"` layer, so enter/exit scale transforms, shakes, sprites and overlays never push the document into overflow.
+- Screens that can be taller than a phone (intro, suspects) scroll inside themselves (`.screen-scroll`); the transcript is a genuine scroll area (`.scroll-area`, `scrollbar-gutter: stable`). Layout is flex plus fluid units; no fixed-pixel stage sizes.
+- `npm run check:overflow -- <baseUrl>` (`scripts/check-overflow.ts`, playwright-core with the system Chrome) drives title → intro → suspects → interrogation (a reply with an emotion overlay, presenting evidence) → back (→ Investigate when present) at 1280x800 and 390x844, samples document `scrollWidth`/`scrollHeight` against the viewport on every animation frame, and exits 1 on any overflow.

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 export function TitleScreen({ tagline, onStart }: { tagline: string; onStart: () => void }) {
   return (
-    <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,#ffcf33_0%,#ff7a18_35%,#7b1fa2_70%,#1b1035_100%)] px-6 text-center">
+    <main className="relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden bg-[radial-gradient(circle_at_center,#ffcf33_0%,#ff7a18_35%,#7b1fa2_70%,#1b1035_100%)] px-6 text-center">
       <motion.div
         aria-hidden
         className="pointer-events-none absolute h-[140vmax] w-[140vmax] rounded-full border-[3vmax] border-black/20"

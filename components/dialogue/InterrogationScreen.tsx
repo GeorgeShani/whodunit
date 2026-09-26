@@ -45,7 +45,7 @@ export function InterrogationScreen({
   };
 
   return (
-    <main className="flex h-dvh flex-col bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-4">
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-4">
       <header className="mb-3 flex items-center justify-between gap-2">
         <CartoonButton tone="white" onClick={onBack}>
           ← Back to suspects
@@ -153,7 +153,7 @@ export function InterrogationScreen({
             animate={pending ? { rotate: [0, -1, 1, 0] } : { rotate: 0 }}
             transition={pending ? { duration: 1.2, repeat: Infinity } : {}}
             style={{ originY: 1 }}
-            className="h-full max-h-[80vh] w-full"
+            className="h-full max-h-full w-full"
           >
             <Portrait suspect={suspect} emotion={emotion} speaking={speaking} className="mx-auto h-full" priority />
           </motion.div>

@@ -18,7 +18,7 @@ export function SuspectSelect({
   onBack: () => void;
 }) {
   return (
-    <main className="flex flex-1 flex-col items-center gap-8 bg-[radial-gradient(circle_at_top,#7b1fa2_0%,#1b1035_70%)] px-4 py-10">
+    <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-8 bg-[radial-gradient(circle_at_top,#7b1fa2_0%,#1b1035_70%)] px-4 py-10">
       <div className="flex w-full max-w-6xl items-center justify-between">
         <button type="button" onClick={onBack} className="cursor-pointer font-bold text-yellow-200 underline-offset-4 hover:underline">
           ← Case file
