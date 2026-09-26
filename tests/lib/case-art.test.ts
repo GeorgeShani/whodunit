@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loadCase } from "@/engine/case-loader";
 import { AssetPathSchema } from "@/engine/types";
 import { getPublicCaseView } from "@/engine/public-view";
-import { ART_DEFAULTS, assetExists, resolveCaseArt } from "@/lib/case-art";
+import { ART_DEFAULTS, assetExists, resolveCaseArt, resolveStageArt } from "@/lib/case-art";
 import { FIXTURES_DIR } from "../helpers/fixture";
 
 describe("case art resolution", () => {
@@ -38,5 +38,26 @@ describe("case art resolution", () => {
 
   it("asset path schema accepts a normal path", () => {
     expect(AssetPathSchema.safeParse("/assets/backgrounds/manor.webp").success).toBe(true);
+  });
+
+  it("interrogation stage (ART_BIBLE §7): the crime-scene room with its lightning frame, window mask and rain", async () => {
+    const view = resolveCaseArt(getPublicCaseView(await loadCase("blackwood")));
+    expect(view.stage).toEqual({
+      background: "/assets/backgrounds/library.webp",
+      lightning: "/assets/backgrounds/library_lightning.webp",
+      windowMask: "/assets/backgrounds/library_window_mask.webp",
+      rainTile: "/assets/effects/rain_tile.webp",
+    });
+    const harbor = resolveCaseArt(getPublicCaseView(await loadCase("harbor-light", FIXTURES_DIR)));
+    expect(harbor.stage?.background).toBe("/assets/backgrounds/manor.webp");
+    expect(harbor.stage?.lightning).toBe("/assets/backgrounds/manor_lightning.webp");
+  });
+
+  it("backdrops.interrogation wins; missing art means no stage (gradient fallback)", async () => {
+    const base = getPublicCaseView(await loadCase("harbor-light", FIXTURES_DIR));
+    expect(resolveCaseArt({ ...base, backdrops: { interrogation: "/assets/backgrounds/library.webp" } }).stage?.background).toBe("/assets/backgrounds/library.webp");
+    expect(resolveCaseArt({ ...base, locations: base.locations.map(({ background: _b, ...l }) => (void _b, { ...l, id: `${l.id}-x` })) }).stage).toBeUndefined();
+    expect(resolveStageArt("/assets/title/title_bg.webp")).toEqual({ background: "/assets/title/title_bg.webp" });
+    expect(resolveStageArt("/assets/backgrounds/nope.webp")).toBeUndefined();
   });
 });

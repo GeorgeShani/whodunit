@@ -1,14 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useId, useState } from "react";
+import { MAX_QUESTION_CHARS } from "@/ai/interrogate-schema";
 import { EmotionBadge } from "@/components/characters/EmotionBadge";
-import { Portrait } from "@/components/characters/Portrait";
+import { usePreloadPoses } from "@/components/characters/Portrait";
 import { EvidencePicker } from "@/components/evidence/EvidencePicker";
 import { CartoonButton } from "@/components/game/CartoonButton";
-import { backdropStyle } from "@/components/game/backdrop";
 import type { AskInput } from "@/components/game/Game";
-import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
+import { InterrogationStage } from "@/components/stage/InterrogationStage";
+import type { PublicEvidence, PublicSuspect, StageArt } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
 import { DialogueLog, type DialogueMessage } from "./DialogueLog";
@@ -24,7 +25,7 @@ export function InterrogationScreen({
   testimonies = [],
   messages,
   pending,
-  backdrop,
+  stage,
   busyWith = null,
   speaking = false,
   onAsk,
@@ -38,8 +39,8 @@ export function InterrogationScreen({
   testimonies?: PublicTestimony[];
   messages: DialogueMessage[];
   pending: boolean;
-  /** Case interrogation backdrop; falls back to the night gradient. */
-  backdrop?: string;
+  /** Stage art (room backdrop, lightning frame, window mask); falls back to the night gradient. */
+  stage?: StageArt;
   /** Someone else is mid-reply (or a search is running): controls lock, typed text is kept (#8). */
   busyWith?: string | null;
   speaking?: boolean;
@@ -51,6 +52,11 @@ export function InterrogationScreen({
   const [text, setText] = useState("");
   const firstName = suspect.name.split(" ")[0];
   const locked = pending || Boolean(busyWith);
+  const hintId = useId();
+  // #12: no silent truncation; show a counter and block over-long questions instead.
+  const over = text.trim().length - MAX_QUESTION_CHARS;
+  // Warm every pose of this suspect so the first emotion swap doesn't flicker.
+  usePreloadPoses(suspect);
 
   const ask = (question: string, presentedEvidenceId?: string, presentedTestimonyId?: string): boolean => {
     if (locked) return false;
@@ -64,27 +70,26 @@ export function InterrogationScreen({
   };
 
   return (
-    <main
-      className={`flex min-h-0 flex-1 flex-col overflow-hidden p-4 ${
-        backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)]"
-      }`}
-      style={backdropStyle(backdrop)}
-    >
-      <header className="mb-3 flex items-center justify-between gap-2">
-        <CartoonButton tone="white" onClick={onBack}>
-          ← Back to suspects
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4">
+      {/* pe-12 leaves room for the fixed mute toggle; the name truncates instead of wrapping (#12). */}
+      <header className="mb-2 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="shrink-0 px-3 sm:px-4">
+          ← <span className="max-sm:hidden">Back to suspects</span>
+          <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <div className="flex items-center gap-3">
-          <h1 className="font-display text-3xl tracking-wide text-yellow-300 [-webkit-text-stroke:1.5px_#000] drop-shadow-[3px_3px_0_#000] sm:text-4xl">
-            {suspect.name}
-          </h1>
-          <EmotionBadge emotion={emotion} />
-        </div>
+        <h1
+          className="min-w-0 truncate font-display text-2xl tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl sm:[-webkit-text-stroke:1.5px_#000] sm:drop-shadow-[3px_3px_0_#000]"
+          title={suspect.name}
+        >
+          <span className="max-sm:hidden">{suspect.name}</span>
+          <span className="sm:hidden">{firstName}</span>
+        </h1>
+        <EmotionBadge emotion={emotion} className="max-sm:text-xs" />
       </header>
 
-      <div className="flex min-h-0 flex-1 gap-4">
-        {/* Dialogue + controls on the left; the portrait faces left, toward it. */}
-        <section className="flex min-h-0 flex-1 flex-col gap-3">
+      {/* DOM order: conversation first. Phones: stage on top; md+: conversation left, stage right (the sprite faces left, toward it). */}
+      <div className="flex min-h-0 flex-1 flex-col-reverse gap-3 md:flex-row md:gap-4">
+        <section className="flex min-h-0 flex-1 flex-col gap-3" aria-label={`Questioning ${suspect.name}`}>
           <DialogueLog
             messages={messages}
             characterName={suspect.name}
@@ -157,39 +162,49 @@ export function InterrogationScreen({
           )}
 
           <form
-            className="flex gap-2"
+            className="flex flex-col gap-1"
             onSubmit={(e) => {
               e.preventDefault();
               const q = text.trim();
-              if (!q || locked) return;
+              if (!q || locked || over > 0) return;
               // Only clear the box once the question has actually been accepted (#8).
               if (ask(q)) setText("");
             }}
           >
-            <input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              maxLength={500}
-              placeholder={`Ask ${firstName} anything…`}
-              aria-label={`Ask ${suspect.name} a question`}
-              className="min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 font-medium text-black shadow-[4px_4px_0_#000] outline-none focus:bg-yellow-50"
-            />
-            <CartoonButton type="submit" tone="red" disabled={locked || !text.trim()}>
-              ASK!
-            </CartoonButton>
+            <div className="flex gap-2">
+              <input
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                placeholder={`Ask ${firstName} anything…`}
+                aria-label={`Ask ${suspect.name} a question`}
+                aria-describedby={hintId}
+                aria-invalid={over > 0 || undefined}
+                data-autofocus
+                className="min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
+              />
+              <CartoonButton type="submit" tone="red" disabled={locked || !text.trim() || over > 0}>
+                ASK!
+              </CartoonButton>
+            </div>
+            <p
+              id={hintId}
+              aria-live="polite"
+              className={`px-1 text-right text-xs font-bold ${over > 0 ? "text-red-300" : "text-yellow-100/70"}`}
+            >
+              {over > 0
+                ? `Question too long: trim ${over} character${over === 1 ? "" : "s"} (max ${MAX_QUESTION_CHARS}).`
+                : text.length >= MAX_QUESTION_CHARS * 0.8
+                  ? `${text.trim().length}/${MAX_QUESTION_CHARS}`
+                  : ""}
+            </p>
           </form>
         </section>
 
-        <aside className="hidden w-[min(34vw,420px)] items-end justify-center md:flex">
-          <motion.div
-            animate={pending ? { rotate: [0, -1, 1, 0] } : { rotate: 0 }}
-            transition={pending ? { duration: 1.2, repeat: Infinity } : {}}
-            style={{ originY: 1 }}
-            className="h-full max-h-full w-full"
-          >
-            <Portrait suspect={suspect} emotion={emotion} speaking={speaking} className="mx-auto h-full" priority />
-          </motion.div>
-        </aside>
+        <InterrogationStage
+          art={stage}
+          actors={[{ suspect, emotion, speaking, pending }]}
+          className="h-[34dvh] shrink-0 rounded-2xl border-4 border-black shadow-[6px_6px_0_#000] md:h-auto md:flex-[1.15]"
+        />
       </div>
     </main>
   );

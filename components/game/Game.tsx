@@ -10,6 +10,8 @@ import { InterrogationScreen } from "@/components/dialogue/InterrogationScreen";
 import type { FoundEvidence, InvestigateRequest } from "@/engine/investigate-schema";
 import type { PublicCaseView, PublicEvidence } from "@/engine/public-view";
 import { DiscoverySting } from "@/components/evidence/DiscoverySting";
+import { getAudio } from "@/components/effects/audio";
+import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
@@ -121,6 +123,31 @@ export function Game({ view }: { view: PublicCaseView }) {
    */
   const inFlight = useRef(false);
   const [restored, setRestored] = useState(false);
+  /** Latest emotions, readable from async reply handlers (for the reply sting). */
+  const emotionsRef = useRef(emotions);
+  useEffect(() => {
+    emotionsRef.current = emotions;
+  }, [emotions]);
+  /** Set when the player navigates, so the next screen takes focus (#10); not on first load. */
+  const navigated = useRef(false);
+  /**
+   * Screen enter transitions start with the first navigation. (A blanket
+   * AnimatePresence initial={false} also froze every looping animation inside
+   * the first screen, e.g. the title sunburst never spun on a fresh load.)
+   */
+  const [transitions, setTransitions] = useState(false);
+  const go = useCallback((next: Screen) => {
+    navigated.current = true;
+    setTransitions(true);
+    setScreen(next);
+  }, []);
+
+  // Storm ambience under every in-game screen (starts once audio is unlocked; the title stays quiet).
+  useEffect(() => {
+    const audio = getAudio();
+    if (screen === "title") audio.stopAmbient();
+    else audio.startAmbient();
+  }, [screen]);
 
   const active = useMemo(() => view.suspects.find((s) => s.id === activeId) ?? null, [view.suspects, activeId]);
 
@@ -210,6 +237,10 @@ export function Game({ view }: { view: PublicCaseView }) {
           push(characterId, { speaker: "narrator", text: notice });
         }
         push(characterId, { speaker: "character", text: response.dialogue, action: response.action });
+        // Every reply makes a sound: the pose's sting when the emotion changes pose, else a dialogue pop (ART_BIBLE §6).
+        const poses = view.suspects.find((s) => s.id === characterId)?.poses ?? [];
+        const sfx = replySfx(emotionsRef.current[characterId], response.emotion, poses);
+        getAudio().play(sfx.cue, sfx.gain !== undefined ? { gain: sfx.gain } : {});
         setEmotions((e) => ({ ...e, [characterId]: response.emotion }));
         inFlight.current = false;
         setPendingId(null);
@@ -223,7 +254,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       })();
       return true;
     },
-    [active, caseId, conversations, push, resetProgress],
+    [active, caseId, conversations, push, resetProgress, view.suspects],
   );
 
   const onSearch = useCallback(
@@ -264,34 +295,42 @@ export function Game({ view }: { view: PublicCaseView }) {
     // Stage: one viewport, clipped. Each screen is an absolutely positioned layer,
     // so enter/exit scale transforms never push the document into overflow.
     <div className="stage">
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence mode="wait">
       <motion.div
         key={screen}
         className="absolute inset-0 flex flex-col"
-        initial={{ opacity: 0, scale: 1.04 }}
+        initial={transitions ? { opacity: 0, scale: 1.04 } : false}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
         transition={{ duration: 0.25 }}
+        onAnimationComplete={(def) => {
+          // #10: after a navigation, move focus into the new screen (its input or heading).
+          if (!navigated.current || (def as { opacity?: number }).opacity !== 1) return;
+          navigated.current = false;
+          document.querySelector<HTMLElement>(`[data-screen="${screen}"] [data-autofocus]`)?.focus({ preventScroll: true });
+        }}
+        data-screen={screen}
       >
-        {screen === "title" && <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => setScreen("intro")} />}
-        {screen === "intro" && <IntroScreen view={view} onContinue={() => setScreen("suspects")} />}
+        {screen === "title" && <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} />}
+        {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (
           <SuspectSelect
             backdrop={view.backdrops.suspects}
             suspects={view.suspects}
             emotions={emotions}
-            onBack={() => setScreen("intro")}
-            onInvestigate={() => setScreen("investigate")}
+            onBack={() => go("intro")}
+            onInvestigate={() => go("investigate")}
             cluesFound={evidence.length}
             onSelect={(id) => {
               setActiveId(id);
-              setScreen("interrogation");
+              getAudio().play("slide_whistle_up"); // character entrance (ART_BIBLE §6 beats)
+              go("interrogation");
             }}
           />
         )}
         {screen === "interrogation" && active && (
           <InterrogationScreen
-            backdrop={view.backdrops.interrogation}
+            stage={view.stage}
             suspect={active}
             emotion={emotions[active.id] ?? active.emotion.emotion}
             otherSuspects={view.suspects.filter((s) => s.id !== active.id)}
@@ -302,7 +341,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             busyWith={busyWith}
             speaking={speakingId === active.id}
             onAsk={onAsk}
-            onBack={() => setScreen("suspects")}
+            onBack={() => go("suspects")}
           />
         )}
         {screen === "investigate" && (
@@ -314,7 +353,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             pendingId={searchingId}
             otherBusy={pendingId !== null}
             onSearch={onSearch}
-            onBack={() => setScreen("suspects")}
+            onBack={() => go("suspects")}
           />
         )}
       </motion.div>

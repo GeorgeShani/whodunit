@@ -30,6 +30,17 @@ export interface PublicCaseMeta {
   intro: string;
 }
 
+/** Interrogation stage art (docs/ART_BIBLE.md §7), resolved server-side by lib/case-art.ts. */
+export interface StageArt {
+  background: string;
+  /** `<room>_lightning.webp`, swapped in during a flash. */
+  lightning?: string;
+  /** `<room>_window_mask.webp` (alpha = window glass) for the rain layer. */
+  windowMask?: string;
+  /** Seamless rain texture, shown through the window mask. */
+  rainTile?: string;
+}
+
 export interface PublicCaseView {
   meta: PublicCaseMeta;
   /** Motive OPTIONS for the accusation screen (authored as public choices; never flags the true one). */
@@ -37,6 +48,8 @@ export interface PublicCaseView {
   victim: Victim;
   /** Public per-screen backdrop art (asset paths), resolved with fallbacks by the page. */
   backdrops: CaseBackdrops;
+  /** Interrogation stage art; absent until resolveCaseArt runs (screens fall back to a gradient). */
+  stage?: StageArt;
   locations: Location[];
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
