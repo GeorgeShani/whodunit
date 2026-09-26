@@ -34,9 +34,9 @@
     "aggression": 0.1
   },
   "goals": [
-    "Keep his theft from the household accounts hidden",
+    "Presents himself as a spotless servant of twenty years, above all reproach",
     "Keep his position under the new mistress",
-    "See Mr Crane hanged for it, as he believes"
+    "See Mr Crane answer for his threat at dinner"
   ],
   "knownFactIds": [
     "loc-reginald-2030",
@@ -90,13 +90,14 @@
     "ev-body-discovered",
     "ev-gregory-arrives",
     "ev-lights-restored",
-    "ev-household-waits"
+    "ev-household-waits",
+    "f-reginald-saw-no-one"
   ],
   "beliefs": [
     {
       "id": "b-reginald-crane-did-it",
       "statement": "Mr Crane did it. He threatened his lordship at dinner and went creeping about in the dark.",
-      "aboutFactId": "ev-murder",
+      "aboutFactId": "ev-body-discovered",
       "isAccurate": false,
       "confidence": 0.65
     },
@@ -113,6 +114,13 @@
       "aboutFactId": "f-new-will",
       "isAccurate": true,
       "confidence": 0.5
+    },
+    {
+      "id": "b-reginald-saw-nobody",
+      "statement": "I saw nobody in the hall or at the library door during the blackout. I was below stairs from just after the lock turned until I took up the coal at half past nine, so I cannot say who came or went.",
+      "aboutFactId": "f-reginald-saw-no-one",
+      "confidence": 1,
+      "isAccurate": true
     }
   ],
   "secrets": [
@@ -130,7 +138,15 @@
         "f-reginald-theft",
         "f-letter-accuses-butler",
         "ev-reginald-hears-phone",
-        "ev-pantry-exchange"
+        "ev-pantry-exchange",
+        "loc-reginald-2115",
+        "loc-reginald-2116",
+        "loc-reginald-2117",
+        "loc-reginald-2118",
+        "loc-reginald-2119",
+        "loc-reginald-2120",
+        "loc-reginald-2121",
+        "loc-reginald-2122"
       ]
     },
     {
@@ -147,7 +163,9 @@
         ]
       },
       "relatedFactIds": [
-        "ev-reginald-overhears"
+        "ev-reginald-overhears",
+        "loc-reginald-2054",
+        "f-new-will"
       ]
     }
   ],

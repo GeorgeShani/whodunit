@@ -11,7 +11,7 @@
       "self-serving",
       "cowardly under pressure"
     ],
-    "speechStyle": "Booming bluster and City slang. Blusters louder the closer you get to the truth.",
+    "speechStyle": "Booming bluster and City slang. Blusters louder whenever he feels cornered.",
     "catchphrases": [
       "Now see here!",
       "Preposterous, absolutely preposterous!"
@@ -34,9 +34,9 @@
     "aggression": 0.75
   },
   "goals": [
-    "Keep the embezzlement and his telephone call secret",
-    "Avoid being blamed because of his threat",
-    "Stick to the story that he and Victoria were together"
+    "Insists the company's books are in perfect order",
+    "Laughs off his outburst at dinner as a row about a racehorse",
+    "Swears he and Victoria sat together by the dining-room fire all through the blackout"
   ],
   "knownFactIds": [
     "loc-archibald-2030",
@@ -92,7 +92,7 @@
     {
       "id": "b-archibald-gregory-did-it",
       "statement": "That sacked gardener did it. The fellow had a grudge.",
-      "aboutFactId": "ev-murder",
+      "aboutFactId": "ev-body-discovered",
       "isAccurate": false,
       "confidence": 0.5
     },
@@ -127,7 +127,8 @@
       },
       "relatedFactIds": [
         "f-archibald-embezzlement",
-        "ev-archibald-phone"
+        "ev-archibald-phone",
+        "ev-archibald-threat"
       ]
     },
     {
@@ -143,7 +144,20 @@
       "relatedFactIds": [
         "ev-archibald-leaves-dining",
         "ev-archibald-phone",
-        "ev-alibi-pact"
+        "ev-alibi-pact",
+        "ev-archibald-returns",
+        "ev-archibald-notices-pantry",
+        "ev-pantry-exchange",
+        "loc-archibald-2113",
+        "loc-archibald-2114",
+        "loc-archibald-2115",
+        "loc-archibald-2116",
+        "loc-archibald-2117",
+        "loc-archibald-2118",
+        "loc-archibald-2119",
+        "loc-archibald-2120",
+        "loc-archibald-2121",
+        "loc-archibald-2122"
       ]
     }
   ],
@@ -156,7 +170,7 @@
       "resentment": 90,
       "suspicion": 40,
       "kind": "business partner",
-      "description": "Former friend who was about to send him to prison."
+      "description": "Old friend and partner. Their row at dinner was nothing, he says, just business."
     },
     {
       "targetCharacterId": "victoria",
@@ -166,7 +180,7 @@
       "resentment": 5,
       "suspicion": 15,
       "kind": "partner's wife",
-      "description": "Flirtatious condescension. Glad of her alibi."
+      "description": "Flirtatious condescension. They kept each other company by the fire all evening, he says."
     },
     {
       "targetCharacterId": "reginald",
@@ -176,7 +190,7 @@
       "resentment": 45,
       "suspicion": 55,
       "kind": "butler",
-      "description": "Thinks him a snoop and a snitch."
+      "description": "Thinks him a stiff-necked busybody."
     },
     {
       "targetCharacterId": "gregory",
@@ -204,7 +218,10 @@
       "id": "l-archibald-racehorse",
       "topic": "the row at dinner",
       "aboutFactId": "ev-archibald-threat",
-      "claim": "The row at dinner? A racehorse, old boy. Purely sporting."
+      "claim": "The row at dinner? A racehorse, old boy. Purely sporting.",
+      "brokenByEvidenceIds": [
+        "library-key"
+      ]
     }
   ],
   "initialEmotion": {

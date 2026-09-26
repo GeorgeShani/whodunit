@@ -26,13 +26,13 @@ const stateOf = (t: string | undefined) => {
 };
 
 describe("searchLocation (engine)", () => {
-  it("maps every clue to its location; garden and kitchen are empty", () => {
+  it("maps every clue to its location (candlestick in the library); garden and kitchen are empty", () => {
     const g = createInitialGameState(c);
     const found = Object.fromEntries(
       c.locations.map((l) => [l.id, searchLocation(c, g, l.id).newlyFound.map((e) => e.id).sort()]),
     );
     expect(found).toEqual({
-      library: [], // silver-candlestick is initiallyAvailable (already in the notebook)
+      library: ["silver-candlestick"], // not initiallyAvailable: found by searching the library
       hall: ["muddy-footprint"],
       "dining-room": ["burned-letter", "library-key"],
       garden: [],

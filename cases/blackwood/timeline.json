@@ -571,7 +571,7 @@
   },
   {
     "id": "ev-candlestick-delivered",
-    "statement": "Lord Blackwood unlocks the library for Reginald, who sets the lit silver candlestick, with a fresh candle, on the desk. His lordship is alive, the solicitor's letter lies open on the desk, and he orders coal at half past nine.",
+    "statement": "Lord Blackwood unlocks the library for Reginald, who sets the lit silver candlestick, with a fresh candle, on the desk. His lordship is alive, a letter lies open on the desk, and he orders coal at half past nine.",
     "category": "object",
     "time": "21:12",
     "locationId": "library",

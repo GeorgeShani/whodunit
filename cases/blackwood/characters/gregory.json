@@ -35,8 +35,8 @@
   },
   "goals": [
     "Not be blamed for the murder",
-    "Stay out of Lady Victoria's way",
-    "Keep quiet about what he saw unless it's safe to speak"
+    "Keep his head down and get through the night without trouble",
+    "Insists he spent the whole blackout in the potting shed and saw nothing"
   ],
   "knownFactIds": [
     "loc-gregory-2030",
@@ -91,8 +91,8 @@
     },
     {
       "id": "b-gregory-will-hang",
-      "statement": "They'll hang it on me: the sacked man with the muddy boots.",
-      "aboutFactId": "f-footprint-gregory",
+      "statement": "If anything goes wrong in this house, they'll hang it on me, the sacked man.",
+      "aboutFactId": "f-gregory-dismissed",
       "isAccurate": false,
       "confidence": 0.8
     }
@@ -110,7 +110,17 @@
       },
       "relatedFactIds": [
         "ev-gregory-enters-hall",
-        "ev-gregory-hears-thud"
+        "ev-gregory-hears-thud",
+        "f-footprint-gregory",
+        "f-no-mud-beyond-alcove",
+        "loc-gregory-2115",
+        "loc-gregory-2116",
+        "loc-gregory-2117",
+        "loc-gregory-2118",
+        "loc-gregory-2119",
+        "loc-gregory-2120",
+        "loc-gregory-2121",
+        "loc-gregory-2122"
       ]
     },
     {
@@ -151,7 +161,7 @@
       "resentment": 40,
       "suspicion": 90,
       "kind": "mistress of the house",
-      "description": "Terrified of her, even more so now."
+      "description": "Terrified of her sharp tongue, as all the staff are."
     },
     {
       "targetCharacterId": "archibald",

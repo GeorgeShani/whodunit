@@ -20,7 +20,8 @@
         "lines": [
           "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
           "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
-        ]
+        ],
+        "emptyLine": "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here."
       }
     },
     {
@@ -31,7 +32,8 @@
         "lines": [
           "Dinner for four, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
           "The fire has sulked down to embers. You poke the grate and the coal scuttle, because detectives poke things. It's in the job description."
-        ]
+        ],
+        "emptyLine": "You count the pudding bowls again. Still four. Still nobody finished the trifle. Nothing new here."
       }
     },
     {
@@ -42,7 +44,8 @@
         "lines": [
           "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
           "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
-        ]
+        ],
+        "emptyLine": "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here."
       }
     },
     {
@@ -175,6 +178,17 @@
       "category": "object",
       "locationId": "hall",
       "involvesCharacterIds": []
+    },
+    {
+      "id": "f-reginald-saw-no-one",
+      "statement": "After hearing the library lock turn at 21:13, Reginald went below stairs and stayed in his pantry until he carried the coal up at 21:30. In all that time he saw no one in the hall or at the library door, and he did not see Victoria at all.",
+      "category": "alibi",
+      "locationId": "kitchen",
+      "involvesCharacterIds": [
+        "reginald"
+      ],
+      "source": "witnessed",
+      "confidence": 1
     }
   ],
   "motives": [

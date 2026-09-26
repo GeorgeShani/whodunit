@@ -50,7 +50,7 @@ Every suspect has a `loc-<id>-<HHMM>` point entry at each of the 28 checkpoints 
 
 | Evidence | Where | Literally shows | Points to |
 |---|---|---|---|
-| `silver-candlestick` (weapon) | library desk (available from the start) | One of the dining-room pair. Dented, wiped base with blood in the crest. The **fresh candle burned only about 5 minutes**, then fell while lit. | The weapon (`ev-murder`). Combined with the candle being fitted at 21:12 (`ev-candlestick-delivered`, `f-candle-burn`), it gives a death at ≈21:17. |
+| `silver-candlestick` (weapon) | library desk (found by searching the library; not in the notebook at the start) | One of the dining-room pair. Dented, wiped base with blood in the crest. The **fresh candle burned only about 5 minutes**, then fell while lit. | The weapon (`ev-murder`). Combined with the candle being fitted at 21:12 (`ev-candlestick-delivered`, `f-candle-burn`), it gives a death at ≈21:17. |
 | `muddy-footprint` | hall, alcove by the garden door | One hobnail garden-boot print, toes toward the library door six paces away. **No mud further in** (`f-no-mud-beyond-alcove`). | **Red herring toward Gregory** (sacked that morning, `f-gregory-dismissed`, and near the scene). It is also proof that he stood where he could watch the library door (`ev-gregory-enters-hall`). |
 | `burned-letter` | dining-room fireplace ashes | Solicitor's letter: new will leaves Lady Victoria £200 a year, signing at ten tomorrow. **Also: the household accounts point to the butler.** | Victoria's motive (`f-new-will`, `f-inheritance-motive`). Its location shows it was carried from the library to the dining room. The butler line pressures Reginald (`f-letter-accuses-butler`). |
 | `library-key` (the missing key) | found in the dining-room coal scuttle | The library's only key (`f-library-single-key`) was not in the lock, on the body or in the room when the door was forced. It turns up sooty in the dining-room scuttle. | The door was locked **from outside** by someone who left the library (`f-lord-key-habit`: he always left it in the lock inside; the windows were bolted, `f-library-windows-bolted`). That person then went to the dining room. |
@@ -128,7 +128,7 @@ Each row is authored as an `intendedLies` entry (`l-*`) in the character's file,
 | Victoria | "Our little chat at nine? The Sunday menu, darling." | Hides the motive | Reginald `ev-reginald-overhears`; `burned-letter` |
 | Victoria | "I've never seen that letter." | Hides the motive and the burning | `burned-letter` found in *her* dining-room fire; Reginald saw the Lord wave it at her (`ev-reginald-overhears`) and saw it on the desk at 21:12 (`ev-candlestick-delivered`) |
 | Archibald | "I was with Victoria the whole time, ask her!" | Hides the phone call and moving embezzled money | Reginald `ev-reginald-hears-phone`, `ev-pantry-exchange`; cracks on `library-key` |
-| Archibald | "The row at dinner? A racehorse, old boy." | Hides the embezzlement | Reginald and Victoria heard `ev-archibald-threat` |
+| Archibald | "The row at dinner? A racehorse, old boy." | Hides the embezzlement | Reginald and Victoria heard `ev-archibald-threat`; in data `brokenByEvidenceIds: ["library-key"]`, the clue that also unlocks his embezzlement secret |
 | Reginald | "I was in the kitchen polishing silver and heard nothing." | Hides the stolen cash in the pantry | Archibald `ev-pantry-exchange` (Reginald called out to him); cracks on `burned-letter` |
 | Reginald | "Her ladyship and his lordship had a few words, nothing more." | Eavesdropping is sackable, and she is now his mistress | `burned-letter`, after which he gives `ev-reginald-overhears` in full |
 | Gregory | "I was in the potting shed all night; I only came in when I heard shouting." | Fear of being blamed (sacked, muddy, near the scene) | `muddy-footprint` (`f-footprint-gregory`) |
@@ -160,6 +160,29 @@ Everything else is `canonical`, meaning objective truth that every knower of it 
 - Explicit must-not-know lists cover facts a character was near but hidden from. For example, Victoria was in the hall at 21:19 but cannot know `ev-gregory-sees-victoria`.
 - Every intended lie is about a fact the liar actually knows.
 
+### 7.1 Knowledge gating (QA #6, #7)
+
+The engine (`engine/knowledge-gate.ts`) withholds a character's known facts while they are linked to one of that character's **locked** secrets (`relatedFactIds`) or **unexposed** lies (`aboutFactId`). It also withholds that character's own timeline entries within ±1 minute of those facts (facts ≤10 minutes apart merge into one window), plus beliefs about withheld facts. Anything not linked reaches the model verbatim, so every incriminating fact is linked explicitly, not left to the window:
+
+| Character | Secret | Facts linked in `relatedFactIds` (besides the original ones) |
+|---|---|---|
+| Victoria | `s-victoria-murder` | `ev-victoria-takes-letter`, `loc-victoria-2115`–`2119` |
+| Victoria | `s-victoria-left-dining` | `ev-archibald-leaves-dining`, `ev-archibald-returns`, `ev-alibi-pact`, `loc-victoria-2113`, `2114`, `2120`–`2122` |
+| Victoria | `s-victoria-new-will` | `f-inheritance-motive`, `f-letter-accuses-butler`, `loc-victoria-2050`, `loc-victoria-2054` |
+| Archibald | `s-archibald-false-alibi` | `ev-archibald-returns`, `ev-archibald-notices-pantry`, `ev-pantry-exchange`, `loc-archibald-2113`–`2122` |
+| Archibald | `s-archibald-embezzlement` | `ev-archibald-threat` |
+| Reginald | `s-reginald-theft` | `loc-reginald-2115`–`2122` ("counting his hidden money", calling through the pantry door) |
+| Reginald | `s-reginald-overheard` | `loc-reginald-2054`, `f-new-will` (gates `b-reginald-will`) |
+| Gregory | `s-gregory-in-hall` | `f-footprint-gregory`, `f-no-mud-beyond-alcove`, `loc-gregory-2115`–`2122` |
+
+`loc-reginald-2114` is deliberately **not** linked. Linking it would widen the window back to 21:13 and hide `ev-lord-relocks`, which Reginald should be able to state. With nothing unlocked the model still sees, for each suspect, the parts of the evening that match their cover story (for example Victoria's "by the fire with Archibald" at 21:11 and 21:30), and none of the blackout truth.
+
+Red-herring beliefs are pointed at a fact the character can see, so the gate doesn't swallow them: `b-reginald-crane-did-it` and `b-archibald-gregory-did-it` are about `ev-body-discovered` (before: `ev-murder`, inside the window), and `b-gregory-will-hang` is about `f-gregory-dismissed` (before: `f-footprint-gregory`).
+
+**Reginald saw no one (QA #6).** New world fact `f-reginald-saw-no-one` (`source: witnessed`, confidence 1): after the lock turned at 21:13 he stayed below stairs until the coal at 21:30, and in that time saw no one in the hall or at the library door and did not see Victoria at all. He has a matching accurate belief, `b-reginald-saw-nobody`. It is a `case.json` fact, not a timeline window, on purpose. A timeline entry involving Reginald from 21:14 to 21:30 would overlap his theft window and be withheld, and a gap is exactly what the model filled with an invented sighting. His only sighting of Victoria stays `ev-victoria-passes-reginald` at 20:57.
+
+**Tests** (`tests/cases/blackwood.test.ts`, "knowledge gating"): a curated per-character list of sensitive facts must each be linked to one of that character's own secrets or lies. Every known self-involving entry from 21:13 to 21:22 must be linked or on a short safe list. With nothing shown, the gate must withhold all of them. Once every secret is revealed and every clue shown, nothing is withheld. Reginald's no-sighting fact and belief must reach the model. A regex check keeps giveaway words (alibi, telephone, theft, new will, what he saw, and so on) out of goals, traits, speech style and relationship notes.
+
 ## 8. Remaining modelling notes (contract v2)
 
 All eleven gaps from the first draft are closed by contract v2 (commit 3608125). What's left:
@@ -181,7 +204,7 @@ All eleven gaps from the first draft are closed by contract v2 (commit 3608125).
 
 ## 10. Location search and endings
 
-**Where each clue is found** (`evidence.json` `locationId`): `silver-candlestick` in the library (available from the start), `muddy-footprint` in the hall, and `burned-letter` and `library-key` both in the dining room. The garden and the kitchen/servants' quarters hold no clue, so they get an `emptyLine`.
+**Where each clue is found** (`evidence.json` `locationId`): `silver-candlestick` in the library, `muddy-footprint` in the hall, and `burned-letter` and `library-key` both in the dining room. No clue is `initiallyAvailable`: the notebook starts empty and all four, including the weapon, are found by searching. The garden and the kitchen/servants' quarters hold no clue. Every location has an `emptyLine` (a comic line shown when a search finds nothing new).
 
 Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discoveryLine` are public. They never name a suspect or mention the will, the telephone or the time.
 
