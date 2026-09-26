@@ -20,6 +20,7 @@ import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { AccuseScreen } from "@/components/accuse/AccuseScreen";
 import { ConfrontScreen } from "@/components/confront/ConfrontScreen";
 import type { ConfrontRequest, ConfrontResponseBody } from "@/ai/confront-schema";
+import type { HintRequest, HintResponseBody } from "@/engine/hint-handler";
 import { MAX_CONFRONTATION_TURNS } from "@/engine/constants";
 import { EndScreen } from "@/components/ending/EndScreen";
 import { EndingScene } from "@/components/ending/EndingScene";
@@ -102,6 +103,16 @@ async function confront(req: ConfrontRequest): Promise<ConfrontResponseBody> {
 }
 
 const pairKey = (a: string, b: string) => [a, b].sort().join("|");
+
+async function askHint(req: HintRequest): Promise<HintResponseBody> {
+  try {
+    const res = await fetch("/api/hint", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
+    const j = (await res.json()) as HintResponseBody;
+    return typeof j.line === "string" && j.line ? j : { hint: null, line: "The inspector shrugs. Try again in a moment.", readyInTurns: 0, cooldownTurns: 0 };
+  } catch {
+    return { hint: null, line: "The inspector shrugs. Try again in a moment.", readyInTurns: 0, cooldownTurns: 0 };
+  }
+}
 
 async function investigate(req: InvestigateRequest): Promise<InvestigateResult> {
   try {
@@ -503,6 +514,20 @@ export function Game({ view }: { view: PublicCaseView }) {
   }, [caseId]);
 
   const closeNotebook = useCallback(() => setNotebookOpen(false), []);
+
+  /** Phase 12: ask the engine for one POSSIBLE CONTRADICTION (spoiler-safe; cooldown enforced server-side). */
+  const [hint, setHint] = useState<{ line: string; found: boolean } | null>(null);
+  const [hintBusy, setHintBusy] = useState(false);
+  const onHint = useCallback(async () => {
+    if (hintBusy) return;
+    setHintBusy(true);
+    const r = await askHint({ caseId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
+    if (r.stateToken) stateToken.current = r.stateToken;
+    if (r.notice) resetProgress();
+    setHint({ line: r.line, found: r.hint !== null });
+    getAudio().play(r.hint ? "clue_ding" : "boing");
+    setHintBusy(false);
+  }, [caseId, hintBusy, resetProgress]);
   const clearBeat = useCallback(() => setBeats((q) => q.slice(1)), []);
 
   const pendingName = pendingId ? view.suspects.find((s) => s.id === pendingId)?.name.split(" ")[0] : undefined;
@@ -664,6 +689,9 @@ export function Game({ view }: { view: PublicCaseView }) {
               })()
             : {})}
           disabled={pendingId !== null || searchingId !== null}
+          hint={hint}
+          hintBusy={hintBusy}
+          onHint={onHint}
           onPresent={onPresent}
           onClose={closeNotebook}
         />

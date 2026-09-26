@@ -171,6 +171,12 @@ async function run(): Promise<number> {
       if (await notebook.count()) {
         await notebook.first().click({ force: true });
         await wait(1200);
+        const hintBtn = p.locator("[data-hint-ask]");
+        if (await hintBtn.count()) {
+          await label(p, "notebook hint");
+          await hintBtn.first().click({ force: true });
+          await wait(1500);
+        }
         await p.evaluate(() => document.querySelector("[data-notebook] .scroll-area")?.scrollTo({ top: 99999 }));
         await wait(500);
         await p.keyboard.press("Escape");

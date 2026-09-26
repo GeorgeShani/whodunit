@@ -91,6 +91,8 @@ const TokenPayloadSchema = z.strictObject({
    * a curious player; lie ids there would spoil which answers were lies.
    */
   sealed: z.string().max(8000).optional(),
+  /** Game turn of the last contradiction hint (cooldown; not a spoiler). */
+  hintTurn: z.number().int().nonnegative().nullable().default(null),
 });
 type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
@@ -118,9 +120,14 @@ const sign = (data: string, env?: Env) => createHmac("sha256", stateKey(env)).up
 
 const SEAL_LABEL = "whodunit/game-state-sealed/v1";
 const sealKey = (env?: Env) => createHmac("sha256", stateKey(env)).update(SEAL_LABEL).digest();
-const SealedSchema = z.strictObject({ liesTold: z.record(IdSchema, z.array(IdSchema).max(40)) });
+const SealedSchema = z.strictObject({
+  liesTold: z.record(IdSchema, z.array(IdSchema).max(40)),
+  /** Lies a hint has pointed at (absent in older sealed blobs). */
+  hinted: z.array(IdSchema).max(80).default([]),
+});
+type Sealed = z.input<typeof SealedSchema>;
 
-function seal(value: z.infer<typeof SealedSchema>, env?: Env): string {
+function seal(value: Sealed, env?: Env): string {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", sealKey(env), iv);
   const body = Buffer.concat([cipher.update(JSON.stringify(value), "utf8"), cipher.final()]);
@@ -176,7 +183,8 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
     outcome: game.outcome,
     confrontation: game.activeConfrontation ? { characterIds: [...game.activeConfrontation.characterIds], turnsUsed: game.activeConfrontation.turnsUsed } : null,
     confrontedPairs: [...game.confrontedPairs],
-    ...(Object.keys(liesTold).length ? { sealed: seal({ liesTold }, env) } : {}),
+    ...(Object.keys(liesTold).length || game.hintedLieIds.length ? { sealed: seal({ liesTold, hinted: [...game.hintedLieIds] }, env) } : {}),
+    hintTurn: game.hintTurn,
   };
 }
 
@@ -248,7 +256,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   const revealed = new Set(p.revealedSecretIds);
   for (const r of Object.values(p.characters)) r.revealedSecretIds.forEach((s) => revealed.add(s));
   if (![...revealed].every((s) => allSecrets.has(s))) return { ok: false, reason: "invalid_payload" };
-  const sealed = p.sealed === undefined ? { liesTold: {} } : unseal(p.sealed, env);
+  const sealed = p.sealed === undefined ? { liesTold: {}, hinted: [] } : unseal(p.sealed, env);
   if (!sealed) return { ok: false, reason: "invalid_payload" };
   for (const [id, lies] of Object.entries(sealed.liesTold)) {
     const r = p.characters[id];
@@ -282,6 +290,10 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   const game = createInitialGameState(caseData);
   game.activeConfrontation = p.confrontation;
   game.confrontedPairs = [...p.confrontedPairs];
+  game.hintTurn = p.hintTurn !== null && p.hintTurn <= p.turn ? p.hintTurn : null;
+  const allLies = new Set(caseData.characters.flatMap((c) => c.intendedLies.map((l) => l.id)));
+  if (!sealed.hinted.every((id) => allLies.has(id))) return { ok: false, reason: "invalid_payload" };
+  game.hintedLieIds = [...sealed.hinted];
   game.turn = p.turn;
   game.accusation = p.accusation;
   game.outcome = p.outcome;

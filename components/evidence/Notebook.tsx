@@ -23,6 +23,9 @@ export function Notebook({
   suspects,
   presentTo,
   disabled = false,
+  hint = null,
+  hintBusy = false,
+  onHint,
   onPresent,
   onClose,
 }: {
@@ -35,6 +38,10 @@ export function Notebook({
   /** The suspect being questioned (interrogation mode). */
   presentTo?: PublicSuspect;
   disabled?: boolean;
+  /** Phase 12 contradiction assistance: last answer from the engine, and the ask button. */
+  hint?: { line: string; found: boolean } | null;
+  hintBusy?: boolean;
+  onHint?: () => void;
   onPresent: (item: NotebookItem, suspectId: string) => void;
   onClose: () => void;
 }) {
@@ -119,6 +126,22 @@ export function Notebook({
           </button>
         </header>
         <div className="scroll-area flex-1 space-y-4 p-4">
+          {onHint && (
+            <section aria-label="Contradiction check" className="flex flex-wrap items-center gap-2 rounded-2xl border-[3px] border-black bg-white p-2 shadow-[3px_3px_0_#000]">
+              <button
+                type="button"
+                data-hint-ask
+                disabled={hintBusy}
+                onClick={onHint}
+                className="shrink-0 cursor-pointer rounded-lg border-[3px] border-black bg-yellow-300 px-2.5 py-1 text-sm font-black shadow-[2px_2px_0_#000] hover:bg-yellow-200 disabled:cursor-wait disabled:opacity-60"
+              >
+                {hintBusy ? "Checking…" : "⚠ Check for contradictions"}
+              </button>
+              <p role="status" aria-live="polite" data-hint-line className={`min-w-[12rem] flex-1 text-sm font-bold ${hint?.found ? "text-red-700" : "text-neutral-700"}`}>
+                {hint ? hint.line : "Stuck? Ask whether anything you hold clashes with what you've been told."}
+              </p>
+            </section>
+          )}
           <section aria-label="Clues">
             <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-neutral-700">Clues ({evidence.length})</h3>
             {evidence.length === 0 ? (

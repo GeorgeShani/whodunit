@@ -485,6 +485,9 @@ export const GameStateSchema = z.strictObject({
   activeConfrontation: ConfrontationStateSchema.nullable().default(null),
   /** Pairs whose confrontation has run its course ("a|b", ids sorted): they won't face off again. */
   confrontedPairs: z.array(z.string()).default([]),
+  /** Contradiction assistance (engine/hints.ts): game turn of the last hint, and lies already hinted at (engine-private). */
+  hintTurn: z.number().int().nonnegative().nullable().default(null),
+  hintedLieIds: z.array(IdSchema).default([]),
   accusation: AccusationSchema.nullable().default(null),
   /** Win state: decided ONLY by the engine. */
   outcome: z.enum(["pending", "won", "lost"]).default("pending"),
