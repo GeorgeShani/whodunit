@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { allowedTimes, checkTimes, extractTimes } from "@/ai/canon-check";
 import { callGrok } from "@/ai/grok";
 import { handleInterrogate } from "@/ai/interrogate-handler";
-import { buildSystemPrompt, ERA_RULE, TIME_RULE } from "@/ai/prompts/interrogation";
+import { buildSystemPrompt, ERA_RULE, spokenTime, TIME_RULE } from "@/ai/prompts/interrogation";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
@@ -46,10 +46,23 @@ describe("extractTimes", () => {
 });
 
 describe("#6 canon times", () => {
+  it.each([
+    ["20:57", "three minutes to nine"],
+    ["21:15", "a quarter past nine"],
+    ["21:30", "half past nine"],
+    ["21:00", "nine o'clock"],
+    ["21:12", "twelve minutes past nine"],
+    ["20:40", "twenty minutes to nine"],
+  ])("spells %s as %s, and the check reads it back", (t, words) => {
+    expect(spokenTime(t)).toBe(words);
+    const [h, m] = t.split(":").map(Number);
+    expect(extractTimes(words)[0].candidates).toContain(h * 60 + m);
+  });
+
   it("lists Reginald's knowledge in time order with explicit HH:MM tags and no invented 21:20", () => {
     const ctx = buildCharacterContext(fresh(), "reginald");
     const sys = buildSystemPrompt(ctx, { exposedLieIds: [] });
-    expect(sys).toContain("[20:57, The Hall] Victoria comes out of the library");
+    expect(sys).toContain("[20:57 (three minutes to nine), The Hall] Victoria comes out of the library");
     expect(sys).not.toMatch(/\[21:20/);
     const tagged = sys.split("\n").filter((l) => /^- \[\d\d:\d\d/.test(l)).map((l) => l.slice(3, 8));
     expect([...tagged].sort()).toEqual(tagged);

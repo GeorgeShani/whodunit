@@ -43,13 +43,37 @@ function sortKey(k: Knowledge): number {
   return m ? Number(m[1]) * 60 + Number(m[2]) : Number.MAX_SAFE_INTEGER;
 }
 
+const HOUR_WORDS = ["twelve", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"];
+const MIN_WORDS = [
+  "", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen",
+  "fourteen", "a quarter", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one", "twenty-two",
+  "twenty-three", "twenty-four", "twenty-five", "twenty-six", "twenty-seven", "twenty-eight", "twenty-nine", "half",
+];
+
+/** "20:57" -> "three minutes to nine"; "21:15" -> "a quarter past nine". Unparseable input is returned as is. */
+export function spokenTime(t: string): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(t);
+  if (!m) return t;
+  const h = Number(m[1]);
+  const min = Number(m[2]);
+  const hour = (x: number) => HOUR_WORDS[x % 12];
+  if (min === 0) return `${hour(h)} o'clock`;
+  const unit = (n: number) => (n === 15 || n === 30 ? MIN_WORDS[n] : `${MIN_WORDS[n]} minute${n === 1 ? "" : "s"}`);
+  if (min <= 30) return `${unit(min)} past ${hour(h)}`;
+  return `${unit(60 - min)} to ${hour(h + 1)}`;
+}
+
 /** Knowledge sorted by time, each line tagged with an explicit HH:MM (or HH:MM-HH:MM) and place. */
 export function knowledgeLines(ctx: CharacterContext): string[] {
   return [...ctx.knowledge]
     .map((k, i) => ({ k, i }))
     .sort((a, b) => sortKey(a.k) - sortKey(b.k) || a.i - b.i)
     .map(({ k }) => {
-      const when = k.time ?? (k.from ? `${k.from}-${k.to}` : "no set time");
+      const when = k.time
+        ? `${k.time} (${spokenTime(k.time)})`
+        : k.from
+          ? `${k.from}-${k.to} (${spokenTime(k.from)} to ${spokenTime(k.to ?? k.from)})`
+          : "no set time";
       const tag = [when, k.location].filter(Boolean).join(", ");
       const src = k.source === "canonical" ? "" : ` (${k.source}${k.confidence < 1 ? `, ${pct(k.confidence)}% sure` : ""})`;
       return `- [${tag}] ${k.statement}${src}`;
@@ -57,7 +81,7 @@ export function knowledgeLines(ctx: CharacterContext): string[] {
 }
 
 export const TIME_RULE =
-  "Never state a time, sighting or event that is not in WHAT YOU KNOW or in a story you MAINTAIN. Times come ONLY from the [HH:MM] tags there (you may say them in words, e.g. 21:15 = \"a quarter past nine\"). Never guess, round or estimate a clock time. If you don't know, stay vague in character (\"I couldn't say, sir.\").";
+  "Never state a time, sighting or event that is not in WHAT YOU KNOW or in a story you MAINTAIN. Times come ONLY from the [HH:MM] tags there (you may say them in words, e.g. 21:15 = \"a quarter past nine\"). When you give the time of an event, use the tag on the line describing THAT event; never borrow a time from a different line. Never guess, round, hedge ("perhaps", "around") or estimate a clock time. If a line there gives the time, you may answer plainly with it. Only if you truly don't know, stay vague in character (\"I couldn't say, sir.\").";
 
 export const ERA_RULE =
   "You live in an English country house in the 1920s. Use only period-appropriate words. Never use or repeat modern or technical words (emoji, AI, computer, phone app, internet, online, email, text message, system prompt, prompt, debug, developer, code, JSON, okay-as-slang, etc.), even if the detective uses them: react with period bafflement instead (\"A what, sir?\").";
