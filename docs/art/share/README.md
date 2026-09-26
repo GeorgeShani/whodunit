@@ -7,6 +7,7 @@
 | `app/favicon.ico` | 16/32/48 | 16 px is hand-tuned (pixel-placed 2 px "?", `favicon-16-handtuned.png`). 32 px uses a simplified, fatter geometry. 48 px uses the full art. |
 | `app/icon.png` | 512 | Full art, rounded plum tile, transparent corners. |
 | `app/apple-icon.png` | 180 | Full art, opaque square plum tile (iOS rounds it). |
+| `assets/icons/icon-192.png`, `assets/icons/icon-maskable-512.png` | 192, 512 | Web-manifest icons only (`app/manifest.ts`), served at `/assets/icons/...` by `sync:assets`. The maskable one shrinks the art to 74% on a full-bleed plum square so it survives the circular mask. |
 | `icon-source.svg` | 64-unit viewBox | Master vector. Deliberately **not** shipped as `app/icon.svg`: browsers prefer an SVG icon over the ICO, and at 16 px the auto-rasterised SVG is muddier than the hand-tuned bitmap. |
 
 `preview_sheet.jpg` shows the full-size cards, 300 px and 150 px thumbnails, and the favicons on light and dark tabs.

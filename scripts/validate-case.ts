@@ -33,6 +33,9 @@ async function main() {
         `${d.timeline.length} timeline entries, ${d.evidence.length} evidence`,
     );
     console.log(`   Murderer opportunity check passed (±${OPPORTUNITY_WINDOW_MINUTES} min window).`);
+    console.log(d.endings ? "   endings.json: present and valid." : "   endings.json: not present (optional for now).");
+    const unfindable = d.evidence.filter((e) => !e.locationId && !e.initiallyAvailable).map((e) => e.id);
+    if (unfindable.length) console.log(`   ⚠ evidence with no locationId and not initially available (unreachable): ${unfindable.join(", ")}`);
     return;
   }
   console.error(`❌ Case "${caseId}" has ${result.issues.length} problem(s) (${where}):\n`);

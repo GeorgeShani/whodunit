@@ -23,9 +23,9 @@ export function SuspectSelect({
         <button type="button" onClick={onBack} className="cursor-pointer font-bold text-yellow-200 underline-offset-4 hover:underline">
           ← Case file
         </button>
-        <h2 className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
+        <h1 className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
           PICK A SUSPECT!
-        </h2>
+        </h1>
         <span className="w-20" />
       </div>
       <ul className="grid w-full max-w-6xl grid-cols-2 gap-6 lg:grid-cols-4">

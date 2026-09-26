@@ -23,6 +23,7 @@ cases/<caseId>/
   evidence.json          Evidence[]
   characters/<id>.json   one per interrogable character (file name == id)
   solution.json          murderer / weapon / location / time / motive / key evidence. SERVER-ONLY.
+  endings.json           authored ending cut-scenes. SERVER-ONLY. Optional for now (validated when present).
   docs/…                 optional, ignored by the loader
 ```
 
@@ -56,7 +57,15 @@ cases/<caseId>/
     "id": "lord-blackwood", "name": "…", "description": "…",
     "foundAtLocationId": "library", "foundAt": "22:10", "causeOfDeath": "…"
   },
-  "locations": [ { "id": "library", "name": "The Library", "description": "…" } ],
+  "locations": [
+    {
+      "id": "library", "name": "The Library", "description": "…",
+      "searchFlavor": {                 // optional, PUBLIC (Investigate screen)
+        "lines": ["One or two lines shown when the player searches here."],   // 1–2 items
+        "emptyLine": "Shown when a search finds nothing new."                // optional
+      }
+    }
+  ],
   "facts": [ /* Fact[]: world truths not pinned to the timeline (see Fact) */ ],
   "motives": [                          // PUBLIC multiple-choice options for the accusation (≥ 2; include red herrings)
     { "id": "inheritance", "label": "The new will", "description": "optional" }
@@ -106,7 +115,9 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
   {
     "id": "silver-candlestick", "name": "…", "description": "…",
     "kind": "physical | document | testimony | observation",
-    "locationId": "library",            // optional
+    "locationId": "library",            // where it is FOUND when the player searches this location (Investigate).
+                                        // No locationId and not initiallyAvailable = unreachable.
+    "discoveryLine": "Aha! …",          // optional, PUBLIC; shown in the discovery sting
     "relatedFactIds": ["…"],            // optional; facts or timeline ids (engine use only)
     "relatedCharacters": ["victoria"],  // optional; characters or the victim (engine use only)
     "initiallyAvailable": true,         // true = the player starts with it
@@ -169,17 +180,37 @@ The engine (`engine/secrets.ts` `shouldRevealSecret`) evaluates reveal condition
 
 The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
 
+## endings.json (server-only, optional for now)
+
+```jsonc
+{
+  "correct": {
+    "confession": [ Line, … ],        // the culprit cracks (≥ 1 line)
+    "recap":      [ Line, … ]         // the detective / narrator explains (≥ 1 line)
+  },
+  "wrong": {                          // keyed by the ACCUSED suspect id; EVERY suspect needs an entry,
+    "reginald": [ Line, … ],          // including the murderer ("right culprit, couldn't prove it")
+    "victoria": [ Line, … ]
+  },
+  "escapedLine": "THE MURDERER ESCAPED!"
+}
+```
+
+`Line = { "speaker": "<characterId>" | "narrator", "text": "…", "pauseMs"?: 0–5000, "emotion"?: Emotion, "evidenceIds"?: ["…"] }`
+
+Endings spell out the solution, so they never reach the public view, the character context or the model.
+
 ## What the AI and the player can see
 
 - **The player** (`getPublicCaseView`) sees:
   - the case id, title, tagline and intro;
   - the victim;
-  - the locations;
+  - the locations (including `searchFlavor`);
   - the motive **options**;
   - each suspect's name, role, bio, portrait and starting emotion;
-  - the evidence discovered so far (name, description, kind, location, image).
+  - the evidence discovered so far (name, description, kind, location, image, `discoveryLine`).
 
-  Everything else is stripped.
+  Everything else (including `endings.json`) is stripped.
 - **The AI** (`buildCharacterContext`) sees one character at a time:
   - their persona (including personality scores), goals and relationships;
   - their own known facts, with source and confidence;
@@ -189,7 +220,7 @@ The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
   - their stress and trust, memory and statements;
   - the discovered evidence the player has shown them.
 
-  The AI never sees the solution, the motive, the timeline as a whole, other characters' private data, or undiscovered evidence. A murderer knows their guilt only through their own `knownFactIds`.
+  The AI never sees the solution, the endings, the motive, the timeline as a whole, other characters' private data, or undiscovered evidence. A murderer knows their guilt only through their own `knownFactIds`.
 
 ## Checks `validate:case` runs
 
@@ -209,3 +240,6 @@ The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
    - Point entries: `|time − murder time| ≤ 15`.
    - Window entries: `from − 15 ≤ murder time ≤ to + 15`.
 8. Every innocent character has at least one secret.
+9. `endings.json` (if present): every `speaker` is a character id or `"narrator"`, every `evidenceIds` entry is evidence, every `wrong` key is a suspect, and `wrong` covers **every** suspect including the murderer.
+
+`validate:case` also warns about evidence that has no `locationId` and is not `initiallyAvailable` (the player could never find it).
