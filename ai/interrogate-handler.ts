@@ -3,7 +3,7 @@
  * wrapper so this can be tested with any case and a mocked fetch).
  *
  *  request (Zod) -> verify signed state (bad -> reset, in character)
- *  -> engine checks (character exists, evidence discovered)
+ *  -> engine checks (character exists, evidence discovered, testimony revealed)
  *  -> engine effects + reveal decision (engine/interrogation.ts, secrets.ts)
  *  -> buildCharacterContext -> prompt with engine directives
  *  -> Grok (timeout, 1 retry on schema failure) -> Zod -> sanitise
@@ -14,8 +14,9 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
 import { commitTurn, planTurn } from "@/engine/interrogation";
 import { RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
+import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { cannedCharacterResponse } from "./canned-responses";
-import { allowedTimes, checkTimes, findModernWord } from "./canon-check";
+import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type TurnDirectives } from "./prompts/interrogation";
@@ -52,7 +53,7 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const { caseData, env, legacyCaseId } = deps;
   const parsed = InterrogateRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: fallbackBody("invalid_request"), diag: { reason: "invalid_request" } };
-  const { characterId, question, presentedEvidenceId, stateToken, caseId } = parsed.data;
+  const { characterId, question, presentedEvidenceId, presentedTestimonyId, stateToken, caseId } = parsed.data;
   // The route resolves the case; a body naming a different one is a client bug, not a new game.
   if (caseId !== undefined && caseId !== caseData.id) {
     return { status: 404, body: fallbackBody("unknown_case"), diag: { reason: "unknown_case" } };
@@ -62,6 +63,9 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   const withNotice = (b: InterrogateResponseBody) => (notice ? { ...b, notice } : b);
   const unchangedToken = () => saveSession(game, env);
+  if (presentedEvidenceId && presentedTestimonyId) {
+    return { status: 400, body: withNotice(fallbackBody("present_one_item", unchangedToken(), game.turn)), diag: { reason: "present_one_item" } };
+  }
 
   // 2. Engine checks.
   if (!caseData.characters.some((c) => c.id === characterId) || !game.characters[characterId]) {
@@ -75,15 +79,26 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
     };
   }
 
+  // Testimony must be a secret the engine has revealed in THIS signed game.
+  if (presentedTestimonyId && !revealedSecretIds(game).includes(presentedTestimonyId)) {
+    return {
+      status: 400,
+      body: withNotice(fallbackBody("testimony_not_revealed", unchangedToken(), game.turn)),
+      diag: { reason: "testimony_not_revealed" },
+    };
+  }
+
   // 3. Engine effects + reveal decision, BEFORE the model sees anything.
-  const plan = planTurn(caseData, game, characterId, presentedEvidenceId);
+  const plan = planTurn(caseData, game, characterId, { presentedEvidenceId, presentedTestimonyId });
   const ch = caseData.characters.find((c) => c.id === characterId)!;
   const ev = presentedEvidenceId ? caseData.evidence.find((e) => e.id === presentedEvidenceId) : undefined;
   const secret = plan.revealSecretId ? ch.secrets.find((s) => s.id === plan.revealSecretId) : undefined;
+  const testimony = presentedTestimonyId ? publicTestimonies(caseData, game).find((t) => t.id === presentedTestimonyId) : undefined;
   const directives: TurnDirectives = {
     exposedLieIds: plan.exposedLieIds,
     ...(secret ? { revealSecret: { id: secret.id, description: secret.description } } : {}),
     ...(ev ? { presentedEvidence: { id: ev.id, name: ev.name, description: ev.description } } : {}),
+    ...(testimony ? { presentedTestimony: { id: testimony.id, characterName: testimony.characterName, summary: testimony.summary } } : {}),
   };
 
   // 4. Scoped context -> prompt -> model.
@@ -91,14 +106,15 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   const system = buildSystemPrompt(ctx, directives);
   const user = buildUserMessage(ctx, question);
   deps.onPrompt?.({ system, user });
-  // Canon post-check (#6): every clock time in the reply must come from this character's context.
-  const allowed = allowedTimes(ctx, directives, question);
+  // Canon post-check (#6): every clock time in the reply must come from this character's context,
+  // and a time said about a named person/place from a fact about that subject.
+  const allowed = canonTimes(ctx, directives, question);
   // Era post-check (#13): no modern or meta vocabulary, even echoed back.
   const validate = (r: { dialogue: string; action?: string }) => {
     const said = `${r.dialogue} ${r.action ?? ""}`;
     const res = checkTimes(said, allowed);
     if (!res.ok) {
-      return `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, or stay vague ("I couldn't say, sir").`;
+      return `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir").`;
     }
     const modern = findModernWord(said);
     return modern
@@ -145,6 +161,7 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
       response,
       source,
       stateToken: saveSession(game, env),
+      testimonies: publicTestimonies(caseData, game),
       ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
     }),
     diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed: applied.revealed },

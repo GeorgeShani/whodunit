@@ -33,6 +33,8 @@ export const VictimSchema = z.strictObject({
   /** Id usable in facts, timeline and relationships; must not collide with a character id. */
   id: IdSchema,
   name: NonEmptyText,
+  /** Other ways people refer to the victim ("his lordship"). Used by the canon check to spot who a sentence is about. */
+  aliases: z.array(NonEmptyText).default([]),
   description: NonEmptyText,
   /** Where the body was found (location id). May differ from the true murder location. */
   foundAtLocationId: IdSchema,
@@ -79,6 +81,13 @@ export const CaseEnvelopeSchema = z.strictObject({
   motives: z.array(MotiveOptionSchema).min(2),
   /** Optional PUBLIC scene backdrops per screen (asset paths). Each falls back to the default look. */
   backdrops: CaseBackdropsSchema.optional(),
+  /**
+   * How the engine hides the truth behind locked secrets / unbroken lies from the character's context:
+   * "proximity" (default): direct links (lie aboutFactId, locked secret relatedFactIds) PLUS the time-window
+   *   heuristic (the character's own entries near a protected time are withheld too).
+   * "explicit": direct links only, no window heuristic. In both modes a fact with `hiddenUntil` follows only its own rule.
+   */
+  knowledgeGate: z.enum(["explicit", "proximity"]).default("proximity"),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 

@@ -2,7 +2,8 @@
  * Engine side of one interrogation exchange. Pure and deterministic.
  *
  * 1. planTurn(): BEFORE the model is called, apply the engine effects of the
- *    player's move (presented evidence raises stress by fixed rules), work out
+ *    player's move (presented evidence or testimony raises stress by fixed
+ *    rules; see engine/testimony.ts for lies broken by testimony), work out
  *    which intended lies are now exposed, and decide (via secrets.ts) whether a
  *    secret is revealed this turn. The model is then TOLD what it may perform.
  * 2. commitTurn(): AFTER the performance, commit the planned reveal (only if
@@ -13,15 +14,16 @@
  */
 import type { LoadedCase } from "./case-schema";
 import { secretsToReveal } from "./secrets";
+import { brokenLieIds, liesTouchedByTestimony, secretIndex } from "./testimony";
 import type { CharacterRuntimeState, EmotionalState, Emotion, GameState } from "./types";
 
-/** Fixed stress rules for presenting evidence (first time a clue is shown to this character). */
+/** Fixed stress rules for presenting evidence or testimony (first time it is shown to this character). */
 export const STRESS_RULES = {
-  /** Per intended lie the clue breaks. */
+  /** Per intended lie the clue / testimony newly breaks. */
   lieBroken: 15,
   /** Clue is named in one of the character's secret reveal conditions. */
   secretEvidence: 10,
-  /** Clue is linked to the character (relatedCharacters). */
+  /** Clue is linked to the character (relatedCharacters); testimony touches one of their lies without breaking it yet. */
   relatedEvidence: 5,
   /** Showing the same clue again. */
   repeatEvidence: 2,
@@ -43,21 +45,22 @@ export function clampDelta(n: unknown): number {
 export interface TurnPlan {
   characterId: string;
   presentedEvidenceId?: string;
+  /** Testimony (a revealed secret id) presented this turn. */
+  presentedTestimonyId?: string;
   /** Stress added by the engine rules this turn. */
   engineStressDelta: number;
   /** Secret the engine allows (and asks) the character to confess this turn. */
   revealSecretId: string | null;
-  /** Intended lies that shown evidence has exposed (the character can no longer maintain them). */
+  /** Intended lies that shown evidence or presented testimony has broken (the character can no longer maintain them). */
   exposedLieIds: string[];
-  /** Lies exposed for the first time by this turn's evidence. */
+  /** Lies broken for the first time by this turn's evidence or testimony. */
   newlyExposedLieIds: string[];
 }
 
-function exposedLies(caseData: LoadedCase, characterId: string, shown: readonly string[]): string[] {
-  const ch = caseData.characters.find((c) => c.id === characterId);
-  return (ch?.intendedLies ?? [])
-    .filter((l) => l.brokenByEvidenceIds.some((id) => shown.includes(id)))
-    .map((l) => l.id);
+/** The player's move this turn: at most one of evidence / testimony. */
+export interface PresentMove {
+  presentedEvidenceId?: string;
+  presentedTestimonyId?: string;
 }
 
 /**
@@ -70,13 +73,15 @@ export function planTurn(
   caseData: LoadedCase,
   game: GameState,
   characterId: string,
-  presentedEvidenceId?: string,
+  move?: string | PresentMove,
 ): TurnPlan {
+  const { presentedEvidenceId, presentedTestimonyId } = typeof move === "string" ? { presentedEvidenceId: move } : (move ?? {});
   const ch = caseData.characters.find((c) => c.id === characterId);
   const rt = game.characters[characterId];
   if (!ch || !rt) throw new Error(`planTurn: unknown character "${characterId}"`);
+  if (presentedEvidenceId && presentedTestimonyId) throw new Error("planTurn: present evidence OR testimony, not both");
 
-  const before = exposedLies(caseData, characterId, rt.evidenceShownIds);
+  const before = brokenLieIds(caseData, ch, rt);
   let engineStressDelta = 0;
 
   if (presentedEvidenceId) {
@@ -97,13 +102,29 @@ export function planTurn(
     rt.stress = clamp(rt.stress + engineStressDelta, 0, 100);
   }
 
-  const exposedLieIds = exposedLies(caseData, characterId, rt.evidenceShownIds);
+  if (presentedTestimonyId) {
+    if (!secretIndex(caseData).has(presentedTestimonyId)) throw new Error(`planTurn: unknown testimony "${presentedTestimonyId}"`);
+    if (rt.testimonyShownIds.includes(presentedTestimonyId)) {
+      engineStressDelta = STRESS_RULES.repeatEvidence;
+    } else {
+      rt.testimonyShownIds.push(presentedTestimonyId);
+      const nowBroken = brokenLieIds(caseData, ch, rt).filter((id) => !before.includes(id)).length;
+      const touches = liesTouchedByTestimony(caseData, ch, presentedTestimonyId).length > 0;
+      // Same bump as evidence: per lie it breaks; a smaller nudge if it bears on a lie without breaking it yet.
+      engineStressDelta = nowBroken * STRESS_RULES.lieBroken + (!nowBroken && touches ? STRESS_RULES.relatedEvidence : 0);
+      engineStressDelta = Math.min(engineStressDelta, STRESS_RULES.maxPerPresentation);
+    }
+    rt.stress = clamp(rt.stress + engineStressDelta, 0, 100);
+  }
+
+  const exposedLieIds = brokenLieIds(caseData, ch, rt);
   // At most ONE new reveal per exchange (authored order, prerequisites respected): no cascades, no loops.
   const revealSecretId = secretsToReveal(ch.secrets, rt)[0] ?? null;
 
   return {
     characterId,
     ...(presentedEvidenceId ? { presentedEvidenceId } : {}),
+    ...(presentedTestimonyId ? { presentedTestimonyId } : {}),
     engineStressDelta,
     revealSecretId,
     exposedLieIds,
@@ -137,6 +158,10 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
   if (revealed && !rt.revealedSecretIds.includes(plan.revealSecretId as string)) {
     rt.revealedSecretIds.push(plan.revealSecretId as string);
   }
+  // Case-wide testimony set: every revealed secret becomes something the player can present to anyone.
+  if (revealed && !game.revealedSecretIds.includes(plan.revealSecretId as string)) {
+    game.revealedSecretIds.push(plan.revealSecretId as string);
+  }
 
   const stressDelta = out.performed ? clampDelta(out.stressDelta) : 0;
   const trustDelta = out.performed ? clampDelta(out.trustDelta) : 0;
@@ -156,6 +181,7 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
       speaker: "player",
       text: out.playerText,
       ...(plan.presentedEvidenceId ? { evidenceId: plan.presentedEvidenceId } : {}),
+      ...(plan.presentedTestimonyId ? { testimonyId: plan.presentedTestimonyId } : {}),
     },
     { turn: game.turn, speaker: "character", text: out.dialogue },
   );

@@ -3,7 +3,10 @@
  *
  * The model may only state clock times that appear in its own scoped context
  * (knowledge tags and ranges, its stories, admitted secrets, clues shown, the
- * public case facts, the conversation). extractTimes() finds clock times in
+ * public case facts, the conversation). Since the #6 follow-up a time said
+ * about a named person or place must also come from a fact about THAT subject
+ * (see checkTimes); e.g. a butler may not reuse his own 20:45 kitchen time
+ * for when someone else left a room. extractTimes() finds clock times in
  * free text: "21:20", "9.20", "twenty past nine", "quarter to ten",
  * "half past nine", "half nine", "seventeen minutes past nine",
  * "nine o'clock", "nine fifteen", "twenty-one hundred", "9 pm". A 12-hour
@@ -104,41 +107,122 @@ export function extractTimes(text: string): TimeMention[] {
   return out;
 }
 
-/** Allowed clock times (minutes after midnight) for one reply. */
-export function allowedTimes(ctx: CharacterContext, d: TurnDirectives, question: string): Set<number> {
-  const allowed = new Set<number>();
-  const hm = (t?: string) => {
-    const m = t && /^(\d{1,2}):(\d{2})$/.exec(t);
-    return m ? Number(m[1]) * 60 + Number(m[2]) : null;
-  };
-  for (const k of ctx.knowledge) {
-    const t = hm(k.time);
-    if (t !== null) allowed.add(t);
-    const a = hm(k.from);
-    const b = hm(k.to);
-    if (a !== null && b !== null) for (let x = a; x !== (b + 1) % 1440; x = (x + 1) % 1440) allowed.add(x);
+const hm = (t?: string) => {
+  const m = t && /^(\d{1,2}):(\d{2})$/.exec(t);
+  return m ? Number(m[1]) * 60 + Number(m[2]) : null;
+};
+
+/** Minutes covered by a knowledge item's tag: its point, or every minute of its window. */
+function tagMinutes(k: { time?: string; from?: string; to?: string }): number[] {
+  const out: number[] = [];
+  const t = hm(k.time);
+  if (t !== null) out.push(t);
+  const a = hm(k.from);
+  const b = hm(k.to);
+  if (a !== null && b !== null) for (let x = a; x !== (b + 1) % 1440; x = (x + 1) % 1440) out.push(x);
+  return out;
+}
+
+// ---------------------------------------------------------------------------
+// Subjects: who / where a sentence is about (#6 follow-up)
+// ---------------------------------------------------------------------------
+
+const TITLES = new Set(["lady", "lord", "mr", "mrs", "miss", "ms", "sir", "dr", "the", "madam", "master", "old", "young"]);
+const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const phrase = (x: string) => esc(x.trim()).replace(/[-\s]+/g, "[-\\s]+");
+
+interface Subject {
+  /** Character/victim id, or "loc:<locationId>". */
+  key: string;
+  re: RegExp;
+}
+
+/** Name / alias / id patterns for every person and place this character can talk about. */
+export function buildSubjects(ctx: CharacterContext): Subject[] {
+  const people = [
+    { id: ctx.persona.id, name: ctx.persona.name, aliases: ctx.persona.aliases ?? [] },
+    ...ctx.case.otherCharacters.map((o) => ({ id: o.id, name: o.name, aliases: o.aliases ?? [] })),
+    ...(ctx.case.victim.id ? [{ id: ctx.case.victim.id, name: ctx.case.victim.name, aliases: ctx.case.victim.aliases ?? [] }] : []),
+  ];
+  // A single name part (a first name) identifies someone only if nobody else shares it (a family surname).
+  const partOwners = new Map<string, Set<string>>();
+  const partsOf = (name: string) =>
+    name
+      .split(/[\s-]+/)
+      .map((w) => w.replace(/[^A-Za-z']/g, ""))
+      .filter((w) => w.length >= 3 && !TITLES.has(w.toLowerCase()));
+  for (const p of people) for (const w of [...partsOf(p.name), ...partsOf(p.id)]) {
+    const k = w.toLowerCase();
+    partOwners.set(k, (partOwners.get(k) ?? new Set()).add(p.id));
   }
+  const subjects: Subject[] = people.map((p) => {
+    const alts = new Set<string>([phrase(p.name), phrase(p.id), ...p.aliases.map(phrase)]);
+    for (const w of [...partsOf(p.name), ...partsOf(p.id)]) if (partOwners.get(w.toLowerCase())?.size === 1) alts.add(phrase(w));
+    return { key: p.id, re: new RegExp(`\\b(?:${[...alts].join("|")})\\b`, "i") };
+  });
+  for (const l of ctx.case.locations) {
+    const alts = new Set<string>([phrase(l.name.replace(/^the\s+/i, "")), phrase(l.id)]);
+    subjects.push({ key: `loc:${l.id}`, re: new RegExp(`\\b(?:${[...alts].join("|")})\\b`, "i") });
+  }
+  return subjects;
+}
+
+const detect = (subjects: Subject[], text: string) => new Set(subjects.filter((s) => s.re.test(text)).map((s) => s.key));
+const FIRST_PERSON = /\b(?:I|I'm|I'd|I've|me|my|myself|we|us|our)\b/;
+
+export interface CanonTimes {
+  /** Times allowed whatever the sentence is about: stories, confessions, clues, the conversation, public case facts. */
+  general: Set<number>;
+  /** Times from WHAT YOU KNOW, each with the subjects (people/places) its fact is about. */
+  facts: { minutes: number[]; subjects: Set<string> }[];
+  subjects: Subject[];
+  selfId: string;
+}
+
+/** Allowed clock times for one reply, keyed by subject where the character's knowledge says who/where. */
+export function canonTimes(ctx: CharacterContext, d: TurnDirectives, question: string): CanonTimes {
+  const subjects = buildSubjects(ctx);
+  const general = new Set<number>();
   const f = hm(ctx.case.victim.foundAt);
-  if (f !== null) allowed.add(f);
+  if (f !== null) general.add(f);
   const texts = [
     ctx.case.victim.foundAt,
     ctx.case.victim.description,
     ctx.case.victim.causeOfDeath,
     ctx.persona.bio,
     ...ctx.goals,
-    ...ctx.knowledge.map((k) => k.statement),
     ...ctx.beliefs.map((b) => b.statement),
     ...ctx.intendedLies.map((l) => `${l.topic ?? ""} ${l.claim}`),
     ...ctx.secrets.map((s) => s.description),
     ...ctx.evidenceShown.map((e) => e.description),
+    ...(ctx.testimonyShown ?? []).map((t) => t.summary),
     ...ctx.memory.map((m) => m.text),
     ...ctx.statements.map((s) => s.text),
     d.revealSecret?.description ?? "",
     d.presentedEvidence?.description ?? "",
+    d.presentedTestimony?.summary ?? "",
     question,
   ];
-  for (const m of extractTimes(texts.join("\n"))) for (const c of m.candidates) allowed.add(c);
-  return allowed;
+  for (const m of extractTimes(texts.join("\n"))) for (const c of m.candidates) general.add(c);
+
+  const facts = ctx.knowledge.map((k) => {
+    const minutes = tagMinutes(k);
+    for (const m of extractTimes(k.statement)) minutes.push(...m.candidates);
+    const subj = new Set<string>([...(k.involves ?? []), ...(k.locationId ? [`loc:${k.locationId}`] : []), ...detect(subjects, k.statement)]);
+    return { minutes, subjects: subj };
+  });
+  return { general, facts, subjects, selfId: ctx.persona.id };
+}
+
+/** Every allowed time regardless of subject (the pre-#6-follow-up rule; still the fallback). */
+export function allowedTimes(ctx: CharacterContext, d: TurnDirectives, question: string): Set<number> {
+  return flatten(canonTimes(ctx, d, question));
+}
+
+function flatten(c: CanonTimes): Set<number> {
+  const all = new Set(c.general);
+  for (const f of c.facts) f.minutes.forEach((m) => all.add(m));
+  return all;
 }
 
 export interface CanonCheckResult {
@@ -147,15 +231,53 @@ export interface CanonCheckResult {
   offending: string[];
 }
 
-export function checkTimes(dialogue: string, allowed: Set<number>): CanonCheckResult {
+function matches(m: TimeMention, allowed: Set<number>): boolean {
+  const tol = m.hourOnly ? HOUR_ONLY_TOLERANCE : 0;
+  return m.candidates.some((c) => {
+    for (let dx = -tol; dx <= tol; dx++) if (allowed.has((c + dx + 1440) % 1440)) return true;
+    return false;
+  });
+}
+
+/** Sentences, then clauses joined by and/but/while/dashes. */
+function clauses(text: string): { text: string; sentence: number }[] {
+  const out: { text: string; sentence: number }[] = [];
+  text.split(/(?<=[.!?;])\s+|\n+/).forEach((sentence, i) => {
+    for (const c of sentence.split(/\s+(?:and|but|while|whereas)\s+|\s+[—–]\s*|\s+--\s+/i)) if (c.trim()) out.push({ text: c, sentence: i });
+  });
+  return out;
+}
+
+/**
+ * Every clock time in the dialogue must be allowed.
+ * With a Set: any allowed time passes (legacy rule).
+ * With CanonTimes (#6 follow-up): a time in a clause that names a person or place must match a fact
+ * the character knows ABOUT that subject (or a general time: their stories, confessions, clues, the
+ * conversation). A clause naming nobody but speaking in the first person is about the speaker; a clause
+ * with no subject inherits the previous clause's subjects in the same sentence; if the sentence names
+ * no subject at all, any allowed time passes.
+ */
+export function checkTimes(dialogue: string, allowed: Set<number> | CanonTimes): CanonCheckResult {
   const offending: string[] = [];
-  for (const m of extractTimes(dialogue)) {
-    const tol = m.hourOnly ? HOUR_ONLY_TOLERANCE : 0;
-    const ok = m.candidates.some((c) => {
-      for (let dx = -tol; dx <= tol; dx++) if (allowed.has((c + dx + 1440) % 1440)) return true;
-      return false;
-    });
-    if (!ok) offending.push(m.text);
+  if (allowed instanceof Set) {
+    for (const m of extractTimes(dialogue)) if (!matches(m, allowed)) offending.push(m.text);
+    return { ok: offending.length === 0, offending };
+  }
+  const all = flatten(allowed);
+  let prev: { sentence: number; subjects: Set<string> } | null = null;
+  for (const c of clauses(dialogue)) {
+    let subjects = detect(allowed.subjects, c.text);
+    if (subjects.size === 0 && FIRST_PERSON.test(c.text)) subjects = new Set([allowed.selfId]);
+    if (subjects.size === 0 && prev && prev.sentence === c.sentence) subjects = prev.subjects;
+    if (subjects.size > 0) prev = { sentence: c.sentence, subjects };
+    const mentions = extractTimes(c.text);
+    if (mentions.length === 0) continue;
+    let pool = all;
+    if (subjects.size > 0) {
+      pool = new Set(allowed.general);
+      for (const f of allowed.facts) if ([...f.subjects].some((s) => subjects.has(s))) f.minutes.forEach((m) => pool.add(m));
+    }
+    for (const m of mentions) if (!matches(m, pool)) offending.push(m.text);
   }
   return { ok: offending.length === 0, offending };
 }

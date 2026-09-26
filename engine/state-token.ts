@@ -3,8 +3,8 @@
  *
  * ONE token for the whole game, shared by every route (interrogate,
  * investigate, ...): per-character stress, trust, emotion, memory, shown
- * evidence, revealed secrets and statements, plus discovered evidence and
- * searched locations. The server serialises it, signs it with HMAC-SHA256 and hands the client an
+ * evidence and testimony, revealed secrets and statements, plus discovered
+ * evidence, searched locations and the case-wide revealed-secret set. The server serialises it, signs it with HMAC-SHA256 and hands the client an
  * opaque token. The client sends it back on the next request. A token with a
  * bad signature, an unknown version, another case id or an invalid payload is
  * rejected and the game resets to the case's initial state.
@@ -23,6 +23,7 @@ import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
+import { revealedSecretIds, secretIndex } from "./testimony";
 import {
   CaseIdSchema,
   EmotionalStateSchema,
@@ -50,6 +51,8 @@ const TokenCharacterSchema = z.strictObject({
   memory: z.array(MemoryEntrySchema).max(STATE_LIMITS.memoryPerCharacter),
   evidenceShownIds: z.array(IdSchema),
   revealedSecretIds: z.array(IdSchema),
+  /** Testimony presented to this character (absent in older tokens). */
+  testimonyShownIds: z.array(IdSchema).default([]),
   statements: z
     .array(z.strictObject({ text: z.string().min(1).max(STATE_LIMITS.textChars), turn: z.number().int().nonnegative() }))
     .max(STATE_LIMITS.statementsPerCharacter),
@@ -62,6 +65,8 @@ const TokenPayloadSchema = z.strictObject({
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema),
   searchedLocationIds: z.array(IdSchema).default([]),
+  /** Case-wide revealed secrets (absent in older tokens: rebuilt from the per-character sets). */
+  revealedSecretIds: z.array(IdSchema).default([]),
   characters: z.record(IdSchema, TokenCharacterSchema),
 });
 type TokenPayload = z.infer<typeof TokenPayloadSchema>;
@@ -96,6 +101,7 @@ function toPayload(game: GameState): TokenPayload {
     turn: game.turn,
     discoveredEvidenceIds: [...game.discoveredEvidenceIds],
     searchedLocationIds: [...game.searchedLocationIds],
+    revealedSecretIds: revealedSecretIds(game),
     characters: Object.fromEntries(
       Object.entries(game.characters).map(([id, r]) => [
         id,
@@ -106,6 +112,7 @@ function toPayload(game: GameState): TokenPayload {
           memory: r.memory.slice(-STATE_LIMITS.memoryPerCharacter).map((m) => ({ ...m, text: clip(m.text) })),
           evidenceShownIds: [...r.evidenceShownIds],
           revealedSecretIds: [...r.revealedSecretIds],
+          testimonyShownIds: [...r.testimonyShownIds],
           statements: game.statements
             .filter((s) => s.characterId === id)
             .slice(-STATE_LIMITS.statementsPerCharacter)
@@ -180,18 +187,26 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   const locations = new Set(caseData.locations.map((l) => l.id));
   if (!p.discoveredEvidenceIds.every((id) => evidence.has(id))) return { ok: false, reason: "invalid_payload" };
   if (!p.searchedLocationIds.every((id) => locations.has(id))) return { ok: false, reason: "invalid_payload" };
+  // Case-wide revealed set = the token's global set plus every character's own reveals; every id must be a real secret.
+  const allSecrets = secretIndex(caseData);
+  const revealed = new Set(p.revealedSecretIds);
+  for (const r of Object.values(p.characters)) r.revealedSecretIds.forEach((s) => revealed.add(s));
+  if (![...revealed].every((s) => allSecrets.has(s))) return { ok: false, reason: "invalid_payload" };
   for (const [id, r] of Object.entries(p.characters)) {
     const ch = chars.get(id);
     const secrets = new Set(ch?.secrets.map((s) => s.id));
     if (!ch || !r.evidenceShownIds.every((e) => evidence.has(e)) || !r.revealedSecretIds.every((s) => secrets.has(s))) {
       return { ok: false, reason: "invalid_payload" };
     }
+    // Only revealed testimony can ever have been presented.
+    if (!r.testimonyShownIds.every((s) => revealed.has(s))) return { ok: false, reason: "invalid_payload" };
   }
 
   const game = createInitialGameState(caseData);
   game.turn = p.turn;
   game.discoveredEvidenceIds = [...p.discoveredEvidenceIds];
   game.searchedLocationIds = [...p.searchedLocationIds];
+  game.revealedSecretIds = [...revealed];
   for (const [id, r] of Object.entries(p.characters)) {
     const rt = game.characters[id];
     rt.emotion = r.emotion;
@@ -200,6 +215,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     rt.memory = r.memory;
     rt.evidenceShownIds = r.evidenceShownIds;
     rt.revealedSecretIds = r.revealedSecretIds;
+    rt.testimonyShownIds = r.testimonyShownIds;
     rt.interrogationCount = r.interrogationCount;
     r.statements.forEach((s, i) =>
       game.statements.push({

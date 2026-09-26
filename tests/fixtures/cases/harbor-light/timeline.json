@@ -42,5 +42,22 @@
     ],
     "source": "witnessed",
     "confidence": 0.8
+  },
+  {
+    "id": "marlow-sees-quill",
+    "statement": "HL_MARLOW_SEES: Marlow sees Quill come into the galley dripping from the dock.",
+    "category": "timeline",
+    "time": "22:35",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "cook-marlow",
+      "keeper-quill"
+    ],
+    "source": "witnessed",
+    "hiddenUntil": {
+      "secretIds": [
+        "marlow-saw-quill"
+      ]
+    }
   }
 ]

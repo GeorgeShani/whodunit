@@ -90,7 +90,7 @@ describe("buildCharacterContext", () => {
     expect(ctx.secrets).toEqual([]);
     expect(Object.keys(ctx).sort()).toEqual([
       "beliefs", "case", "emotion", "evidenceShown", "goals", "intendedLies", "knowledge", "memory", "persona",
-      "relationships", "secrets", "state", "statements",
+      "relationships", "secrets", "state", "statements", "testimonyShown",
     ]);
     expect(ctx.relationships[0]).toMatchObject({ targetCharacterId: "victim-v", name: "Victor Fixture" });
     expect(ctx.relationships[0]).toHaveProperty("resentment");

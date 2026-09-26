@@ -24,7 +24,8 @@
   ],
   "knownFactIds": [
     "finch-asleep",
-    "hl-storm"
+    "hl-storm",
+    "hl-lamp-dark"
   ],
   "beliefs": [],
   "secrets": [

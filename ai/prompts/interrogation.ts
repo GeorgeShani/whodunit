@@ -18,6 +18,8 @@ export interface TurnDirectives {
   exposedLieIds: string[];
   /** Evidence the detective is holding up this turn (already discovered + shown). */
   presentedEvidence?: { id: string; name: string; description: string };
+  /** Testimony (another character's admission, public summary) the detective confronts them with this turn. */
+  presentedTestimony?: { id: string; characterName: string; summary: string };
 }
 
 export const PLAYER_OPEN = "<detective_says>";
@@ -135,13 +137,15 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ...ctx.beliefs.map((b) => `- ${b.statement} (${pct(b.confidence)}% sure)`),
     "",
     ...keptLies.map((l) => `MAINTAIN THIS STORY${topic(l.topic)}: "${l.claim}"`),
-    brokenLies.length ? "EXPOSED STORIES (a clue has blown these; stop insisting, bluster or backpedal, but do not volunteer anything new):" : "",
+    brokenLies.length ? "EXPOSED STORIES (a clue or someone's testimony has blown these; stop insisting, bluster or backpedal, but do not volunteer anything new):" : "",
     ...brokenLies.map((l) => `- EXPOSED${topic(l.topic)}: "${l.claim}"`),
     admitted.length ? "ALREADY ADMITTED (you have confessed these; you may talk about them truthfully):" : "",
     ...admitted.map((s) => `- ${s.description}`),
     "",
     ctx.evidenceShown.length ? "CLUES THE DETECTIVE HAS SHOWN YOU:" : "",
     ...ctx.evidenceShown.map((e) => `- ${e.name}: ${e.description}`),
+    ctx.testimonyShown.length ? "WHAT THE DETECTIVE SAYS OTHERS HAVE ADMITTED (you have been confronted with this):" : "",
+    ...ctx.testimonyShown.map((t) => `- ${t.characterName}: ${t.summary}`),
     "",
     `YOUR STATE: stress ${ctx.state.stress}/100, trust in the detective ${ctx.state.trust}/100, currently ${ctx.emotion.emotion} (intensity ${pct(ctx.emotion.intensity)}).`,
     "",
@@ -152,6 +156,9 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     d.presentedEvidence
       ? `- The detective is showing you: ${d.presentedEvidence.name}. React to it (include one evidenceReactions entry with evidenceId "${d.presentedEvidence.id}").`
       : "- No clue is being shown; evidenceReactions must be empty.",
+    d.presentedTestimony
+      ? `- The detective confronts you with what ${d.presentedTestimony.characterName} has admitted: "${d.presentedTestimony.summary}" React to it in character. Any story it has blown is listed under EXPOSED STORIES; do not invent details beyond it.`
+      : "",
     "",
     `Emotion must be one of: ${EmotionSchema.options.join(", ")}.`,
   ];

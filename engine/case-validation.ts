@@ -28,11 +28,17 @@ export function formatIssue(issue: CaseIssue): string {
 
 /** Game-day minute range covered by a timeline entry. */
 export function entryRange(e: TimelineEntry, dayStartsAt: string): [number, number] {
+  return factRange(e, dayStartsAt) as [number, number];
+}
+
+/** Game-day minute range of any fact with a `time` or `from`/`to`; null when it has no time. */
+export function factRange(e: { time?: string; from?: string; to?: string }, dayStartsAt: string): [number, number] | null {
   if (e.time !== undefined) {
     const t = gameMinutes(e.time, dayStartsAt);
     return [t, t];
   }
-  return [gameMinutes(e.from!, dayStartsAt), gameMinutes(e.to!, dayStartsAt)];
+  if (e.from === undefined || e.to === undefined) return null;
+  return [gameMinutes(e.from, dayStartsAt), gameMinutes(e.to, dayStartsAt)];
 }
 
 /** True if the timeline places `characterId` at `locationId` within ±windowMinutes of `time`. */
@@ -86,10 +92,25 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     if (id !== undefined && !set.has(id)) issues.push({ file, path, message: `unknown ${kind} "${id}"` });
   };
 
+  const allSecretIds = new Set(c.characters.flatMap((ch) => ch.secrets.map((s) => s.id)));
+  const lieOwners = new Map<string, string[]>();
+  for (const ch of c.characters) for (const l of ch.intendedLies) lieOwners.set(l.id, [...(lieOwners.get(l.id) ?? []), ch.id]);
+  const checkHidden = (h: { secretIds: string[]; lieIds: string[] } | undefined, file: string, p: string) => {
+    h?.secretIds.forEach((id, k) => ref(allSecretIds, "secret", id, file, `${p}.hiddenUntil.secretIds.${k}`));
+    h?.lieIds.forEach((id, k) => {
+      const owners = lieOwners.get(id) ?? [];
+      if (owners.length === 0) issues.push({ file, path: `${p}.hiddenUntil.lieIds.${k}`, message: `unknown intended lie "${id}"` });
+      else if (owners.length > 1) issues.push({ file, path: `${p}.hiddenUntil.lieIds.${k}`, message: `lie id "${id}" is used by several characters (${owners.join(", ")}); make it unique` });
+    });
+  };
+
   // case.json
   ref(locationIds, "location", c.victim.foundAtLocationId, CASE, "victim.foundAtLocationId");
   c.facts.forEach((f, i) => {
     ref(locationIds, "location", f.locationId, CASE, `facts.${i}(${f.id}).locationId`);
+    checkHidden(f.hiddenUntil, CASE, `facts.${i}(${f.id})`);
+    const r = factRange(f, c.dayStartsAt);
+    if (r && r[1] < r[0]) issues.push({ file: CASE, path: `facts.${i}(${f.id})`, message: `"to" (${f.to}) is before "from" (${f.from}) in game-day order` });
     f.involvesCharacterIds.forEach((id, j) =>
       ref(personIds, "character/victim", id, CASE, `facts.${i}(${f.id}).involvesCharacterIds.${j}`),
     );
@@ -99,6 +120,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   c.timeline.forEach((t, i) => {
     const p = `${i}(${t.id})`;
     ref(locationIds, "location", t.locationId, TL, `${p}.locationId`);
+    checkHidden(t.hiddenUntil, TL, p);
     t.involvesCharacterIds.forEach((id, j) => ref(personIds, "character/victim", id, TL, `${p}.involvesCharacterIds.${j}`));
     const [from, to] = entryRange(t, c.dayStartsAt);
     if (to < from) issues.push({ file: TL, path: p, message: `"to" (${t.to}) is before "from" (${t.from}) in game-day order` });
@@ -131,6 +153,8 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       const p = `intendedLies.${j}(${l.id})`;
       ref(factIds, "fact", l.aboutFactId, f, `${p}.aboutFactId`);
       l.brokenByEvidenceIds.forEach((id, k) => ref(evidenceIds, "evidence", id, f, `${p}.brokenByEvidenceIds.${k}`));
+      l.breaksOnSecretIds.forEach((id, k) => ref(allSecretIds, "secret", id, f, `${p}.breaksOnSecretIds.${k}`));
+      l.breaksOnFactIds.forEach((id, k) => ref(factIds, "fact", id, f, `${p}.breaksOnFactIds.${k}`));
     });
     ch.relationships.forEach((r, j) => {
       ref(personIds, "character/victim", r.targetCharacterId, f, `relationships.${j}.targetCharacterId`);
@@ -193,4 +217,96 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   }
 
   return issues;
+}
+
+/**
+ * Non-fatal design warnings (validate:case prints them with ⚠): lies that can
+ * never break, testimony that can never be revealed, reveal-order cycles,
+ * self-referential testimony, missing testimony summaries, explicit hiding
+ * nobody can see. Assumes checkCaseReferences passed.
+ */
+export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
+  const warnings: CaseIssue[] = [];
+  const charFile = (id: string) => `characters/${id}.json`;
+  const findable = new Set(c.evidence.filter((e) => e.locationId || e.initiallyAvailable).map((e) => e.id));
+  const secrets = new Map(c.characters.flatMap((ch) => ch.secrets.map((s) => [s.id, { s, owner: ch.id }] as const)));
+
+  // Reachable secrets: fixpoint over reveal conditions (stress alone is always reachable) + afterSecretIds.
+  const reachable = new Set<string>();
+  for (let changed = true; changed; ) {
+    changed = false;
+    for (const [id, { s }] of secrets) {
+      if (reachable.has(id) || !s.revealConditions) continue;
+      const rc = s.revealConditions;
+      const conds = [...(rc.stressThreshold !== undefined ? [true] : []), ...rc.evidenceIds.map((e) => findable.has(e))];
+      const ok = (rc.mode === "all" ? conds.every(Boolean) : conds.some(Boolean)) && rc.afterSecretIds.every((a) => reachable.has(a));
+      if (ok) {
+        reachable.add(id);
+        changed = true;
+      }
+    }
+  }
+  // afterSecretIds cycles (a secret waiting, directly or indirectly, on itself).
+  for (const [id, { s, owner }] of secrets) {
+    const seen = new Set<string>();
+    const stack = [...(s.revealConditions?.afterSecretIds ?? [])];
+    while (stack.length) {
+      const x = stack.pop() as string;
+      if (x === id) {
+        warnings.push({ file: charFile(owner), path: `secrets(${id}).revealConditions.afterSecretIds`, message: "reveal-order cycle: this secret waits (indirectly) on itself and can never be revealed" });
+        break;
+      }
+      if (seen.has(x)) continue;
+      seen.add(x);
+      stack.push(...(secrets.get(x)?.s.revealConditions?.afterSecretIds ?? []));
+    }
+  }
+
+  const summaryNeeded = new Set<string>();
+  for (const ch of c.characters) {
+    const f = charFile(ch.id);
+    ch.intendedLies.forEach((l, j) => {
+      const p = `intendedLies.${j}(${l.id})`;
+      const factSecrets = (fact: string) => [...secrets.values()].filter(({ s }) => s.relatedFactIds.includes(fact));
+      l.breaksOnSecretIds.forEach((id) => summaryNeeded.add(id));
+      l.breaksOnFactIds.forEach((fact) => factSecrets(fact).forEach(({ s }) => summaryNeeded.add(s.id)));
+
+      const conds = [
+        ...l.brokenByEvidenceIds.map((e) => findable.has(e)),
+        ...l.breaksOnSecretIds.map((id) => reachable.has(id)),
+        ...l.breaksOnFactIds.map((fact) => factSecrets(fact).some(({ s }) => reachable.has(s.id))),
+      ];
+      if (conds.length && !(l.breakMode === "all" ? conds.every(Boolean) : conds.some(Boolean))) {
+        warnings.push({ file: f, path: p, message: `lie can never break: its ${l.breakMode === "all" ? "required" : ""} conditions are unreachable (clues not findable, secrets never revealed, or facts in no revealable secret)`.replace("  ", " ") });
+      }
+      l.breaksOnSecretIds.forEach((id, k) => {
+        if (secrets.get(id)?.owner === ch.id) {
+          warnings.push({ file: f, path: `${p}.breaksOnSecretIds.${k}`, message: `self-referential: "${id}" is ${ch.id}'s own secret, so the lie only breaks after they confess it themselves; point it at another character's secret` });
+        }
+        if (secrets.has(id) && !reachable.has(id)) warnings.push({ file: f, path: `${p}.breaksOnSecretIds.${k}`, message: `secret "${id}" can never be revealed, so it can never be presented` });
+      });
+      l.breaksOnFactIds.forEach((fact, k) => {
+        const via = factSecrets(fact);
+        if (via.length === 0) warnings.push({ file: f, path: `${p}.breaksOnFactIds.${k}`, message: `fact "${fact}" is in no secret's relatedFactIds, so no testimony can carry it` });
+        else if (via.every(({ owner }) => owner === ch.id)) warnings.push({ file: f, path: `${p}.breaksOnFactIds.${k}`, message: `self-referential: fact "${fact}" only comes out through ${ch.id}'s own secrets` });
+      });
+    });
+  }
+  for (const id of summaryNeeded) {
+    const x = secrets.get(id);
+    if (x && !x.s.testimonySummary) warnings.push({ file: charFile(x.owner), path: `secrets(${id}).testimonySummary`, message: "used as testimony but has no testimonySummary; the notebook card will show a generic line" });
+  }
+
+  const knowers = new Set(c.characters.flatMap((ch) => ch.knownFactIds));
+  const hidden = [...c.facts.map((f) => ["case.json", f] as const), ...c.timeline.map((t) => ["timeline.json", t] as const)].filter(([, f]) => f.hiddenUntil);
+  for (const [file, f] of hidden) {
+    if (!knowers.has(f.id)) warnings.push({ file, path: f.id, message: "has hiddenUntil but no character knows this fact" });
+    f.hiddenUntil?.secretIds.forEach((id) => {
+      if (secrets.has(id) && !reachable.has(id)) warnings.push({ file, path: `${f.id}.hiddenUntil`, message: `secret "${id}" can never be revealed` });
+    });
+  }
+  if (c.knowledgeGate === "explicit" && hidden.length === 0) {
+    warnings.push({ file: "case.json", path: "knowledgeGate", message: 'is "explicit" but no fact has hiddenUntil: only lie aboutFactId / locked secret relatedFactIds are withheld' });
+  }
+  return warnings;
 }

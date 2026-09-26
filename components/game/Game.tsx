@@ -11,6 +11,7 @@ import type { FoundEvidence, InvestigateRequest } from "@/engine/investigate-sch
 import type { PublicCaseView, PublicEvidence } from "@/engine/public-view";
 import { DiscoverySting } from "@/components/evidence/DiscoverySting";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
+import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
 import { loadGame, saveGame, SESSION_VERSION } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
@@ -20,6 +21,7 @@ type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate";
 
 interface InterrogateResult {
   response: CharacterResponse;
+  testimonies?: PublicTestimony[];
   stateToken?: string;
   notice?: string;
 }
@@ -32,12 +34,13 @@ async function interrogate(req: InterrogateRequest, seed: number): Promise<Inter
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req),
     });
-    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown };
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown };
     const parsed = CharacterResponseSchema.safeParse(json?.response);
     return {
       response: parsed.success ? parsed.data : createFallbackCharacterResponse({ seed }),
       ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
       ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
+      ...(Array.isArray(json?.testimonies) ? { testimonies: json.testimonies as PublicTestimony[] } : {}),
     };
   } catch {
     return {
@@ -82,6 +85,8 @@ async function investigate(req: InvestigateRequest): Promise<InvestigateResult> 
 export interface AskInput {
   question: string;
   presentedEvidenceId?: string;
+  /** A testimony card (revealed secret id) to confront the suspect with. */
+  presentedTestimonyId?: string;
 }
 
 /** Client-side game shell. The server holds the case; this holds UI state only. */
@@ -96,6 +101,8 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   /** The detective's notebook: evidence discovered so far (server-confirmed). Present evidence offers only these. */
   const [evidence, setEvidence] = useState<PublicEvidence[]>(view.evidence);
+  /** Testimony cards: what suspects have admitted (server-confirmed). Presentable like evidence. */
+  const [testimonies, setTestimonies] = useState<PublicTestimony[]>([]);
   const [searched, setSearched] = useState<string[]>([]);
   const [searchLines, setSearchLines] = useState<Record<string, string[]>>({});
   const [searchingId, setSearchingId] = useState<string | null>(null);
@@ -128,6 +135,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       setConversations(saved.conversations);
       setEmotions((e) => ({ ...e, ...saved.emotions }));
       setEvidence(saved.evidence.length ? saved.evidence : view.evidence);
+      setTestimonies(saved.testimonies ?? []);
       setSearched(saved.searched);
       setSearchLines(saved.searchLines);
       const validActive = saved.activeId && view.suspects.some((s) => s.id === saved.activeId) ? saved.activeId : null;
@@ -151,11 +159,12 @@ export function Game({ view }: { view: PublicCaseView }) {
       conversations,
       emotions,
       evidence,
+      testimonies,
       searched,
       searchLines,
       nextId: nextId.current,
     });
-  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, searched, searchLines]);
+  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines]);
 
   const push = useCallback((characterId: string, msg: Omit<DialogueMessage, "id">) => {
     const id = `m${nextId.current++}`;
@@ -165,13 +174,14 @@ export function Game({ view }: { view: PublicCaseView }) {
   /** The server reset the state (tampered/expired token): the notebook and searches start over. */
   const resetProgress = useCallback(() => {
     setEvidence(view.evidence);
+    setTestimonies([]);
     setSearched([]);
     setSearchLines({});
     setConversations({});
   }, [view.evidence]);
 
   const onAsk = useCallback(
-    ({ question, presentedEvidenceId }: AskInput): boolean => {
+    ({ question, presentedEvidenceId, presentedTestimonyId }: AskInput): boolean => {
       if (!active || inFlight.current) return false;
       inFlight.current = true;
       // The reply is bound to THIS suspect, whichever screen the player is on when it lands (#8).
@@ -180,19 +190,22 @@ export function Game({ view }: { view: PublicCaseView }) {
       push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, notice } = await interrogate(
+        const { response, stateToken: next, notice, testimonies: cards } = await interrogate(
           {
             characterId,
             question,
             ...(presentedEvidenceId ? { presentedEvidenceId } : {}),
+            ...(presentedTestimonyId ? { presentedTestimonyId } : {}),
             caseId,
             ...(stateToken.current ? { stateToken: stateToken.current } : {}),
           },
           turn,
         );
         if (next) stateToken.current = next;
+        if (cards) setTestimonies(cards);
         if (notice) {
           resetProgress();
+          if (cards) setTestimonies(cards);
           push(characterId, { speaker: "player", text: question });
           push(characterId, { speaker: "narrator", text: notice });
         }
@@ -283,6 +296,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             emotion={emotions[active.id] ?? active.emotion.emotion}
             otherSuspects={view.suspects.filter((s) => s.id !== active.id)}
             evidence={evidence}
+            testimonies={testimonies}
             messages={conversations[active.id] ?? []}
             pending={pendingId === active.id}
             busyWith={busyWith}

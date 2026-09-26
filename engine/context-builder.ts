@@ -5,8 +5,8 @@
  * know (from case facts or timeline entries), their beliefs (without truth
  * labels), ONLY the secrets the engine has revealed, their own intended lies
  * (topic + claim + maintain/exposed status), goals, relationships, memory, emotion, stress/trust,
- * what they've said, and only the evidence the player has discovered AND
- * shown to them.
+ * what they've said, only the evidence the player has discovered AND
+ * shown to them, and the public summaries of testimony they were confronted with.
  *
  * Never included: the solution or motive, any isMurderer-style flag, the
  * timeline as such, other characters' private data, secret reveal conditions,
@@ -19,17 +19,18 @@
  */
 import type { CaseState } from "./game-state";
 import { knowledgeGate } from "./knowledge-gate";
+import { publicTestimonies } from "./testimony";
 import type { EmotionalState, MemoryEntry, Personality } from "./types";
 
 export interface CharacterContext {
   case: {
     title: string;
-    victim: { name: string; description: string; causeOfDeath: string; foundAt: string; foundIn: string };
+    victim: { id: string; name: string; aliases: string[]; description: string; causeOfDeath: string; foundAt: string; foundIn: string };
     locations: { id: string; name: string; description: string }[];
-    /** Public roster (names/roles only) so the character can talk about others. */
-    otherCharacters: { id: string; name: string; role: string }[];
+    /** Public roster (names/roles/aliases only) so the character can talk about others. */
+    otherCharacters: { id: string; name: string; role: string; aliases: string[] }[];
   };
-  persona: { id: string; name: string; role: string; bio: string; personality: Personality };
+  persona: { id: string; name: string; role: string; aliases: string[]; bio: string; personality: Personality };
   goals: string[];
   knowledge: {
     id: string;
@@ -38,6 +39,10 @@ export interface CharacterContext {
     from?: string;
     to?: string;
     location?: string;
+    /** Location id (engine metadata for the canon check's subject matching; not printed in the prompt). */
+    locationId?: string;
+    /** Who the fact is about (engine metadata for the canon check; not printed in the prompt). */
+    involves: string[];
     source: string;
     confidence: number;
   }[];
@@ -66,6 +71,8 @@ export interface CharacterContext {
   emotion: EmotionalState;
   statements: { id: string; text: string; turn: number; mode: string }[];
   evidenceShown: { id: string; name: string; description: string; kind: string }[];
+  /** Testimony the detective has confronted this character with (public summaries only). */
+  testimonyShown: { id: string; characterId: string; characterName: string; summary: string }[];
 }
 
 export class UnknownCharacterError extends Error {
@@ -85,7 +92,7 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
   const personName = (id: string) =>
     id === c.victim.id ? c.victim.name : c.characters.find((x) => x.id === id)?.name ?? id;
 
-  const gate = knowledgeGate(c, ch, runtime);
+  const gate = knowledgeGate(c, ch, runtime, game.characters);
   const known = new Set(ch.knownFactIds.filter((id) => !gate.withheldFactIds.has(id)));
   const revealed = new Set(runtime?.revealedSecretIds ?? []);
   const discovered = new Set(game.discoveredEvidenceIds);
@@ -95,7 +102,9 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
     case: {
       title: c.title,
       victim: {
+        id: c.victim.id,
         name: c.victim.name,
+        aliases: [...c.victim.aliases],
         description: c.victim.description,
         causeOfDeath: c.victim.causeOfDeath,
         foundAt: c.victim.foundAt,
@@ -104,17 +113,18 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       locations: c.locations.map(({ id, name, description }) => ({ id, name, description })),
       otherCharacters: c.characters
         .filter((x) => x.id !== ch.id)
-        .map(({ id, name, role }) => ({ id, name, role })),
+        .map(({ id, name, role, aliases }) => ({ id, name, role, aliases: [...aliases] })),
     },
     persona: {
       id: ch.id,
       name: ch.name,
       role: ch.role,
+      aliases: [...ch.aliases],
       bio: ch.bio,
       personality: structuredClone(ch.personality),
     },
     goals: [...ch.goals],
-    knowledge: [...c.facts.map((f) => ({ ...f, from: undefined, to: undefined })), ...c.timeline]
+    knowledge: [...c.facts, ...c.timeline]
       .filter((f) => known.has(f.id))
       .map((f) => ({
         id: f.id,
@@ -122,6 +132,8 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
         ...(f.time !== undefined ? { time: f.time } : {}),
         ...(f.from !== undefined ? { from: f.from, to: f.to } : {}),
         location: locName(f.locationId),
+        ...(f.locationId ? { locationId: f.locationId } : {}),
+        involves: [...f.involvesCharacterIds],
         source: f.source,
         confidence: f.confidence,
       })),
@@ -164,5 +176,6 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       .map((id) => c.evidence.find((e) => e.id === id))
       .filter((e): e is NonNullable<typeof e> => Boolean(e))
       .map(({ id, name, description, kind }) => ({ id, name, description, kind })),
+    testimonyShown: publicTestimonies(c, game).filter((t) => (runtime?.testimonyShownIds ?? []).includes(t.id)),
   };
 }

@@ -77,7 +77,21 @@
       "aboutFactId": "quill-on-dock",
       "brokenByEvidenceIds": [
         "brass-spyglass"
+      ],
+      "breaksOnSecretIds": [
+        "marlow-saw-quill"
+      ]
+    },
+    {
+      "id": "quill-dry",
+      "topic": "his wet coat",
+      "claim": "HL_QUILL_DRY: My coat's wet from the lamp-room leak, nothing more.",
+      "breaksOnFactIds": [
+        "marlow-sees-quill"
       ]
     }
+  ],
+  "aliases": [
+    "the keeper"
   ]
 }

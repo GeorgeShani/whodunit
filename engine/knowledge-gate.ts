@@ -2,27 +2,31 @@
  * Engine-side knowledge gating (issues #6/#7). Pure and deterministic.
  *
  * While a secret is LOCKED (not revealed by the engine) or an intended lie is
- * UNEXPOSED (none of its brokenByEvidenceIds shown), the character's context
- * withholds the truth behind it, so the model cannot blurt it out:
+ * UNBROKEN (engine/testimony.ts), the character's context withholds the truth
+ * behind it, so the model cannot blurt it out. Three layers:
  *
- * 1. Protected facts: every lie's `aboutFactId` and every locked secret's
- *    `relatedFactIds` are withheld.
- * 2. Protected windows: the times of those protected timeline facts are merged
- *    into windows (facts <= MERGE_GAP_MINUTES apart join one window) and padded
- *    by WINDOW_PAD_MINUTES. Any timeline entry that involves THIS character and
- *    overlaps a window is withheld too (covers per-minute whereabouts entries
- *    that are not linked to the secret by id).
+ * 1. Explicit hiding (per fact): a fact with `hiddenUntil` is withheld from its
+ *    knowers until ANY listed secret is unlocked for this character (they
+ *    confessed it, or were confronted with it as testimony) or ANY listed lie
+ *    is broken for its owner. Such a fact follows ONLY this rule: the direct
+ *    links and the proximity heuristic below skip it.
+ * 2. Direct links (both modes): every unbroken lie's `aboutFactId` and every
+ *    locked own secret's `relatedFactIds` are withheld.
+ * 3. Proximity heuristic (case `knowledgeGate: "proximity"`, the default): the
+ *    times of the directly protected facts are merged into windows (facts <=
+ *    MERGE_GAP_MINUTES apart join one window), padded by WINDOW_PAD_MINUTES,
+ *    and any time-bound fact involving THIS character that overlaps a window is
+ *    withheld too (covers per-minute whereabouts entries not linked by id).
+ *    `knowledgeGate: "explicit"` turns this layer off.
  *
- * 3. Beliefs about a withheld fact, or about any timeline fact inside a
- *    protected window, are withheld as well.
- *
- * The character keeps its authored stories (intendedLies) to tell instead.
- * Revealed secrets and exposed lies stop protecting their facts, unless another
- * still-locked secret/lie protects the same fact.
+ * Beliefs about a withheld fact (or, in proximity mode, about a time-bound fact
+ * inside a protected window) are withheld as well. The character keeps its
+ * authored stories (intendedLies) to tell instead.
  */
 import type { LoadedCase } from "./case-schema";
-import { entryRange } from "./case-validation";
-import type { Character, CharacterRuntimeState, TimelineEntry } from "./types";
+import { factRange } from "./case-validation";
+import { brokenLieIds, isLieBroken, type LieState } from "./testimony";
+import type { Character, CharacterRuntimeState, Fact } from "./types";
 
 export const MERGE_GAP_MINUTES = 10;
 export const WINDOW_PAD_MINUTES = 1;
@@ -32,57 +36,89 @@ export interface KnowledgeGate {
   withheldFactIds: Set<string>;
   /** Belief ids withheld (about a withheld fact, or about a timeline fact inside a protected window). */
   withheldBeliefIds: Set<string>;
-  /** Intended lies whose breaking evidence has been shown. */
+  /** Intended lies that are broken (by evidence or testimony). */
   exposedLieIds: Set<string>;
-  /** Protected game-minute windows (for diagnostics/tests). */
+  /** Protected game-minute windows (for diagnostics/tests). Empty in explicit mode. */
   windows: [number, number][];
 }
 
-type GateState = Pick<CharacterRuntimeState, "evidenceShownIds" | "revealedSecretIds">;
+type GateState = Pick<CharacterRuntimeState, "evidenceShownIds" | "revealedSecretIds"> & Partial<Pick<CharacterRuntimeState, "testimonyShownIds">>;
 
-export function knowledgeGate(c: LoadedCase, ch: Character, rt: GateState | undefined): KnowledgeGate {
-  const shown = new Set(rt?.evidenceShownIds ?? []);
+type GateCase = Pick<LoadedCase, "characters" | "facts" | "timeline" | "dayStartsAt"> & Partial<Pick<LoadedCase, "knowledgeGate">>;
+
+/**
+ * @param others runtime state of every character (to judge `hiddenUntil.lieIds` owned by someone else).
+ */
+export function knowledgeGate(
+  c: GateCase,
+  ch: Character,
+  rt: GateState | undefined,
+  others: Record<string, LieState | undefined> = {},
+): KnowledgeGate {
   const revealed = new Set(rt?.revealedSecretIds ?? []);
-  const exposedLieIds = new Set(
-    ch.intendedLies.filter((l) => l.brokenByEvidenceIds.some((id) => shown.has(id))).map((l) => l.id),
-  );
+  const heard = new Set(rt?.testimonyShownIds ?? []);
+  const exposedLieIds = new Set(brokenLieIds(c, ch, rt));
+  const proximity = (c.knowledgeGate ?? "proximity") === "proximity";
 
+  const allFacts: Fact[] = [...c.facts, ...c.timeline];
+  const byId = new Map(allFacts.map((f) => [f.id, f]));
+  const range = (f: Fact | undefined) => (f ? factRange(f, c.dayStartsAt) : null);
+
+  const lieBroken = (id: string): boolean => {
+    if (ch.intendedLies.some((l) => l.id === id)) return exposedLieIds.has(id);
+    for (const owner of c.characters) {
+      const lie = owner.intendedLies.find((l) => l.id === id);
+      if (lie) return isLieBroken(c, lie, others[owner.id]);
+    }
+    return false;
+  };
+
+  // 1. Explicit hiding.
+  const explicit = new Set<string>();
+  const withheldFactIds = new Set<string>();
+  for (const f of allFacts) {
+    if (!f.hiddenUntil) continue;
+    explicit.add(f.id);
+    const unlocked =
+      f.hiddenUntil.secretIds.some((id) => revealed.has(id) || heard.has(id)) || f.hiddenUntil.lieIds.some(lieBroken);
+    if (!unlocked) withheldFactIds.add(f.id);
+  }
+
+  // 2. Direct links.
   const protectedIds = new Set<string>();
   for (const l of ch.intendedLies) if (!exposedLieIds.has(l.id) && l.aboutFactId) protectedIds.add(l.aboutFactId);
   for (const s of ch.secrets) if (!revealed.has(s.id)) s.relatedFactIds.forEach((id) => protectedIds.add(id));
+  for (const id of protectedIds) if (!explicit.has(id)) withheldFactIds.add(id);
 
-  const timeline = new Map<string, TimelineEntry>(c.timeline.map((t) => [t.id, t]));
-  const ranges = [...protectedIds]
-    .map((id) => timeline.get(id))
-    .filter((t): t is TimelineEntry => Boolean(t))
-    .map((t) => entryRange(t, c.dayStartsAt))
-    .sort((a, b) => a[0] - b[0]);
-
+  // 3. Proximity heuristic.
   const windows: [number, number][] = [];
-  for (const [from, to] of ranges) {
-    const last = windows[windows.length - 1];
-    if (last && from - last[1] <= MERGE_GAP_MINUTES) last[1] = Math.max(last[1], to);
-    else windows.push([from, to]);
+  if (proximity) {
+    const ranges = [...protectedIds]
+      .filter((id) => !explicit.has(id))
+      .map((id) => range(byId.get(id)))
+      .filter((r): r is [number, number] => r !== null)
+      .sort((a, b) => a[0] - b[0]);
+    for (const [from, to] of ranges) {
+      const last = windows[windows.length - 1];
+      if (last && from - last[1] <= MERGE_GAP_MINUTES) last[1] = Math.max(last[1], to);
+      else windows.push([from, to]);
+    }
+    for (const w of windows) {
+      w[0] -= WINDOW_PAD_MINUTES;
+      w[1] += WINDOW_PAD_MINUTES;
+    }
   }
-  for (const w of windows) {
-    w[0] -= WINDOW_PAD_MINUTES;
-    w[1] += WINDOW_PAD_MINUTES;
-  }
-
-  const withheldFactIds = new Set(protectedIds);
-  for (const t of c.timeline) {
-    if (!t.involvesCharacterIds.includes(ch.id)) continue;
-    const [from, to] = entryRange(t, c.dayStartsAt);
-    if (windows.some(([a, b]) => from <= b && to >= a)) withheldFactIds.add(t.id);
-  }
-  const overlaps = (id: string) => {
-    const t = timeline.get(id);
-    if (!t) return false;
-    const [from, to] = entryRange(t, c.dayStartsAt);
-    return windows.some(([a, b]) => from <= b && to >= a);
+  const overlaps = (f: Fact | undefined) => {
+    if (!f || explicit.has(f.id)) return false;
+    const r = range(f);
+    return r !== null && windows.some(([a, b]) => r[0] <= b && r[1] >= a);
   };
+  for (const f of allFacts) if (f.involvesCharacterIds.includes(ch.id) && overlaps(f)) withheldFactIds.add(f.id);
+
   const withheldBeliefIds = new Set(
-    ch.beliefs.filter((b) => b.aboutFactId && (withheldFactIds.has(b.aboutFactId) || overlaps(b.aboutFactId))).map((b) => b.id),
+    ch.beliefs
+      .filter((b) => b.aboutFactId && (withheldFactIds.has(b.aboutFactId) || overlaps(byId.get(b.aboutFactId))))
+      .map((b) => b.id),
   );
   return { withheldFactIds, withheldBeliefIds, exposedLieIds, windows };
 }

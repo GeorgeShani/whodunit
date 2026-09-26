@@ -9,6 +9,7 @@ import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
 import type { AskInput } from "@/components/game/Game";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
+import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
 import { DialogueLog, type DialogueMessage } from "./DialogueLog";
 import { ThinkingIndicator } from "./ThinkingIndicator";
@@ -20,6 +21,7 @@ export function InterrogationScreen({
   emotion,
   otherSuspects,
   evidence,
+  testimonies = [],
   messages,
   pending,
   backdrop,
@@ -32,6 +34,8 @@ export function InterrogationScreen({
   emotion: Emotion;
   otherSuspects: PublicSuspect[];
   evidence: PublicEvidence[];
+  /** Testimony cards (what other suspects have admitted), presentable like evidence. */
+  testimonies?: PublicTestimony[];
   messages: DialogueMessage[];
   pending: boolean;
   /** Case interrogation backdrop; falls back to the night gradient. */
@@ -48,9 +52,13 @@ export function InterrogationScreen({
   const firstName = suspect.name.split(" ")[0];
   const locked = pending || Boolean(busyWith);
 
-  const ask = (question: string, presentedEvidenceId?: string): boolean => {
+  const ask = (question: string, presentedEvidenceId?: string, presentedTestimonyId?: string): boolean => {
     if (locked) return false;
-    const accepted = onAsk({ question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}) });
+    const accepted = onAsk({
+      question,
+      ...(presentedEvidenceId ? { presentedEvidenceId } : {}),
+      ...(presentedTestimonyId ? { presentedTestimonyId } : {}),
+    });
     if (accepted) setMenu(null);
     return accepted;
   };
@@ -131,8 +139,10 @@ export function InterrogationScreen({
                   ) : (
                     <EvidencePicker
                       evidence={evidence}
+                      testimonies={testimonies.filter((t) => t.characterId !== suspect.id)}
                       disabled={locked}
                       onPick={(e) => ask(`Care to explain this? (${e.name})`, e.id)}
+                      onPickTestimony={(t) => ask(`${t.characterName} has told me this: "${t.summary}" What do you say to that?`, undefined, t.id)}
                     />
                   )}
                 </div>

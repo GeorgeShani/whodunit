@@ -56,8 +56,10 @@ cases/<caseId>/
   "tagline": "…",                       // title-screen line
   "intro": "Para one.\n\nPara two.",     // intro screen
   "dayStartsAt": "12:00",               // optional
+  "knowledgeGate": "proximity",         // optional: "proximity" (default) | "explicit"; see "Knowledge gate" below
   "victim": {                           // PUBLIC
     "id": "lord-blackwood", "name": "…", "description": "…",
+    "aliases": ["his lordship"],        // optional; how people refer to them (canon check subject matching)
     "foundAtLocationId": "library", "foundAt": "22:10", "causeOfDeath": "…"
   },
   "locations": [
@@ -101,12 +103,28 @@ cases/<caseId>/
   "id": "f-library-single-key",
   "statement": "The library door has a single key.",
   "category": "timeline | location | relationship | object | motive | alibi | background",
-  "time": "21:00",                      // optional
+  "time": "21:00",                      // optional point in time, OR…
+  "from": "21:13", "to": "21:30",       // …an optional window (inclusive; from ≤ to in game-day order). Never both.
   "locationId": "library",              // optional
   "involvesCharacterIds": ["…"],        // optional; characters or the victim
   "source": "witnessed | heard | told | inferred | canonical",   // optional, default "canonical"
-  "confidence": 0.8                     // optional 0–1, default 1
+  "confidence": 0.8,                    // optional 0–1, default 1
+  "hiddenUntil": {                      // optional explicit hiding (see "Knowledge gate")
+    "secretIds": ["s-archibald-false-alibi"],   // any character's secret ids…
+    "lieIds": ["l-archibald-together"]          // …and/or any character's lie ids (need to be unique case-wide)
+  }
 }
+```
+
+**Time ranges.** A ranged fact is tagged `[21:13-21:30, The Hall]` in the prompt, and for the canon check any minute inside the range counts as a time the character knows. Timeline entries have always accepted `from`/`to`; plain facts now can too.
+
+**`hiddenUntil`.** The fact is withheld from everyone who knows it until ANY listed secret is unlocked *for that character* (they confessed it themselves, or the detective confronted them with it as testimony) or ANY listed lie is broken for its owner. A fact with `hiddenUntil` follows only this rule: the automatic links and the proximity heuristic skip it. At least one id is required.
+
+```jsonc
+// Archibald only "remembers" the phone call once he has admitted the false alibi, or his story has cracked.
+{ "id": "ev-archibald-phone", "statement": "…", "category": "timeline", "from": "21:15", "to": "21:20",
+  "locationId": "kitchen", "involvesCharacterIds": ["archibald"],
+  "hiddenUntil": { "secretIds": ["s-archibald-false-alibi"], "lieIds": ["l-archibald-together"] } }
 ```
 
 ## timeline.json
@@ -152,6 +170,7 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
 ```jsonc
 {
   "id": "reginald", "name": "Reginald", "role": "The Butler", "bio": "Public card text.",
+  "aliases": ["the butler"],                           // optional; other names for them (canon check subject matching)
   "personality": {
     "traits": ["proper"], "speechStyle": "…",          // descriptive (traits ≥ 1)
     "catchphrases": [], "quirks": [], "tells": [],     // optional
@@ -170,12 +189,18 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
         "mode": "any",                                 // "any" (default) or "all" of the listed conditions
         "afterSecretIds": []                           // own secrets that must be revealed first (ordering)
       },
-      "relatedFactIds": []
+      "relatedFactIds": [],
+      "testimonySummary": "Reginald heard Mr Crane on the servants' telephone during the blackout."
+                                                       // optional, PUBLIC once revealed: the notebook's testimony card
     }
   ],
   "intendedLies": [                                    // optional authored cover stories
     { "id": "l-reginald-pantry", "topic": "whereabouts 21:10–21:20", "aboutFactId": "loc-reginald-2115",
-      "claim": "I never left the pantry.", "brokenByEvidenceIds": ["…"] }   // needs topic and/or aboutFactId
+      "claim": "I never left the pantry.",             // needs topic and/or aboutFactId
+      "brokenByEvidenceIds": ["…"],                    // optional: clues that break it when shown to this character
+      "breaksOnSecretIds": ["s-archibald-false-alibi"],// optional: testimony (anyone's revealed secret) presented to this character
+      "breaksOnFactIds": ["ev-pantry-exchange"],       // optional: presenting a revealed secret whose relatedFactIds include this fact
+      "breakMode": "any" }                             // optional: "any" (default) one condition breaks it; "all" needs every listed one
   ],
   "relationships": [                                   // directional; target = a character or the victim
     { "targetCharacterId": "lord-blackwood", "trust": 30, "fear": 60, "affection": 10,
@@ -187,6 +212,34 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
 ```
 
 The engine (`engine/secrets.ts` `shouldRevealSecret`) evaluates reveal conditions against the character's runtime state (stress, evidence shown, secrets already revealed). The model never decides a reveal.
+
+### Testimony: lies broken by what others admit
+
+When the engine reveals a secret, it joins the case-wide revealed set in the signed state and appears in the player's notebook as a **testimony card** (`testimonySummary`, or "<Name> admitted something under questioning." when it's missing). The player can **present** a card to any other suspect, exactly like a clue (`presentedTestimonyId`; the server checks that the secret is revealed in the signed state). Nobody learns of a confession by themselves: the player has to confront them with it.
+
+Presenting testimony to a character breaks each of their lies whose conditions now hold (`engine/testimony.ts`):
+
+- `brokenByEvidenceIds`: that clue has been shown to them;
+- `breaksOnSecretIds`: that secret is revealed **and** has been presented to them;
+- `breaksOnFactIds`: a presented testimony's secret lists that fact in its `relatedFactIds`.
+
+With `breakMode: "any"` one condition is enough; with `"all"` every listed one must hold. Each newly broken lie adds the same stress as a lie-breaking clue (+15, capped at +30 per presentation); testimony that bears on a lie without breaking it yet adds +5; presenting it again adds +2. The model is told the lie is EXPOSED and hears only the public summary, never the other character's private secret text.
+
+```jsonc
+// characters/victoria.json: the "together all blackout" alibi cracks when Archibald's or Gregory's admission is put to her.
+{ "id": "l-victoria-together", "topic": "whereabouts during the blackout", "aboutFactId": "ev-victoria-alone",
+  "claim": "Archibald and I sat by the dining-room fire the whole blackout, darling.",
+  "brokenByEvidenceIds": ["library-key", "burned-letter"],
+  "breaksOnSecretIds": ["s-archibald-false-alibi", "s-gregory-saw-victoria"] }
+```
+
+### Knowledge gate
+
+While a secret is locked or a lie unbroken, the character's context withholds the truth behind it (`engine/knowledge-gate.ts`), in three layers:
+
+1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower or a listed lie is broken. Nothing else applies to that fact.
+2. **Direct links** (both modes): an unbroken lie's `aboutFactId` and a locked own secret's `relatedFactIds`.
+3. **Proximity heuristic** (`"knowledgeGate": "proximity"`, the default): the character's own time-bound facts that fall within a padded window around a protected time are withheld too. `"knowledgeGate": "explicit"` turns this off, so only layers 1 and 2 apply.
 
 ## solution.json (server-only)
 
@@ -229,7 +282,8 @@ Endings spell out the solution, so they never reach the public view, the charact
   - the locations (including `searchFlavor` and `background`) and the case `backdrops`;
   - the motive **options**;
   - each suspect's name, role, bio, portrait and starting emotion;
-  - the evidence discovered so far (name, description, kind, location, image, `discoveryLine`).
+  - the evidence discovered so far (name, description, kind, location, image, `discoveryLine`);
+  - testimony cards for revealed secrets (who, plus `testimonySummary`), returned by `/api/interrogate`.
 
   Everything else (including `endings.json`) is stripped.
 - **The AI** (`buildCharacterContext`) sees one character at a time:
@@ -239,7 +293,8 @@ Endings spell out the solution, so they never reach the public view, the charact
   - only the secrets the engine has already revealed (truth plus permission to talk about them); locked secrets are withheld entirely;
   - their own intended lies (topic and claim, plus `maintain` / `exposed` status). While a lie is unbroken or a secret locked, the facts behind it, the character's own timeline entries in that time window and beliefs about them are withheld (`engine/knowledge-gate.ts`), so link every fact that would give the game away via `aboutFactId` / `relatedFactIds`;
   - their stress and trust, memory and statements;
-  - the discovered evidence the player has shown them.
+  - the discovered evidence the player has shown them;
+  - the public summaries of testimony the player has confronted them with.
 
   The AI never sees the solution, the endings, the motive, the timeline as a whole, other characters' private data, or undiscovered evidence. A murderer knows their guilt only through their own `knownFactIds`.
 
@@ -254,8 +309,10 @@ Endings spell out the solution, so they never reach the public view, the charact
    - facts used by `knownFactIds`, beliefs, secrets, lies and evidence;
    - evidence used by reveal conditions, `brokenByEvidenceIds` and `keyEvidenceIds`;
    - own secrets used by `afterSecretIds`;
+   - any character's secrets used by `breaksOnSecretIds` and `hiddenUntil.secretIds`; facts used by `breaksOnFactIds`;
+   - lies used by `hiddenUntil.lieIds` (must exist and be unique across characters);
    - `motiveId` → `motives`.
-5. Windows have `from ≤ to` in game-day order.
+5. Windows (timeline entries and facts) have `from ≤ to` in game-day order.
 6. The solution resolves: the murderer is a character, the weapon is evidence, the location exists, the motive exists, and every key evidence id exists.
 7. **Opportunity rule** (`OPPORTUNITY_WINDOW_MINUTES = 15`): at least one timeline entry must have `locationId == solution.locationId` and list the murderer in `involvesCharacterIds`, placing them there within 15 minutes of `solution.time`.
    - Point entries: `|time − murder time| ≤ 15`.
@@ -263,4 +320,12 @@ Endings spell out the solution, so they never reach the public view, the charact
 8. Every innocent character has at least one secret.
 9. `endings.json` (if present): every `speaker` is a character id or `"narrator"`, every `evidenceIds` entry is evidence, every `wrong` key is a suspect, and `wrong` covers **every** suspect including the murderer.
 
-`validate:case` also warns about evidence that has no `locationId` and is not `initiallyAvailable` (the player could never find it).
+`validate:case` also warns (without failing) about:
+
+- evidence that has no `locationId` and is not `initiallyAvailable` (the player could never find it);
+- lies that can never break (every condition unreachable: clues not findable, secrets with no reachable `revealConditions`, facts in no revealable secret's `relatedFactIds`);
+- self-referential testimony (a lie that breaks on its owner's own secret, or on a fact that only the owner's secrets carry);
+- reveal-order cycles in `afterSecretIds`;
+- secrets used as testimony without a `testimonySummary`;
+- `hiddenUntil` on a fact nobody knows, or pointing at a secret that can never be revealed;
+- `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere.

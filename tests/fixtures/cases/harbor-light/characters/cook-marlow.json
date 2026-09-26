@@ -24,7 +24,8 @@
   ],
   "knownFactIds": [
     "marlow-rum",
-    "hl-storm"
+    "hl-storm",
+    "marlow-sees-quill"
   ],
   "beliefs": [
     {
@@ -48,7 +49,26 @@
           "wet-logbook"
         ],
         "mode": "any"
-      }
+      },
+      "testimonySummary": "Nell Marlow admits she hides the captain's rum in the galley."
+    },
+    {
+      "id": "marlow-saw-quill",
+      "description": "HL_MARLOW_SAW: I saw Quill come into the galley dripping from the dock at 22:35.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "wet-logbook"
+        ],
+        "mode": "any",
+        "afterSecretIds": [
+          "marlow-secret"
+        ]
+      },
+      "relatedFactIds": [
+        "marlow-sees-quill"
+      ],
+      "testimonySummary": "Nell Marlow saw Ezra Quill come in soaked from the dock while the lamp was dark."
     }
   ],
   "relationships": [
@@ -76,5 +96,8 @@
         "wet-logbook"
       ]
     }
+  ],
+  "aliases": [
+    "the cook"
   ]
 }

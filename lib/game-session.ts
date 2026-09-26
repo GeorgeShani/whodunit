@@ -9,6 +9,7 @@
  */
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
 import type { PublicEvidence } from "@/engine/public-view";
+import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
 
 export const SESSION_VERSION = 1;
@@ -22,6 +23,8 @@ export interface SavedGame {
   conversations: Record<string, DialogueMessage[]>;
   emotions: Record<string, Emotion>;
   evidence: PublicEvidence[];
+  /** Testimony cards (revealed secrets' public summaries). Optional: older saves lack it. */
+  testimonies?: PublicTestimony[];
   searched: string[];
   searchLines: Record<string, string[]>;
   nextId: number;
@@ -40,6 +43,9 @@ function store(): Store | null {
 }
 
 const isObj = (x: unknown): x is Record<string, unknown> => typeof x === "object" && x !== null && !Array.isArray(x);
+
+const isTestimony = (x: unknown): x is PublicTestimony =>
+  isObj(x) && typeof x.id === "string" && typeof x.characterId === "string" && typeof x.characterName === "string" && typeof x.summary === "string";
 
 /** Parse and sanity-check a saved blob; anything malformed is ignored. */
 export function parseSavedGame(raw: string | null, caseId: string): SavedGame | null {
@@ -63,6 +69,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     conversations: j.conversations as SavedGame["conversations"],
     emotions: j.emotions as SavedGame["emotions"],
     evidence: j.evidence as PublicEvidence[],
+    ...(Array.isArray(j.testimonies) ? { testimonies: (j.testimonies as unknown[]).filter(isTestimony) } : {}),
     searched: (j.searched as unknown[]).filter((x): x is string => typeof x === "string"),
     searchLines: j.searchLines as SavedGame["searchLines"],
     nextId: typeof j.nextId === "number" ? j.nextId : 0,

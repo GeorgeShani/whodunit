@@ -10,7 +10,10 @@
     "description": "HL_VICTIM_DESC",
     "foundAtLocationId": "lamp-room",
     "foundAt": "22:40",
-    "causeOfDeath": "HL blow to the head."
+    "causeOfDeath": "HL blow to the head.",
+    "aliases": [
+      "the captain"
+    ]
   },
   "locations": [
     {
@@ -51,6 +54,14 @@
       "id": "hl-storm",
       "statement": "HL_FACT: A gale blew all night.",
       "category": "background"
+    },
+    {
+      "id": "hl-lamp-dark",
+      "statement": "HL_LAMP_DARK: The lighthouse lamp was dark.",
+      "category": "timeline",
+      "from": "22:28",
+      "to": "22:50",
+      "locationId": "lamp-room"
     }
   ],
   "motives": [

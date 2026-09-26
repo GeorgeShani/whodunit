@@ -152,14 +152,33 @@ export type Location = z.infer<typeof LocationSchema>;
 export const FactSourceSchema = z.enum(["witnessed", "heard", "told", "inferred", "canonical"]);
 export type FactSource = z.infer<typeof FactSourceSchema>;
 
-export const FactSchema = z.strictObject({
+/**
+ * Explicit per-fact hiding (knowledge gate). The fact's knowers do not see it
+ * until ANY listed secret is unlocked for them (they confessed it themselves, or
+ * the detective confronted them with it as testimony) or ANY listed intended lie
+ * is broken for its owner. A fact with hiddenUntil skips the proximity heuristic.
+ */
+export const HiddenUntilSchema = z
+  .strictObject({
+    secretIds: z.array(IdSchema).default([]),
+    lieIds: z.array(IdSchema).default([]),
+  })
+  .refine((h) => h.secretIds.length + h.lieIds.length > 0, { message: "hiddenUntil needs secretIds and/or lieIds" });
+export type HiddenUntil = z.infer<typeof HiddenUntilSchema>;
+
+/** Shared shape of facts and timeline entries (refinements are added per schema). */
+const FactBaseSchema = z.strictObject({
   id: IdSchema,
   /** The fact stated plainly, in third person. */
   statement: NonEmptyText,
   /** Grouping used by the engine for contradiction checks and UI. */
   category: z.enum(["timeline", "location", "relationship", "object", "motive", "alibi", "background"]),
-  /** When the fact happened, if time-bound. */
+  /** When the fact happened, if time-bound (a point). Mutually exclusive with from/to. */
   time: GameTimeSchema.optional(),
+  /** Window start, inclusive (use with `to`, instead of `time`). */
+  from: GameTimeSchema.optional(),
+  /** Window end, inclusive (use with `from`). */
+  to: GameTimeSchema.optional(),
   /** Where the fact happened, if place-bound. */
   locationId: IdSchema.optional(),
   /** Characters (or the victim) this fact is about. */
@@ -168,7 +187,20 @@ export const FactSchema = z.strictObject({
   source: FactSourceSchema.default("canonical"),
   /** Certainty of the fact as held (1 = certain). */
   confidence: UnitIntervalSchema.default(1),
+  /** Explicit hiding: withhold from its knowers until a listed secret/lie unlocks it. */
+  hiddenUntil: HiddenUntilSchema.optional(),
 });
+
+function timeShape(e: { time?: string; from?: string; to?: string }, ctx: z.RefinementCtx, required: boolean) {
+  const point = e.time !== undefined;
+  const window = e.from !== undefined || e.to !== undefined;
+  if (point && window) ctx.addIssue({ code: "custom", message: 'use either "time" (point) or "from"/"to" (window), not both' });
+  else if (required && !point && !window) ctx.addIssue({ code: "custom", message: 'timeline entries need "time" or "from" + "to"' });
+  else if (window && (e.from === undefined || e.to === undefined)) ctx.addIssue({ code: "custom", message: 'windows need both "from" and "to"' });
+}
+
+/** A world fact: optionally a point (`time`) OR a window (`from` + `to`, inclusive; from <= to in game-day order). */
+export const FactSchema = FactBaseSchema.superRefine((f, ctx) => timeShape(f, ctx, false));
 export type Fact = z.infer<typeof FactSchema>;
 
 /**
@@ -178,18 +210,7 @@ export type Fact = z.infer<typeof FactSchema>;
  * uses this for the opportunity check and alibis. Timeline entries share the
  * fact id namespace, so characters can list them in `knownFactIds`.
  */
-export const TimelineEntrySchema = FactSchema.extend({
-  /** Window start (use with `to`, instead of `time`). */
-  from: GameTimeSchema.optional(),
-  /** Window end, inclusive (use with `from`). */
-  to: GameTimeSchema.optional(),
-}).superRefine((e, ctx) => {
-  const point = e.time !== undefined;
-  const window = e.from !== undefined || e.to !== undefined;
-  if (point && window) ctx.addIssue({ code: "custom", message: 'use either "time" (point) or "from"/"to" (window), not both' });
-  else if (!point && !window) ctx.addIssue({ code: "custom", message: 'timeline entries need "time" or "from" + "to"' });
-  else if (window && (e.from === undefined || e.to === undefined)) ctx.addIssue({ code: "custom", message: 'windows need both "from" and "to"' });
-});
+export const TimelineEntrySchema = FactBaseSchema.superRefine((e, ctx) => timeShape(e, ctx, true));
 export type TimelineEntry = z.infer<typeof TimelineEntrySchema>;
 
 // ---------------------------------------------------------------------------
@@ -239,6 +260,12 @@ export const SecretSchema = z.strictObject({
   revealConditions: RevealConditionsSchema.optional(),
   /** Facts that would be exposed if the secret were revealed. */
   relatedFactIds: z.array(IdSchema).default([]),
+  /**
+   * PUBLIC, spoiler-safe one-liner for the notebook's testimony card once the
+   * secret is revealed (e.g. "The cook heard the keeper on the stairs after
+   * the lamp went out."). Omitted: a generic "<Name> admitted something" card.
+   */
+  testimonySummary: NonEmptyText.max(240).optional(),
 });
 export type Secret = z.infer<typeof SecretSchema>;
 
@@ -268,8 +295,14 @@ export const IntendedLieSchema = z
     aboutFactId: IdSchema.optional(),
     /** The false claim, as the character would put it. */
     claim: NonEmptyText,
-    /** Evidence that exposes the lie (engine use). */
+    /** Evidence that exposes the lie when shown to its owner (engine use). */
     brokenByEvidenceIds: z.array(IdSchema).default([]),
+    /** Testimony that exposes the lie: any character's secret ids, once revealed AND presented to the owner. */
+    breaksOnSecretIds: z.array(IdSchema).default([]),
+    /** Facts that expose the lie: presenting a revealed secret whose relatedFactIds include one of these. */
+    breaksOnFactIds: z.array(IdSchema).default([]),
+    /** "any" (default): one listed condition breaks the lie; "all": every listed evidence/secret/fact condition must hold. */
+    breakMode: z.enum(["any", "all"]).default("any"),
   })
   .refine((l) => l.topic !== undefined || l.aboutFactId !== undefined, {
     message: 'intended lies need a "topic" and/or "aboutFactId"',
@@ -286,6 +319,8 @@ export const CharacterSchema = z.strictObject({
   name: NonEmptyText,
   /** Role at the party, e.g. "The Butler". */
   role: NonEmptyText,
+  /** Other ways people refer to them ("her ladyship", "the old salt"). Used by the canon check to spot who a sentence is about. */
+  aliases: z.array(NonEmptyText).default([]),
   /** Short public bio shown to the player. */
   bio: NonEmptyText,
   personality: PersonalitySchema,
@@ -364,6 +399,8 @@ export const MemoryEntrySchema = z.strictObject({
   text: NonEmptyText,
   /** Evidence shown during this exchange, if any. */
   evidenceId: IdSchema.optional(),
+  /** Testimony (a revealed secret id) presented during this exchange, if any. */
+  testimonyId: IdSchema.optional(),
 });
 export type MemoryEntry = z.infer<typeof MemoryEntrySchema>;
 
@@ -377,6 +414,8 @@ export const CharacterRuntimeStateSchema = z.strictObject({
   evidenceShownIds: z.array(IdSchema).default([]),
   /** Secrets the engine has decided are now revealed. */
   revealedSecretIds: z.array(IdSchema).default([]),
+  /** Testimony (revealed secret ids, any character's) the player has confronted this character with. */
+  testimonyShownIds: z.array(IdSchema).default([]),
   /** Statement ids this character has made. */
   statementIds: z.array(IdSchema).default([]),
   /** Number of interrogation exchanges so far. */
@@ -418,6 +457,8 @@ export const GameStateSchema = z.strictObject({
   discoveredEvidenceIds: z.array(IdSchema).default([]),
   /** Locations the player has searched (Investigate). */
   searchedLocationIds: z.array(IdSchema).default([]),
+  /** Case-wide set of revealed secrets (every character's), i.e. the testimony the player can present. */
+  revealedSecretIds: z.array(IdSchema).default([]),
   statements: z.array(StatementSchema).default([]),
   /** Runtime state keyed by character id. */
   characters: z.record(IdSchema, CharacterRuntimeStateSchema),
