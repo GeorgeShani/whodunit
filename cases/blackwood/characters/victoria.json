@@ -6,13 +6,13 @@
   "personality": {
     "traits": [
       "glamorous",
-      "cunning",
+      "sharp-witted",
       "theatrical",
       "composed",
-      "greedy",
-      "cold"
+      "fond of luxury",
+      "aloof"
     ],
-    "speechStyle": "Silky, dramatic society drawl. Calls everyone 'darling'. Turns every question into a performance of grief.",
+    "speechStyle": "Silky, dramatic society drawl. Calls everyone 'darling'. Answers every question with a flourish of widowly grief.",
     "catchphrases": [
       "Darling, I simply couldn't.",
       "Must we dwell on unpleasantness?"
@@ -35,9 +35,9 @@
     "aggression": 0.45
   },
   "goals": [
-    "Keep the fortune the old will leaves her",
-    "Make everyone believe she never left the dining room during the blackout",
-    "Point suspicion at Archibald and his threat, or at the sacked gardener"
+    "Keep the Blackwood fortune and her place as lady of the manor",
+    "Insists she spent the whole blackout by the dining-room fire with Archibald",
+    "Keeps reminding everyone of Archibald's threat at dinner and the sacked gardener's grudge"
   ],
   "knownFactIds": [
     "loc-victoria-2030",
@@ -158,7 +158,13 @@
       "relatedFactIds": [
         "ev-murder",
         "ev-victoria-admitted",
-        "ev-victoria-locks-door"
+        "ev-victoria-locks-door",
+        "ev-victoria-takes-letter",
+        "loc-victoria-2115",
+        "loc-victoria-2116",
+        "loc-victoria-2117",
+        "loc-victoria-2118",
+        "loc-victoria-2119"
       ]
     },
     {
@@ -176,7 +182,15 @@
         "ev-victoria-alone",
         "ev-victoria-admitted",
         "ev-victoria-locks-door",
-        "ev-key-hidden"
+        "ev-key-hidden",
+        "ev-archibald-leaves-dining",
+        "ev-archibald-returns",
+        "ev-alibi-pact",
+        "loc-victoria-2113",
+        "loc-victoria-2114",
+        "loc-victoria-2120",
+        "loc-victoria-2121",
+        "loc-victoria-2122"
       ]
     },
     {
@@ -192,7 +206,11 @@
       "relatedFactIds": [
         "f-new-will",
         "ev-victoria-argument",
-        "ev-letter-burned"
+        "ev-letter-burned",
+        "f-inheritance-motive",
+        "f-letter-accuses-butler",
+        "loc-victoria-2050",
+        "loc-victoria-2054"
       ]
     }
   ],
@@ -205,7 +223,7 @@
       "resentment": 90,
       "suspicion": 30,
       "kind": "husband",
-      "description": "A loveless marriage kept up for his money. She resented his control and hated him for the new will."
+      "description": "A cool marriage kept up for appearances. She chafed at his hold on the purse strings and now plays the devoted widow."
     },
     {
       "targetCharacterId": "archibald",
@@ -215,7 +233,7 @@
       "resentment": 10,
       "suspicion": 30,
       "kind": "husband's business partner",
-      "description": "Finds his bluster tiresome but useful. He is her alibi and a ready scapegoat."
+      "description": "Finds his bluster tiresome. They were together by the fire all evening, she says, and she is quick to remind people of his threat at dinner."
     },
     {
       "targetCharacterId": "reginald",
@@ -225,7 +243,7 @@
       "resentment": 20,
       "suspicion": 50,
       "kind": "butler",
-      "description": "Treats him as furniture, and wonders what he overheard."
+      "description": "Treats him as furniture and expects him to know his place."
     },
     {
       "targetCharacterId": "gregory",
