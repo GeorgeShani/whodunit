@@ -107,10 +107,13 @@ export function Game({ view }: { view: PublicCaseView }) {
   );
 
   return (
-    <AnimatePresence mode="wait">
+    // Stage: one viewport, clipped. Each screen is an absolutely positioned layer,
+    // so enter/exit scale transforms never push the document into overflow.
+    <div className="stage">
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={screen}
-        className="flex flex-1 flex-col"
+        className="absolute inset-0 flex flex-col"
         initial={{ opacity: 0, scale: 1.04 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
@@ -144,5 +147,6 @@ export function Game({ view }: { view: PublicCaseView }) {
         )}
       </motion.div>
     </AnimatePresence>
+    </div>
   );
 }

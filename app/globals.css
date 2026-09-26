@@ -13,6 +13,40 @@
   --font-display: var(--font-bangers);
 }
 
+/*
+ * Viewport stage (no scrollbar flashes): the document itself never scrolls
+ * sideways, and the game stage is exactly one dynamic viewport tall. Screens
+ * that need scrolling scroll inside their own container.
+ */
+html,
+body {
+  overflow-x: clip;
+}
+
+.stage {
+  position: relative;
+  width: 100%;
+  height: 100vh; /* fallback */
+  height: 100dvh;
+  overflow: hidden;
+  contain: paint;
+}
+
+/* A genuine scroll area: vertical only, gutter reserved so content doesn't jump. */
+.scroll-area {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+/* A screen that may be taller than the stage on small viewports. */
+.screen-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

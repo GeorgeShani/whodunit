@@ -17,7 +17,7 @@ import { commitTurn, planTurn } from "@/engine/interrogation";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { cannedCharacterResponse } from "./canned-responses";
-import { allowedTimes, checkTimes } from "./canon-check";
+import { allowedTimes, checkTimes, findModernWord } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type TurnDirectives } from "./prompts/interrogation";
@@ -97,11 +97,17 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   deps.onPrompt?.({ system, user });
   // Canon post-check (#6): every clock time in the reply must come from this character's context.
   const allowed = allowedTimes(ctx, directives, question);
+  // Era post-check (#13): no modern or meta vocabulary, even echoed back.
   const validate = (r: { dialogue: string; action?: string }) => {
-    const res = checkTimes(`${r.dialogue} ${r.action ?? ""}`, allowed);
-    return res.ok
-      ? null
-      : `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, or stay vague ("I couldn't say, sir").`;
+    const said = `${r.dialogue} ${r.action ?? ""}`;
+    const res = checkTimes(said, allowed);
+    if (!res.ok) {
+      return `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, or stay vague ("I couldn't say, sir").`;
+    }
+    const modern = findModernWord(said);
+    return modern
+      ? `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`
+      : null;
   };
   const grok = await callGrok({ system, user, env, validate });
 

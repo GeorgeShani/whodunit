@@ -3,19 +3,19 @@ import { metadata, viewport } from "@/lib/metadata";
 import manifest from "@/app/manifest";
 import robots from "@/app/robots";
 import sitemap from "@/app/sitemap";
-import { SITE } from "@/lib/site";
+import { DEFAULT_SITE_URL, resolveSiteUrl, SITE } from "@/lib/site";
 import { loadCase } from "@/engine/case-loader";
 
 describe("SEO routes", () => {
   it("robots allows everything and links the sitemap", () => {
     const r = robots();
     expect(r.rules).toEqual([{ userAgent: "*", allow: "/" }]);
-    expect(r.sitemap).toBe("https://whodunit-nu.vercel.app/sitemap.xml");
+    expect(r.sitemap).toBe(`${DEFAULT_SITE_URL}/sitemap.xml`);
   });
 
   it("sitemap lists only the root URL", () => {
     const s = sitemap();
-    expect(s.map((e) => e.url)).toEqual(["https://whodunit-nu.vercel.app"]);
+    expect(s.map((e) => e.url)).toEqual([DEFAULT_SITE_URL]);
   });
 
   it("manifest is a standalone app starting at /", () => {
@@ -35,7 +35,7 @@ describe("SEO routes", () => {
   it("layout metadata has the title template, metadataBase, OG and Twitter cards", () => {
     expect(metadata.title).toEqual({ default: "WHODUNIT?!", template: "%s | WHODUNIT?!" });
     expect(metadata.description).toBe("An AI-powered cartoon murder mystery. Interrogate suspects who lie, panic and remember.");
-    expect(String(metadata.metadataBase)).toBe("https://whodunit-nu.vercel.app/");
+    expect(String(metadata.metadataBase)).toBe(`${DEFAULT_SITE_URL}/`);
     expect(metadata.openGraph).toMatchObject({ type: "website", siteName: "WHODUNIT?!", url: "/" });
     expect(metadata.twitter).toMatchObject({ card: "summary_large_image" });
     expect(viewport.themeColor).toBe(SITE.themeColor);
@@ -52,5 +52,16 @@ describe("SEO routes", () => {
       ...(c.solution.explanation ? [c.solution.explanation] : []),
     ];
     for (const f of forbidden) expect(blob.toLowerCase()).not.toContain(f.toLowerCase());
+  });
+});
+
+describe("SITE_URL", () => {
+  it("defaults to the canonical domain and honours NEXT_PUBLIC_SITE_URL", () => {
+    expect(DEFAULT_SITE_URL).toBe("https://whodunit-game.vercel.app");
+    expect(resolveSiteUrl(undefined)).toBe(DEFAULT_SITE_URL);
+    expect(resolveSiteUrl("  ")).toBe(DEFAULT_SITE_URL);
+    expect(resolveSiteUrl("https://example.com/")).toBe("https://example.com");
+    expect(resolveSiteUrl("javascript:alert(1)")).toBe(DEFAULT_SITE_URL);
+    expect(resolveSiteUrl("not a url")).toBe(DEFAULT_SITE_URL);
   });
 });

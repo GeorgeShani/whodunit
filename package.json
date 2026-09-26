@@ -13,7 +13,8 @@
     "validate:case": "tsx scripts/validate-case.ts",
     "sync:assets": "tsx scripts/sync-assets.ts",
     "predev": "npm run sync:assets",
-    "prebuild": "npm run sync:assets"
+    "prebuild": "npm run sync:assets",
+    "check:overflow": "tsx scripts/check-overflow.ts"
   },
   "dependencies": {
     "framer-motion": "^13.4.4",
@@ -29,6 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.6",
+    "playwright-core": "^1.63.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5",
