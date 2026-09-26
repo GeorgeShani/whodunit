@@ -18,9 +18,15 @@ const bangers = Bangers({
   subsets: ["latin"],
 });
 
+const description = "A perfectly normal dinner party. Until somebody got murdered.";
+
+// Share images and icons come from the app/ file conventions (opengraph-image.jpg,
+// twitter-image.jpg, favicon.ico, icon.png, apple-icon.png); don't add icons/images here.
 export const metadata: Metadata = {
   title: "WHODUNIT?!",
-  description: "A perfectly normal dinner party. Until somebody got murdered.",
+  description,
+  openGraph: { title: "WHODUNIT?!", description, type: "website", siteName: "WHODUNIT?!" },
+  twitter: { card: "summary_large_image", title: "WHODUNIT?!", description },
 };
 
 export default function RootLayout({
