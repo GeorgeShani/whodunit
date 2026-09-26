@@ -182,7 +182,70 @@ describe("validateCase (broken fixtures)", () => {
   });
 });
 
+describe("endings.json", () => {
+  it("is loaded when present and optional when absent", async () => {
+    const c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
+    expect(c.endings?.correct.confession[0].speaker).toBe("alpha");
+    expect(Object.keys(c.endings!.wrong).sort()).toEqual(["alpha", "bravo", "charlie"]);
+    await expectValid(async (_edit, dir) => {
+      const { rm } = await import("node:fs/promises");
+      await rm(`${dir}/endings.json`);
+    });
+  });
+
+  it("requires a wrong ending for EVERY suspect, including the murderer", async () => {
+    const out = await issuesFor((edit) => edit("endings.json", (e) => delete e.wrong.alpha));
+    expect(out).toMatch(/endings\.json wrong missing wrong ending for suspect "alpha" \(the murderer/);
+  });
+
+  it("checks speakers, evidence ids and wrong-ending keys", async () => {
+    const out = await issuesFor((edit) =>
+      edit("endings.json", (e) => {
+        e.correct.confession[0].speaker = "lord-nobody";
+        e.correct.recap[0].evidenceIds = ["ghost-clue"];
+        e.wrong["victim-v"] = [{ speaker: "narrator", text: "?" }];
+      }),
+    );
+    expect(out).toMatch(/correct\.confession\.0\.speaker unknown speaker "lord-nobody"/);
+    expect(out).toMatch(/correct\.recap\.0\.evidenceIds\.0 unknown evidence "ghost-clue"/);
+    expect(out).toMatch(/wrong\.victim-v "victim-v" is not a suspect/);
+  });
+
+  it("validates line shape (pauseMs range, emotion enum, strict keys)", async () => {
+    const out = await issuesFor((edit) =>
+      edit("endings.json", (e) => {
+        e.correct.confession[0].pauseMs = 9000;
+        e.correct.recap[0].emotion = "hangry";
+        e.escapedLine = "";
+        e.winner = "alpha";
+      }),
+    );
+    expect(out).toMatch(/endings\.json correct\.confession\.0\.pauseMs/);
+    expect(out).toMatch(/endings\.json correct\.recap\.0\.emotion/);
+    expect(out).toMatch(/endings\.json escapedLine/);
+    expect(out).toMatch(/winner/);
+  });
+
+  it("validates searchFlavor (1-2 lines) and discoveryLine", async () => {
+    const out = await issuesFor(async (edit) => {
+      await edit("case.json", (c) => (c.locations[0].searchFlavor = { lines: ["a", "b", "c"] }));
+      await edit("evidence.json", (ev) => (ev[0].discoveryLine = ""));
+    });
+    expect(out).toMatch(/case\.json locations\.0\.searchFlavor\.lines/);
+    expect(out).toMatch(/evidence\.json 0\.discoveryLine/);
+  });
+});
+
 describe("getPublicCaseView", () => {
+  it("keeps public search flavour and discovery lines, never endings", async () => {
+    const c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
+    const view = getPublicCaseView(c);
+    const json = JSON.stringify(view);
+    expect(view.locations[0].searchFlavor?.lines).toEqual(["FIXTURE_SEARCH_hall"]);
+    expect(view.evidence[0].discoveryLine).toBe("FIXTURE_DISCOVERY_note");
+    for (const banned of ["ENDING_", "endings", "confession", "recap", "escapedLine"]) expect(json).not.toContain(banned);
+  });
+
   it("strips solution, private data and undiscovered evidence", async () => {
     const c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
     const view = getPublicCaseView(c);

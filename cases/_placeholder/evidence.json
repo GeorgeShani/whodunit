@@ -5,7 +5,8 @@
     "description": "PLACEHOLDER (real case pending).",
     "kind": "physical",
     "locationId": "room-a",
-    "initiallyAvailable": true
+    "initiallyAvailable": true,
+    "discoveryLine": "Aha! Placeholder Clue #1!"
   },
   {
     "id": "placeholder-clue-2",
@@ -13,7 +14,8 @@
     "description": "PLACEHOLDER (real case pending).",
     "kind": "document",
     "locationId": "room-b",
-    "initiallyAvailable": true
+    "initiallyAvailable": true,
+    "discoveryLine": "Aha! Placeholder Clue #2!"
   },
   {
     "id": "placeholder-weapon",
@@ -21,6 +23,7 @@
     "description": "PLACEHOLDER (real case pending).",
     "kind": "physical",
     "locationId": "room-b",
-    "initiallyAvailable": false
+    "initiallyAvailable": false,
+    "discoveryLine": "Aha! Placeholder Weapon!"
   }
 ]

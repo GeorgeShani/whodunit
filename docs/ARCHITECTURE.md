@@ -58,7 +58,7 @@ One exchange (`ai/interrogate-handler.ts`):
 
 `engine/state-token.ts`: the per-character runtime state (stress, trust, emotion, memory, shown evidence, revealed secrets, statements, interrogation count) plus discovered evidence and the turn counter are serialised as `v1.<base64url JSON>.<base64url HMAC-SHA256>`. The client stores the opaque token and sends it back; it cannot edit it.
 
-- **HMAC key:** `GAME_STATE_SECRET` (>= 16 chars) if set; otherwise `HMAC-SHA256(key = XAI_API_KEY, msg = "whodunit/game-state-token/v1")`, a one-way derivation, so the API key cannot be recovered from tokens; otherwise a fixed dev-only key (local only, not tamper-proof).
+- **HMAC key:** `GAME_STATE_SECRET` (listed in `.env.example`; set it to a long random string, e.g. `openssl rand -hex 32`, locally and on Vercel; >= 16 chars required) if set; otherwise `HMAC-SHA256(key = XAI_API_KEY, msg = "whodunit/game-state-token/v1")`, a one-way derivation, so the API key cannot be recovered from tokens; otherwise a fixed dev-only key (local only, not tamper-proof).
 - **Verification:** constant-time signature check, version check, strict Zod payload, same case id, and every id must still exist in the case. Any failure → reset to the initial state with an in-character notice.
 - **Size:** memory/statement text is clipped to 400 chars and history is capped, so the token stays well under its 60 kB limit.
 - **Known limit:** tokens are not bound to a session, so a player can replay an older token of their own (e.g. to undo stress). They can only reach states the server itself issued.
@@ -71,3 +71,11 @@ One exchange (`ai/interrogate-handler.ts`):
 ### Tests never call the model
 
 `tests/setup.ts` deletes `XAI_API_KEY` and stubs `fetch` to throw unless a test mocks it (`tests/helpers/grok-mock.ts`).
+
+## SEO and metadata
+
+- `app/layout.tsx` uses the metadata API: title template `%s | WHODUNIT?!`, description, `metadataBase` (`https://whodunit-nu.vercel.app`), Open Graph and `summary_large_image` Twitter cards, plus a `viewport` export (`themeColor` `#1b1035`). Shared values live in `lib/site.ts`.
+- Metadata is case-agnostic: no suspect names, clues or solution details.
+- `app/robots.ts`, `app/sitemap.ts` (root URL only) and `app/manifest.ts` generate `/robots.txt`, `/sitemap.xml` and `/manifest.webmanifest`.
+- `app/opengraph-image.tsx` / `app/twitter-image.tsx` are a TEMPORARY generated image (next/og). TODO: replace with Toon's OG art as `app/opengraph-image.png` and `app/twitter-image.png`.
+- Headings: each screen renders one `h1` (title screen: "WHODUNIT?!"; then the case title, "PICK A SUSPECT!", or the suspect's name).

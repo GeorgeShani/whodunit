@@ -114,10 +114,21 @@ export type Personality = z.infer<typeof PersonalitySchema>;
 // ---------------------------------------------------------------------------
 
 /** A room/place in the case. */
+/** PUBLIC flavour shown when the player searches a location. */
+export const SearchFlavorSchema = z.strictObject({
+  /** 1-2 lines shown on a search (the engine picks one). */
+  lines: z.array(NonEmptyText).min(1).max(2),
+  /** Shown when a search turns up nothing new. */
+  emptyLine: NonEmptyText.optional(),
+});
+export type SearchFlavor = z.infer<typeof SearchFlavorSchema>;
+
 export const LocationSchema = z.strictObject({
   id: IdSchema,
   name: NonEmptyText,
   description: NonEmptyText,
+  /** Optional PUBLIC search flavour (Investigate screen). */
+  searchFlavor: SearchFlavorSchema.optional(),
 });
 export type Location = z.infer<typeof LocationSchema>;
 
@@ -293,8 +304,10 @@ export const EvidenceSchema = z.strictObject({
   /** What the player sees when inspecting it. */
   description: NonEmptyText,
   kind: z.enum(["physical", "document", "testimony", "observation"]),
-  /** Where it can be found. */
+  /** Where it is found when the player searches (Investigate). No locationId = cannot be found by searching. */
   locationId: IdSchema.optional(),
+  /** Optional PUBLIC one-liner shown in the discovery sting. */
+  discoveryLine: NonEmptyText.optional(),
   /** Facts this evidence supports (used by the engine, never by the LLM). */
   relatedFactIds: z.array(IdSchema).default([]),
   /** Characters (or the victim) this evidence is linked to (engine use). */

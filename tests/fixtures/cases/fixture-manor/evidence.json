@@ -11,7 +11,8 @@
     "initiallyAvailable": true,
     "relatedCharacters": [
       "charlie"
-    ]
+    ],
+    "discoveryLine": "FIXTURE_DISCOVERY_note"
   },
   {
     "id": "torn-glove",
@@ -22,7 +23,8 @@
     "initiallyAvailable": true,
     "relatedCharacters": [
       "bravo"
-    ]
+    ],
+    "discoveryLine": "FIXTURE_DISCOVERY_torn-glove"
   },
   {
     "id": "heavy-wrench",
@@ -36,6 +38,7 @@
     "initiallyAvailable": false,
     "relatedCharacters": [
       "alpha"
-    ]
+    ],
+    "discoveryLine": "FIXTURE_DISCOVERY_heavy-wrench"
   }
 ]

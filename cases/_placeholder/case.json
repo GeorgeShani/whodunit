@@ -16,12 +16,24 @@
     {
       "id": "room-a",
       "name": "Placeholder Room A",
-      "description": "PLACEHOLDER (real case pending)."
+      "description": "PLACEHOLDER (real case pending).",
+      "searchFlavor": {
+        "lines": [
+          "Room A: dusty, draughty and suspiciously tidy."
+        ],
+        "emptyLine": "Nothing new in Room A. Just dust bunnies."
+      }
     },
     {
       "id": "room-b",
       "name": "Placeholder Room B",
-      "description": "PLACEHOLDER (real case pending)."
+      "description": "PLACEHOLDER (real case pending).",
+      "searchFlavor": {
+        "lines": [
+          "Room B: somebody left in a hurry.",
+          "A chair lies on its side. Rude."
+        ]
+      }
     }
   ],
   "facts": [

@@ -16,6 +16,7 @@ import {
   type LoadedCase,
 } from "./case-schema";
 import { checkCaseReferences, formatIssue, type CaseIssue } from "./case-validation";
+import { EndingsSchema, type Endings } from "./endings";
 import { CaseSolutionSchema, type CaseSolution } from "./solution";
 import { CharacterSchema, type Character, type Evidence, type TimelineEntry } from "./types";
 
@@ -46,12 +47,12 @@ function zodIssues(file: string, error: z.ZodError): CaseIssue[] {
   }));
 }
 
-async function readJson(dir: string, file: string, issues: CaseIssue[]): Promise<unknown> {
+async function readJson(dir: string, file: string, issues: CaseIssue[], optional = false): Promise<unknown> {
   let raw: string;
   try {
     raw = await readFile(path.join(dir, file), "utf8");
   } catch {
-    issues.push({ file, message: "file is missing" });
+    if (!optional) issues.push({ file, message: "file is missing" });
     return undefined;
   }
   try {
@@ -106,6 +107,15 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
     else issues.push(...zodIssues("solution.json", r.error));
   }
 
+  // endings.json is optional for now (validated when present).
+  let endings: Endings | undefined;
+  const endRaw = await readJson(dir, "endings.json", issues, true);
+  if (endRaw !== undefined) {
+    const r = EndingsSchema.safeParse(endRaw);
+    if (r.success) endings = r.data;
+    else issues.push(...zodIssues("endings.json", r.error));
+  }
+
   const characters: Character[] = [];
   let charFiles: string[] = [];
   try {
@@ -131,7 +141,7 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
 
   if (issues.length || !envelope || !timeline || !evidence || !solution) return { caseId, issues };
 
-  const data: LoadedCase = { ...envelope, timeline, evidence, characters, solution };
+  const data: LoadedCase = { ...envelope, timeline, evidence, characters, solution, ...(endings ? { endings } : {}) };
   issues.push(...checkCaseReferences(data));
   return issues.length ? { caseId, issues } : { caseId, issues, data };
 }

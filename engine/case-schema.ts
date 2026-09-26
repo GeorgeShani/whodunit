@@ -8,8 +8,10 @@
  *   evidence.json          -> EvidenceFileSchema (Evidence[])
  *   characters/<id>.json   -> CharacterSchema (one file per interrogable character)
  *   solution.json          -> CaseSolutionSchema (SERVER-ONLY)
+ *   endings.json           -> EndingsSchema (SERVER-ONLY; optional for now)
  */
 import { z } from "zod";
+import { EndingsSchema } from "./endings";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
 import {
@@ -80,6 +82,8 @@ export const LoadedCaseSchema = CaseEnvelopeSchema.extend({
   evidence: EvidenceFileSchema,
   characters: z.array(CharacterSchema).min(2),
   solution: CaseSolutionSchema,
+  /** Authored endings (SERVER-ONLY). Optional until every case ships endings.json. */
+  endings: EndingsSchema.optional(),
 });
 export type LoadedCase = z.infer<typeof LoadedCaseSchema>;
 
