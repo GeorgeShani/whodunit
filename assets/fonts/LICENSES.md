@@ -6,6 +6,8 @@ No font files are served from `assets/fonts/`. The in-app display face (Bangers)
 |---|---|---|---|
 | **Bangers** Regular (Vernon Adams / The Bangers Project Authors, © 2010) | "WHODUNIT?!" title lettering baked into `app/opengraph-image.jpg` and `app/twitter-image.jpg`. Each letter was drawn in code with Pillow: per-letter tilt and bounce, a yellow→orange gradient fill, an 11 px black outline, a gloss highlight and a plum-black drop shadow. It's the same face the app uses for its title (`--font-display`). | https://github.com/google/fonts/tree/main/ofl/bangers (Google Fonts) | SIL Open Font License 1.1 (full text below) |
 
+Bangers is also used for the title-card logo `assets/title/title_logo.{webp,png,svg}`. It's drawn with the same per-letter code, and the SVG contains outlined glyph paths from Bangers (embedding outlines is allowed under OFL 1.1).
+
 The favicon set (`app/favicon.ico`, `app/icon.png`, `app/apple-icon.png`, source `docs/art/share/icon-source.svg`) uses no font. The "?" is drawn from plain SVG geometry.
 
 OFL 1.1 lets you embed the font in images and redistribute it with software. The rendered images are not "Font Software" under the license, so they can be used freely.
