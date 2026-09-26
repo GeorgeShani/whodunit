@@ -165,7 +165,7 @@ const MEMORY_CAP = 12;
 const STATEMENT_CAP = 8;
 
 /** Commit the exchange. Mutates `game`. Returns the clamped deltas that were applied. */
-export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutcome) {
+export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutcome, mode: "interrogation" | "confrontation" = "interrogation") {
   const rt = game.characters[plan.characterId] as CharacterRuntimeState;
   game.turn += 1;
   rt.interrogationCount += 1;
@@ -219,7 +219,7 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
       characterId: plan.characterId,
       text: out.dialogue,
       turn: game.turn,
-      mode: "interrogation",
+      mode,
       relatedFactIds: [],
       contradictedByEvidenceIds: [],
     });

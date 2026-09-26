@@ -135,8 +135,8 @@ describe("GameStateSchema", () => {
 
   it(`caps confrontation turns at MAX_CONFRONTATION_TURNS (${MAX_CONFRONTATION_TURNS})`, () => {
     expect(MAX_CONFRONTATION_TURNS).toBe(6);
-    const ok = { ...base, activeConfrontation: { characterId: "test-butler", turnsUsed: 6 } };
-    const tooMany = { ...base, activeConfrontation: { characterId: "test-butler", turnsUsed: 7 } };
+    const ok = { ...base, activeConfrontation: { characterIds: ["test-butler", "test-cook"], turnsUsed: 6 } };
+    const tooMany = { ...base, activeConfrontation: { characterIds: ["test-butler", "test-cook"], turnsUsed: 7 } };
     expect(GameStateSchema.safeParse(ok).success).toBe(true);
     expect(GameStateSchema.safeParse(tooMany).success).toBe(false);
   });

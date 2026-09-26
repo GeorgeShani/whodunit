@@ -55,6 +55,14 @@ describe("game session persistence (#11)", () => {
     expect(parseSavedGame(JSON.stringify({ ...sample, screen: "ending", result: { outcome: "won" } }), "blackwood")?.result).toBeUndefined();
   });
 
+  it("restores the confrontation screen and pair, dropping a malformed pair", () => {
+    const confront = { pair: ["victoria", "reginald"], status: { "reginald|victoria": { turnsUsed: 2, over: false } } };
+    const g = parseSavedGame(JSON.stringify({ ...sample, screen: "confront", confront }), "blackwood");
+    expect(g?.screen).toBe("confront");
+    expect(g?.confront).toEqual(confront);
+    expect(parseSavedGame(JSON.stringify({ ...sample, confront: { pair: ["victoria"], status: {} } }), "blackwood")?.confront).toBeUndefined();
+  });
+
   it("keeps the stress meters, dropping junk values (Phase 7)", () => {
     const g = parseSavedGame(JSON.stringify({ ...sample, stress: { victoria: 72, gregory: "lots", reginald: 400 } }), "blackwood");
     expect(g?.stress).toEqual({ victoria: 72 });

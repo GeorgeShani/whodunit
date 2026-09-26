@@ -10,18 +10,13 @@
  *  -> engine commits (clamped deltas, reveal only if performed) -> new token.
  * Any failure yields the in-character fallback. Logs are non-secret only.
  */
-import { isOutburst, stressBand, type StressReading } from "@/engine/stress";
 import type { LoadedCase } from "@/engine/case-schema";
-import { buildCharacterContext } from "@/engine/context-builder";
-import { commitTurn, planTurn } from "@/engine/interrogation";
 import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
-import { cannedCharacterResponse } from "./canned-responses";
-import { canonTimes, checkTimes, findModernWord } from "./canon-check";
-import { callGrok, type GrokResult } from "./grok";
-import { InterrogateRequestSchema, type Contradiction, type InterrogateResponseBody } from "./interrogate-schema";
-import { buildSystemPrompt, buildUserMessage, type TurnDirectives } from "./prompts/interrogation";
-import { createFallbackCharacterResponse, type CharacterResponse } from "./schemas";
+import type { GrokResult } from "./grok";
+import { performTurn } from "./perform-turn";
+import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
+import { createFallbackCharacterResponse } from "./schemas";
 
 type Env = Record<string, string | undefined>;
 
@@ -102,89 +97,16 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
     };
   }
 
-  // 3. Engine effects + reveal decision, BEFORE the model sees anything.
-  const plan = planTurn(caseData, game, characterId, { presentedEvidenceId, presentedTestimonyId });
-  const ch = caseData.characters.find((c) => c.id === characterId)!;
-  const ev = presentedEvidenceId ? caseData.evidence.find((e) => e.id === presentedEvidenceId) : undefined;
-  const secret = plan.revealSecretId ? ch.secrets.find((s) => s.id === plan.revealSecretId) : undefined;
-  const testimony = presentedTestimonyId ? publicTestimonies(caseData, game).find((t) => t.id === presentedTestimonyId) : undefined;
-  const directives: TurnDirectives = {
-    exposedLieIds: plan.exposedLieIds,
-    ...(plan.retiredLieIds.length ? { retiredLieIds: plan.retiredLieIds } : {}),
-    ...(plan.breakdown ? { breakdown: true } : {}),
-    ...(secret ? { revealSecret: { id: secret.id, description: secret.description } } : {}),
-    ...(ev ? { presentedEvidence: { id: ev.id, name: ev.name, description: ev.description } } : {}),
-    ...(testimony ? { presentedTestimony: { id: testimony.id, characterName: testimony.characterName, summary: testimony.summary } } : {}),
-  };
-
-  // 4. Scoped context -> prompt -> model.
-  const ctx = buildCharacterContext({ caseData, game }, characterId);
-  const system = buildSystemPrompt(ctx, directives);
-  const user = buildUserMessage(ctx, question);
-  deps.onPrompt?.({ system, user });
-  // Canon post-check (#6): every clock time in the reply must come from this character's context,
-  // and a time said about a named person/place from a fact about that subject.
-  const allowed = canonTimes(ctx, directives, question);
-  // Era post-check (#13): no modern or meta vocabulary, even echoed back.
-  const validate = (r: { dialogue: string; action?: string }) => {
-    const said = `${r.dialogue} ${r.action ?? ""}`;
-    const res = checkTimes(said, allowed);
-    if (!res.ok) {
-      return `You stated a time you do not know (${res.offending.map((t) => `"${t}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir").`;
-    }
-    // Breakdown turns must actually read as an outburst (performance only; the engine already decided it).
-    if (directives.breakdown && !isOutburst(r.dialogue)) {
-      return "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.";
-    }
-    const modern = findModernWord(said);
-    return modern
-      ? `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`
-      : null;
-  };
-  const grok = await callGrok({ system, user, env, validate });
-
-  let response: CharacterResponse;
-  let source: "model" | "fallback";
-  if (grok.ok) {
-    source = "model";
-    // The model may only react to the clue shown THIS turn.
-    response = {
-      ...grok.response,
-      evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1),
-    };
-  } else {
-    source = "fallback";
-    response = cannedCharacterResponse(ctx, question, presentedEvidenceId, game.turn);
-    console.warn(
-      `[interrogate] fallback reason=${grok.reason}${grok.status ? ` status=${grok.status}` : ""} model=${grok.model} attempts=${grok.attempts} ms=${grok.latencyMs}`,
-    );
-  }
-
-  // 5. Engine commits.
-  const applied = commitTurn(game, plan, {
-    playerText: question,
-    dialogue: response.dialogue,
-    emotion: response.emotion,
-    intensity: response.intensity,
-    stressDelta: response.stressDelta,
-    trustDelta: response.trustDelta,
-    performed: source === "model",
+  // 3-5. Engine effects + reveal decision, prompt, model (or fallback), engine commit (ai/perform-turn.ts).
+  const { response, source, grok, revealed, stress, contradiction } = await performTurn({
+    caseData,
+    game,
+    characterId,
+    question,
+    move: { presentedEvidenceId, presentedTestimonyId },
+    env,
+    ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
   });
-  // Report the deltas the engine actually applied, never the raw suggestion.
-  // ...and the emotion after the engine's stress floor (the pose always matches the meter).
-  response = { ...response, emotion: applied.emotion, stressDelta: applied.stressDelta, trustDelta: applied.trustDelta };
-  const stress: StressReading = { value: applied.stress, band: stressBand(applied.stress), breakdown: applied.brokeDown };
-
-  // Deterministic verdict from the engine's plan (independent of the model's performance).
-  const contradiction: Contradiction | undefined =
-    plan.newlyExposedLieIds.length > 0 && (presentedEvidenceId || presentedTestimonyId)
-      ? {
-          characterId,
-          characterName: ch.name,
-          item: presentedEvidenceId ? { kind: "evidence", id: presentedEvidenceId } : { kind: "testimony", id: presentedTestimonyId! },
-          lieCount: plan.newlyExposedLieIds.length,
-        }
-      : undefined;
 
   const { response: _drop, ...grokDiag } = grok as GrokResult & { response?: unknown };
   void _drop;
@@ -199,6 +121,6 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
       ...(contradiction ? { contradiction } : {}),
       ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
     }),
-    diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed: applied.revealed },
+    diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed },
   };
 }

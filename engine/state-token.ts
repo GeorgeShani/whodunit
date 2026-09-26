@@ -27,6 +27,7 @@ import { revealedSecretIds, secretIndex } from "./testimony";
 import {
   AccusationSchema,
   CaseIdSchema,
+  ConfrontationStateSchema,
   EmotionalStateSchema,
   GameStateSchema,
   IdSchema,
@@ -75,6 +76,9 @@ const TokenPayloadSchema = z.strictObject({
   accusation: AccusationSchema.nullable().default(null),
   /** Game over once not "pending": interrogate/investigate answer "the case is closed", accuse replays the verdict. */
   outcome: z.enum(["pending", "won", "lost"]).default("pending"),
+  /** Live confrontation and finished pairs (absent in older tokens). */
+  confrontation: ConfrontationStateSchema.nullable().default(null),
+  confrontedPairs: z.array(z.string().max(80)).max(20).default([]),
 });
 type TokenPayload = z.infer<typeof TokenPayloadSchema>;
 
@@ -131,6 +135,8 @@ function toPayload(game: GameState): TokenPayload {
     ),
     accusation: game.accusation ? { ...game.accusation, keyEvidenceIds: [...game.accusation.keyEvidenceIds] } : null,
     outcome: game.outcome,
+    confrontation: game.activeConfrontation ? { characterIds: [...game.activeConfrontation.characterIds], turnsUsed: game.activeConfrontation.turnsUsed } : null,
+    confrontedPairs: [...game.confrontedPairs],
   };
 }
 
@@ -221,7 +227,12 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     }
   }
 
+  if (p.confrontation && !p.confrontation.characterIds.every((id) => chars.has(id))) return { ok: false, reason: "invalid_payload" };
+  if (!p.confrontedPairs.every((k) => k.split("|").length === 2 && k.split("|").every((id) => chars.has(id)))) return { ok: false, reason: "invalid_payload" };
+
   const game = createInitialGameState(caseData);
+  game.activeConfrontation = p.confrontation;
+  game.confrontedPairs = [...p.confrontedPairs];
   game.turn = p.turn;
   game.accusation = p.accusation;
   game.outcome = p.outcome;

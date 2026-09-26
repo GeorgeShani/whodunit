@@ -8,7 +8,7 @@ import { SuspectSelect } from "@/components/characters/SuspectSelect";
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
 import { InterrogationScreen } from "@/components/dialogue/InterrogationScreen";
 import type { FoundEvidence, InvestigateRequest } from "@/engine/investigate-schema";
-import type { PublicCaseView, PublicEvidence } from "@/engine/public-view";
+import type { PublicCaseView, PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import { DiscoverySting } from "@/components/evidence/DiscoverySting";
 import { ContradictionBeat, type ContradictionBeatData } from "@/components/evidence/ContradictionBeat";
 import { Notebook } from "@/components/evidence/Notebook";
@@ -18,6 +18,9 @@ import { getAudio } from "@/components/effects/audio";
 import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { AccuseScreen } from "@/components/accuse/AccuseScreen";
+import { ConfrontScreen } from "@/components/confront/ConfrontScreen";
+import type { ConfrontRequest, ConfrontResponseBody } from "@/ai/confront-schema";
+import { MAX_CONFRONTATION_TURNS } from "@/engine/constants";
 import { EndScreen } from "@/components/ending/EndScreen";
 import { EndingScene } from "@/components/ending/EndingScene";
 import type { AccuseRequest, AccuseResponseBody } from "@/engine/accuse-schema";
@@ -29,7 +32,7 @@ import { clearGame, loadGame, saveGame, SESSION_VERSION } from "@/lib/game-sessi
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
 
-type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate" | "accuse" | "ending";
+type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate" | "accuse" | "ending" | "confront";
 
 interface InterrogateResult {
   response: CharacterResponse;
@@ -87,6 +90,19 @@ async function accuse(req: AccuseRequest): Promise<AccuseResponseBody> {
   }
 }
 
+/** POST /api/confront. Failures come back as an in-character line. */
+async function confront(req: ConfrontRequest): Promise<ConfrontResponseBody> {
+  try {
+    const res = await fetch("/api/confront", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
+    const j = (await res.json()) as ConfrontResponseBody;
+    return { ...j, lines: Array.isArray(j.lines) ? j.lines.filter((l) => CharacterResponseSchema.safeParse(l.response).success) : [] };
+  } catch {
+    return { lines: [], line: "A thunderclap drowns everyone out. Try that again, detective." };
+  }
+}
+
+const pairKey = (a: string, b: string) => [a, b].sort().join("|");
+
 async function investigate(req: InvestigateRequest): Promise<InvestigateResult> {
   try {
     const res = await fetch("/api/investigate", {
@@ -142,6 +158,9 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [beats, setBeats] = useState<ContradictionBeatData[]>([]);
   /** Engine stress per suspect (Phase 7), from each reply's stress reading. */
   const [stress, setStress] = useState<Record<string, number>>({});
+  /** Confrontation (MASTER_PLAN §32): the pair on stage and each pair's exchange count. */
+  const [confrontPair, setConfrontPair] = useState<[string, string] | null>(null);
+  const [confrontStatus, setConfrontStatus] = useState<Record<string, { turnsUsed: number; over: boolean }>>({});
   const [notebookOpen, setNotebookOpen] = useState(false);
   /** Phase 8: the verdict (plus ending and solution) returned by /api/accuse. Nothing about the solution exists client-side before it. */
   const [result, setResult] = useState<AccuseResponseBody | null>(null);
@@ -207,10 +226,16 @@ export function Game({ view }: { view: PublicCaseView }) {
       setNotes(saved.notes ?? {});
       if (saved.result) setResult(saved.result as AccuseResponseBody);
       if (saved.stress) setStress(saved.stress);
+      if (saved.confront) {
+        setConfrontPair(saved.confront.pair);
+        setConfrontStatus(saved.confront.status);
+      }
       const validActive = saved.activeId && view.suspects.some((s) => s.id === saved.activeId) ? saved.activeId : null;
       setActiveId(validActive);
       setScreen(
-        saved.screen === "interrogation" && !validActive ? "suspects" : saved.screen === "ending" && !saved.result ? "suspects" : saved.screen,
+        (saved.screen === "interrogation" && !validActive) || (saved.screen === "ending" && !saved.result) || (saved.screen === "confront" && !saved.confront?.pair)
+          ? "suspects"
+          : saved.screen,
       );
     }
     setRestored(true);
@@ -237,8 +262,9 @@ export function Game({ view }: { view: PublicCaseView }) {
       notes,
       ...(result ? { result } : {}),
       stress,
+      confront: { pair: confrontPair, status: confrontStatus },
     });
-  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes, result, stress]);
+  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes, result, stress, confrontPair, confrontStatus]);
 
   const push = useCallback((characterId: string, msg: Omit<DialogueMessage, "id">) => {
     const id = `m${nextId.current++}`;
@@ -254,6 +280,7 @@ export function Game({ view }: { view: PublicCaseView }) {
     setConversations({});
     setNotes({});
     setStress({});
+    setConfrontStatus({});
   }, [view.evidence]);
 
   const askAs = useCallback(
@@ -320,6 +347,69 @@ export function Game({ view }: { view: PublicCaseView }) {
       return true;
     },
     [caseId, conversations, push, resetProgress, view.suspects],
+  );
+
+  /** One confrontation exchange: the detective questions `addressedId` in front of the other; both reply (server decides everything). */
+  const onConfrontAsk = useCallback(
+    (addressedId: string, question: string): boolean => {
+      if (!confrontPair || inFlight.current) return false;
+      const partnerId = confrontPair[0] === addressedId ? confrontPair[1] : confrontPair[0];
+      const key = pairKey(addressedId, partnerId);
+      const logKey = `vs:${key}`;
+      const addressedName = view.suspects.find((s) => s.id === addressedId)?.name ?? addressedId;
+      inFlight.current = true;
+      push(logKey, { speaker: "player", text: `(to ${addressedName.split(" ")[0]}) ${question}` });
+      setPendingId(addressedId);
+      void (async () => {
+        const r = await confront({ caseId, characterIds: [addressedId, partnerId], question, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
+        if (r.stateToken) stateToken.current = r.stateToken;
+        if (r.notice) {
+          resetProgress();
+          push(logKey, { speaker: "narrator", text: r.notice });
+        }
+        if (r.testimonies) setTestimonies(r.testimonies);
+        if (r.confrontation) setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: r.confrontation!.turnsUsed, over: r.confrontation!.over } }));
+        if (r.error === "pair_finished") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: MAX_CONFRONTATION_TURNS, over: true } }));
+        if (!r.lines.length) push(logKey, { speaker: "narrator", text: r.line ?? "Nobody says a word. Try again, detective." });
+        // Deliver the two lines one after the other, each in its speaker's pose.
+        r.lines.forEach((l, i) => {
+          setTimeout(() => {
+            push(logKey, { speaker: "character", speakerName: l.characterName, text: l.response.dialogue, ...(l.response.action ? { action: l.response.action } : {}) });
+            const poses = view.suspects.find((s) => s.id === l.characterId)?.poses ?? [];
+            const sfx = replySfx(emotionsRef.current[l.characterId], l.response.emotion, poses);
+            getAudio().play(sfx.cue, sfx.gain !== undefined ? { gain: sfx.gain } : {});
+            setEmotions((e) => ({ ...e, [l.characterId]: l.response.emotion }));
+            setStress((m) => ({ ...m, [l.characterId]: l.stress.value }));
+            setSpeakingId(l.characterId);
+            if (speakTimer.current) clearTimeout(speakTimer.current);
+            speakTimer.current = setTimeout(() => setSpeakingId(null), Math.min(3000, 600 + l.response.dialogue.length * 25));
+            if (l.contradiction) {
+              const c = l.contradiction;
+              const name = itemName(c.item, evidenceRef.current, r.testimonies ?? []);
+              const line = `${name} contradicts ${c.characterName}'s story!`;
+              setNotes((n) => addContradiction(n, c));
+              push(logKey, { speaker: "narrator", text: `⚡ CONTRADICTION! ${line}` });
+              setBeats((q) => [...q, { key: `${key}:${c.item.id}`, title: "CONTRADICTION!", line }]);
+            }
+            if (l.stress.breakdown) {
+              push(logKey, { speaker: "narrator", text: `💥 BREAKDOWN! ${l.characterName} cracks under the pressure!` });
+              setBeats((q) => [...q, { key: `${l.characterId}:breakdown`, title: "BREAKDOWN!", line: `${l.characterName} cracks under the pressure!`, kind: "breakdown" }]);
+            }
+            if (i === r.lines.length - 1) {
+              if (r.confrontation?.over) push(logKey, { speaker: "narrator", text: "That's enough out of both of them. The confrontation is over." });
+              inFlight.current = false;
+              setPendingId(null);
+            }
+          }, i * 1400);
+        });
+        if (!r.lines.length) {
+          inFlight.current = false;
+          setPendingId(null);
+        }
+      })();
+      return true;
+    },
+    [caseId, confrontPair, push, resetProgress, view.suspects],
   );
 
   const onAsk = useCallback((input: AskInput) => (active ? askAs(active.id, input) : false), [active, askAs]);
@@ -465,9 +555,36 @@ export function Game({ view }: { view: PublicCaseView }) {
             stress={stress[active.id] ?? 0}
             onAsk={onAsk}
             onOpenNotebook={() => setNotebookOpen(true)}
+            onConfront={(otherId) => {
+              setConfrontPair([active.id, otherId]);
+              getAudio().play("impact");
+              go("confront");
+            }}
             onBack={() => go("suspects")}
           />
         )}
+        {screen === "confront" && confrontPair && (() => {
+          const pair = confrontPair.map((id) => view.suspects.find((s) => s.id === id)).filter((s): s is PublicSuspect => Boolean(s));
+          if (pair.length !== 2) return null;
+          const key = pairKey(confrontPair[0], confrontPair[1]);
+          const st = confrontStatus[key] ?? { turnsUsed: 0, over: false };
+          return (
+            <ConfrontScreen
+              pair={pair as [PublicSuspect, PublicSuspect]}
+              emotions={emotions}
+              stress={stress}
+              stage={view.stage}
+              messages={conversations[`vs:${key}`] ?? []}
+              pending={pendingId !== null}
+              speakingId={speakingId}
+              turnsUsed={st.turnsUsed}
+              max={MAX_CONFRONTATION_TURNS}
+              over={st.over}
+              onAsk={onConfrontAsk}
+              onBack={() => go("suspects")}
+            />
+          );
+        })()}
         {screen === "investigate" && (
           <InvestigateScreen
             locations={view.locations}

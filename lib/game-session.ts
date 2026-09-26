@@ -19,7 +19,7 @@ export const SESSION_VERSION = 1;
 export interface SavedGame {
   v: typeof SESSION_VERSION;
   caseId: string;
-  screen: "suspects" | "interrogation" | "investigate" | "accuse" | "ending";
+  screen: "suspects" | "interrogation" | "investigate" | "accuse" | "ending" | "confront";
   activeId: string | null;
   stateToken?: string;
   conversations: Record<string, DialogueMessage[]>;
@@ -36,6 +36,8 @@ export interface SavedGame {
   result?: AccuseResponseBody;
   /** Engine stress per suspect, as last reported (display only; the token is authoritative). */
   stress?: Record<string, number>;
+  /** Current confrontation pair and each pair's exchange count (display only; the token enforces the cap). */
+  confront?: { pair: [string, string] | null; status: Record<string, { turnsUsed: number; over: boolean }> };
 }
 
 export const sessionKey = (caseId: string) => `whodunit:game:${caseId}`;
@@ -65,7 +67,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     return null;
   }
   if (!isObj(j) || j.v !== SESSION_VERSION || j.caseId !== caseId) return null;
-  if (!["suspects", "interrogation", "investigate", "accuse", "ending"].includes(String(j.screen))) return null;
+  if (!["suspects", "interrogation", "investigate", "accuse", "ending", "confront"].includes(String(j.screen))) return null;
   if (!isObj(j.conversations) || !isObj(j.emotions) || !Array.isArray(j.evidence) || !Array.isArray(j.searched) || !isObj(j.searchLines)) return null;
   if (j.stateToken !== undefined && typeof j.stateToken !== "string") return null;
   return {
@@ -82,6 +84,9 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     searchLines: j.searchLines as SavedGame["searchLines"],
     nextId: typeof j.nextId === "number" ? j.nextId : 0,
     ...(isObj(j.notes) ? { notes: j.notes as ContradictionNotes } : {}),
+    ...(isObj(j.confront) && isObj(j.confront.status) && (j.confront.pair === null || (Array.isArray(j.confront.pair) && j.confront.pair.length === 2 && j.confront.pair.every((x) => typeof x === "string")))
+      ? { confront: j.confront as SavedGame["confront"] }
+      : {}),
     ...(isObj(j.stress) ? { stress: Object.fromEntries(Object.entries(j.stress).filter(([, v]) => typeof v === "number" && v >= 0 && v <= 100)) as Record<string, number> } : {}),
     ...(isObj(j.result) && isObj(j.result.verdict) && isObj(j.result.ending) && isObj(j.result.accusation) ? { result: j.result as AccuseResponseBody } : {}),
   };

@@ -435,9 +435,10 @@ export const CharacterRuntimeStateSchema = z.strictObject({
 });
 export type CharacterRuntimeState = z.infer<typeof CharacterRuntimeStateSchema>;
 
-/** A live confrontation with one suspect. */
+/** A live confrontation: two suspects face to face (MASTER_PLAN §32), capped at MAX_CONFRONTATION_TURNS exchanges. */
 export const ConfrontationStateSchema = z.strictObject({
-  characterId: IdSchema,
+  /** [addressed first, partner], as started. */
+  characterIds: z.tuple([IdSchema, IdSchema]),
   turnsUsed: z.number().int().min(0).max(MAX_CONFRONTATION_TURNS),
 });
 export type ConfrontationState = z.infer<typeof ConfrontationStateSchema>;
@@ -471,6 +472,8 @@ export const GameStateSchema = z.strictObject({
   /** Runtime state keyed by character id. */
   characters: z.record(IdSchema, CharacterRuntimeStateSchema),
   activeConfrontation: ConfrontationStateSchema.nullable().default(null),
+  /** Pairs whose confrontation has run its course ("a|b", ids sorted): they won't face off again. */
+  confrontedPairs: z.array(z.string()).default([]),
   accusation: AccusationSchema.nullable().default(null),
   /** Win state: decided ONLY by the engine. */
   outcome: z.enum(["pending", "won", "lost"]).default("pending"),

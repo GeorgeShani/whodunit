@@ -15,7 +15,7 @@ import type { Emotion } from "@/engine/types";
 import { DialogueLog, type DialogueMessage } from "./DialogueLog";
 import { ThinkingIndicator } from "./ThinkingIndicator";
 
-type Menu = null | "suspects";
+type Menu = null | "suspects" | "confront";
 
 export function InterrogationScreen({
   suspect,
@@ -31,6 +31,7 @@ export function InterrogationScreen({
   stress = 0,
   onAsk,
   onOpenNotebook,
+  onConfront,
   onBack,
 }: {
   suspect: PublicSuspect;
@@ -52,6 +53,8 @@ export function InterrogationScreen({
   onAsk: (input: AskInput) => boolean;
   /** Open the notebook in "present to <name>" mode. */
   onOpenNotebook: () => void;
+  /** Put this suspect face to face with another (MASTER_PLAN §32). */
+  onConfront?: (otherId: string) => void;
   onBack: () => void;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
@@ -116,6 +119,15 @@ export function InterrogationScreen({
             >
               🕵️ Ask about…
             </CartoonButton>
+            {onConfront && (
+              <CartoonButton
+                tone={menu === "confront" ? "violet" : "yellow"}
+                disabled={locked || otherSuspects.length === 0}
+                onClick={() => setMenu(menu === "confront" ? null : "confront")}
+              >
+                ⚔️ Confront…
+              </CartoonButton>
+            )}
             <CartoonButton disabled={locked} onClick={onOpenNotebook} aria-haspopup="dialog">
               🔍 Present evidence
               {evidence.length + testimonies.length > 0 ? ` (${evidence.length + testimonies.length})` : ""}
@@ -131,9 +143,16 @@ export function InterrogationScreen({
                 className="overflow-hidden"
               >
                 <div className="rounded-xl border-[3px] border-black bg-violet-900/80 p-3">
+                  {menu === "confront" && <p className="mb-2 text-sm font-bold text-yellow-100">Bring {firstName} face to face with…</p>}
                   <div className="flex flex-wrap gap-2">
                     {otherSuspects.map((o) => (
-                      <CartoonButton key={o.id} tone="white" disabled={locked} onClick={() => ask(`What can you tell me about ${o.name}?`)}>
+                      <CartoonButton
+                        key={o.id}
+                        tone="white"
+                        disabled={locked}
+                        {...(menu === "confront" ? { "data-confront-with": o.id } : {})}
+                        onClick={() => (menu === "confront" ? onConfront?.(o.id) : ask(`What can you tell me about ${o.name}?`))}
+                      >
                         {o.name}
                       </CartoonButton>
                     ))}

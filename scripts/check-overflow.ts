@@ -114,6 +114,26 @@ async function run(): Promise<number> {
     if (await p.locator("[data-notebook]").count()) await p.keyboard.press("Escape"); // empty notebook: close it
     await waitReply(p).catch(() => undefined);
     await wait(2500);
+    // Confrontation (optional: skipped if the build has no Confront menu).
+    const confrontBtn = p.getByRole("button", { name: /Confront/ });
+    if (await confrontBtn.count()) {
+      await label(p, "confront menu");
+      await confrontBtn.first().click({ force: true });
+      await wait(600);
+      if (await p.locator("[data-confront-with]").count()) {
+        await p.locator("[data-confront-with]").first().click({ force: true });
+        await wait(1200);
+        await label(p, "confront screen");
+        const box = p.locator("form input, form textarea").first();
+        if (await box.count()) {
+          await box.fill("Where were you when the lights went out?");
+          await clickButton(p, /ASK/);
+          await p.waitForSelector("[data-confront-left]", { timeout: 5_000 }).catch(() => undefined);
+          await wait(9000); // two model calls, lines delivered 1.4s apart
+          await label(p, "confront replies");
+        }
+      } else await p.keyboard.press("Escape");
+    }
     const investigate = p.getByRole("button", { name: /Investigate/ });
     await label(p, "interrogation→suspects");
     await clickButton(p, /Back to suspects/);

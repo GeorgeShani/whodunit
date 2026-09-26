@@ -9,6 +9,8 @@ export interface DialogueMessage {
   text: string;
   /** Cartoon stage direction, shown in italics. */
   action?: string;
+  /** Who said it, when a log has more than one character (confrontations). */
+  speakerName?: string;
 }
 
 export function DialogueLog({
@@ -62,7 +64,7 @@ export function DialogueLog({
           }`}
         >
           <p className="text-xs font-black uppercase tracking-wide text-neutral-600">
-            {m.speaker === "player" ? "You" : characterName}
+            {m.speaker === "player" ? "You" : (m.speakerName ?? characterName)}
           </p>
           {m.action && <p className="text-sm italic text-neutral-600">*{m.action}*</p>}
           <p className="font-medium">{m.text}</p>
