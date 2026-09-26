@@ -1,9 +1,11 @@
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { EMOTION_POSE_PREFERENCES, portraitSrc, resolvePose } from "@/components/characters/portrait-poses";
 import { ANCHORS, availablePoses, CANVAS_W, EFFECTS, overlayPlacement } from "@/components/characters/sprite-meta";
-import { emotionMap } from "@/docs/toonMotion";
+import { CUES } from "@/components/effects/audio";
+import { cuesFor, EMOTIONS, poseAssetUrls, portraitSrc, POSE_CUES, replySfx, resolvePose } from "@/components/effects/emotion-map";
+import { spriteVariants } from "@/docs/toonMotion";
+import * as toonMotion from "@/docs/toonMotion";
 import { EmotionSchema } from "@/engine/types";
 
 const CAST = ["reginald", "victoria", "archibald", "gregory"];
@@ -21,7 +23,7 @@ describe("sprite assets", () => {
   });
 
   it("every overlay referenced by the emotion map has a file and spec", () => {
-    for (const { overlays } of Object.values(emotionMap)) {
+    for (const { overlays } of Object.values(POSE_CUES)) {
       for (const fx of overlays) {
         expect(EFFECTS.effects[fx]).toBeDefined();
         expect(existsSync(path.join(process.cwd(), "assets/effects", EFFECTS.effects[fx].file))).toBe(true);
@@ -32,7 +34,7 @@ describe("sprite assets", () => {
 
 describe("emotion -> pose mapping", () => {
   it("maps every engine emotion to a shipped pose for every suspect", () => {
-    expect(Object.keys(EMOTION_POSE_PREFERENCES).sort()).toEqual([...EmotionSchema.options].sort());
+    expect(Object.keys(EMOTIONS).sort()).toEqual([...EmotionSchema.options].sort());
     for (const id of CAST) {
       for (const emotion of EmotionSchema.options) {
         expect(POSES).toContain(resolvePose(emotion, availablePoses(id)));
@@ -50,6 +52,70 @@ describe("emotion -> pose mapping", () => {
     expect(resolvePose("angry", ["weird"])).toBe("weird");
     expect(resolvePose("angry", [])).toBeNull();
     expect(portraitSrc("gregory", "sad")).toBe("/assets/characters/gregory/sad.webp");
+  });
+});
+
+describe("one emotion map drives pose, overlay, motion and sound (ART_BIBLE §6)", () => {
+  it("is the only per-emotion table: Toon's motion file no longer carries its own emotionMap", () => {
+    expect("emotionMap" in toonMotion).toBe(false);
+    expect(Object.keys(POSE_CUES).sort()).toEqual([...POSES].sort());
+  });
+
+  it("every pose has a motion variant, and every sound cue has .ogg and .mp3 files", () => {
+    for (const [pose, cue] of Object.entries(POSE_CUES)) {
+      expect(spriteVariants[cue.motion], pose).toBeDefined();
+      for (const sfx of [cue.sting, cue.line].filter(Boolean)) {
+        for (const f of CUES[sfx!.cue].files) {
+          for (const ext of ["ogg", "mp3"]) expect(existsSync(path.join(process.cwd(), "assets/audio", `${f}.${ext}`)), `${f}.${ext}`).toBe(true);
+        }
+      }
+    }
+    for (const def of Object.values(CUES)) {
+      for (const f of def.files) expect(existsSync(path.join(process.cwd(), "assets/audio", `${f}.ogg`)), f).toBe(true);
+    }
+  });
+
+  it("follows the ART_BIBLE table", () => {
+    const all = availablePoses("reginald");
+    expect(cuesFor("angry", all)).toMatchObject({ pose: "angry", overlays: ["anger"], motion: "angry", sting: { cue: "door_slam" } });
+    expect(cuesFor("nervous", all)).toMatchObject({ pose: "nervous", overlays: ["sweat"], sting: { cue: "slide_whistle_down" } });
+    expect(cuesFor("shocked", all)).toMatchObject({ pose: "shocked", overlays: ["shock", "surprise"], sting: { cue: "boing" } });
+    expect(cuesFor("smug", all).sting).toEqual({ cue: "boing", gain: 0.32 }); // -10 dB
+    expect(cuesFor("sad", all).sting).toEqual({ cue: "wah_wah" });
+    expect(cuesFor("calm", all)).toMatchObject({ pose: "neutral", overlays: [], line: { cue: "dialogue_pop" } });
+    expect(cuesFor("angry", all, true)).toMatchObject({ pose: "talking", motion: "talking", overlays: [] });
+    expect(cuesFor("angry", [])).toMatchObject({ pose: null, overlays: [] });
+  });
+
+  it("maps the ending emotions: flustered -> nervous, panicked -> shocked, defensive -> angry", () => {
+    const all = availablePoses("victoria");
+    expect(resolvePose("flustered", all)).toBe("nervous");
+    expect(resolvePose("panicked", all)).toBe("shocked");
+    expect(resolvePose("defensive", all)).toBe("angry");
+  });
+
+  it("each emotion has a badge emoji and colour", () => {
+    for (const e of EmotionSchema.options) {
+      expect(EMOTIONS[e].emoji.length).toBeGreaterThan(0);
+      expect(EMOTIONS[e].badge).toMatch(/^bg-/);
+    }
+  });
+
+  it("a reply stings when the pose changes, otherwise pops", () => {
+    const all = availablePoses("gregory");
+    expect(replySfx("calm", "angry", all)).toEqual({ cue: "door_slam" });
+    expect(replySfx("angry", "defensive", all)).toEqual({ cue: "dialogue_pop" }); // same pose: no repeat slam
+    expect(replySfx("angry", "calm", all)).toEqual({ cue: "dialogue_pop" });
+    expect(replySfx(undefined, "scared", all)).toEqual({ cue: "slide_whistle_down" });
+    expect(replySfx("calm", "angry", [])).toEqual({ cue: "dialogue_pop" });
+  });
+
+  it("preloads every pose sprite plus the overlays those poses use", () => {
+    const urls = poseAssetUrls({ portrait: "reginald", poses: availablePoses("reginald") });
+    expect(urls).toContain("/assets/characters/reginald/angry.webp");
+    expect(urls).toContain("/assets/effects/sweat.webp");
+    expect(urls.filter((u) => u.includes("/characters/"))).toHaveLength(7);
+    expect(new Set(urls).size).toBe(urls.length);
   });
 });
 

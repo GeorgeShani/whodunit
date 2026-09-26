@@ -104,16 +104,10 @@ export const effectMotion: Record<EffectName, { intro: string; loop?: string; du
   dust:      { intro: "puff", durationMs: 600 },
 };
 
-/** Emotion -> sprite + overlays + SFX. */
-export const emotionMap: Record<Emotion, { overlays: EffectName[]; sfx?: SfxCue }> = {
-  neutral: { overlays: [], sfx: "dialogue_pop" },
-  talking: { overlays: [], sfx: "dialogue_pop" },
-  angry:   { overlays: ["anger"], sfx: "door_slam" },
-  nervous: { overlays: ["sweat"], sfx: "slide_whistle" },
-  shocked: { overlays: ["shock", "surprise"], sfx: "boing" },
-  smug:    { overlays: [], sfx: "boing" },
-  sad:     { overlays: [], sfx: "wah_wah" },
-};
+/**
+ * Emotion -> sprite + overlays + SFX lives in ONE place in the app:
+ * components/effects/emotion-map.ts (POSE_CUES + EMOTIONS), built from ART_BIBLE §6.
+ */
 
 /** Scene-level beats (apply to the stage/camera container or to a character wrapper). */
 export const beatVariants: Variants = {

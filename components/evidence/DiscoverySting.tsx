@@ -2,30 +2,21 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect } from "react";
+import { getAudio } from "@/components/effects/audio";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { effectSrc, overlayVariants } from "@/docs/toonMotion";
 import type { FoundEvidence } from "@/engine/investigate-schema";
 
 const KIND_ICON: Record<string, string> = { physical: "🔧", document: "📜", testimony: "🗣️", observation: "👣" };
 
-/** Plays Toon's short "clue found" fanfare (ART_BIBLE event beat). Silently skipped if audio is blocked. */
-function playFanfare() {
-  try {
-    const a = new Audio("/assets/audio/fanfare.mp3");
-    a.volume = 0.5;
-    void a.play().catch(() => {});
-  } catch {
-    /* no audio support */
-  }
-}
-
 /**
  * ART_BIBLE "Clue discovered" beat: the clue card pops in with the discovery
- * overlay (popIn then throb) and the fanfare sting, plus the discoveryLine.
+ * overlay (popIn then throb) and the "clue found" ding (assets/audio README:
+ * clue_ding = clue found / evidence added to notebook), plus the discoveryLine.
  */
 export function DiscoverySting({ clue, remaining, onDone }: { clue: FoundEvidence | null; remaining: number; onDone: () => void }) {
   useEffect(() => {
-    if (clue) playFanfare();
+    if (clue) getAudio().play("clue_ding");
   }, [clue]);
 
   return (

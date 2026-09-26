@@ -1,18 +1,39 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useState } from "react";
-import { effectMotion, emotionMap, overlayVariants, spriteVariants } from "@/docs/toonMotion";
+import { useEffect, useState } from "react";
+import { cuesFor, poseAssetUrls, portraitSrc } from "@/components/effects/emotion-map";
+import { effectMotion, overlayVariants, spriteVariants } from "@/docs/toonMotion";
 import type { PublicSuspect } from "@/engine/public-view";
 import type { Emotion } from "@/engine/types";
-import { portraitSrc, resolvePose } from "./portrait-poses";
 import { Silhouette } from "./Silhouette";
-import { CANVAS_H, CANVAS_W, overlayPlacement, type OverlayPlacement, type SpritePose } from "./sprite-meta";
+import { CANVAS_H, CANVAS_W, overlayPlacement, type OverlayPlacement } from "./sprite-meta";
 
-/** One effect overlay: intro variant, then its loop (if any), per docs/toonMotion.ts. */
+/**
+ * Warm the browser cache with every pose (and its overlays) of the suspect on
+ * stage, so the first emotion swap doesn't flash an empty frame. Sprites are
+ * served as-is (unoptimized), so these URLs are exactly what <Image> requests.
+ */
+export function usePreloadPoses(suspect: Pick<PublicSuspect, "portrait" | "poses"> | null) {
+  const key = suspect ? poseAssetUrls(suspect).join("|") : "";
+  useEffect(() => {
+    if (!key) return;
+    const imgs = key.split("|").map((src) => {
+      const img = new window.Image();
+      img.decoding = "async";
+      img.src = src;
+      return img;
+    });
+    return () => imgs.forEach((img) => (img.src = ""));
+  }, [key]);
+}
+
+/** One effect overlay: intro variant, then its loop (if any), per docs/toonMotion.ts. Loops are skipped under reduced motion. */
 function EffectOverlay({ placement }: { placement: OverlayPlacement }) {
-  const { intro, loop } = effectMotion[placement.effect];
+  const { intro, loop: fullLoop } = effectMotion[placement.effect];
+  const reduced = useReducedMotion();
+  const loop = reduced ? undefined : fullLoop;
   const [phase, setPhase] = useState<string>(intro);
   return (
     <motion.div
@@ -50,6 +71,8 @@ export function Portrait({
   effects = true,
   className = "",
   priority = false,
+  decorative = false,
+  sizes = "(max-width: 768px) 50vw, 360px",
 }: {
   suspect: PublicSuspect;
   emotion: Emotion;
@@ -61,10 +84,13 @@ export function Portrait({
   effects?: boolean;
   className?: string;
   priority?: boolean;
+  /** Inside a labelled control (e.g. a suspect card): empty alt so the name isn't read twice (#10). */
+  decorative?: boolean;
+  sizes?: string;
 }) {
-  const pose = resolvePose(emotion, suspect.poses, speaking);
+  const { pose, overlays: fx, motion: variant } = cuesFor(emotion, suspect.poses, speaking);
   const overlays = pose && effects
-    ? (emotionMap[pose as SpritePose]?.overlays ?? [])
+    ? fx
         .map((fx) => overlayPlacement(suspect.portrait, pose, fx, { mirrored }))
         .filter((p): p is OverlayPlacement => p !== null)
     : [];
@@ -76,7 +102,7 @@ export function Portrait({
           className="absolute inset-0"
           style={{ originX: 0.5, originY: 1 }}
           variants={spriteVariants}
-          animate={pose}
+          animate={variant}
         >
           <AnimatePresence>
             {overlays.map((p) => (
@@ -85,9 +111,10 @@ export function Portrait({
           </AnimatePresence>
           <Image
             src={portraitSrc(suspect.portrait, pose)}
-            alt={`${suspect.name} looking ${emotion}`}
+            alt={decorative ? "" : `${suspect.name} looking ${emotion}`}
             fill
-            sizes="(max-width: 768px) 50vw, 360px"
+            unoptimized
+            sizes={sizes}
             className={`z-10 object-contain object-bottom drop-shadow-[6px_6px_0_rgba(0,0,0,0.35)] ${mirrored ? "-scale-x-100" : ""}`}
             priority={priority}
           />

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, type HTMLMotionProps } from "framer-motion";
+import { getAudio } from "@/components/effects/audio";
 
 type Tone = "red" | "yellow" | "white" | "violet";
 const TONES: Record<Tone, string> = {
@@ -13,13 +14,19 @@ const TONES: Record<Tone, string> = {
 export function CartoonButton({
   tone = "yellow",
   className = "",
+  sound = true,
+  onClick,
   ...props
-}: HTMLMotionProps<"button"> & { tone?: Tone }) {
+}: HTMLMotionProps<"button"> & { tone?: Tone; /** UI click blip (debounced by the audio manager). */ sound?: boolean }) {
   return (
     <motion.button
       type="button"
       whileHover={props.disabled ? undefined : { scale: 1.05, rotate: -1 }}
       whileTap={props.disabled ? undefined : { scale: 0.95 }}
+      onClick={(e) => {
+        if (sound) getAudio().play("ui_click");
+        onClick?.(e);
+      }}
       className={`cursor-pointer rounded-xl border-[3px] border-black px-4 py-2 font-bold shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:opacity-50 ${TONES[tone]} ${className}`}
       {...props}
     />
