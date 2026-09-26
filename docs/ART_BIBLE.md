@@ -191,22 +191,84 @@ Gregory, an original cartoon gardener: a small, short, skinny hunched young man 
 
 ---
 
-## 5. Effects Overlays — TBD
-Planned list (style: same thick ink outline, flat saturated color, transparent webp):
-- impact
-- sweat
-- anger
-- confusion
-- surprise
-- speed
-- discovery
-- shock
-- lightning
-- smoke
-- dust
+## 5. Effects Overlays
 
-## 6. Emotion-to-Animation Mapping — TBD
-_Placeholder: map dialogue emotion tags → pose file + effect overlay + motion (e.g. squash/stretch timing, shake, hop)._
+**Method:** hand-authored SVG drawn in code (`toon-drafts/tools/effects.py`), rasterized with cairosvg to lossless RGBA WebP. House style matches the characters: black ink `#111114`, 12 px outline at 512 px (round joins), flat saturated fills, one highlight tone, no text or letterforms (the "?" and "!" are drawn as shapes). An auto-fit pass centers each drawing with ≥ 8% transparent padding. SVG sources: `toon-drafts/effects/svg/<name>.svg`. Machine-readable placement spec: `assets/effects/effects.json`. Per-sprite anchor points: `assets/characters/anchors.json`.
+
+**Anchors** (sprite canvas px, 784×1224, origin top-left; sprites face LEFT so front = −x, back = +x):
+`headTop` (top of hair above the face), `headCenter`, `faceFront` (front/left edge of face), `headBack`, `bodyCenter`, `bodyBack` (rear-most torso px), `feet` = (392, 1200), `screen` (full viewport). All 28 sprites have auto-derived anchors (face = largest skin-colored blob). Two were hand-corrected after a visual check: `reginald/nervous` (hand over his face) and `gregory/shocked` (raised hand was larger than his face).
+
+**Placement:** `pos = anchor + offset × effectScale`; the overlay's `pivot` (fraction of the overlay image) is placed on `pos`, and it's drawn at `width × effectScale` sprite px (then × on-screen sprite scale). `effectScale`: reginald 1.0, victoria 0.92, archibald 0.85, gregory 0.8, so overlays shrink with the smaller characters but stay readable. If a sprite is mirrored, mirror `offset.x` and the overlay too.
+
+| Effect | File | Size | Anchor | Pivot | Width (sprite px) / offset | Layer | Intended animation |
+|---|---|---|---|---|---|---|---|
+| impact | `assets/effects/impact.webp` | 512×512 | faceFront (or contact point) | 0.5, 0.5 | 340 / (−70, 0) | front | `punch`: scale 0→1.4→1, rotate 0→10→0, fade out by 0.6 s |
+| sweat | `assets/effects/sweat.webp` | 512×512 | headTop | 0.5, 0.62 | 300 / (40, 50) | front | `popIn` (0→1.2→1 + jiggle, 0.35 s) then `drip` loop (y 0→14, fade, 0.9 s) |
+| anger | `assets/effects/anger.webp` | 512×512 | headTop (upper back corner) | 0.5, 0.5 | 180 / (120, 10) | front | `popIn` then `throb` loop (scale 1→1.12→1, 0.5 s) |
+| confusion | `assets/effects/confusion.webp` | 512×512 | headTop | 0.5, 0.85 | 260 / (0, −5) | front | `popIn` then `spin` loop (360° / 2.4 s linear) |
+| surprise | `assets/effects/surprise.webp` | 512×512 | headTop | 0.5, 0.8 | 280 / (0, −5) | front | `popIn`, hold 0.9 s, `exit` |
+| speed | `assets/effects/speed.webp` | 1024×512 | bodyBack | 0.0, 0.5 | 620 / (−40, 0) | behind | `whoosh`: x 40→0, opacity 0→1→0, 0.35 s (lines trail to the right) |
+| discovery | `assets/effects/discovery.webp` | 512×512 | headTop | 0.5, 0.95 | 240 / (0, −5) | front | `popIn` then 2× `throb`, fade by 1.4 s |
+| shock | `assets/effects/shock.webp` | 768×768 | headCenter | 0.5, 0.5 | 820 / (0, 0) | behind (hollow ring frames the head) | `slowSpin`: scale 0→1.25→1 in 0.3 s + rotate 360° / 8 s loop |
+| lightning | `assets/effects/lightning.webp` | 512×1024 | screen (over the window) | 0.5, 0.0 | height 100vh | scene-flash | `flash`: opacity 0→1→0.2→1→0 in 0.5 s, paired with the white-screen flash |
+| smoke | `assets/effects/smoke.webp` | 512×512 | feet | 0.5, 0.85 | 560 / (0, 0) | front | `puff`: scale 0.3→1.1, fade out, 0.6 s (exit poof) |
+| dust | `assets/effects/dust.webp` | 768×384 | feet | 0.5, 0.72 | 620 / (0, 0) | front | `puff`: scale 0.3→1.1, fade out, 0.6 s (landing / skid) |
+
+Colors: sweat `#7FD3FF` (sweat drops painted into the character sprites stay white; blue sweat only comes from this overlay), anger `#E0442E` with a white halo so it reads on red faces, impact `#FFD23F`/`#FF6B1A`/white, shock `#FFF3B0`/`#FF6B1A`, lightning `#FFF36B`, discovery bulb `#FFE45C`, confusion spiral `#9B5DE5`, smoke `#8E8A96`, dust `#C9A77A`.
+
+## 6. Emotion → Animation Mapping (Framer Motion)
+
+Full, type-checked presets (strict TS against framer-motion 13.4.4): **`docs/toonMotion.ts`**. Put sprites in a `motion.img` with `style={{ originX: 0.5, originY: 1 }}` so squash/stretch pivots on the feet. Swap the sprite `src` first, then `animate={emotion}`.
+
+| Emotion | Sprite | Overlay(s) | Motion recipe | SFX |
+|---|---|---|---|---|
+| neutral | `assets/characters/<id>/neutral.webp` | — | Idle breathing: scaleX [1, .995, 1], scaleY [1, 1.015, 1], 2.4 s easeInOut, loop | `dialogue_pop` (line start only) |
+| talking | `…/talking.webp` | — | Syllable bob: scaleX [1, .98, 1.02, 1], scaleY [1, 1.03, .98, 1], y [0, −6, 0, 0], 0.36 s easeInOut, loop while text types | `dialogue_pop` |
+| angry | `…/angry.webp` | anger (popIn → throb) | Stomp: scaleX [1, 1.15, .92, 1.04, 1], scaleY [1, .85, 1.1, .97, 1], 0.45 s easeOut (times 0/.25/.55/.8/1); then shake x [0, −6, 6, −4, 4, 0], 0.3 s × 3 | `door_slam` |
+| nervous | `…/nervous.webp` | sweat (popIn → drip) | Collapse to scaleY .94, scaleX 1.03, y +4, rotate −1.5° on spring {stiffness 140, damping 20}; jitter x [0, −2, 2, −1, 1, 0], 0.3 s linear loop | `slide_whistle` (descending) |
+| shocked | `…/shocked.webp` | shock (behind, slowSpin) + surprise (popIn) | Anticipation → stretch hop: scaleX [1, 1.2, .8, 1.05, .98, 1], scaleY [1, .8, 1.35, .95, 1.03, 1], y [0, 0, −40, 0, −6, 0], 0.6 s easeOut (times 0/.15/.4/.65/.85/1) | `boing` |
+| smug | `…/smug.webp` | — | Lean back: rotate +4° (top toward the back), y −4, scaleY 1.02 on spring {stiffness 300, damping 10} | `boing` (soft, −10 dB) |
+| sad | `…/sad.webp` | — | Droop: scaleY .94, scaleX 1.02, y +8 over 0.8 s easeOut; sway rotate [−2, −3, −2]° 3 s loop | `wah_wah` |
+
+### Event beats
+
+| Beat | Recipe (ms offsets) | Overlays | SFX |
+|---|---|---|---|
+| Accusation | 0: accuser `accuse` (wind-up x +12 → lunge −30 → −20, scaleX .92 → 1.1 → 1, 0.4 s). 120: stage `cameraShake` (x ±8 → 0, 0.35 s). 200: accused switches to **shocked** | impact at accused `faceFront` | `impact` |
+| Clue discovered | 0: investigator's sprite pops (talking/smug); clue item `popIn` | discovery at `headTop` | `fanfare` (short sting) |
+| Wrong accusation | 0: stage `desaturate` (grayscale 0 → .6 → 0, 1.4 s). 300: accuser → **sad**; accused → **smug** | confusion on the accuser | `siren`, then `wah_wah` |
+| Correct accusation / case solved | 0: `whiteFlash`. 150: culprit → **shocked**. 900: culprit → **angry**; others `victoryHop` (y [0, −30, 0, −10, 0], 0.7 s); stage `cameraPunchIn` (scale 1 → 1.08, spring {stiffness 200, damping 14, mass 1.6}) | shock on the culprit, then anger | `thunder` → `fanfare` |
+| Lightning flash transition | 0: full-screen white div `whiteFlash` (opacity 0 → 1 → 0 → .8 → 0, 0.6 s) + lightning overlay over the window. 150: swap scene at peak white. 400: thunder | lightning (screen) | `thunder` |
+| Character entrance | 0: `enter` (x 60vw → 0 on spring {stiffness 520, damping 18, mass .8}; landing squash scaleX [1.15, .95, 1] / scaleY [.85, 1.05, 1], 0.5 s at +250 ms) | speed behind (during slide), dust at `feet` (at 250 ms) | `slide_whistle` |
+| Character exit | 0: `exit` (lean back rotate 6°, then zip x → −70vw with fade, 0.5 s easeIn) | smoke at `feet` (at the start position) | `door_slam` |
+
+Copy-paste starter (excerpt of `docs/toonMotion.ts`):
+
+```ts
+import { motion, AnimatePresence, type Variants } from "framer-motion";
+
+export const spriteVariants: Variants = {
+  neutral: { scaleX: [1, 0.995, 1], scaleY: [1, 1.015, 1], transition: { duration: 2.4, ease: "easeInOut", repeat: Infinity } },
+  talking: { scaleX: [1, 0.98, 1.02, 1], scaleY: [1, 1.03, 0.98, 1], y: [0, -6, 0, 0], transition: { duration: 0.36, repeat: Infinity } },
+  angry:   { scaleX: [1, 1.15, 0.92, 1.04, 1], scaleY: [1, 0.85, 1.1, 0.97, 1], transition: { duration: 0.45, ease: "easeOut" } },
+  nervous: { scaleY: 0.94, scaleX: 1.03, y: 4, rotate: -1.5, transition: { type: "spring", stiffness: 140, damping: 20 } },
+  shocked: { scaleX: [1, 1.2, 0.8, 1.05, 0.98, 1], scaleY: [1, 0.8, 1.35, 0.95, 1.03, 1], y: [0, 0, -40, 0, -6, 0],
+             transition: { duration: 0.6, times: [0, 0.15, 0.4, 0.65, 0.85, 1], ease: "easeOut" } },
+  smug:    { rotate: 4, y: -4, scaleY: 1.02, transition: { type: "spring", stiffness: 300, damping: 10 } },
+  sad:     { scaleY: 0.94, scaleX: 1.02, y: 8, transition: { duration: 0.8, ease: "easeOut" } },
+};
+
+export const popIn: Variants = {
+  hidden: { scale: 0, opacity: 0 },
+  show: { scale: [0, 1.2, 1], opacity: 1, rotate: [0, -8, 6, 0], transition: { duration: 0.35, times: [0, 0.6, 1] } },
+  exit: { scale: 0.6, opacity: 0, transition: { duration: 0.2 } },
+};
+
+// <motion.img key={src} src={`/assets/characters/${id}/${emotion}.webp`} style={{ originX: 0.5, originY: 1 }}
+//             variants={spriteVariants} animate={emotion} />
+// <AnimatePresence>{overlay && <motion.img src={`/assets/effects/${overlay}.webp`} variants={popIn}
+//             initial="hidden" animate="show" exit="exit" />}</AnimatePresence>
+```
 
 ---
 
@@ -214,15 +276,17 @@ _Placeholder: map dialogue emotion tags → pose file + effect overlay + motion 
 
 ### Repo layout (canonical paths)
 - Sprites: `assets/characters/<id>/<emotion>.webp` — ids `reginald`, `victoria`, `archibald`, `gregory`; emotions `neutral`, `talking`, `angry`, `nervous`, `shocked`, `smug`, `sad` (e.g. `assets/characters/gregory/nervous.webp`).
+- Effects: `assets/effects/<name>.webp` + placement spec `assets/effects/effects.json`; per-sprite anchors `assets/characters/anchors.json`.
+- Motion presets: `docs/toonMotion.ts`.
 - This bible: `docs/ART_BIBLE.md`.
-- Drafting workspace (not shipped): raw generations in `toon-drafts/raw/`, review sheets `toon-drafts/characters/lineup_sheet.png`, `toon-drafts/characters/silhouette_test.png`, `toon-drafts/characters/reginald/reginald_contact_sheet.png`, scripts in `toon-drafts/tools/`.
+- Drafting workspace (not shipped): raw generations in `toon-drafts/raw/`, review sheets `toon-drafts/effects_sheet.png`, `toon-drafts/effects_composite.png`, `toon-drafts/characters/lineup_sheet.png`, `toon-drafts/characters/silhouette_test.png`, `toon-drafts/characters/reginald/reginald_contact_sheet.png`, scripts in `toon-drafts/tools/`.
 
 ### Sprite spec (all characters) — v0.2
 - RGBA lossless WebP, canvas **784 × 1224** (widened from 482 in v0.2 so Archibald fits at full size), feet on baseline **y = 1200**, strictly horizontally centered on the feet (feet center x = 392). No clamping needed at these scales.
 - Canvas width rule: smallest multiple of 16 that fits Archibald at 0.78× Reginald's height in all 7 poses with ≥12 px side padding (he needs 774 px, driven by his widest off-center poses → 784).
 - Feet center = midpoint of the occupied columns in the bottom 10% of the figure's height (catches both shoes even when one is raised).
 - **All characters face LEFT** (three-quarter view, nose toward the viewer's left). Mirror in-engine for right-facing.
-- Sweat drops stay white (`#FFFFFF`) — the `#7FD3FF` value above is for effect overlays only.
+- Sweat drops painted into character sprites stay white (`#FFFFFF`); blue `#7FD3FF` sweat comes only from the `sweat` effect overlay (§5).
 - **Relative scale** is baked into the sprites: one uniform scale per character across all 7 poses (sprites never change size when swapping emotion). Machine-readable copy: `toon-drafts/characters/scale_report.json`.
 
 | id | scale vs raw source | neutral height vs Reginald | notes |
