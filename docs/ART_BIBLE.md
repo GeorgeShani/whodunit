@@ -305,6 +305,28 @@ Avoid: people, characters, figures, animals, faces, portraits of people, silhoue
 - Add a soft contact shadow under the feet (black ~45% opacity, blurred ellipse ≈ 32% of the sprite box width; ≈ 68% for Archibald).
 - During a lightning flash, swap to the `_lightning` background and tint sprites to match, e.g. `filter: brightness(1.45) saturate(0.45)` plus a 25% `#CFE3FF` screen overlay for the same frames.
 
+### 7.0 Title card (opening screen) — v0.1
+The opening screen should play like the title card of a 1940s theatrical cartoon short: a painted establishing shot, a big bouncy logo, and a slow warm sunburst behind it. Everything is original: no studio shields, no concentric "target" rings, no copied title-card layouts.
+
+| Field | Value |
+|---|---|
+| Files (`assets/title/`, served at `/assets/title/`) | `title_bg.webp` (1920×1080 q85, ~147 KB): the mansion on its hill in a thunderstorm. `title_bg_dim.webp` (~30 KB): the same frame blurred 4 px at 55% brightness, for text-heavy overlays such as an intro or credits card. `title_logo.webp` (1478×380, alpha, ~62 KB), `title_logo.png` (lossless fallback, ~241 KB) and `title_logo.svg` (~20 KB, vector with outlined glyphs, no font needed). `sunburst.webp` (1600×1600, alpha, ~121 KB) |
+| Masters | `toon-drafts/backgrounds/raw/title_BASE.png` (2816×1584), `title_bg_2560x1440.png`, `title_bg_1920x1080.png`, `title_bg_dim_1920x1080.png`. Generators: `toon-drafts/title/build_title.py` (background grade, logo, sunburst) and `logo_svg.py` (SVG); mock: `toon-drafts/title/mock.py` |
+| Background composition | The mansion is small and low: tower tops at ≈40% of frame height, with the hill across the bottom ≈45%. The upper-middle sky is kept open for the logo. A bent dead tree stands at the left and a lightning bolt with a broken fence at the right. The bolt is part of the painting (the title card has no separate flash frame; for a flash, briefly apply `filter: brightness(1.6) saturate(.5)` to the `<main>`). Grade: `grade(sat=0.92, hi=0.15, vig=0.35, center=(0.5, 0.5))`, a little livelier than the gameplay rooms |
+| Logo | Bangers (SIL OFL 1.1, see `assets/fonts/LICENSES.md`), drawn per letter by the share-image code (`toon-drafts/og/make_og.py → title()`), so it matches `app/opengraph-image.jpg`. Settings: size 330, 11 px→18 px black outline, yellow `#FFEC5A` → `#FFC428` → orange `#FF7618` gradient, plum-black `#12061C` drop shadow offset (16, 19), per-letter tilt `[-7, 4, -4, 5, -5, 3, -3, 4, 9, -5]°`, sine bounce ±20 px, whole word tilted 4° up to the right. The logo's I–T kerning is +14 (the OG image uses +6). The SVG has the same geometry but no glossy highlight stripe |
+| Sunburst | 28 alternating rays (14 lit) in `#FFBE46`, alpha 0.6×(1−r)^2.2, so they fade out before the frame edge. Place it centered behind the logo at ≈130vmin wide and rotate it slowly (one turn per 90 s) |
+| Screen layout (wired in `components/game/TitleScreen.tsx`) | `<main>`: `bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center`, `justify-between`, `py-[6vh]`. Logo `<h1>` at the top (width `min(90vw, 1100px, 105vh)`, `alt="WHODUNIT?!"`). Sunburst centered at `top: 22%`. Tagline plus START button in a bottom group, sitting on the hill. Checked at 1920×1080, 1280×800 and 390×844 |
+| Iris transition (not shipped) | For an iris-out into the game, animate `clip-path: circle(R at 50% 50%)` from `R = 75vmax` to `0` on the outgoing screen over a black backdrop, 450–600 ms, `easeIn`, with a slide-whistle-down SFX. That needs no bitmap, which is why there's no PNG mask |
+| Mock | `docs/art/title_mock.jpg`: real screenshots of the running production build, plus the individual assets |
+
+Title background scene block (after the locked background style prompt, followed by the locked negative; the scene overrides the style prompt's "storm visible through a tall window" clause):
+
+```
+Scene: EXTERIOR night view for a cartoon title card, replacing the interior window: a huge crooked gothic Victorian mansion standing alone on top of a steep rounded grassy hill during a wild thunderstorm, seen straight-on from far away. The mansion is SMALL and LOW in the frame: the hill and the mansion occupy only the bottom 45 percent of the image, and even the top of the tallest tower stays below the vertical middle of the frame; the mansion is centered horizontally and is about a quarter of the frame width: leaning towers with pointed witch-hat roofs, sharp gables, tall crooked chimneys, and many small windows glowing warm amber (#E8A64A) with lamplight. A winding dirt path climbs the hill to the front door from a rusty wrought-iron gate at the bottom. A gnarled bare dead tree bends in the wind at the left edge, and a few crooked gravestone-free fence posts on the right. Enormous swirling storm clouds in deep plum, indigo and blue-violet fill the sky, lit from behind by lightning; one jagged lightning bolt strikes down at the far right edge; diagonal rain streaks everywhere. The UPPER-MIDDLE of the frame, above the mansion, is open swirling stormy sky with no objects, reserved for a big title logo. The bottom band is the dark silhouette of the hill foreground. A full moon is NOT visible. No people, no text.
+```
+
+Generation: 3 candidates with the mansion mid-frame (its towers pushed into the logo space), then 3 with "small and low" wording. Chose low_v1: tower tops ≈40%, open swirl sky, bolt at the right, tree at the left.
+
 ### 7.1 Library (interrogation room) — v0.1
 | Field | Value |
 |---|---|
@@ -331,6 +353,7 @@ Scene: a grand old mansion library at night during a storm. A tall arched window
 - Sprites: `assets/characters/<id>/<emotion>.webp` — ids `reginald`, `victoria`, `archibald`, `gregory`; emotions `neutral`, `talking`, `angry`, `nervous`, `shocked`, `smug`, `sad` (e.g. `assets/characters/gregory/nervous.webp`).
 - Effects: `assets/effects/<name>.webp` + placement spec `assets/effects/effects.json`; per-sprite anchors `assets/characters/anchors.json`.
 - Backgrounds: `assets/backgrounds/<room>.webp` + `<room>_lightning.webp` (1920×1080 q85); optional `<room>_window_mask.webp`; rain texture `assets/effects/rain_tile.webp`.
+- Title card: `assets/title/` (background, dim background, logo webp/png/svg, sunburst); see §7.0.
 - Serving: `assets/` is the source of truth. `npm run sync:assets` (auto via `predev`/`prebuild`) copies it to the gitignored `public/assets/`, so every file above is loaded at `/assets/...` (e.g. `/assets/backgrounds/library.webp`). Never commit into `public/assets/`.
 - Motion presets: `docs/toonMotion.ts`.
 - This bible: `docs/ART_BIBLE.md`.
