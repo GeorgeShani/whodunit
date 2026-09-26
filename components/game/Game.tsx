@@ -10,6 +10,10 @@ import { InterrogationScreen } from "@/components/dialogue/InterrogationScreen";
 import type { FoundEvidence, InvestigateRequest } from "@/engine/investigate-schema";
 import type { PublicCaseView, PublicEvidence } from "@/engine/public-view";
 import { DiscoverySting } from "@/components/evidence/DiscoverySting";
+import { ContradictionBeat, type ContradictionBeatData } from "@/components/evidence/ContradictionBeat";
+import { Notebook } from "@/components/evidence/Notebook";
+import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
+import type { Contradiction } from "@/ai/interrogate-schema";
 import { getAudio } from "@/components/effects/audio";
 import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
@@ -23,6 +27,7 @@ type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate";
 
 interface InterrogateResult {
   response: CharacterResponse;
+  contradiction?: Contradiction;
   testimonies?: PublicTestimony[];
   stateToken?: string;
   notice?: string;
@@ -36,13 +41,14 @@ async function interrogate(req: InterrogateRequest, seed: number): Promise<Inter
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req),
     });
-    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown };
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction };
     const parsed = CharacterResponseSchema.safeParse(json?.response);
     return {
       response: parsed.success ? parsed.data : createFallbackCharacterResponse({ seed }),
       ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
       ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
       ...(Array.isArray(json?.testimonies) ? { testimonies: json.testimonies as PublicTestimony[] } : {}),
+      ...(json?.contradiction && typeof json.contradiction.characterName === "string" ? { contradiction: json.contradiction } : {}),
     };
   } catch {
     return {
@@ -112,6 +118,10 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [stingQueue, setStingQueue] = useState<FoundEvidence[]>([]);
   /** Character currently delivering a line (shows the "talking" pose briefly). */
   const [speakingId, setSpeakingId] = useState<string | null>(null);
+  /** Engine contradiction verdicts, noted on notebook cards (Phase 5). */
+  const [notes, setNotes] = useState<ContradictionNotes>({});
+  const [beat, setBeat] = useState<ContradictionBeatData | null>(null);
+  const [notebookOpen, setNotebookOpen] = useState(false);
   const speakTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextId = useRef(0);
   /** Opaque server-signed game state (stress, trust, memory, reveals). The client cannot edit it. */
@@ -125,9 +135,11 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [restored, setRestored] = useState(false);
   /** Latest emotions, readable from async reply handlers (for the reply sting). */
   const emotionsRef = useRef(emotions);
+  const evidenceRef = useRef(evidence);
   useEffect(() => {
     emotionsRef.current = emotions;
-  }, [emotions]);
+    evidenceRef.current = evidence;
+  }, [emotions, evidence]);
   /** Set when the player navigates, so the next screen takes focus (#10); not on first load. */
   const navigated = useRef(false);
   /**
@@ -165,6 +177,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       setTestimonies(saved.testimonies ?? []);
       setSearched(saved.searched);
       setSearchLines(saved.searchLines);
+      setNotes(saved.notes ?? {});
       const validActive = saved.activeId && view.suspects.some((s) => s.id === saved.activeId) ? saved.activeId : null;
       setActiveId(validActive);
       setScreen(saved.screen === "interrogation" && !validActive ? "suspects" : saved.screen);
@@ -190,8 +203,9 @@ export function Game({ view }: { view: PublicCaseView }) {
       searched,
       searchLines,
       nextId: nextId.current,
+      notes,
     });
-  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines]);
+  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes]);
 
   const push = useCallback((characterId: string, msg: Omit<DialogueMessage, "id">) => {
     const id = `m${nextId.current++}`;
@@ -205,19 +219,19 @@ export function Game({ view }: { view: PublicCaseView }) {
     setSearched([]);
     setSearchLines({});
     setConversations({});
+    setNotes({});
   }, [view.evidence]);
 
-  const onAsk = useCallback(
-    ({ question, presentedEvidenceId, presentedTestimonyId }: AskInput): boolean => {
-      if (!active || inFlight.current) return false;
+  const askAs = useCallback(
+    (characterId: string, { question, presentedEvidenceId, presentedTestimonyId }: AskInput): boolean => {
+      if (!view.suspects.some((s) => s.id === characterId) || inFlight.current) return false;
       inFlight.current = true;
       // The reply is bound to THIS suspect, whichever screen the player is on when it lands (#8).
-      const characterId = active.id;
       const turn = (conversations[characterId] ?? []).length;
       push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, notice, testimonies: cards } = await interrogate(
+        const { response, stateToken: next, notice, testimonies: cards, contradiction } = await interrogate(
           {
             characterId,
             question,
@@ -237,6 +251,14 @@ export function Game({ view }: { view: PublicCaseView }) {
           push(characterId, { speaker: "narrator", text: notice });
         }
         push(characterId, { speaker: "character", text: response.dialogue, action: response.action });
+        if (contradiction && !notice) {
+          // Deterministic engine verdict (Phase 5): OBJECTION beat + a note on the card.
+          const name = itemName(contradiction.item, evidenceRef.current, cards ?? []);
+          const line = `${name} contradicts ${contradiction.characterName}'s story!`;
+          setNotes((n) => addContradiction(n, contradiction));
+          push(characterId, { speaker: "narrator", text: `⚡ CONTRADICTION! ${line}` });
+          setBeat({ key: `${characterId}:${contradiction.item.kind}:${contradiction.item.id}`, title: "CONTRADICTION!", line });
+        }
         // Every reply makes a sound: the pose's sting when the emotion changes pose, else a dialogue pop (ART_BIBLE §6).
         const poses = view.suspects.find((s) => s.id === characterId)?.poses ?? [];
         const sfx = replySfx(emotionsRef.current[characterId], response.emotion, poses);
@@ -254,7 +276,26 @@ export function Game({ view }: { view: PublicCaseView }) {
       })();
       return true;
     },
-    [active, caseId, conversations, push, resetProgress, view.suspects],
+    [caseId, conversations, push, resetProgress, view.suspects],
+  );
+
+  const onAsk = useCallback((input: AskInput) => (active ? askAs(active.id, input) : false), [active, askAs]);
+
+  /** "Present to <name>" from the notebook: opens that suspect's interrogation and holds the item up. */
+  const onPresent = useCallback(
+    (item: NotebookItem, suspectId: string) => {
+      if (inFlight.current) return;
+      setNotebookOpen(false);
+      if (screen !== "interrogation" || activeId !== suspectId) {
+        setActiveId(suspectId);
+        go("interrogation");
+      }
+      askAs(suspectId, {
+        question: presentQuestion(item, evidence, testimonies),
+        ...(item.kind === "evidence" ? { presentedEvidenceId: item.id } : { presentedTestimonyId: item.id }),
+      });
+    },
+    [screen, activeId, go, askAs, evidence, testimonies],
   );
 
   const onSearch = useCallback(
@@ -282,6 +323,9 @@ export function Game({ view }: { view: PublicCaseView }) {
     },
     [caseId, view.evidence, resetProgress],
   );
+
+  const closeNotebook = useCallback(() => setNotebookOpen(false), []);
+  const clearBeat = useCallback(() => setBeat(null), []);
 
   const pendingName = pendingId ? view.suspects.find((s) => s.id === pendingId)?.name.split(" ")[0] : undefined;
   const busyWith =
@@ -320,6 +364,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             emotions={emotions}
             onBack={() => go("intro")}
             onInvestigate={() => go("investigate")}
+            onOpenNotebook={() => setNotebookOpen(true)}
             cluesFound={evidence.length}
             onSelect={(id) => {
               setActiveId(id);
@@ -341,6 +386,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             busyWith={busyWith}
             speaking={speakingId === active.id}
             onAsk={onAsk}
+            onOpenNotebook={() => setNotebookOpen(true)}
             onBack={() => go("suspects")}
           />
         )}
@@ -358,6 +404,22 @@ export function Game({ view }: { view: PublicCaseView }) {
         )}
       </motion.div>
     </AnimatePresence>
+    <AnimatePresence>
+      {notebookOpen && (screen === "suspects" || screen === "interrogation") && (
+        <Notebook
+          evidence={evidence}
+          testimonies={testimonies}
+          locations={view.locations}
+          notes={notes}
+          suspects={view.suspects}
+          {...(screen === "interrogation" && active ? { presentTo: active } : {})}
+          disabled={pendingId !== null || searchingId !== null}
+          onPresent={onPresent}
+          onClose={closeNotebook}
+        />
+      )}
+    </AnimatePresence>
+    <ContradictionBeat beat={beat} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
     </div>
   );

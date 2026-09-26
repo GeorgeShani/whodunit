@@ -25,6 +25,20 @@ export const InterrogateRequestSchema = z.strictObject({
 });
 export type InterrogateRequest = z.input<typeof InterrogateRequestSchema>;
 
+/**
+ * Deterministic engine verdict: the item presented THIS turn broke at least one
+ * of the character's intended lies (newly). Decided by the engine only; the UI
+ * shows an OBJECTION beat and notes it on the notebook card. Never set for
+ * irrelevant items, repeats, or lies already broken.
+ */
+export interface Contradiction {
+  characterId: string;
+  characterName: string;
+  item: { kind: "evidence" | "testimony"; id: string };
+  /** How many of their lies it newly broke. */
+  lieCount: number;
+}
+
 export interface InterrogateResponseBody {
   response: CharacterResponse;
   /** Who performed this line: the live model, or the in-character fallback. */
@@ -33,6 +47,8 @@ export interface InterrogateResponseBody {
   stateToken?: string;
   /** The notebook's testimony cards: every secret revealed so far (public summaries). */
   testimonies?: PublicTestimony[];
+  /** Set only when the presented item newly broke one of the character's lies. */
+  contradiction?: Contradiction;
   /** In-character narrator line, e.g. when a tampered/stale state was reset. */
   notice?: string;
   /** Non-secret machine-readable reason for a fallback or rejection. */

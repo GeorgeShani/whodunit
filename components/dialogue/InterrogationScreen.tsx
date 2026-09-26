@@ -5,7 +5,6 @@ import { useId, useState } from "react";
 import { MAX_QUESTION_CHARS } from "@/ai/interrogate-schema";
 import { EmotionBadge } from "@/components/characters/EmotionBadge";
 import { usePreloadPoses } from "@/components/characters/Portrait";
-import { EvidencePicker } from "@/components/evidence/EvidencePicker";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AskInput } from "@/components/game/Game";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
@@ -15,7 +14,7 @@ import type { Emotion } from "@/engine/types";
 import { DialogueLog, type DialogueMessage } from "./DialogueLog";
 import { ThinkingIndicator } from "./ThinkingIndicator";
 
-type Menu = null | "suspects" | "evidence";
+type Menu = null | "suspects";
 
 export function InterrogationScreen({
   suspect,
@@ -29,6 +28,7 @@ export function InterrogationScreen({
   busyWith = null,
   speaking = false,
   onAsk,
+  onOpenNotebook,
   onBack,
 }: {
   suspect: PublicSuspect;
@@ -46,6 +46,8 @@ export function InterrogationScreen({
   speaking?: boolean;
   /** Returns false if the question was not accepted (e.g. another reply is pending). */
   onAsk: (input: AskInput) => boolean;
+  /** Open the notebook in "present to <name>" mode. */
+  onOpenNotebook: () => void;
   onBack: () => void;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
@@ -110,12 +112,9 @@ export function InterrogationScreen({
             >
               🕵️ Ask about…
             </CartoonButton>
-            <CartoonButton
-              tone={menu === "evidence" ? "violet" : "yellow"}
-              disabled={locked}
-              onClick={() => setMenu(menu === "evidence" ? null : "evidence")}
-            >
+            <CartoonButton disabled={locked} onClick={onOpenNotebook} aria-haspopup="dialog">
               🔍 Present evidence
+              {evidence.length + testimonies.length > 0 ? ` (${evidence.length + testimonies.length})` : ""}
             </CartoonButton>
           </div>
 
@@ -128,28 +127,13 @@ export function InterrogationScreen({
                 className="overflow-hidden"
               >
                 <div className="rounded-xl border-[3px] border-black bg-violet-900/80 p-3">
-                  {menu === "suspects" ? (
-                    <div className="flex flex-wrap gap-2">
-                      {otherSuspects.map((o) => (
-                        <CartoonButton
-                          key={o.id}
-                          tone="white"
-                          disabled={locked}
-                          onClick={() => ask(`What can you tell me about ${o.name}?`)}
-                        >
-                          {o.name}
-                        </CartoonButton>
-                      ))}
-                    </div>
-                  ) : (
-                    <EvidencePicker
-                      evidence={evidence}
-                      testimonies={testimonies.filter((t) => t.characterId !== suspect.id)}
-                      disabled={locked}
-                      onPick={(e) => ask(`Care to explain this? (${e.name})`, e.id)}
-                      onPickTestimony={(t) => ask(`${t.characterName} has told me this: "${t.summary}" What do you say to that?`, undefined, t.id)}
-                    />
-                  )}
+                  <div className="flex flex-wrap gap-2">
+                    {otherSuspects.map((o) => (
+                      <CartoonButton key={o.id} tone="white" disabled={locked} onClick={() => ask(`What can you tell me about ${o.name}?`)}>
+                        {o.name}
+                      </CartoonButton>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}

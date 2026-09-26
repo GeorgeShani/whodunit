@@ -11,6 +11,7 @@ import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
 import type { PublicEvidence } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
+import type { ContradictionNotes } from "@/components/evidence/notebook-model";
 
 export const SESSION_VERSION = 1;
 
@@ -28,6 +29,8 @@ export interface SavedGame {
   searched: string[];
   searchLines: Record<string, string[]>;
   nextId: number;
+  /** Engine contradiction verdicts noted on notebook cards. Optional: older saves lack it. */
+  notes?: ContradictionNotes;
 }
 
 export const sessionKey = (caseId: string) => `whodunit:game:${caseId}`;
@@ -73,6 +76,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     searched: (j.searched as unknown[]).filter((x): x is string => typeof x === "string"),
     searchLines: j.searchLines as SavedGame["searchLines"],
     nextId: typeof j.nextId === "number" ? j.nextId : 0,
+    ...(isObj(j.notes) ? { notes: j.notes as ContradictionNotes } : {}),
   };
 }
 

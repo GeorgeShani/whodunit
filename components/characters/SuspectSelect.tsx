@@ -14,6 +14,7 @@ export function SuspectSelect({
   onSelect,
   onBack,
   onInvestigate,
+  onOpenNotebook,
   cluesFound,
   backdrop,
 }: {
@@ -23,6 +24,8 @@ export function SuspectSelect({
   onBack: () => void;
   /** Open the Investigate screen (location search). */
   onInvestigate?: () => void;
+  /** Open the detective's notebook (evidence + testimony, present to anyone). */
+  onOpenNotebook?: () => void;
   /** Number of clues in the notebook. */
   cluesFound?: number;
   /** Case backdrop (e.g. the manor hall, ART_BIBLE §7.2); falls back to the purple radial. */
@@ -43,9 +46,16 @@ export function SuspectSelect({
           PICK A SUSPECT!
         </h1>
         {onInvestigate ? (
-          <CartoonButton tone="red" onClick={onInvestigate}>
-            🔍 Investigate{cluesFound !== undefined ? ` (${cluesFound} clue${cluesFound === 1 ? "" : "s"})` : ""}
-          </CartoonButton>
+          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+            {onOpenNotebook && (
+              <CartoonButton tone="white" onClick={onOpenNotebook} aria-haspopup="dialog">
+                📓 Notebook
+              </CartoonButton>
+            )}
+            <CartoonButton tone="red" onClick={onInvestigate}>
+              🔍 Investigate{cluesFound !== undefined ? ` (${cluesFound} clue${cluesFound === 1 ? "" : "s"})` : ""}
+            </CartoonButton>
+          </div>
         ) : (
           <span className="w-20" />
         )}

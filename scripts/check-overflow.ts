@@ -111,6 +111,7 @@ async function run(): Promise<number> {
     await wait(800);
     if (await p.locator("[data-evidence-id]").count()) await p.locator("[data-evidence-id]").first().click({ force: true });
     await wait(300);
+    if (await p.locator("[data-notebook]").count()) await p.keyboard.press("Escape"); // empty notebook: close it
     await waitReply(p).catch(() => undefined);
     await wait(2500);
     const investigate = p.getByRole("button", { name: /Investigate/ });
@@ -134,6 +135,18 @@ async function run(): Promise<number> {
         if (!(await next.count())) break;
         await next.first().click({ force: true });
         await wait(1200);
+      }
+      await label(p, "notebook (suspect screen)");
+      await clickButton(p, /Back to suspects/);
+      await wait(1200);
+      const notebook = p.getByRole("button", { name: /Notebook/ });
+      if (await notebook.count()) {
+        await notebook.first().click({ force: true });
+        await wait(1200);
+        await p.evaluate(() => document.querySelector("[data-notebook] .scroll-area")?.scrollTo({ top: 99999 }));
+        await wait(500);
+        await p.keyboard.press("Escape");
+        await wait(600);
       }
     }
 

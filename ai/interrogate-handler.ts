@@ -18,7 +18,7 @@ import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { cannedCharacterResponse } from "./canned-responses";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
-import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
+import { InterrogateRequestSchema, type Contradiction, type InterrogateResponseBody } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type TurnDirectives } from "./prompts/interrogation";
 import { createFallbackCharacterResponse, type CharacterResponse } from "./schemas";
 
@@ -153,6 +153,17 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
   // Report the deltas the engine actually applied, never the raw suggestion.
   response = { ...response, stressDelta: applied.stressDelta, trustDelta: applied.trustDelta };
 
+  // Deterministic verdict from the engine's plan (independent of the model's performance).
+  const contradiction: Contradiction | undefined =
+    plan.newlyExposedLieIds.length > 0 && (presentedEvidenceId || presentedTestimonyId)
+      ? {
+          characterId,
+          characterName: ch.name,
+          item: presentedEvidenceId ? { kind: "evidence", id: presentedEvidenceId } : { kind: "testimony", id: presentedTestimonyId! },
+          lieCount: plan.newlyExposedLieIds.length,
+        }
+      : undefined;
+
   const { response: _drop, ...grokDiag } = grok as GrokResult & { response?: unknown };
   void _drop;
   return {
@@ -162,6 +173,7 @@ export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promi
       source,
       stateToken: saveSession(game, env),
       testimonies: publicTestimonies(caseData, game),
+      ...(contradiction ? { contradiction } : {}),
       ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
     }),
     diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed: applied.revealed },
