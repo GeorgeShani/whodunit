@@ -15,27 +15,57 @@
     {
       "id": "library",
       "name": "The Library",
-      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire."
+      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+      "searchFlavor": {
+        "lines": [
+          "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+          "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
+        ]
+      }
     },
     {
       "id": "dining-room",
       "name": "The Dining Room",
-      "description": "Long table, a pair of silver candlesticks, a roaring hearth with a brass coal scuttle beside it."
+      "description": "Long table, a pair of silver candlesticks, a roaring hearth with a brass coal scuttle beside it.",
+      "searchFlavor": {
+        "lines": [
+          "Dinner for four, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
+          "The fire has sulked down to embers. You poke the grate and the coal scuttle, because detectives poke things. It's in the job description."
+        ]
+      }
     },
     {
       "id": "hall",
       "name": "The Hall",
-      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it, six paces from the library door."
+      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it, six paces from the library door.",
+      "searchFlavor": {
+        "lines": [
+          "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+          "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
+        ]
+      }
     },
     {
       "id": "garden",
       "name": "The Garden",
-      "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters."
+      "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters.",
+      "searchFlavor": {
+        "lines": [
+          "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms."
+        ],
+        "emptyLine": "You search every flowerbed and find mud, more mud, and a snail who refuses to answer questions. No clues out here."
+      }
     },
     {
       "id": "kitchen",
       "name": "Kitchen & Servants' Quarters",
-      "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage."
+      "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage.",
+      "searchFlavor": {
+        "lines": [
+          "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves."
+        ],
+        "emptyLine": "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, zero clues."
+      }
     }
   ],
   "facts": [

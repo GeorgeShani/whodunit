@@ -1,0 +1,199 @@
+{
+  "correct": {
+    "confession": [
+      {
+        "speaker": "victoria",
+        "text": "Darling, what a charming little theory. Archibald was with me the whole time. Weren't you, Archibald?",
+        "pauseMs": 1200,
+        "emotion": "smug"
+      },
+      {
+        "speaker": "archibald",
+        "text": "I... was on the telephone, old girl.",
+        "pauseMs": 1500,
+        "emotion": "flustered"
+      },
+      {
+        "speaker": "victoria",
+        "text": "Traitor! Very well! Two hundred pounds a year? After twenty years of his snoring? He was signing the new will at ten o'clock!",
+        "pauseMs": 900,
+        "emotion": "angry",
+        "evidenceIds": [
+          "burned-letter"
+        ]
+      },
+      {
+        "speaker": "victoria",
+        "text": "So at seventeen minutes past nine I picked up the nearest heavy object. It happened to be solid silver. BONK!",
+        "pauseMs": 1400,
+        "emotion": "panicked",
+        "evidenceIds": [
+          "silver-candlestick"
+        ]
+      },
+      {
+        "speaker": "victoria",
+        "text": "I locked the door behind me, burned that wretched letter and popped the key in the coal scuttle. Nobody looks in a coal scuttle!",
+        "pauseMs": 1000,
+        "emotion": "defensive",
+        "evidenceIds": [
+          "library-key",
+          "burned-letter"
+        ]
+      },
+      {
+        "speaker": "victoria",
+        "text": "I'd have got clean away with it, too, if it weren't for a gardener lurking in the hall and a butler with ears like an elephant!",
+        "pauseMs": 1200,
+        "emotion": "angry"
+      },
+      {
+        "speaker": "victoria",
+        "text": "...Does anyone have smelling salts? I feel a swoon coming on.",
+        "pauseMs": 2000,
+        "emotion": "flustered"
+      }
+    ],
+    "recap": [
+      {
+        "speaker": "narrator",
+        "text": "Case closed! At 21:17, in the library, Lady Victoria Blackwood struck her husband down with the silver candlestick Reginald had lit and set on his desk only five minutes before.",
+        "pauseMs": 1500,
+        "evidenceIds": [
+          "silver-candlestick"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "The motive was the new will. Signed at ten the next morning, it would have left her two hundred pounds a year, and the solicitor's letter she burned in the dining-room fire said so, charred but still readable.",
+        "pauseMs": 1500,
+        "evidenceIds": [
+          "burned-letter"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "She locked the library from outside and hid its only key in the dining-room coal scuttle. The room she swore she had never left was exactly where the key and the letter turned up.",
+        "pauseMs": 1500,
+        "evidenceIds": [
+          "library-key",
+          "burned-letter"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "Her alibi was Archibald, and his alibi was her. But Archibald was on the servants' telephone, as Reginald heard from his pantry, and Gregory, dripping in the hall alcove where he left that muddy footprint, saw her lock the door by the light of a lightning flash.",
+        "pauseMs": 1800,
+        "evidenceIds": [
+          "muddy-footprint"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "Reginald has some explaining to do about the household accounts, Archibald about the company's, and Gregory about the gin. But none of them is a murderer.",
+        "pauseMs": 1200
+      }
+    ]
+  },
+  "wrong": {
+    "reginald": [
+      {
+        "speaker": "reginald",
+        "text": "Me, sir? Murder? I have never so much as bent a fork!",
+        "pauseMs": 1000,
+        "emotion": "shocked"
+      },
+      {
+        "speaker": "reginald",
+        "text": "Very well, I may have borrowed a small amount from the household accounts. A medium amount. But harm his lordship? Who would sign my wages?",
+        "pauseMs": 1400,
+        "emotion": "panicked"
+      },
+      {
+        "speaker": "victoria",
+        "text": "The butler? How terribly traditional, darling. Do tell me how that works out.",
+        "pauseMs": 1200,
+        "emotion": "smug"
+      },
+      {
+        "speaker": "victoria",
+        "text": "Now if you'll excuse me, I have a fortune to count.",
+        "pauseMs": 1500,
+        "emotion": "amused"
+      }
+    ],
+    "archibald": [
+      {
+        "speaker": "archibald",
+        "text": "Preposterous! Absolutely preposterous! Yes, I threatened him, but I threaten everybody! It's how I say good morning!",
+        "pauseMs": 1000,
+        "emotion": "angry"
+      },
+      {
+        "speaker": "archibald",
+        "text": "And that telephone call was a perfectly routine transfer. Of all the money. Before midnight. Entirely normal!",
+        "pauseMs": 1400,
+        "emotion": "flustered"
+      },
+      {
+        "speaker": "victoria",
+        "text": "Poor Archibald. Do try to look surprised when the police read the company books, darling.",
+        "pauseMs": 1200,
+        "emotion": "smug"
+      },
+      {
+        "speaker": "victoria",
+        "text": "Toodle-oo!",
+        "pauseMs": 1500,
+        "emotion": "amused"
+      }
+    ],
+    "gregory": [
+      {
+        "speaker": "gregory",
+        "text": "M-me, sir? I only came in out of the rain! I didn't see nothin'... I mean, I didn't DO nothin'!",
+        "pauseMs": 1000,
+        "emotion": "scared"
+      },
+      {
+        "speaker": "gregory",
+        "text": "Beggin' your pardon, I'll just go and hide in the potting shed. Forever.",
+        "pauseMs": 1400,
+        "emotion": "panicked"
+      },
+      {
+        "speaker": "victoria",
+        "text": "The gardener! Muddy boots, a grudge and a gin bottle. It practically writes itself, darling.",
+        "pauseMs": 1200,
+        "emotion": "smug"
+      },
+      {
+        "speaker": "victoria",
+        "text": "Do keep the rain off him, won't you? I'll be in Monte Carlo.",
+        "pauseMs": 1500,
+        "emotion": "amused"
+      }
+    ],
+    "victoria": [
+      {
+        "speaker": "victoria",
+        "text": "Me? Oh, detective. You've found the right lady and told entirely the wrong story.",
+        "pauseMs": 1200,
+        "emotion": "amused"
+      },
+      {
+        "speaker": "victoria",
+        "text": "A hunch isn't proof, darling. Get the how and the why wrong, or turn up without real evidence, and my solicitor will have this thrown out before the kettle boils.",
+        "pauseMs": 1400,
+        "emotion": "smug"
+      },
+      {
+        "speaker": "victoria",
+        "text": "Now, if you'll excuse me, I have a fortune to inherit and a very small violin to play for you.",
+        "pauseMs": 1800,
+        "emotion": "smug"
+      }
+    ]
+  },
+  "escapedLine": "THE MURDERER ESCAPED!"
+}

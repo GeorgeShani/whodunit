@@ -178,3 +178,15 @@ All eleven gaps from the first draft are closed by contract v2 (commit 3608125).
 - **No `portrait` or `image` keys.** Portraits default to the character id (`assets/characters/<id>/`), and evidence art doesn't exist yet.
 - **Motive options:** four, one per suspect, with spoiler-free descriptions.
 - **Relationship numbers** are my own proposals. Suspicion follows beliefs: Reginald suspects Archibald most, Archibald suspects Gregory, and Gregory suspects Victoria.
+
+## 10. Location search and endings
+
+**Where each clue is found** (`evidence.json` `locationId`): `silver-candlestick` in the library (available from the start), `muddy-footprint` in the hall, and `burned-letter` and `library-key` both in the dining room. The garden and the kitchen/servants' quarters hold no clue, so they get an `emptyLine`.
+
+Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discoveryLine` are public. They never name a suspect or mention the will, the telephone or the time.
+
+`endings.json` is server-only. It holds:
+- `correct.confession`: Victoria's confession, with an Archibald cameo that breaks the alibi.
+- `correct.recap`: narrator prose covering who, how, why and 21:17 in the library, and the proof. Lines cite `evidenceIds`.
+- `wrong.<suspectId>`: one ending for each of the four suspects. `wrong.victoria` is "right lady, no case" (wrong weapon, wrong motive or no key evidence).
+- `escapedLine`.

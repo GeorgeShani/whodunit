@@ -3,6 +3,7 @@
     "id": "silver-candlestick",
     "name": "Silver Candlestick",
     "description": "A heavy silver candlestick, one of the pair from the dining table, standing on Lord Blackwood's desk. The base is dented and has been hastily wiped, but dried blood is still caught in the engraved crest. Its fresh white candle is bent and has burned down only a few millimetres, about five minutes of burning, and wax is spattered across the desk as though it fell while lit.",
+    "discoveryLine": "Heavy silver, a fresh dent and a suspiciously short candle. Somebody's been using the good candlesticks for bad things!",
     "kind": "physical",
     "locationId": "library",
     "relatedFactIds": [
@@ -24,6 +25,7 @@
     "id": "muddy-footprint",
     "name": "Muddy Footprint",
     "description": "One clear print of a hobnailed gardening boot in wet garden mud, on the flagstones of the dark alcove beside the hall's garden door. The toes point at the library door, six paces away. No other mud leads further along the hall or into the library.",
+    "discoveryLine": "A boot print! Big, muddy, and pointing straight at the library door like an accusing finger.",
     "kind": "observation",
     "locationId": "hall",
     "relatedFactIds": [
@@ -42,6 +44,7 @@
     "id": "burned-letter",
     "name": "Burned Letter",
     "description": "A charred letter on a solicitor's notepaper, found in the ashes of the dining-room fireplace. Legible fragments: '...the new will, drawn as you instructed, leaves Lady Victoria two hundred pounds a year and nothing further...'; '...I shall call at ten tomorrow for your signature...'; '...as to the household accounts, the discrepancies do point to your butler, and I advise an audit...'",
+    "discoveryLine": "Rescued from the flames, only slightly toasted! Somebody wanted these words gone. Somebody failed.",
     "kind": "document",
     "locationId": "dining-room",
     "relatedFactIds": [
@@ -64,6 +67,7 @@
     "id": "library-key",
     "name": "The Missing Library Key",
     "description": "The only key to the library. When the door was forced it was not in the lock, not on his lordship and nowhere in the library. It turns up, sooty, at the bottom of the coal scuttle beside the dining-room hearth.",
+    "discoveryLine": "A key at the bottom of the coal scuttle! Keys don't usually climb in there by themselves.",
     "kind": "physical",
     "locationId": "dining-room",
     "relatedFactIds": [
