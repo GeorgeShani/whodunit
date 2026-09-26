@@ -3,13 +3,19 @@
   "title": "Murder at Blackwood Manor",
   "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
   "intro": "Thunder rattles the windows of Blackwood Manor. The lights have gone out, the road has flooded, and nobody is going anywhere tonight.\n\nSomewhere between the port and the coffee, Lord Blackwood was found dead in his own locked library, and the key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+  "knowledgeGate": "explicit",
   "victim": {
     "id": "lord-blackwood",
     "name": "Lord Blackwood",
     "description": "Master of Blackwood Manor: rich, sharp-tongued and famously hard to please. Everyone in the house owed him something, and he never let them forget it.",
     "foundAtLocationId": "library",
     "foundAt": "21:32",
-    "causeOfDeath": "A single heavy blow to the head. His monocle is still in shock."
+    "causeOfDeath": "A single heavy blow to the head. His monocle is still in shock.",
+    "aliases": [
+      "his lordship",
+      "Lord Blackwood",
+      "Edmund"
+    ]
   },
   "locations": [
     {

@@ -1,6 +1,11 @@
 {
   "id": "victoria",
   "name": "Victoria Blackwood",
+  "aliases": [
+    "her ladyship",
+    "Lady Blackwood",
+    "Lady Victoria"
+  ],
   "role": "The Lady of the Manor",
   "bio": "Lord Blackwood's elegant wife, now his widow. Famous for her parties, her pearls and her fainting spells, which are always perfectly timed.",
   "personality": {
@@ -104,7 +109,7 @@
     {
       "id": "b-victoria-unseen",
       "statement": "Nobody saw me in the hall. It was pitch black.",
-      "aboutFactId": "ev-gregory-sees-victoria",
+      "aboutFactId": "ev-victoria-locks-door",
       "isAccurate": false,
       "confidence": 0.8
     },
@@ -125,19 +130,86 @@
     {
       "id": "b-victoria-reginald-deaf",
       "statement": "Reginald had only just come up with the coffee. He heard nothing of our quarrel.",
-      "aboutFactId": "ev-reginald-overhears",
+      "aboutFactId": "ev-victoria-argument",
       "isAccurate": false,
       "confidence": 0.7
     },
     {
       "id": "b-victoria-brandy-errand",
       "statement": "Archibald really did go off to hunt for brandy.",
-      "aboutFactId": "ev-archibald-phone",
+      "aboutFactId": "ev-archibald-leaves-dining",
       "isAccurate": false,
       "confidence": 0.5
     }
   ],
   "secrets": [
+    {
+      "id": "s-victoria-left-dining",
+      "description": "She left the dining room during the blackout while Archibald was away, so they were never together as they both claim, and at 21:40 she got him to agree to say they were.",
+      "severity": "serious",
+      "revealConditions": {
+        "stressThreshold": 70,
+        "evidenceIds": [
+          "library-key"
+        ],
+        "mode": "any"
+      },
+      "relatedFactIds": [
+        "ev-victoria-alone",
+        "ev-archibald-leaves-dining",
+        "ev-archibald-returns",
+        "ev-alibi-pact",
+        "loc-victoria-2113",
+        "loc-victoria-2114",
+        "loc-victoria-2122"
+      ],
+      "testimonySummary": "Lady Victoria admits she sat alone in the dining room during the blackout while Mr Crane was away, and that at 21:40 she asked him to say they had been together the whole time."
+    },
+    {
+      "id": "s-victoria-locked-door",
+      "description": "While Archibald was away she went to the library. At 21:19 she came out, locked the door from outside, and at 21:20 dropped the key into the dining-room coal scuttle.",
+      "severity": "damning",
+      "revealConditions": {
+        "evidenceIds": [
+          "library-key",
+          "muddy-footprint"
+        ],
+        "mode": "all",
+        "afterSecretIds": [
+          "s-victoria-left-dining"
+        ]
+      },
+      "relatedFactIds": [
+        "ev-victoria-admitted",
+        "ev-victoria-locks-door",
+        "ev-key-hidden",
+        "loc-victoria-2119",
+        "loc-victoria-2120",
+        "loc-victoria-2121"
+      ]
+    },
+    {
+      "id": "s-victoria-new-will",
+      "description": "She knew about the new will before the murder, and she burned the solicitor's letter.",
+      "severity": "serious",
+      "revealConditions": {
+        "evidenceIds": [
+          "burned-letter"
+        ],
+        "mode": "any"
+      },
+      "relatedFactIds": [
+        "f-new-will",
+        "ev-victoria-argument",
+        "ev-letter-burned",
+        "f-inheritance-motive",
+        "f-letter-accuses-butler",
+        "loc-victoria-2050",
+        "loc-victoria-2054",
+        "ev-victoria-passes-reginald"
+      ],
+      "testimonySummary": "Lady Victoria admits she knew before the murder that his lordship meant to sign a new will, and that she burned the solicitor's letter."
+    },
     {
       "id": "s-victoria-murder",
       "description": "She killed her husband with the silver candlestick at 21:17 to stop him signing the new will.",
@@ -165,52 +237,6 @@
         "loc-victoria-2117",
         "loc-victoria-2118",
         "loc-victoria-2119"
-      ]
-    },
-    {
-      "id": "s-victoria-left-dining",
-      "description": "She left the dining room during the blackout while Archibald was away, went to the library, locked it behind her and hid the key in the coal scuttle.",
-      "severity": "damning",
-      "revealConditions": {
-        "evidenceIds": [
-          "library-key",
-          "muddy-footprint"
-        ],
-        "mode": "all"
-      },
-      "relatedFactIds": [
-        "ev-victoria-alone",
-        "ev-victoria-admitted",
-        "ev-victoria-locks-door",
-        "ev-key-hidden",
-        "ev-archibald-leaves-dining",
-        "ev-archibald-returns",
-        "ev-alibi-pact",
-        "loc-victoria-2113",
-        "loc-victoria-2114",
-        "loc-victoria-2120",
-        "loc-victoria-2121",
-        "loc-victoria-2122"
-      ]
-    },
-    {
-      "id": "s-victoria-new-will",
-      "description": "She knew about the new will before the murder, and she burned the solicitor's letter.",
-      "severity": "serious",
-      "revealConditions": {
-        "evidenceIds": [
-          "burned-letter"
-        ],
-        "mode": "any"
-      },
-      "relatedFactIds": [
-        "f-new-will",
-        "ev-victoria-argument",
-        "ev-letter-burned",
-        "f-inheritance-motive",
-        "f-letter-accuses-butler",
-        "loc-victoria-2050",
-        "loc-victoria-2054"
       ]
     }
   ],
@@ -265,7 +291,13 @@
       "brokenByEvidenceIds": [
         "library-key",
         "burned-letter"
-      ]
+      ],
+      "breaksOnSecretIds": [
+        "s-reginald-theft",
+        "s-archibald-false-alibi",
+        "s-gregory-saw-victoria"
+      ],
+      "breakMode": "any"
     },
     {
       "id": "l-victoria-locked-in",
@@ -274,17 +306,25 @@
       "claim": "Edmund must have locked himself in. He always did.",
       "brokenByEvidenceIds": [
         "library-key"
-      ]
+      ],
+      "breaksOnSecretIds": [
+        "s-gregory-saw-victoria"
+      ],
+      "breakMode": "any"
     },
     {
       "id": "l-victoria-never-in-hall",
       "topic": "going back to the library after nine",
       "aboutFactId": "ev-victoria-admitted",
-      "claim": "I never set foot in the hall after our little chat at nine.",
+      "claim": "I never went near the library after our little chat at nine.",
       "brokenByEvidenceIds": [
         "muddy-footprint",
         "library-key"
-      ]
+      ],
+      "breaksOnSecretIds": [
+        "s-gregory-saw-victoria"
+      ],
+      "breakMode": "any"
     },
     {
       "id": "l-victoria-menu",
@@ -293,7 +333,11 @@
       "claim": "Our little chat? The Sunday menu, darling. Nothing more.",
       "brokenByEvidenceIds": [
         "burned-letter"
-      ]
+      ],
+      "breaksOnSecretIds": [
+        "s-reginald-overheard"
+      ],
+      "breakMode": "any"
     },
     {
       "id": "l-victoria-letter",

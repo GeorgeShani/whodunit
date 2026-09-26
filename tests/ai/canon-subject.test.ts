@@ -52,7 +52,11 @@ describe("subject-matched times (Reginald)", () => {
     const allowed = canonTimes(reginald(withAlias), { exposedLieIds: [] }, "When did she leave?");
     expect(checkTimes("Her ladyship left at a quarter to nine, sir.", allowed).ok).toBe(false);
     // Without the alias the sentence names no one and only the old rule applies.
-    expect(checkTimes("Her ladyship left at a quarter to nine, sir.", canonTimes(reginald(), { exposedLieIds: [] }, "When did she leave?")).ok).toBe(true);
+    const noAlias = structuredClone(c);
+    noAlias.characters.find((x) => x.id === "victoria")!.aliases = [];
+    expect(checkTimes("Her ladyship left at a quarter to nine, sir.", canonTimes(reginald(noAlias), { exposedLieIds: [] }, "When did she leave?")).ok).toBe(true);
+    // Blackwood now authors the alias, so the shipped case catches it.
+    expect(checkTimes("Her ladyship left at a quarter to nine, sir.", canonTimes(reginald(), { exposedLieIds: [] }, "When did she leave?")).ok).toBe(false);
   });
 
   it("times the detective said, stories and shown clues stay allowed whatever the subject", () => {
