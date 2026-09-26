@@ -82,7 +82,7 @@ Victoria's own secrets (`s-victoria-*`) are pressured by all four clues. A confe
 
 ### HOW: the silver candlestick
 4. The body has a head wound (`ev-body-discovered`). The candlestick's base is dented and bloody with wipe marks, and it fell while lit (`silver-candlestick`).
-5. It came from the dining room at 21:11 and was set in the library at 21:12 (`ev-candlesticks-lit`, `ev-candlestick-delivered`). (`f-weapon-origin`). **Victoria watched it go** (`ev-candlesticks-lit`): she had access to the weapon.
+5. It is one of the dining-room pair (`f-weapon-origin`). Reginald took it from the dining room at 21:11 and set it in the library at 21:12 (`ev-candlesticks-lit`, `ev-candlestick-delivered`). **Victoria watched it go** (`ev-candlesticks-lit`), so she had access to the weapon.
 6. The killer left through the door. The windows were bolted inside (`f-library-windows-bolted`) and the only key was missing and had been used from the outside (`library-key`, `f-lord-key-habit`, `ev-body-discovered`).
 
 ### WHO: Victoria
