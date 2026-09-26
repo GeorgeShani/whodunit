@@ -1,0 +1,1534 @@
+[
+  {
+    "id": "loc-archibald-2030",
+    "statement": "At 20:30 Archibald is in the dining room, finishing dinner at the table.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2030",
+    "statement": "At 20:30 Gregory is in the kitchen and servants' quarters, eating his supper in the servants' quarters.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-lord-blackwood-2030",
+    "statement": "At 20:30 Lord Blackwood is in the dining room, finishing dinner.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-reginald-2030",
+    "statement": "At 20:30 Reginald is in the dining room, serving the end of dinner.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2030",
+    "statement": "At 20:30 Victoria is in the dining room, finishing dinner at the table.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-dinner-ends",
+    "statement": "Dinner ends in the dining room as the storm builds.",
+    "category": "timeline",
+    "time": "20:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "lord-blackwood",
+      "victoria",
+      "archibald",
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2040",
+    "statement": "At 20:40 Archibald is in the dining room, threatening Lord Blackwood across the table.",
+    "category": "location",
+    "time": "20:40",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2040",
+    "statement": "At 20:40 Gregory is in the kitchen and servants' quarters, eating his supper in the servants' quarters.",
+    "category": "location",
+    "time": "20:40",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2040",
+    "statement": "At 20:40 Reginald is in the dining room, serving, and hearing Archibald's threat.",
+    "category": "location",
+    "time": "20:40",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2040",
+    "statement": "At 20:40 Victoria is in the dining room, at the table, hearing Archibald threaten Lord Blackwood.",
+    "category": "location",
+    "time": "20:40",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-archibald-threat",
+    "statement": "At the table Lord Blackwood tells Archibald he knows about the embezzlement and will telephone Scotland Yard at midnight unless Archibald confesses. Archibald shouts: 'Expose me, Edmund, and you won't live to see your auditors!'",
+    "category": "motive",
+    "time": "20:40",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-archibald-2045",
+    "statement": "At 20:45 Archibald is in the dining room, sulking over the port.",
+    "category": "location",
+    "time": "20:45",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2045",
+    "statement": "At 20:45 Gregory is in the kitchen and servants' quarters, eating his supper in the servants' quarters.",
+    "category": "location",
+    "time": "20:45",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-lord-blackwood-2045",
+    "statement": "At 20:45 Lord Blackwood is in the library, where he stays for the rest of the night.",
+    "category": "location",
+    "time": "20:45",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-reginald-2045",
+    "statement": "At 20:45 Reginald is in the kitchen and servants' quarters, clearing up and making coffee.",
+    "category": "location",
+    "time": "20:45",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2045",
+    "statement": "At 20:45 Victoria is in the dining room, at the table just after Lord Blackwood leaves for the library.",
+    "category": "location",
+    "time": "20:45",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-lord-locks-in",
+    "statement": "Lord Blackwood goes to the library and locks himself in, leaving the key in the lock on the inside.",
+    "category": "timeline",
+    "time": "20:45",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "ev-victoria-leaves-for-library",
+    "statement": "Soon after Lord Blackwood leaves, Victoria excuses herself from the dining room, leaving Archibald alone with the port.",
+    "category": "timeline",
+    "time": "20:45",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria",
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2050",
+    "statement": "At 20:50 Archibald is in the dining room, alone over the port while Victoria is out.",
+    "category": "location",
+    "time": "20:50",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2050",
+    "statement": "At 20:50 Gregory is in the garden, out securing the greenhouse against the storm.",
+    "category": "location",
+    "time": "20:50",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2050",
+    "statement": "At 20:50 Reginald is in the kitchen and servants' quarters, clearing up and making coffee.",
+    "category": "location",
+    "time": "20:50",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2050",
+    "statement": "At 20:50 Victoria is in the library, admitted to the library to plead with Lord Blackwood.",
+    "category": "location",
+    "time": "20:50",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-victoria-argument",
+    "statement": "From 20:50 to 20:57 Victoria and Lord Blackwood argue in the library with the door ajar. He waves his solicitor's letter at her and tells her the new will is signed at ten tomorrow.",
+    "category": "motive",
+    "time": "20:50",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-archibald-2054",
+    "statement": "At 20:54 Archibald is in the dining room, alone over the port while Victoria is out.",
+    "category": "location",
+    "time": "20:54",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2054",
+    "statement": "At 20:54 Gregory is in the garden, out securing the greenhouse against the storm.",
+    "category": "location",
+    "time": "20:54",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2054",
+    "statement": "At 20:54 Reginald is in the hall, carrying the coffee tray, looking through the ajar library door.",
+    "category": "location",
+    "time": "20:54",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2054",
+    "statement": "At 20:54 Victoria is in the library, arguing with Lord Blackwood about the new will.",
+    "category": "location",
+    "time": "20:54",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-reginald-overhears",
+    "statement": "Carrying the coffee tray, Reginald sees through the ajar library door her ladyship gripping his lordship's sleeve, crying 'You wouldn't dare, Edmund!', and his lordship, holding up a letter, saying 'Ten o'clock tomorrow, and you'll have what the new will allows and not a penny more.' Reginald backs away.",
+    "category": "timeline",
+    "time": "20:54",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2057",
+    "statement": "At 20:57 Archibald is in the dining room, alone over the port while Victoria is out.",
+    "category": "location",
+    "time": "20:57",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2057",
+    "statement": "At 20:57 Gregory is in the garden, out securing the greenhouse against the storm.",
+    "category": "location",
+    "time": "20:57",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2057",
+    "statement": "At 20:57 Reginald is in the hall, standing aside as Victoria leaves the library.",
+    "category": "location",
+    "time": "20:57",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2057",
+    "statement": "At 20:57 Victoria is in the hall, leaving the library and sweeping past Reginald.",
+    "category": "location",
+    "time": "20:57",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-victoria-passes-reginald",
+    "statement": "Victoria comes out of the library, flushed, and sweeps past Reginald in the hall without a word.",
+    "category": "timeline",
+    "time": "20:57",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria",
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2058",
+    "statement": "At 20:58 Archibald is in the dining room, joined again by Victoria.",
+    "category": "location",
+    "time": "20:58",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2058",
+    "statement": "At 20:58 Gregory is in the garden, out securing the greenhouse against the storm.",
+    "category": "location",
+    "time": "20:58",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2058",
+    "statement": "At 20:58 Reginald is in the library, serving Lord Blackwood his coffee.",
+    "category": "location",
+    "time": "20:58",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2058",
+    "statement": "At 20:58 Victoria is in the dining room, back at the dining table with Archibald.",
+    "category": "location",
+    "time": "20:58",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-reginald-serves-coffee",
+    "statement": "Reginald serves Lord Blackwood his coffee. His lordship is alive and re-reading a letter, and locks the door again after Reginald leaves.",
+    "category": "timeline",
+    "time": "20:58",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-archibald-2100",
+    "statement": "At 21:00 Archibald is in the dining room, by the fire with Victoria.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2100",
+    "statement": "At 21:00 Gregory is in the garden, out securing the greenhouse against the storm.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2100",
+    "statement": "At 21:00 Reginald is in the kitchen and servants' quarters, back below stairs.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2100",
+    "statement": "At 21:00 Victoria is in the dining room, by the fire with Archibald.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2110",
+    "statement": "At 21:10 Archibald is in the dining room, in the dark with Victoria when the lights fail.",
+    "category": "location",
+    "time": "21:10",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2110",
+    "statement": "At 21:10 Gregory is in the garden, in the garden when the house goes dark.",
+    "category": "location",
+    "time": "21:10",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2110",
+    "statement": "At 21:10 Reginald is in the kitchen and servants' quarters, gathering candles when the lights fail.",
+    "category": "location",
+    "time": "21:10",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2110",
+    "statement": "At 21:10 Victoria is in the dining room, in the dark with Archibald when the lights fail.",
+    "category": "location",
+    "time": "21:10",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-blackout",
+    "statement": "Lightning strikes the power line and every electric light in the manor goes out.",
+    "category": "timeline",
+    "time": "21:10",
+    "involvesCharacterIds": []
+  },
+  {
+    "id": "loc-archibald-2111",
+    "statement": "At 21:11 Archibald is in the dining room, watching Reginald light the silver candlesticks.",
+    "category": "location",
+    "time": "21:11",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2111",
+    "statement": "At 21:11 Gregory is in the garden, in the garden when the house goes dark.",
+    "category": "location",
+    "time": "21:11",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2111",
+    "statement": "At 21:11 Reginald is in the dining room, lighting the silver candlesticks and taking one for Lord Blackwood.",
+    "category": "location",
+    "time": "21:11",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2111",
+    "statement": "At 21:11 Victoria is in the dining room, watching Reginald light the silver candlesticks and carry one off for Lord Blackwood.",
+    "category": "location",
+    "time": "21:11",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-candlesticks-lit",
+    "statement": "Reginald lights the pair of silver candlesticks on the dining table, then carries one off to the library for Lord Blackwood.",
+    "category": "object",
+    "time": "21:11",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "reginald",
+      "victoria",
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2112",
+    "statement": "At 21:12 Archibald is in the dining room, by candle and firelight with Victoria.",
+    "category": "location",
+    "time": "21:12",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2112",
+    "statement": "At 21:12 Gregory is in the garden, in the garden when the house goes dark.",
+    "category": "location",
+    "time": "21:12",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2112",
+    "statement": "At 21:12 Reginald is in the library, setting the lit silver candlestick on Lord Blackwood's desk.",
+    "category": "location",
+    "time": "21:12",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2112",
+    "statement": "At 21:12 Victoria is in the dining room, by candle and firelight with Archibald.",
+    "category": "location",
+    "time": "21:12",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-candlestick-delivered",
+    "statement": "Lord Blackwood unlocks the library for Reginald, who sets the lit silver candlestick, with a fresh candle, on the desk. His lordship is alive, the solicitor's letter lies open on the desk, and he orders coal at half past nine.",
+    "category": "object",
+    "time": "21:12",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-archibald-2113",
+    "statement": "At 21:13 Archibald is in the dining room, leaving, claiming he will find the brandy.",
+    "category": "location",
+    "time": "21:13",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2113",
+    "statement": "At 21:13 Gregory is in the garden, in the garden when the house goes dark.",
+    "category": "location",
+    "time": "21:13",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2113",
+    "statement": "At 21:13 Reginald is in the hall, walking back and hearing the library lock turn behind him.",
+    "category": "location",
+    "time": "21:13",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2113",
+    "statement": "At 21:13 Victoria is in the dining room, watching Archibald leave, saying he will find the brandy.",
+    "category": "location",
+    "time": "21:13",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-archibald-leaves-dining",
+    "statement": "Archibald leaves the dining room, telling Victoria he is going to find the brandy.",
+    "category": "alibi",
+    "time": "21:13",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald",
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-lord-relocks",
+    "statement": "Walking away down the hall, Reginald hears the key turn in the library lock behind him.",
+    "category": "timeline",
+    "time": "21:13",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2114",
+    "statement": "At 21:14 Archibald is in the hall, crossing the dark hall to the servants' passage.",
+    "category": "location",
+    "time": "21:14",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2114",
+    "statement": "At 21:14 Gregory is in the garden, stumbling about after his lantern blows out.",
+    "category": "location",
+    "time": "21:14",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2114",
+    "statement": "At 21:14 Reginald is in the kitchen and servants' quarters, shutting himself in his pantry.",
+    "category": "location",
+    "time": "21:14",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2114",
+    "statement": "At 21:14 Victoria is in the dining room, alone.",
+    "category": "location",
+    "time": "21:14",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-victoria-alone",
+    "statement": "Victoria is alone in the dining room.",
+    "category": "alibi",
+    "time": "21:14",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2115",
+    "statement": "At 21:15 Archibald is in the kitchen and servants' quarters, on the servants' telephone to his broker.",
+    "category": "location",
+    "time": "21:15",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2115",
+    "statement": "At 21:15 Gregory is in the garden, stumbling about after his lantern blows out.",
+    "category": "location",
+    "time": "21:15",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2115",
+    "statement": "At 21:15 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:15",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2115",
+    "statement": "At 21:15 Victoria is in the library, let into the library by Lord Blackwood.",
+    "category": "location",
+    "time": "21:15",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-archibald-notices-pantry",
+    "statement": "At the telephone, Archibald sees candlelight under the pantry door and hears coins clinking inside.",
+    "category": "alibi",
+    "time": "21:15",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "ev-archibald-phone",
+    "statement": "From 21:15 to 21:20 Archibald is on the servants' telephone, telling his broker to move the company money before midnight.",
+    "category": "alibi",
+    "time": "21:15",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "ev-reginald-hears-phone",
+    "statement": "From behind his closed pantry door Reginald hears Mr Crane's voice on the servants' telephone, talking about 'moving it all before midnight'.",
+    "category": "alibi",
+    "time": "21:15",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "ev-victoria-admitted",
+    "statement": "Victoria knocks at the library. Lord Blackwood unlocks the door and lets her in, leaving the key in the lock.",
+    "category": "timeline",
+    "time": "21:15",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-archibald-2116",
+    "statement": "At 21:16 Archibald is in the kitchen and servants' quarters, on the servants' telephone to his broker.",
+    "category": "location",
+    "time": "21:16",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2116",
+    "statement": "At 21:16 Gregory is in the hall, dripping in the dark alcove by the garden door.",
+    "category": "location",
+    "time": "21:16",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2116",
+    "statement": "At 21:16 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:16",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2116",
+    "statement": "At 21:16 Victoria is in the library, pleading with Lord Blackwood beside the desk.",
+    "category": "location",
+    "time": "21:16",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-gregory-enters-hall",
+    "statement": "His lantern blown out, Gregory slips in through the garden door and stands dripping in the dark alcove beside it, leaving a muddy boot print, six paces from the library door.",
+    "category": "timeline",
+    "time": "21:16",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-archibald-2117",
+    "statement": "At 21:17 Archibald is in the kitchen and servants' quarters, on the servants' telephone to his broker.",
+    "category": "location",
+    "time": "21:17",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2117",
+    "statement": "At 21:17 Gregory is in the hall, in the alcove, hearing a thud from the library.",
+    "category": "location",
+    "time": "21:17",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2117",
+    "statement": "At 21:17 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:17",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2117",
+    "statement": "At 21:17 Victoria is in the library, striking Lord Blackwood with the silver candlestick.",
+    "category": "location",
+    "time": "21:17",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-gregory-hears-thud",
+    "statement": "From the alcove Gregory hears a heavy thud in the library, and the light under the library door dims.",
+    "category": "timeline",
+    "time": "21:17",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "ev-murder",
+    "statement": "Victoria strikes Lord Blackwood on the head with the silver candlestick and kills him. The lit candle falls and goes out.",
+    "category": "timeline",
+    "time": "21:17",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "loc-archibald-2118",
+    "statement": "At 21:18 Archibald is in the kitchen and servants' quarters, on the telephone, snapping at Reginald through the pantry door.",
+    "category": "location",
+    "time": "21:18",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2118",
+    "statement": "At 21:18 Gregory is in the hall, frozen in the alcove.",
+    "category": "location",
+    "time": "21:18",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2118",
+    "statement": "At 21:18 Reginald is in the kitchen and servants' quarters, calling through the pantry door at whoever is on the telephone.",
+    "category": "location",
+    "time": "21:18",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2118",
+    "statement": "At 21:18 Victoria is in the library, taking the solicitor's letter and wiping the candlestick.",
+    "category": "location",
+    "time": "21:18",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-pantry-exchange",
+    "statement": "Reginald calls through the pantry door, 'Who's on that telephone?', and Archibald snaps back, 'Mind your own business, man!'",
+    "category": "alibi",
+    "time": "21:18",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald",
+      "archibald"
+    ]
+  },
+  {
+    "id": "ev-victoria-takes-letter",
+    "statement": "Victoria takes the solicitor's letter from the desk, wipes the candlestick's base with her handkerchief, and stands it back on the desk.",
+    "category": "timeline",
+    "time": "21:18",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2119",
+    "statement": "At 21:19 Archibald is in the kitchen and servants' quarters, on the telephone.",
+    "category": "location",
+    "time": "21:19",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2119",
+    "statement": "At 21:19 Gregory is in the hall, in the alcove, watching the library door in a lightning flash.",
+    "category": "location",
+    "time": "21:19",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2119",
+    "statement": "At 21:19 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:19",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2119",
+    "statement": "At 21:19 Victoria is in the hall, locking the library door from outside.",
+    "category": "location",
+    "time": "21:19",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-gregory-sees-victoria",
+    "statement": "In a lightning flash through the hall windows Gregory sees Lady Victoria's face as she steps out of the library, locks the door, slips the key into her gown and walks towards the dining room.",
+    "category": "timeline",
+    "time": "21:19",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory",
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-victoria-locks-door",
+    "statement": "Victoria steps into the hall, locks the library door from outside with its key, pockets the key and walks to the dining room.",
+    "category": "timeline",
+    "time": "21:19",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2120",
+    "statement": "At 21:20 Archibald is in the kitchen and servants' quarters, hanging up the telephone.",
+    "category": "location",
+    "time": "21:20",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2120",
+    "statement": "At 21:20 Gregory is in the garden, fleeing back out through the garden door.",
+    "category": "location",
+    "time": "21:20",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2120",
+    "statement": "At 21:20 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:20",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2120",
+    "statement": "At 21:20 Victoria is in the dining room, burning the letter and hiding the key.",
+    "category": "location",
+    "time": "21:20",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-key-hidden",
+    "statement": "Victoria drops the library key into the coal scuttle beside the dining-room hearth.",
+    "category": "object",
+    "time": "21:20",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-letter-burned",
+    "statement": "Victoria burns the solicitor's letter and her handkerchief in the dining-room fire.",
+    "category": "motive",
+    "time": "21:20",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2121",
+    "statement": "At 21:21 Archibald is in the hall, walking back through the hall.",
+    "category": "location",
+    "time": "21:21",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2121",
+    "statement": "At 21:21 Gregory is in the garden, hiding in the potting shed.",
+    "category": "location",
+    "time": "21:21",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2121",
+    "statement": "At 21:21 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:21",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2121",
+    "statement": "At 21:21 Victoria is in the dining room, composing herself by the fire.",
+    "category": "location",
+    "time": "21:21",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2122",
+    "statement": "At 21:22 Archibald is in the dining room, rejoining Victoria without saying where he has been.",
+    "category": "location",
+    "time": "21:22",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2122",
+    "statement": "At 21:22 Gregory is in the garden, hiding in the potting shed.",
+    "category": "location",
+    "time": "21:22",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2122",
+    "statement": "At 21:22 Reginald is in the kitchen and servants' quarters, counting his hidden money in the pantry.",
+    "category": "location",
+    "time": "21:22",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2122",
+    "statement": "At 21:22 Victoria is in the dining room, with Archibald again after he comes back.",
+    "category": "location",
+    "time": "21:22",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-archibald-returns",
+    "statement": "Archibald comes back to the dining room without the brandy, and neither says where they have been.",
+    "category": "alibi",
+    "time": "21:22",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald",
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2130",
+    "statement": "At 21:30 Archibald is in the dining room, by the fire with Victoria when Reginald screams.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2130",
+    "statement": "At 21:30 Gregory is in the garden, in the potting shed, hearing shouting from the house.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2130",
+    "statement": "At 21:30 Reginald is in the hall, at the locked library door with the coal scuttle, screaming.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2130",
+    "statement": "At 21:30 Victoria is in the dining room, by the fire with Archibald when Reginald screams.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-reginald-scream",
+    "statement": "Reginald brings the coal and finds the library door locked. The keyhole is empty, and through it he sees his lordship's hand on the floor in the firelight. He screams.",
+    "category": "timeline",
+    "time": "21:30",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "ev-scream-heard-dining",
+    "statement": "A scream from the hall is heard in the dining room.",
+    "category": "timeline",
+    "time": "21:30",
+    "locationId": "dining-room",
+    "involvesCharacterIds": [
+      "victoria",
+      "archibald"
+    ]
+  },
+  {
+    "id": "ev-shouting-heard-garden",
+    "statement": "From the potting shed Gregory hears shouting from the house.",
+    "category": "timeline",
+    "time": "21:30",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-archibald-2131",
+    "statement": "At 21:31 Archibald is in the hall, shouldering the locked library door open.",
+    "category": "location",
+    "time": "21:31",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2131",
+    "statement": "At 21:31 Gregory is in the garden, in the potting shed, hearing shouting from the house.",
+    "category": "location",
+    "time": "21:31",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2131",
+    "statement": "At 21:31 Reginald is in the hall, at the library door while Archibald forces it.",
+    "category": "location",
+    "time": "21:31",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2131",
+    "statement": "At 21:31 Victoria is in the hall, at the library door while Archibald forces it.",
+    "category": "location",
+    "time": "21:31",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-door-forced",
+    "statement": "The library door is locked with no key in it, so Archibald shoulders it open and bursts the lock.",
+    "category": "timeline",
+    "time": "21:31",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "archibald",
+      "reginald",
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2132",
+    "statement": "At 21:32 Archibald is in the library, at the discovery of the body.",
+    "category": "location",
+    "time": "21:32",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2132",
+    "statement": "At 21:32 Gregory is in the garden, in the potting shed, hearing shouting from the house.",
+    "category": "location",
+    "time": "21:32",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2132",
+    "statement": "At 21:32 Reginald is in the library, at the discovery of the body.",
+    "category": "location",
+    "time": "21:32",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2132",
+    "statement": "At 21:32 Victoria is in the library, at the discovery of the body, screaming and swooning.",
+    "category": "location",
+    "time": "21:32",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-body-discovered",
+    "statement": "Lord Blackwood is found dead by his desk with a head wound. The silver candlestick stands on the desk, the windows are bolted, and the library key is not in the lock, not on the body, and nowhere in the room.",
+    "category": "timeline",
+    "time": "21:32",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "lord-blackwood",
+      "reginald",
+      "victoria",
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2135",
+    "statement": "At 21:35 Archibald is in the library, beside the body with Reginald and Victoria.",
+    "category": "location",
+    "time": "21:35",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2135",
+    "statement": "At 21:35 Gregory is in the kitchen and servants' quarters, coming in through the kitchen door.",
+    "category": "location",
+    "time": "21:35",
+    "locationId": "kitchen",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2135",
+    "statement": "At 21:35 Reginald is in the library, beside the body with Victoria and Archibald.",
+    "category": "location",
+    "time": "21:35",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2135",
+    "statement": "At 21:35 Victoria is in the library, beside the body with Reginald and Archibald.",
+    "category": "location",
+    "time": "21:35",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "loc-archibald-2136",
+    "statement": "At 21:36 Archibald is in the library, beside the body as Gregory arrives.",
+    "category": "location",
+    "time": "21:36",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2136",
+    "statement": "At 21:36 Gregory is in the library, joining the others at the library.",
+    "category": "location",
+    "time": "21:36",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2136",
+    "statement": "At 21:36 Reginald is in the library, beside the body as Gregory arrives.",
+    "category": "location",
+    "time": "21:36",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2136",
+    "statement": "At 21:36 Victoria is in the library, beside the body as Gregory arrives.",
+    "category": "location",
+    "time": "21:36",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-gregory-arrives",
+    "statement": "Gregory comes to the library from the kitchen, soaked, and sees his lordship's body.",
+    "category": "timeline",
+    "time": "21:36",
+    "locationId": "library",
+    "involvesCharacterIds": [
+      "gregory",
+      "lord-blackwood"
+    ]
+  },
+  {
+    "id": "ev-lights-restored",
+    "statement": "The electric lights come back on.",
+    "category": "timeline",
+    "time": "21:38",
+    "involvesCharacterIds": []
+  },
+  {
+    "id": "loc-archibald-2140",
+    "statement": "At 21:40 Archibald is in the hall, with the household in the hall.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2140",
+    "statement": "At 21:40 Gregory is in the hall, with the household in the hall.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2140",
+    "statement": "At 21:40 Reginald is in the hall, with the household in the hall.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2140",
+    "statement": "At 21:40 Victoria is in the hall, with the household in the hall.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-alibi-pact",
+    "statement": "In the hall Victoria murmurs to Archibald that they were together in the dining room the whole time, and he agrees.",
+    "category": "alibi",
+    "time": "21:40",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria",
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-archibald-2145",
+    "statement": "At 21:45 Archibald is in the hall, waiting in the hall with the household.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "archibald"
+    ]
+  },
+  {
+    "id": "loc-gregory-2145",
+    "statement": "At 21:45 Gregory is in the hall, waiting in the hall with the household.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "loc-reginald-2145",
+    "statement": "At 21:45 Reginald is in the hall, waiting in the hall with the household.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
+    "id": "loc-victoria-2145",
+    "statement": "At 21:45 Victoria is in the hall, waiting in the hall with the household.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria"
+    ]
+  },
+  {
+    "id": "ev-household-waits",
+    "statement": "The flooded road means nobody can come or go before morning, and the household waits in the hall.",
+    "category": "timeline",
+    "time": "21:45",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "victoria",
+      "archibald",
+      "reginald",
+      "gregory"
+    ]
+  }
+]

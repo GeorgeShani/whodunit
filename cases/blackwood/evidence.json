@@ -1,0 +1,69 @@
+[
+  {
+    "id": "silver-candlestick",
+    "name": "Silver Candlestick",
+    "description": "A heavy silver candlestick, one of the pair from the dining table, standing on Lord Blackwood's desk. The base is dented and has been hastily wiped, but dried blood is still caught in the engraved crest. Its fresh white candle is bent and has burned down only a few millimetres, about five minutes of burning, and wax is spattered across the desk as though it fell while lit.",
+    "kind": "physical",
+    "locationId": "library",
+    "relatedFactIds": [
+      "f-weapon-origin",
+      "f-candle-burn",
+      "ev-candlesticks-lit",
+      "ev-candlestick-delivered",
+      "ev-murder",
+      "ev-victoria-takes-letter"
+    ],
+    "initiallyAvailable": true
+  },
+  {
+    "id": "muddy-footprint",
+    "name": "Muddy Footprint",
+    "description": "One clear print of a hobnailed gardening boot in wet garden mud, on the flagstones of the dark alcove beside the hall's garden door. The toes point at the library door, six paces away. No other mud leads further along the hall or into the library.",
+    "kind": "observation",
+    "locationId": "hall",
+    "relatedFactIds": [
+      "f-footprint-gregory",
+      "f-no-mud-beyond-alcove",
+      "ev-gregory-enters-hall",
+      "ev-gregory-hears-thud",
+      "ev-gregory-sees-victoria"
+    ],
+    "initiallyAvailable": false
+  },
+  {
+    "id": "burned-letter",
+    "name": "Burned Letter",
+    "description": "A charred letter on a solicitor's notepaper, found in the ashes of the dining-room fireplace. Legible fragments: '...the new will, drawn as you instructed, leaves Lady Victoria two hundred pounds a year and nothing further...'; '...I shall call at ten tomorrow for your signature...'; '...as to the household accounts, the discrepancies do point to your butler, and I advise an audit...'",
+    "kind": "document",
+    "locationId": "dining-room",
+    "relatedFactIds": [
+      "f-new-will",
+      "f-inheritance-motive",
+      "f-letter-accuses-butler",
+      "ev-victoria-argument",
+      "ev-reginald-overhears",
+      "ev-candlestick-delivered",
+      "ev-letter-burned"
+    ],
+    "initiallyAvailable": false
+  },
+  {
+    "id": "library-key",
+    "name": "The Missing Library Key",
+    "description": "The only key to the library. When the door was forced it was not in the lock, not on his lordship and nowhere in the library. It turns up, sooty, at the bottom of the coal scuttle beside the dining-room hearth.",
+    "kind": "physical",
+    "locationId": "dining-room",
+    "relatedFactIds": [
+      "f-library-single-key",
+      "f-lord-key-habit",
+      "f-library-windows-bolted",
+      "ev-lord-relocks",
+      "ev-victoria-admitted",
+      "ev-victoria-locks-door",
+      "ev-key-hidden",
+      "ev-reginald-scream",
+      "ev-body-discovered"
+    ],
+    "initiallyAvailable": false
+  }
+]

@@ -1,0 +1,209 @@
+{
+  "id": "victoria",
+  "name": "Victoria Blackwood",
+  "role": "The Lady of the Manor",
+  "bio": "Lord Blackwood's elegant wife, now his widow. Famous for her parties, her pearls and her fainting spells, which are always perfectly timed.",
+  "personality": {
+    "traits": [
+      "glamorous",
+      "cunning",
+      "theatrical",
+      "composed",
+      "greedy",
+      "cold"
+    ],
+    "speechStyle": "Silky, dramatic society drawl. Calls everyone 'darling'. Turns every question into a performance of grief.",
+    "catchphrases": [
+      "Darling, I simply couldn't.",
+      "Must we dwell on unpleasantness?"
+    ],
+    "quirks": [
+      "dabs dry eyes with a lace handkerchief",
+      "swoons onto the nearest chaise"
+    ],
+    "tells": [
+      "twists her rings when the library door is mentioned",
+      "laughs a half-beat too long",
+      "glances at the dining-room fireplace"
+    ]
+  },
+  "goals": [
+    "Keep the fortune the old will leaves her",
+    "Make everyone believe she never left the dining room during the blackout",
+    "Point suspicion at Archibald and his threat, or at the sacked gardener"
+  ],
+  "knownFactIds": [
+    "loc-victoria-2030",
+    "loc-victoria-2040",
+    "loc-victoria-2045",
+    "loc-victoria-2050",
+    "loc-victoria-2054",
+    "loc-victoria-2057",
+    "loc-victoria-2058",
+    "loc-victoria-2100",
+    "loc-victoria-2110",
+    "loc-victoria-2111",
+    "loc-victoria-2112",
+    "loc-victoria-2113",
+    "loc-victoria-2114",
+    "loc-victoria-2115",
+    "loc-victoria-2116",
+    "loc-victoria-2117",
+    "loc-victoria-2118",
+    "loc-victoria-2119",
+    "loc-victoria-2120",
+    "loc-victoria-2121",
+    "loc-victoria-2122",
+    "loc-victoria-2130",
+    "loc-victoria-2131",
+    "loc-victoria-2132",
+    "loc-victoria-2135",
+    "loc-victoria-2136",
+    "loc-victoria-2140",
+    "loc-victoria-2145",
+    "f-lord-key-habit",
+    "f-library-single-key",
+    "f-weapon-origin",
+    "f-new-will",
+    "f-inheritance-motive",
+    "f-letter-accuses-butler",
+    "f-archibald-embezzlement",
+    "f-gregory-dismissed",
+    "ev-dinner-ends",
+    "ev-archibald-threat",
+    "ev-victoria-leaves-for-library",
+    "ev-victoria-argument",
+    "ev-victoria-passes-reginald",
+    "ev-blackout",
+    "ev-candlesticks-lit",
+    "ev-archibald-leaves-dining",
+    "ev-victoria-alone",
+    "ev-victoria-admitted",
+    "ev-murder",
+    "ev-victoria-takes-letter",
+    "ev-victoria-locks-door",
+    "ev-letter-burned",
+    "ev-key-hidden",
+    "ev-archibald-returns",
+    "ev-scream-heard-dining",
+    "ev-door-forced",
+    "ev-body-discovered",
+    "ev-gregory-arrives",
+    "ev-lights-restored",
+    "ev-alibi-pact",
+    "ev-household-waits"
+  ],
+  "beliefs": [
+    {
+      "id": "b-victoria-unseen",
+      "statement": "Nobody saw me in the hall. It was pitch black.",
+      "aboutFactId": "ev-gregory-sees-victoria",
+      "isAccurate": false,
+      "confidence": 0.8
+    },
+    {
+      "id": "b-victoria-letter-gone",
+      "statement": "The letter burned to nothing.",
+      "aboutFactId": "ev-letter-burned",
+      "isAccurate": false,
+      "confidence": 0.85
+    },
+    {
+      "id": "b-victoria-archibald-loyal",
+      "statement": "Archibald will stick to our story. He has his own reasons to.",
+      "aboutFactId": "ev-alibi-pact",
+      "isAccurate": false,
+      "confidence": 0.6
+    },
+    {
+      "id": "b-victoria-reginald-deaf",
+      "statement": "Reginald had only just come up with the coffee. He heard nothing of our quarrel.",
+      "aboutFactId": "ev-reginald-overhears",
+      "isAccurate": false,
+      "confidence": 0.7
+    },
+    {
+      "id": "b-victoria-brandy-errand",
+      "statement": "Archibald really did go off to hunt for brandy.",
+      "aboutFactId": "ev-archibald-phone",
+      "isAccurate": false,
+      "confidence": 0.5
+    }
+  ],
+  "secrets": [
+    {
+      "id": "s-victoria-murder",
+      "description": "She killed her husband with the silver candlestick at 21:17 to stop him signing the new will.",
+      "severity": "damning",
+      "pressuredByEvidenceIds": [
+        "silver-candlestick",
+        "library-key",
+        "burned-letter"
+      ],
+      "relatedFactIds": [
+        "ev-murder",
+        "ev-victoria-admitted",
+        "ev-victoria-locks-door"
+      ]
+    },
+    {
+      "id": "s-victoria-left-dining",
+      "description": "She left the dining room during the blackout while Archibald was away, went to the library, locked it behind her and hid the key in the coal scuttle.",
+      "severity": "damning",
+      "pressuredByEvidenceIds": [
+        "library-key",
+        "muddy-footprint"
+      ],
+      "relatedFactIds": [
+        "ev-victoria-alone",
+        "ev-victoria-admitted",
+        "ev-victoria-locks-door",
+        "ev-key-hidden"
+      ]
+    },
+    {
+      "id": "s-victoria-new-will",
+      "description": "She knew about the new will before the murder, and she burned the solicitor's letter.",
+      "severity": "serious",
+      "pressuredByEvidenceIds": [
+        "burned-letter"
+      ],
+      "relatedFactIds": [
+        "f-new-will",
+        "ev-victoria-argument",
+        "ev-letter-burned"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "characterId": "lord-blackwood",
+      "kind": "husband",
+      "sentiment": -0.8,
+      "description": "A loveless marriage kept up for his money. She resented his control and hated him for the new will."
+    },
+    {
+      "characterId": "archibald",
+      "kind": "husband's business partner",
+      "sentiment": 0.1,
+      "description": "Finds his bluster tiresome but useful. He is her alibi and a ready scapegoat."
+    },
+    {
+      "characterId": "reginald",
+      "kind": "butler",
+      "sentiment": -0.2,
+      "description": "Treats him as furniture, and wonders what he overheard."
+    },
+    {
+      "characterId": "gregory",
+      "kind": "gardener",
+      "sentiment": -0.6,
+      "description": "Contempt for the muddy, gin-soaked gardener her husband sacked."
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "sad",
+    "intensity": 0.5,
+    "composure": 0.85
+  }
+}
