@@ -20,7 +20,9 @@ async function issuesFor(mutate: Parameters<typeof makeBrokenCopy>[0]) {
 describe("loadCase (valid fixture)", () => {
   it("loads and validates the fixture case", async () => {
     const c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
-    expect(c.meta.id).toBe(FIXTURE_ID);
+    expect(c.id).toBe(FIXTURE_ID);
+    expect(c.timeline.map((t) => t.id)).toContain("alpha-struck-victim");
+    expect(c.solution.motiveId).toBe("partnership-dispute");
     expect(c.characters.map((ch) => ch.id)).toEqual(["alpha", "bravo", "charlie"]);
     expect(c.solution.murdererId).toBe("alpha");
   });
@@ -35,6 +37,15 @@ describe("loadCase (valid fixture)", () => {
   });
 });
 
+async function expectValid(mutate: Parameters<typeof makeBrokenCopy>[0]) {
+  const { casesDir, cleanup } = await makeBrokenCopy(mutate);
+  try {
+    expect((await validateCase(FIXTURE_ID, casesDir)).issues).toEqual([]);
+  } finally {
+    await cleanup();
+  }
+}
+
 describe("validateCase (broken fixtures)", () => {
   it("reports a murderer who is not a character", async () => {
     const out = await issuesFor((edit) => edit("solution.json", (s) => (s.murdererId = "nobody")));
@@ -46,30 +57,40 @@ describe("validateCase (broken fixtures)", () => {
     expect(out).toMatch(/weapon "spoon" is not an evidence id/);
   });
 
-  it("reports a murderer with no opportunity", async () => {
+  it("reports a murderer with no opportunity (point entry > 15 min away)", async () => {
     const out = await issuesFor((edit) =>
-      edit("case.json", (c) => {
-        const t = c.timeline.find((x: any) => x.characterId === "alpha");
-        t.from = "19:00";
-        t.to = "20:00"; // 21:00 murder is > 15 min outside
+      edit("timeline.json", (tl) => {
+        tl.find((x: any) => x.id === "alpha-struck-victim").time = "20:44"; // murder at 21:00 -> 16 min
       }),
     );
     expect(out).toMatch(/had no opportunity/);
   });
 
-  it("accepts opportunity within the ±15 minute window", async () => {
-    const { casesDir, cleanup } = await makeBrokenCopy((edit) =>
-      edit("case.json", (c) => {
-        const t = c.timeline.find((x: any) => x.characterId === "alpha");
-        t.from = "20:30";
-        t.to = "20:45"; // murder at 21:00 is exactly 15 min after
+  it("accepts a point entry exactly 15 minutes from the murder", async () => {
+    await expectValid((edit) =>
+      edit("timeline.json", (tl) => {
+        tl.find((x: any) => x.id === "alpha-struck-victim").time = "21:15";
       }),
     );
-    try {
-      expect((await validateCase(FIXTURE_ID, casesDir)).issues).toEqual([]);
-    } finally {
-      await cleanup();
-    }
+  });
+
+  it("accepts a window that ends 15 minutes before the murder, rejects one at 16", async () => {
+    const toWindow = (to: string) => (edit: any) =>
+      edit("timeline.json", (tl: any[]) => {
+        const e = tl.find((x) => x.id === "alpha-struck-victim");
+        delete e.time;
+        e.from = "20:30";
+        e.to = to;
+      });
+    await expectValid(toWindow("20:45"));
+    expect(await issuesFor(toWindow("20:44"))).toMatch(/had no opportunity/);
+  });
+
+  it("requires the murderer to be at the solution location (not elsewhere)", async () => {
+    const out = await issuesFor((edit) =>
+      edit("timeline.json", (tl) => (tl.find((x: any) => x.id === "alpha-struck-victim").locationId = "garden")),
+    );
+    expect(out).toMatch(/had no opportunity/);
   });
 
   it("reports an innocent without secrets", async () => {
@@ -80,12 +101,12 @@ describe("validateCase (broken fixtures)", () => {
   it("reports dangling character, evidence and location references", async () => {
     const out = await issuesFor(async (edit) => {
       await edit("characters/bravo.json", (c) => {
-        c.secrets[0].pressuredByEvidenceIds = ["ghost-clue"];
-        c.relationships[0].characterId = "ghost-person";
+        c.secrets[0].revealConditions.evidenceIds = ["ghost-clue"];
+        c.relationships[0].targetCharacterId = "ghost-person";
       });
-      await edit("case.json", (c) => (c.evidence[0].locationId = "ghost-room"));
+      await edit("evidence.json", (ev) => (ev[0].locationId = "ghost-room"));
     });
-    expect(out).toMatch(/unknown evidence "ghost-clue"/);
+    expect(out).toMatch(/revealConditions\.evidenceIds\.0 unknown evidence "ghost-clue"/);
     expect(out).toMatch(/unknown character\/victim "ghost-person"/);
     expect(out).toMatch(/unknown location "ghost-room"/);
   });
@@ -111,8 +132,53 @@ describe("validateCase (broken fixtures)", () => {
   });
 
   it("reports duplicate ids", async () => {
-    const out = await issuesFor((edit) => edit("case.json", (c) => c.evidence.push({ ...c.evidence[0] })));
+    const out = await issuesFor(async (edit) => {
+      await edit("evidence.json", (ev) => ev.push({ ...ev[0] }));
+      await edit("case.json", (c) => c.facts.push({ ...c.facts[0], id: "bravo-in-garden" })); // clashes with a timeline id
+    });
     expect(out).toMatch(/duplicate evidence id "note"/);
+    expect(out).toMatch(/duplicate fact\/timeline id "bravo-in-garden"/);
+  });
+
+  it("checks the new references: relatedCharacters, lie evidence/facts, reveal prerequisites, motive, key evidence", async () => {
+    const out = await issuesFor(async (edit) => {
+      await edit("evidence.json", (ev) => (ev[0].relatedCharacters = ["ghost-person"]));
+      await edit("characters/alpha.json", (c) => {
+        c.intendedLies[0].brokenByEvidenceIds = ["ghost-lie-clue"];
+        c.intendedLies[0].aboutFactId = "ghost-fact";
+        c.secrets[0].revealConditions.afterSecretIds = ["bravo-secret"]; // not alpha's own secret
+      });
+      await edit("solution.json", (s) => {
+        s.motiveId = "ghost-motive";
+        s.keyEvidenceIds = ["note", "ghost-key"];
+      });
+    });
+    expect(out).toMatch(/relatedCharacters\.0 unknown character\/victim "ghost-person"/);
+    expect(out).toMatch(/brokenByEvidenceIds\.0 unknown evidence "ghost-lie-clue"/);
+    expect(out).toMatch(/aboutFactId unknown fact "ghost-fact"/);
+    expect(out).toMatch(/afterSecretIds\.0 unknown own secret "bravo-secret"/);
+    expect(out).toMatch(/motive "ghost-motive" is not one of case\.json motives/);
+    expect(out).toMatch(/keyEvidenceIds\.1 unknown evidence "ghost-key"/);
+  });
+
+  it("allows the victim as a relationship target and in relatedCharacters", async () => {
+    await expectValid(async (edit) => {
+      await edit("evidence.json", (ev) => (ev[0].relatedCharacters = ["victim-v"]));
+      await edit("characters/bravo.json", (c) => (c.relationships[0].targetCharacterId = "victim-v"));
+    });
+  });
+
+  it("reports the old single-file layout / old field names", async () => {
+    const out = await issuesFor(async (edit, dir) => {
+      await rm(path.join(dir, "timeline.json"));
+      await edit("case.json", (c) => {
+        c.victimId = c.victim.id;
+        delete c.victim;
+      });
+    });
+    expect(out).toMatch(/timeline\.json {2}file is missing/);
+    expect(out).toMatch(/case\.json victim/);
+    expect(out).toMatch(/victimId/);
   });
 });
 
@@ -122,7 +188,14 @@ describe("getPublicCaseView", () => {
     const view = getPublicCaseView(c);
     const json = JSON.stringify(view);
     expect(view.evidence.map((e) => e.id)).toEqual(["note", "torn-glove"]);
-    for (const banned of ["solution", "murdererId", "heavy-wrench", "UNDISCOVERED_WEAPON_DESC", "_SECRET", "_BELIEF", "PRIVATE_FACT", "GUILTY", "timeline", "relatedFactIds"]) {
+    // Motive OPTIONS are public multiple choice; the true motive is not flagged.
+    expect(view.motives.map((m) => m.id)).toEqual(["partnership-dispute", "gambling-debt", "forged-will"]);
+    expect(Object.keys(view.motives[0]).sort()).toEqual(["id", "label"]);
+    for (const banned of [
+      "solution", "murdererId", "motiveId", "keyEvidenceIds", "SOLUTION_EXPLANATION", "heavy-wrench", "UNDISCOVERED_WEAPON_DESC",
+      "_SECRET", "_BELIEF", "_LIE", "intendedLies", "revealConditions", "stressThreshold", "PRIVATE_FACT", "GUILTY",
+      "timeline", "relatedFactIds", "relatedCharacters", "relationships", "honesty", "_REL",
+    ]) {
       expect(json).not.toContain(banned);
     }
     expect(getPublicCaseView(c, { discoveredEvidenceIds: ["heavy-wrench"] }).evidence.map((e) => e.id)).toEqual(["heavy-wrench"]);

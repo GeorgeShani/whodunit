@@ -1,11 +1,9 @@
 {
-  "meta": {
-    "id": "_placeholder",
-    "title": "Placeholder Case",
-    "tagline": "A perfectly normal dinner party. Until somebody got murdered.",
-    "intro": "PLACEHOLDER INTRO. The real case (Blackwood) is being written. This stand-in case uses the cast's art-bible names and roles only, to exercise the game flow.\n\nPick a suspect and start asking questions.",
-    "dayStartsAt": "12:00"
-  },
+  "id": "_placeholder",
+  "title": "Placeholder Case",
+  "tagline": "A perfectly normal dinner party. Until somebody got murdered.",
+  "intro": "PLACEHOLDER INTRO. The real case (Blackwood) is being written. This stand-in case uses the cast's art-bible names and roles only, to exercise the game flow.\n\nPick a suspect and start asking questions.",
+  "dayStartsAt": "12:00",
   "victim": {
     "id": "placeholder-victim",
     "name": "The Victim (placeholder)",
@@ -35,46 +33,14 @@
       "locationId": "room-b"
     }
   ],
-  "timeline": [
+  "motives": [
     {
-      "id": "t-gregory",
-      "characterId": "gregory",
-      "locationId": "room-b",
-      "from": "21:15",
-      "to": "21:45"
+      "id": "placeholder-motive-a",
+      "label": "Placeholder motive A"
     },
     {
-      "id": "t-reginald",
-      "characterId": "reginald",
-      "locationId": "room-a",
-      "from": "20:00",
-      "to": "22:00"
-    }
-  ],
-  "evidence": [
-    {
-      "id": "placeholder-clue-1",
-      "name": "Placeholder Clue #1",
-      "description": "PLACEHOLDER (real case pending).",
-      "kind": "physical",
-      "locationId": "room-a",
-      "initiallyAvailable": true
-    },
-    {
-      "id": "placeholder-clue-2",
-      "name": "Placeholder Clue #2",
-      "description": "PLACEHOLDER (real case pending).",
-      "kind": "document",
-      "locationId": "room-b",
-      "initiallyAvailable": true
-    },
-    {
-      "id": "placeholder-weapon",
-      "name": "Placeholder Weapon",
-      "description": "PLACEHOLDER (real case pending).",
-      "kind": "physical",
-      "locationId": "room-b",
-      "initiallyAvailable": false
+      "id": "placeholder-motive-b",
+      "label": "Placeholder motive B"
     }
   ]
 }

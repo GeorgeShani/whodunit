@@ -10,7 +10,14 @@
     "speechStyle": "Plain test voice.",
     "catchphrases": [],
     "quirks": [],
-    "tells": []
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
   },
   "goals": [
     "Alpha Testperson goal"
@@ -33,19 +40,27 @@
       "id": "alpha-secret",
       "description": "ALPHA_SECRET: Hid the wrench behind the books.",
       "severity": "damning",
-      "pressuredByEvidenceIds": [
-        "heavy-wrench"
-      ],
       "relatedFactIds": [
         "alpha-struck-victim"
-      ]
+      ],
+      "revealConditions": {
+        "stressThreshold": 90,
+        "evidenceIds": [
+          "heavy-wrench"
+        ],
+        "mode": "all"
+      }
     }
   ],
   "relationships": [
     {
-      "characterId": "victim-v",
+      "targetCharacterId": "victim-v",
+      "trust": 50,
+      "fear": 10,
+      "affection": 10,
+      "resentment": 64,
+      "suspicion": 30,
       "kind": "business partner",
-      "sentiment": -0.8,
       "description": "ALPHA_REL: Resented Victor."
     }
   ],
@@ -53,5 +68,15 @@
     "emotion": "calm",
     "intensity": 0.3,
     "composure": 0.8
-  }
+  },
+  "intendedLies": [
+    {
+      "id": "alpha-lie",
+      "aboutFactId": "alpha-struck-victim",
+      "claim": "ALPHA_LIE: I never left the hall all evening.",
+      "brokenByEvidenceIds": [
+        "heavy-wrench"
+      ]
+    }
+  ]
 }

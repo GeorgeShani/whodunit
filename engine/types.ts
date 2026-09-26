@@ -6,7 +6,7 @@
  * so they are intentionally strict (unknown keys are rejected).
  *
  * GOLDEN RULE: the game engine is truth, AI is performance. Nothing in here is
- * decided by the LLM. The case solution (murderer / weapon / location / time)
+ * decided by the LLM. The case solution (murderer / weapon / location / time / motive)
  * lives in `engine/solution.ts` and must never be sent to the client.
  *
  * Per-character scoping: everything a character knows, believes, hides, wants,
@@ -43,6 +43,9 @@ export type GameTime = z.infer<typeof GameTimeSchema>;
 
 /** Normalized 0..1 value (intensity, confidence, composure...). */
 export const UnitIntervalSchema = z.number().min(0).max(1);
+
+/** 0..100 gauge (relationship axes, stress, trust). */
+export const PercentSchema = z.number().min(0).max(100);
 
 const NonEmptyText = z.string().trim().min(1);
 
@@ -95,6 +98,14 @@ export const PersonalitySchema = z.strictObject({
   quirks: z.array(NonEmptyText).default([]),
   /** Visible tells when lying or stressed, e.g. "voice goes up an octave". */
   tells: z.array(NonEmptyText).default([]),
+  // Numeric trait scores, 0 = not at all, 1 = extremely. Engine + prompt tuning.
+  confidence: UnitIntervalSchema,
+  nervousness: UnitIntervalSchema,
+  arrogance: UnitIntervalSchema,
+  honesty: UnitIntervalSchema,
+  impulsiveness: UnitIntervalSchema,
+  empathy: UnitIntervalSchema,
+  aggression: UnitIntervalSchema,
 });
 export type Personality = z.infer<typeof PersonalitySchema>;
 
@@ -114,6 +125,10 @@ export type Location = z.infer<typeof LocationSchema>;
  * An objective, engine-owned truth about the case world ("The butler was in
  * the pantry at 21:00"). Characters reference facts they know by id.
  */
+/** Provenance of a fact. */
+export const FactSourceSchema = z.enum(["witnessed", "heard", "told", "inferred", "canonical"]);
+export type FactSource = z.infer<typeof FactSourceSchema>;
+
 export const FactSchema = z.strictObject({
   id: IdSchema,
   /** The fact stated plainly, in third person. */
@@ -124,10 +139,35 @@ export const FactSchema = z.strictObject({
   time: GameTimeSchema.optional(),
   /** Where the fact happened, if place-bound. */
   locationId: IdSchema.optional(),
-  /** Characters this fact is about. */
+  /** Characters (or the victim) this fact is about. */
   involvesCharacterIds: z.array(IdSchema).default([]),
+  /** How the fact is known: canonical = objective world truth (default). */
+  source: FactSourceSchema.default("canonical"),
+  /** Certainty of the fact as held (1 = certain). */
+  confidence: UnitIntervalSchema.default(1),
 });
 export type Fact = z.infer<typeof FactSchema>;
+
+/**
+ * A timeline entry is a Fact pinned in time: EITHER a point (`time`) OR a
+ * window (`from` + `to`, inclusive). When it has a `locationId`, every id in
+ * `involvesCharacterIds` is PRESENT at that location at that time; the engine
+ * uses this for the opportunity check and alibis. Timeline entries share the
+ * fact id namespace, so characters can list them in `knownFactIds`.
+ */
+export const TimelineEntrySchema = FactSchema.extend({
+  /** Window start (use with `to`, instead of `time`). */
+  from: GameTimeSchema.optional(),
+  /** Window end, inclusive (use with `from`). */
+  to: GameTimeSchema.optional(),
+}).superRefine((e, ctx) => {
+  const point = e.time !== undefined;
+  const window = e.from !== undefined || e.to !== undefined;
+  if (point && window) ctx.addIssue({ code: "custom", message: 'use either "time" (point) or "from"/"to" (window), not both' });
+  else if (!point && !window) ctx.addIssue({ code: "custom", message: 'timeline entries need "time" or "from" + "to"' });
+  else if (window && (e.from === undefined || e.to === undefined)) ctx.addIssue({ code: "custom", message: 'windows need both "from" and "to"' });
+});
+export type TimelineEntry = z.infer<typeof TimelineEntrySchema>;
 
 // ---------------------------------------------------------------------------
 // Per-character inner world
@@ -147,6 +187,24 @@ export const BeliefSchema = z.strictObject({
 });
 export type Belief = z.infer<typeof BeliefSchema>;
 
+/**
+ * When the ENGINE reveals a secret (never the model). Conditions are:
+ * stress >= stressThreshold, and/or each evidence id having been shown.
+ * mode "any" = one condition suffices; "all" = every listed condition.
+ * afterSecretIds are prerequisites that must already be revealed (ordering).
+ */
+export const RevealConditionsSchema = z
+  .strictObject({
+    stressThreshold: PercentSchema.optional(),
+    evidenceIds: z.array(IdSchema).default([]),
+    mode: z.enum(["any", "all"]).default("any"),
+    afterSecretIds: z.array(IdSchema).default([]),
+  })
+  .refine((c) => c.stressThreshold !== undefined || c.evidenceIds.length > 0, {
+    message: "revealConditions needs a stressThreshold and/or evidenceIds",
+  });
+export type RevealConditions = z.infer<typeof RevealConditionsSchema>;
+
 /** Something a character is hiding. Revealed only when the engine says so. */
 export const SecretSchema = z.strictObject({
   id: IdSchema,
@@ -154,25 +212,46 @@ export const SecretSchema = z.strictObject({
   description: NonEmptyText,
   /** How bad it is for them if it comes out. */
   severity: z.enum(["embarrassing", "serious", "damning"]),
-  /** Evidence ids that, when shown, pressure this secret. */
-  pressuredByEvidenceIds: z.array(IdSchema).default([]),
+  /** Engine-evaluated reveal rules. Omit = never auto-revealed. */
+  revealConditions: RevealConditionsSchema.optional(),
   /** Facts that would be exposed if the secret were revealed. */
   relatedFactIds: z.array(IdSchema).default([]),
 });
 export type Secret = z.infer<typeof SecretSchema>;
 
-/** How one character feels about another (directional). */
+/** How one character feels about another person (directional). Axes are 0..100. */
 export const RelationshipSchema = z.strictObject({
-  /** The other character. */
-  characterId: IdSchema,
-  /** Short label, e.g. "spouse", "business rival", "secret lover". */
-  kind: NonEmptyText,
-  /** -1 = loathes, 0 = neutral, 1 = adores. */
-  sentiment: z.number().min(-1).max(1),
-  /** Flavor/context for the performance layer. */
-  description: NonEmptyText,
+  /** The other character, or the victim's id. */
+  targetCharacterId: IdSchema,
+  trust: PercentSchema,
+  fear: PercentSchema,
+  affection: PercentSchema,
+  resentment: PercentSchema,
+  suspicion: PercentSchema,
+  /** Optional flavour label, e.g. "spouse", "business rival". */
+  kind: NonEmptyText.optional(),
+  /** Optional flavour/context for the performance layer. */
+  description: NonEmptyText.optional(),
 });
 export type Relationship = z.infer<typeof RelationshipSchema>;
+
+/** An authored cover story / lie the character intends to tell. */
+export const IntendedLieSchema = z
+  .strictObject({
+    id: IdSchema,
+    /** What the lie is about, in plain words (e.g. "whereabouts at 21:15"). */
+    topic: NonEmptyText.optional(),
+    /** The true fact the lie contradicts, if any. */
+    aboutFactId: IdSchema.optional(),
+    /** The false claim, as the character would put it. */
+    claim: NonEmptyText,
+    /** Evidence that exposes the lie (engine use). */
+    brokenByEvidenceIds: z.array(IdSchema).default([]),
+  })
+  .refine((l) => l.topic !== undefined || l.aboutFactId !== undefined, {
+    message: 'intended lies need a "topic" and/or "aboutFactId"',
+  });
+export type IntendedLie = z.infer<typeof IntendedLieSchema>;
 
 // ---------------------------------------------------------------------------
 // Characters
@@ -194,6 +273,8 @@ export const CharacterSchema = z.strictObject({
   beliefs: z.array(BeliefSchema).default([]),
   secrets: z.array(SecretSchema).default([]),
   relationships: z.array(RelationshipSchema).default([]),
+  /** Authored lies / cover stories the character intends to tell. */
+  intendedLies: z.array(IntendedLieSchema).default([]),
   /** Emotional state at the start of the case. */
   initialEmotion: EmotionalStateSchema,
   /** Asset key for their portrait set (resolved under assets/characters). */
@@ -216,6 +297,8 @@ export const EvidenceSchema = z.strictObject({
   locationId: IdSchema.optional(),
   /** Facts this evidence supports (used by the engine, never by the LLM). */
   relatedFactIds: z.array(IdSchema).default([]),
+  /** Characters (or the victim) this evidence is linked to (engine use). */
+  relatedCharacters: z.array(IdSchema).default([]),
   /** Is it available from the start, or unlocked by the engine? */
   initiallyAvailable: z.boolean().default(false),
   /** Asset key for its icon/illustration. */
@@ -273,6 +356,10 @@ export const CharacterRuntimeStateSchema = z.strictObject({
   statementIds: z.array(IdSchema).default([]),
   /** Number of interrogation exchanges so far. */
   interrogationCount: z.number().int().nonnegative().default(0),
+  /** Engine-tracked pressure, 0..100 (drives secret reveals). */
+  stress: PercentSchema.default(0),
+  /** Trust toward the detective, 0..100. */
+  trust: PercentSchema.default(50),
 });
 export type CharacterRuntimeState = z.infer<typeof CharacterRuntimeStateSchema>;
 
@@ -283,12 +370,14 @@ export const ConfrontationStateSchema = z.strictObject({
 });
 export type ConfrontationState = z.infer<typeof ConfrontationStateSchema>;
 
-/** The player's accusation (their guess, not the truth). */
+/** The player's accusation (their guess, not the truth): who, with what, why, and the proof. */
 export const AccusationSchema = z.strictObject({
   murdererId: IdSchema,
   weaponId: IdSchema,
-  locationId: IdSchema,
-  time: GameTimeSchema,
+  /** One of the case's public motive options. */
+  motiveId: IdSchema,
+  /** Evidence the player presents as proof. */
+  keyEvidenceIds: z.array(IdSchema).min(1).max(5),
 });
 export type Accusation = z.infer<typeof AccusationSchema>;
 

@@ -2,12 +2,15 @@
  * buildCharacterContext: the ONLY way character data reaches the LLM.
  *
  * Returns one character's view of the world: their persona, the facts THEY
- * know, their beliefs (without truth labels), their secrets (without engine
- * trigger metadata), goals, relationships, memory, emotion, what they've said,
- * and only the evidence the player has discovered AND shown to them.
+ * know (from case facts or timeline entries), their beliefs (without truth
+ * labels), their secrets (without reveal conditions), their own intended lies
+ * (topic + claim only), goals, relationships, memory, emotion, stress/trust,
+ * what they've said, and only the evidence the player has discovered AND
+ * shown to them.
  *
- * Never included: the solution, any isMurderer-style flag, the timeline, other
- * characters' private data, or undiscovered/unshown evidence. A murderer "knows"
+ * Never included: the solution or motive, any isMurderer-style flag, the
+ * timeline as such, other characters' private data, secret reveal conditions,
+ * lie-breaking evidence, or undiscovered/unshown evidence. A murderer "knows"
  * they did it only through their own authored knownFactIds.
  *
  * Lives in engine/ (not ai/) because it is a deterministic projection of engine
@@ -26,10 +29,33 @@ export interface CharacterContext {
   };
   persona: { id: string; name: string; role: string; bio: string; personality: Personality };
   goals: string[];
-  knowledge: { id: string; statement: string; time?: string; location?: string }[];
+  knowledge: {
+    id: string;
+    statement: string;
+    time?: string;
+    from?: string;
+    to?: string;
+    location?: string;
+    source: string;
+    confidence: number;
+  }[];
   beliefs: { id: string; statement: string; confidence: number }[];
   secrets: { id: string; description: string; severity: string; revealed: boolean }[];
-  relationships: { characterId: string; name: string; kind: string; sentiment: number; description: string }[];
+  relationships: {
+    targetCharacterId: string;
+    name: string;
+    trust: number;
+    fear: number;
+    affection: number;
+    resentment: number;
+    suspicion: number;
+    kind?: string;
+    description?: string;
+  }[];
+  /** Lies this character intends to tell (so the performer can stay consistent). */
+  intendedLies: { id: string; topic?: string; claim: string }[];
+  /** Engine-owned pressure gauges (0..100). */
+  state: { stress: number; trust: number };
   memory: MemoryEntry[];
   emotion: EmotionalState;
   statements: { id: string; text: string; turn: number; mode: string }[];
@@ -60,7 +86,7 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
 
   return {
     case: {
-      title: c.meta.title,
+      title: c.title,
       victim: {
         name: c.victim.name,
         description: c.victim.description,
@@ -81,12 +107,20 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       personality: structuredClone(ch.personality),
     },
     goals: [...ch.goals],
-    knowledge: c.facts
+    knowledge: [...c.facts.map((f) => ({ ...f, from: undefined, to: undefined })), ...c.timeline]
       .filter((f) => known.has(f.id))
-      .map((f) => ({ id: f.id, statement: f.statement, time: f.time, location: locName(f.locationId) })),
+      .map((f) => ({
+        id: f.id,
+        statement: f.statement,
+        ...(f.time !== undefined ? { time: f.time } : {}),
+        ...(f.from !== undefined ? { from: f.from, to: f.to } : {}),
+        location: locName(f.locationId),
+        source: f.source,
+        confidence: f.confidence,
+      })),
     // isAccurate is engine-only: the character just believes it.
     beliefs: ch.beliefs.map((b) => ({ id: b.id, statement: b.statement, confidence: b.confidence })),
-    // pressuredByEvidenceIds / relatedFactIds are engine trigger metadata (may name undiscovered evidence).
+    // revealConditions / relatedFactIds are engine metadata (may name undiscovered evidence).
     secrets: ch.secrets.map((s) => ({
       id: s.id,
       description: s.description,
@@ -94,12 +128,19 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       revealed: revealed.has(s.id),
     })),
     relationships: ch.relationships.map((r) => ({
-      characterId: r.characterId,
-      name: personName(r.characterId),
-      kind: r.kind,
-      sentiment: r.sentiment,
-      description: r.description,
+      targetCharacterId: r.targetCharacterId,
+      name: personName(r.targetCharacterId),
+      trust: r.trust,
+      fear: r.fear,
+      affection: r.affection,
+      resentment: r.resentment,
+      suspicion: r.suspicion,
+      ...(r.kind ? { kind: r.kind } : {}),
+      ...(r.description ? { description: r.description } : {}),
     })),
+    // aboutFactId / brokenByEvidenceIds stay engine-side.
+    intendedLies: ch.intendedLies.map((l) => ({ id: l.id, ...(l.topic ? { topic: l.topic } : {}), claim: l.claim })),
+    state: { stress: runtime?.stress ?? 0, trust: runtime?.trust ?? 50 },
     memory: (runtime?.memory ?? [])
       .filter((m) => m.evidenceId === undefined || shownIds.includes(m.evidenceId))
       .map((m) => ({ ...m })),

@@ -10,7 +10,14 @@
     "speechStyle": "Plain test voice.",
     "catchphrases": [],
     "quirks": [],
-    "tells": []
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
   },
   "goals": [
     "Bravo Testperson goal"
@@ -32,16 +39,24 @@
       "id": "bravo-secret",
       "description": "BRAVO_SECRET: Owes gambling debts.",
       "severity": "serious",
-      "pressuredByEvidenceIds": [
-        "torn-glove"
-      ]
+      "revealConditions": {
+        "stressThreshold": 70,
+        "evidenceIds": [
+          "torn-glove"
+        ],
+        "mode": "any"
+      }
     }
   ],
   "relationships": [
     {
-      "characterId": "charlie",
+      "targetCharacterId": "charlie",
+      "trust": 50,
+      "fear": 10,
+      "affection": 30,
+      "resentment": 32,
+      "suspicion": 30,
       "kind": "rival",
-      "sentiment": -0.4,
       "description": "BRAVO_REL: Distrusts Charlie."
     }
   ],
@@ -49,5 +64,15 @@
     "emotion": "nervous",
     "intensity": 0.3,
     "composure": 0.8
-  }
+  },
+  "intendedLies": [
+    {
+      "id": "bravo-lie",
+      "topic": "money",
+      "claim": "BRAVO_LIE: I have never gambled in my life.",
+      "brokenByEvidenceIds": [
+        "torn-glove"
+      ]
+    }
+  ]
 }

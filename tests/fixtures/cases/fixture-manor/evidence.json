@@ -1,0 +1,41 @@
+[
+  {
+    "id": "note",
+    "name": "Crumpled Note",
+    "description": "DISCOVERED_EVIDENCE_DESC",
+    "kind": "document",
+    "locationId": "hall",
+    "relatedFactIds": [
+      "dinner-served"
+    ],
+    "initiallyAvailable": true,
+    "relatedCharacters": [
+      "charlie"
+    ]
+  },
+  {
+    "id": "torn-glove",
+    "name": "Torn Glove",
+    "description": "SECOND_DISCOVERED_DESC",
+    "kind": "physical",
+    "locationId": "garden",
+    "initiallyAvailable": true,
+    "relatedCharacters": [
+      "bravo"
+    ]
+  },
+  {
+    "id": "heavy-wrench",
+    "name": "Heavy Wrench",
+    "description": "UNDISCOVERED_WEAPON_DESC",
+    "kind": "physical",
+    "locationId": "study",
+    "relatedFactIds": [
+      "alpha-struck-victim"
+    ],
+    "initiallyAvailable": false,
+    "relatedCharacters": [
+      "alpha"
+    ]
+  }
+]

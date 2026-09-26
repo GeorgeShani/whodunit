@@ -1,0 +1,23 @@
+[
+  {
+    "id": "t-gregory",
+    "statement": "PLACEHOLDER (real case pending).",
+    "category": "location",
+    "from": "21:15",
+    "to": "21:45",
+    "locationId": "room-b",
+    "involvesCharacterIds": [
+      "gregory"
+    ]
+  },
+  {
+    "id": "t-reginald",
+    "statement": "PLACEHOLDER (real case pending).",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "room-a",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  }
+]

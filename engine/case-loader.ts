@@ -7,10 +7,17 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import type { z } from "zod";
-import { CaseFileSchema, CaseIdSchema, type CaseFile, type LoadedCase } from "./case-schema";
+import {
+  CaseEnvelopeSchema,
+  CaseIdSchema,
+  EvidenceFileSchema,
+  TimelineFileSchema,
+  type CaseEnvelope,
+  type LoadedCase,
+} from "./case-schema";
 import { checkCaseReferences, formatIssue, type CaseIssue } from "./case-validation";
 import { CaseSolutionSchema, type CaseSolution } from "./solution";
-import { CharacterSchema, type Character } from "./types";
+import { CharacterSchema, type Character, type Evidence, type TimelineEntry } from "./types";
 
 export const DEFAULT_CASES_DIR = path.join(process.cwd(), "cases");
 
@@ -63,16 +70,32 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
   }
   const dir = path.join(casesDir, caseId);
 
-  let caseFile: CaseFile | undefined;
+  let envelope: CaseEnvelope | undefined;
   const caseRaw = await readJson(dir, "case.json", issues);
   if (caseRaw !== undefined) {
-    const r = CaseFileSchema.safeParse(caseRaw);
+    const r = CaseEnvelopeSchema.safeParse(caseRaw);
     if (r.success) {
-      caseFile = r.data;
-      if (caseFile.meta.id !== caseId) {
-        issues.push({ file: "case.json", path: "meta.id", message: `meta.id "${caseFile.meta.id}" must equal the folder name "${caseId}"` });
+      envelope = r.data;
+      if (envelope.id !== caseId) {
+        issues.push({ file: "case.json", path: "id", message: `id "${envelope.id}" must equal the folder name "${caseId}"` });
       }
     } else issues.push(...zodIssues("case.json", r.error));
+  }
+
+  let timeline: TimelineEntry[] | undefined;
+  const tlRaw = await readJson(dir, "timeline.json", issues);
+  if (tlRaw !== undefined) {
+    const r = TimelineFileSchema.safeParse(tlRaw);
+    if (r.success) timeline = r.data;
+    else issues.push(...zodIssues("timeline.json", r.error));
+  }
+
+  let evidence: Evidence[] | undefined;
+  const evRaw = await readJson(dir, "evidence.json", issues);
+  if (evRaw !== undefined) {
+    const r = EvidenceFileSchema.safeParse(evRaw);
+    if (r.success) evidence = r.data;
+    else issues.push(...zodIssues("evidence.json", r.error));
   }
 
   let solution: CaseSolution | undefined;
@@ -106,9 +129,9 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
     characters.push(r.data);
   }
 
-  if (issues.length || !caseFile || !solution) return { caseId, issues };
+  if (issues.length || !envelope || !timeline || !evidence || !solution) return { caseId, issues };
 
-  const data: LoadedCase = { ...caseFile, characters, solution };
+  const data: LoadedCase = { ...envelope, timeline, evidence, characters, solution };
   issues.push(...checkCaseReferences(data));
   return issues.length ? { caseId, issues } : { caseId, issues, data };
 }

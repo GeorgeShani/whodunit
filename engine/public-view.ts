@@ -1,9 +1,12 @@
 /**
- * Client-safe projection of a case. Strips the solution, the timeline, facts,
- * every character's private inner world, and any evidence the player has not
- * discovered. Pure (no fs), so client components may import its TYPES.
+ * Client-safe projection of a case. Strips the solution (incl. the true motive
+ * and key evidence), the timeline, facts, every character's private inner
+ * world (knowledge, beliefs, secrets + reveal conditions, intended lies,
+ * relationships, personality scores), evidence engine links, and any evidence
+ * the player has not discovered. Pure (no fs), so client components may import
+ * its TYPES.
  */
-import type { CaseMeta, LoadedCase, Victim } from "./case-schema";
+import type { LoadedCase, MotiveOption, Victim } from "./case-schema";
 import type { EmotionalState, Evidence, Location } from "./types";
 
 export interface PublicSuspect {
@@ -20,8 +23,17 @@ export interface PublicSuspect {
 
 export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image">;
 
+export interface PublicCaseMeta {
+  id: string;
+  title: string;
+  tagline: string;
+  intro: string;
+}
+
 export interface PublicCaseView {
-  meta: CaseMeta;
+  meta: PublicCaseMeta;
+  /** Motive OPTIONS for the accusation screen (authored as public choices; never flags the true one). */
+  motives: MotiveOption[];
   victim: Victim;
   locations: Location[];
   suspects: PublicSuspect[];
@@ -43,7 +55,8 @@ export function getPublicCaseView(
 ): PublicCaseView {
   const discovered = new Set(options.discoveredEvidenceIds ?? initialDiscoveredEvidenceIds(c));
   return {
-    meta: { ...c.meta },
+    meta: { id: c.id, title: c.title, tagline: c.tagline, intro: c.intro },
+    motives: c.motives.map(({ id, label, description }) => ({ id, label, ...(description ? { description } : {}) })),
     victim: { ...c.victim },
     locations: c.locations.map((l) => ({ ...l })),
     suspects: c.characters.map((ch) => {

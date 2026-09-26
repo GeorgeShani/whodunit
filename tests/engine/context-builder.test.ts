@@ -40,7 +40,11 @@ function deepScan(value: unknown, keys = new Set<string>(), strings = new Set<st
   return { keys, strings };
 }
 
-const SOLUTION_KEYS = ["solution", "murdererId", "murderer", "weaponId", "isMurderer", "isGuilty", "guilty", "culprit", "timeline", "isAccurate", "pressuredByEvidenceIds", "outcome"];
+const SOLUTION_KEYS = [
+  "solution", "murdererId", "murderer", "weaponId", "motive", "motiveId", "motives", "keyEvidenceIds", "explanation",
+  "isMurderer", "isGuilty", "guilty", "culprit", "timeline", "isAccurate", "revealConditions", "stressThreshold",
+  "afterSecretIds", "brokenByEvidenceIds", "aboutFactId", "relatedCharacters", "outcome",
+];
 
 beforeAll(async () => {
   c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
@@ -62,6 +66,9 @@ describe("buildCharacterContext", () => {
       const json = JSON.stringify(ctx);
       const { keys } = deepScan(ctx);
       for (const k of SOLUTION_KEYS) expect(keys.has(k), `key ${k}`).toBe(false);
+      expect(json).not.toContain("SOLUTION_EXPLANATION");
+      expect(json).not.toContain("partnership-dispute"); // true motive id
+      for (const m of c.motives) expect(json).not.toContain(m.label);
       expect(json).not.toContain(JSON.stringify(c.solution));
       expect(json).not.toContain(JSON.stringify(c.solution).slice(1, -1));
       // Weapon is undiscovered: its id/description must not appear anywhere.
@@ -73,7 +80,7 @@ describe("buildCharacterContext", () => {
       const json = JSON.stringify(buildCharacterContext(makeState(), id));
       const prefix = id.toUpperCase();
       for (const other of ["ALPHA", "BRAVO", "CHARLIE"].filter((p) => p !== prefix)) {
-        for (const tag of ["_SECRET", "_BELIEF", "_PRIVATE_FACT", "_GUILTY_FACT", "_REL", "_MEMORY_LINE", "_STATEMENT"]) {
+        for (const tag of ["_SECRET", "_BELIEF", "_PRIVATE_FACT", "_GUILTY_FACT", "_REL", "_MEMORY_LINE", "_STATEMENT", "_LIE"]) {
           expect(json, `${id} must not see ${other}${tag}`).not.toContain(`${other}${tag}`);
         }
       }
@@ -81,6 +88,7 @@ describe("buildCharacterContext", () => {
       for (const other of ["alpha", "bravo", "charlie"].filter((o) => o !== id)) {
         expect(json).not.toContain(`${other}-secret`);
         expect(json).not.toContain(`${other}-belief`);
+        expect(json).not.toContain(`${other}-lie`);
       }
     });
   }
@@ -90,10 +98,18 @@ describe("buildCharacterContext", () => {
     expect(ctx.knowledge.map((k) => k.id)).toContain("alpha-struck-victim");
     expect(JSON.stringify(ctx)).toContain("ALPHA_GUILTY_FACT");
     expect(ctx.secrets[0].description).toContain("ALPHA_SECRET");
-    expect(Object.keys(ctx).sort()).toEqual(
-      ["beliefs", "case", "emotion", "evidenceShown", "goals", "knowledge", "memory", "persona", "relationships", "secrets", "statements"],
-    );
-    expect(ctx.relationships[0]).toMatchObject({ characterId: "victim-v", name: "Victor Fixture" });
+    expect(Object.keys(ctx).sort()).toEqual([
+      "beliefs", "case", "emotion", "evidenceShown", "goals", "intendedLies", "knowledge", "memory", "persona",
+      "relationships", "secrets", "state", "statements",
+    ]);
+    expect(ctx.relationships[0]).toMatchObject({ targetCharacterId: "victim-v", name: "Victor Fixture" });
+    expect(ctx.relationships[0]).toHaveProperty("resentment");
+    // Own lie: claim only, no fact/evidence links.
+    expect(ctx.intendedLies).toEqual([{ id: "alpha-lie", claim: "ALPHA_LIE: I never left the hall all evening." }]);
+    // Secret conditions are engine-only.
+    expect(Object.keys(ctx.secrets[0]).sort()).toEqual(["description", "id", "revealed", "severity"]);
+    // Knowledge from timeline carries provenance.
+    expect(ctx.knowledge.find((k) => k.id === "alpha-struck-victim")).toMatchObject({ time: "21:00", location: "Study", source: "canonical", confidence: 1 });
   });
 
   it("innocents do not get the murderer's guilty knowledge", () => {
@@ -124,6 +140,10 @@ describe("buildCharacterContext", () => {
     expect(ctx.goals).toEqual(["Bravo Testperson goal"]);
     expect(ctx.emotion.emotion).toBe("nervous");
     expect(ctx.case.otherCharacters.map((o) => o.id)).toEqual(["alpha", "charlie"]);
+    expect(ctx.knowledge.find((k) => k.id === "bravo-in-garden")).toMatchObject({ from: "20:30", to: "21:30", source: "witnessed", confidence: 0.9 });
+    expect(ctx.persona.personality.honesty).toBeTypeOf("number");
+    expect(ctx.intendedLies).toEqual([{ id: "bravo-lie", topic: "money", claim: "BRAVO_LIE: I have never gambled in my life." }]);
+    expect(ctx.state).toEqual({ stress: 0, trust: 50 });
   });
 
   it("does not mutate or alias the loaded case", () => {

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "alpha-struck-victim",
+    "statement": "ALPHA_GUILTY_FACT: Alpha struck the victim in the study.",
+    "category": "timeline",
+    "time": "21:00",
+    "locationId": "study",
+    "involvesCharacterIds": [
+      "alpha",
+      "victim-v"
+    ]
+  },
+  {
+    "id": "bravo-in-garden",
+    "statement": "BRAVO_PRIVATE_FACT: Bravo was pruning roses in the garden.",
+    "category": "alibi",
+    "from": "20:30",
+    "to": "21:30",
+    "locationId": "garden",
+    "involvesCharacterIds": [
+      "bravo"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9
+  },
+  {
+    "id": "charlie-in-hall",
+    "statement": "CHARLIE_PRIVATE_FACT: Charlie was polishing the hall mirror.",
+    "category": "alibi",
+    "from": "20:00",
+    "to": "22:00",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "charlie"
+    ]
+  }
+]

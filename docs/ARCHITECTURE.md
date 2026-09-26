@@ -2,7 +2,7 @@
 
 ## Truth vs performance
 
-- `engine/` is truth. It holds the schemas (`types.ts`, `case-schema.ts`), the server-only `solution.ts`, the loader (`case-loader.ts`, which uses fs and is server-only), the referential checks (`case-validation.ts`), the runtime state (`game-state.ts`), the public projection (`public-view.ts`) and the context builder.
+- `engine/` is truth. It holds the schemas (`types.ts`, `case-schema.ts`), the server-only `solution.ts`, the secret reveal rules (`secrets.ts`), the loader (`case-loader.ts`, which uses fs and is server-only), the referential checks (`case-validation.ts`), the runtime state (`game-state.ts`), the public projection (`public-view.ts`) and the context builder.
 - `ai/` is performance. It holds the LLM output schema (`schemas.ts`), the request schema (`interrogate-schema.ts`) and the Phase-1 canned performer (`canned-responses.ts`). The canned performer gets swapped for Grok later.
 - `engine/index.ts` is a barrel that is safe to use on the client. It deliberately leaves out `solution.ts` and `case-loader.ts`.
 

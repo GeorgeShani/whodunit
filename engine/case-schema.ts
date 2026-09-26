@@ -1,14 +1,17 @@
 /**
- * Case-file schemas (what the narrative designer authors on disk).
- * See docs/CASE_FORMAT.md for the human-readable spec.
+ * Case-file contract: the single source of truth for authored cases.
+ * Human-readable spec: docs/CASE_FORMAT.md.
  *
  * Layout of cases/<caseId>/:
- *   case.json              -> CaseFileSchema (meta, victim, locations, facts, timeline, evidence)
+ *   case.json              -> CaseEnvelopeSchema (id, title, tagline, intro, victim, locations, facts, motives)
+ *   timeline.json          -> TimelineFileSchema (TimelineEntry[]: points or windows)
+ *   evidence.json          -> EvidenceFileSchema (Evidence[])
  *   characters/<id>.json   -> CharacterSchema (one file per interrogable character)
  *   solution.json          -> CaseSolutionSchema (SERVER-ONLY)
  */
 import { z } from "zod";
 import { CaseSolutionSchema } from "./solution";
+import { DEFAULT_DAY_STARTS_AT } from "./time";
 import {
   CaseIdSchema,
   CharacterSchema,
@@ -17,27 +20,14 @@ import {
   GameTimeSchema,
   IdSchema,
   LocationSchema,
+  TimelineEntrySchema,
 } from "./types";
-import { DEFAULT_DAY_STARTS_AT } from "./time";
 
 const NonEmptyText = z.string().trim().min(1);
 
-/** Title-card / intro information. Everything here is public. */
-export const CaseMetaSchema = z.strictObject({
-  /** Must equal the case directory name. */
-  id: CaseIdSchema,
-  title: NonEmptyText,
-  tagline: NonEmptyText,
-  /** Intro text shown before suspect selection (plain text, paragraphs separated by blank lines). */
-  intro: NonEmptyText,
-  /** Clock time at which the game day starts; earlier times count as after midnight. */
-  dayStartsAt: GameTimeSchema.default(DEFAULT_DAY_STARTS_AT),
-});
-export type CaseMeta = z.infer<typeof CaseMetaSchema>;
-
-/** The victim. Not interrogable; public information only (cause of death is what the player is told). */
+/** The victim. Not interrogable; everything here is PUBLIC (shown on the intro screen). */
 export const VictimSchema = z.strictObject({
-  /** Id usable in facts/relationships; must not collide with a character id. */
+  /** Id usable in facts, timeline and relationships; must not collide with a character id. */
   id: IdSchema,
   name: NonEmptyText,
   description: NonEmptyText,
@@ -45,42 +35,52 @@ export const VictimSchema = z.strictObject({
   foundAtLocationId: IdSchema,
   /** When the body was found. */
   foundAt: GameTimeSchema,
-  /** Publicly known cause of death, e.g. "Blunt trauma. Also, very surprised." */
+  /** Publicly known cause of death. */
   causeOfDeath: NonEmptyText,
 });
 export type Victim = z.infer<typeof VictimSchema>;
 
-/**
- * Ground-truth whereabouts: character X was in location Y from `from` to `to`
- * (inclusive). Engine truth, never shown to the player or the LLM directly.
- * Used for the murderer-opportunity check and future alibi logic.
- */
-export const TimelineEntrySchema = z.strictObject({
+/** A motive the player can pick when accusing. PUBLIC multiple-choice option; the true one is solution.motiveId. */
+export const MotiveOptionSchema = z.strictObject({
   id: IdSchema,
-  characterId: IdSchema,
-  locationId: IdSchema,
-  from: GameTimeSchema,
-  to: GameTimeSchema,
-  /** Optional fact describing this presence (so characters can "know" it). */
-  factId: IdSchema.optional(),
+  /** Short player-facing label, e.g. "Inheritance". */
+  label: NonEmptyText,
+  description: NonEmptyText.optional(),
 });
-export type TimelineEntry = z.infer<typeof TimelineEntrySchema>;
+export type MotiveOption = z.infer<typeof MotiveOptionSchema>;
 
-/** Contents of cases/<id>/case.json. */
-export const CaseFileSchema = z.strictObject({
-  meta: CaseMetaSchema,
+/** cases/<id>/case.json */
+export const CaseEnvelopeSchema = z.strictObject({
+  /** Must equal the case folder name. */
+  id: CaseIdSchema,
+  title: NonEmptyText,
+  tagline: NonEmptyText,
+  /** Intro text shown before suspect selection (paragraphs separated by a blank line). */
+  intro: NonEmptyText,
+  /** Clock time at which the game day starts; earlier times count as after midnight. */
+  dayStartsAt: GameTimeSchema.default(DEFAULT_DAY_STARTS_AT),
   victim: VictimSchema,
   locations: z.array(LocationSchema).min(1),
+  /** World facts that are not pinned to the timeline. */
   facts: z.array(FactSchema).default([]),
-  timeline: z.array(TimelineEntrySchema).min(1),
-  evidence: z.array(EvidenceSchema).min(1),
+  /** Motive options for the accusation screen (include red herrings). */
+  motives: z.array(MotiveOptionSchema).min(2),
 });
-export { CaseIdSchema };
-export type CaseFile = z.infer<typeof CaseFileSchema>;
+export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
+
+/** cases/<id>/timeline.json */
+export const TimelineFileSchema = z.array(TimelineEntrySchema).min(1);
+
+/** cases/<id>/evidence.json */
+export const EvidenceFileSchema = z.array(EvidenceSchema).min(1);
 
 /** A fully loaded, validated case. SERVER-ONLY (contains the solution). */
-export const LoadedCaseSchema = CaseFileSchema.extend({
+export const LoadedCaseSchema = CaseEnvelopeSchema.extend({
+  timeline: TimelineFileSchema,
+  evidence: EvidenceFileSchema,
   characters: z.array(CharacterSchema).min(2),
   solution: CaseSolutionSchema,
 });
 export type LoadedCase = z.infer<typeof LoadedCaseSchema>;
+
+export { CaseIdSchema };

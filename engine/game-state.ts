@@ -11,7 +11,7 @@ export interface CaseState {
 
 export function createInitialGameState(c: LoadedCase): GameState {
   return GameStateSchema.parse({
-    caseId: c.meta.id,
+    caseId: c.id,
     phase: "investigating",
     turn: 0,
     discoveredEvidenceIds: initialDiscoveredEvidenceIds(c),

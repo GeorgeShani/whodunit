@@ -10,7 +10,14 @@
     "speechStyle": "PLACEHOLDER (real case pending).",
     "catchphrases": [],
     "quirks": [],
-    "tells": []
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
   },
   "goals": [
     "PLACEHOLDER (real case pending)."
@@ -25,5 +32,6 @@
     "emotion": "nervous",
     "intensity": 0.3,
     "composure": 0.8
-  }
+  },
+  "intendedLies": []
 }
