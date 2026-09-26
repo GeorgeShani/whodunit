@@ -1,0 +1,895 @@
+{
+ "canvas": [
+  784,
+  1224
+ ],
+ "facing": "left",
+ "units": "sprite canvas px, origin top-left",
+ "fields": {
+  "headCenter": "middle of the face",
+  "headTop": "top of the head/hair above headCenter",
+  "faceFront": "front (left) edge of the face",
+  "headBack": "back (right) edge of the face/head",
+  "bodyCenter": "torso middle",
+  "bodyBack": "rear-most body pixel at torso height",
+  "feet": "baseline under the feet"
+ },
+ "sprites": {
+  "reginald": {
+   "neutral": {
+    "headCenter": [
+     407,
+     134
+    ],
+    "headTop": [
+     407,
+     27
+    ],
+    "faceFront": [
+     340,
+     134
+    ],
+    "headBack": [
+     461,
+     134
+    ],
+    "bodyCenter": [
+     420,
+     671
+    ],
+    "bodyBack": [
+     557,
+     671
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 27
+   },
+   "talking": {
+    "headCenter": [
+     426,
+     88
+    ],
+    "headTop": [
+     426,
+     36
+    ],
+    "faceFront": [
+     416,
+     88
+    ],
+    "headBack": [
+     440,
+     88
+    ],
+    "bodyCenter": [
+     416,
+     670
+    ],
+    "bodyBack": [
+     556,
+     670
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 24
+   },
+   "angry": {
+    "headCenter": [
+     404,
+     126
+    ],
+    "headTop": [
+     404,
+     24
+    ],
+    "faceFront": [
+     339,
+     126
+    ],
+    "headBack": [
+     463,
+     126
+    ],
+    "bodyCenter": [
+     415,
+     670
+    ],
+    "bodyBack": [
+     531,
+     670
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 24
+   },
+   "nervous": {
+    "headCenter": [
+     355,
+     200
+    ],
+    "headTop": [
+     355,
+     105
+    ],
+    "faceFront": [
+     300,
+     200
+    ],
+    "headBack": [
+     415,
+     200
+    ],
+    "bodyCenter": [
+     410,
+     692
+    ],
+    "bodyBack": [
+     556,
+     692
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 73
+   },
+   "shocked": {
+    "headCenter": [
+     394,
+     157
+    ],
+    "headTop": [
+     394,
+     27
+    ],
+    "faceFront": [
+     349,
+     157
+    ],
+    "headBack": [
+     434,
+     157
+    ],
+    "bodyCenter": [
+     384,
+     672
+    ],
+    "bodyBack": [
+     593,
+     672
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 27
+   },
+   "smug": {
+    "headCenter": [
+     419,
+     135
+    ],
+    "headTop": [
+     419,
+     27
+    ],
+    "faceFront": [
+     360,
+     135
+    ],
+    "headBack": [
+     469,
+     135
+    ],
+    "bodyCenter": [
+     417,
+     671
+    ],
+    "bodyBack": [
+     554,
+     671
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 27
+   },
+   "sad": {
+    "headCenter": [
+     323,
+     144
+    ],
+    "headTop": [
+     323,
+     97
+    ],
+    "faceFront": [
+     290,
+     144
+    ],
+    "headBack": [
+     350,
+     144
+    ],
+    "bodyCenter": [
+     414,
+     698
+    ],
+    "bodyBack": [
+     555,
+     698
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 85
+   }
+  },
+  "victoria": {
+   "neutral": {
+    "headCenter": [
+     382,
+     252
+    ],
+    "headTop": [
+     382,
+     148
+    ],
+    "faceFront": [
+     340,
+     252
+    ],
+    "headBack": [
+     424,
+     252
+    ],
+    "bodyCenter": [
+     374,
+     714
+    ],
+    "bodyBack": [
+     612,
+     714
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 122
+   },
+   "talking": {
+    "headCenter": [
+     371,
+     252
+    ],
+    "headTop": [
+     371,
+     145
+    ],
+    "faceFront": [
+     329,
+     252
+    ],
+    "headBack": [
+     411,
+     252
+    ],
+    "bodyCenter": [
+     367,
+     710
+    ],
+    "bodyBack": [
+     615,
+     710
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 114
+   },
+   "angry": {
+    "headCenter": [
+     371,
+     255
+    ],
+    "headTop": [
+     371,
+     148
+    ],
+    "faceFront": [
+     333,
+     255
+    ],
+    "headBack": [
+     413,
+     255
+    ],
+    "bodyCenter": [
+     375,
+     706
+    ],
+    "bodyBack": [
+     611,
+     706
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 106
+   },
+   "nervous": {
+    "headCenter": [
+     376,
+     288
+    ],
+    "headTop": [
+     376,
+     171
+    ],
+    "faceFront": [
+     337,
+     288
+    ],
+    "headBack": [
+     420,
+     288
+    ],
+    "bodyCenter": [
+     353,
+     712
+    ],
+    "bodyBack": [
+     608,
+     712
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 118
+   },
+   "shocked": {
+    "headCenter": [
+     367,
+     401
+    ],
+    "headTop": [
+     367,
+     291
+    ],
+    "faceFront": [
+     328,
+     401
+    ],
+    "headBack": [
+     400,
+     401
+    ],
+    "bodyCenter": [
+     369,
+     699
+    ],
+    "bodyBack": [
+     608,
+     699
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 89
+   },
+   "smug": {
+    "headCenter": [
+     387,
+     247
+    ],
+    "headTop": [
+     387,
+     147
+    ],
+    "faceFront": [
+     350,
+     247
+    ],
+    "headBack": [
+     425,
+     247
+    ],
+    "bodyCenter": [
+     376,
+     714
+    ],
+    "bodyBack": [
+     613,
+     714
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 122
+   },
+   "sad": {
+    "headCenter": [
+     360,
+     273
+    ],
+    "headTop": [
+     360,
+     166
+    ],
+    "faceFront": [
+     313,
+     273
+    ],
+    "headBack": [
+     404,
+     273
+    ],
+    "bodyCenter": [
+     369,
+     707
+    ],
+    "bodyBack": [
+     608,
+     707
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 107
+   }
+  },
+  "archibald": {
+   "neutral": {
+    "headCenter": [
+     407,
+     391
+    ],
+    "headTop": [
+     407,
+     285
+    ],
+    "faceFront": [
+     328,
+     391
+    ],
+    "headBack": [
+     479,
+     391
+    ],
+    "bodyCenter": [
+     426,
+     787
+    ],
+    "bodyBack": [
+     732,
+     787
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 285
+   },
+   "talking": {
+    "headCenter": [
+     407,
+     370
+    ],
+    "headTop": [
+     407,
+     272
+    ],
+    "faceFront": [
+     331,
+     370
+    ],
+    "headBack": [
+     467,
+     370
+    ],
+    "bodyCenter": [
+     417,
+     781
+    ],
+    "bodyBack": [
+     746,
+     781
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 272
+   },
+   "angry": {
+    "headCenter": [
+     421,
+     478
+    ],
+    "headTop": [
+     421,
+     293
+    ],
+    "faceFront": [
+     308,
+     478
+    ],
+    "headBack": [
+     524,
+     478
+    ],
+    "bodyCenter": [
+     427,
+     791
+    ],
+    "bodyBack": [
+     765,
+     791
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 293
+   },
+   "nervous": {
+    "headCenter": [
+     399,
+     413
+    ],
+    "headTop": [
+     399,
+     283
+    ],
+    "faceFront": [
+     321,
+     413
+    ],
+    "headBack": [
+     455,
+     413
+    ],
+    "bodyCenter": [
+     416,
+     786
+    ],
+    "bodyBack": [
+     719,
+     786
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 283
+   },
+   "shocked": {
+    "headCenter": [
+     431,
+     454
+    ],
+    "headTop": [
+     431,
+     358
+    ],
+    "faceFront": [
+     344,
+     454
+    ],
+    "headBack": [
+     515,
+     454
+    ],
+    "bodyCenter": [
+     430,
+     820
+    ],
+    "bodyBack": [
+     765,
+     820
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 358
+   },
+   "smug": {
+    "headCenter": [
+     415,
+     367
+    ],
+    "headTop": [
+     415,
+     272
+    ],
+    "faceFront": [
+     323,
+     367
+    ],
+    "headBack": [
+     508,
+     367
+    ],
+    "bodyCenter": [
+     427,
+     781
+    ],
+    "bodyBack": [
+     735,
+     781
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 272
+   },
+   "sad": {
+    "headCenter": [
+     402,
+     344
+    ],
+    "headTop": [
+     402,
+     282
+    ],
+    "faceFront": [
+     321,
+     344
+    ],
+    "headBack": [
+     456,
+     344
+    ],
+    "bodyCenter": [
+     431,
+     786
+    ],
+    "bodyBack": [
+     719,
+     786
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 282
+   }
+  },
+  "gregory": {
+   "neutral": {
+    "headCenter": [
+     341,
+     597
+    ],
+    "headTop": [
+     341,
+     473
+    ],
+    "faceFront": [
+     278,
+     597
+    ],
+    "headBack": [
+     408,
+     597
+    ],
+    "bodyCenter": [
+     399,
+     872
+    ],
+    "bodyBack": [
+     548,
+     872
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 473
+   },
+   "talking": {
+    "headCenter": [
+     340,
+     589
+    ],
+    "headTop": [
+     340,
+     470
+    ],
+    "faceFront": [
+     277,
+     589
+    ],
+    "headBack": [
+     402,
+     589
+    ],
+    "bodyCenter": [
+     398,
+     869
+    ],
+    "bodyBack": [
+     551,
+     869
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 466
+   },
+   "angry": {
+    "headCenter": [
+     329,
+     614
+    ],
+    "headTop": [
+     329,
+     515
+    ],
+    "faceFront": [
+     280,
+     614
+    ],
+    "headBack": [
+     382,
+     614
+    ],
+    "bodyCenter": [
+     398,
+     881
+    ],
+    "bodyBack": [
+     593,
+     881
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 493
+   },
+   "nervous": {
+    "headCenter": [
+     344,
+     608
+    ],
+    "headTop": [
+     344,
+     479
+    ],
+    "faceFront": [
+     272,
+     608
+    ],
+    "headBack": [
+     407,
+     608
+    ],
+    "bodyCenter": [
+     397,
+     875
+    ],
+    "bodyBack": [
+     534,
+     875
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 479
+   },
+   "shocked": {
+    "headCenter": [
+     430,
+     640
+    ],
+    "headTop": [
+     430,
+     530
+    ],
+    "faceFront": [
+     360,
+     640
+    ],
+    "headBack": [
+     492,
+     640
+    ],
+    "bodyCenter": [
+     445,
+     849
+    ],
+    "bodyBack": [
+     668,
+     849
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 422
+   },
+   "smug": {
+    "headCenter": [
+     340,
+     590
+    ],
+    "headTop": [
+     340,
+     467
+    ],
+    "faceFront": [
+     274,
+     590
+    ],
+    "headBack": [
+     409,
+     590
+    ],
+    "bodyCenter": [
+     398,
+     869
+    ],
+    "bodyBack": [
+     557,
+     869
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 466
+   },
+   "sad": {
+    "headCenter": [
+     332,
+     602
+    ],
+    "headTop": [
+     332,
+     472
+    ],
+    "faceFront": [
+     264,
+     602
+    ],
+    "headBack": [
+     393,
+     602
+    ],
+    "bodyCenter": [
+     390,
+     871
+    ],
+    "bodyBack": [
+     535,
+     871
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 472
+   }
+  }
+ }
+}
