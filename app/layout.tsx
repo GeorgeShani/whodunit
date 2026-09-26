@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import { Bangers, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -18,10 +17,7 @@ const bangers = Bangers({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "WHODUNIT?!",
-  description: "A perfectly normal dinner party. Until somebody got murdered.",
-};
+export { metadata, viewport } from "@/lib/metadata";
 
 export default function RootLayout({
   children,

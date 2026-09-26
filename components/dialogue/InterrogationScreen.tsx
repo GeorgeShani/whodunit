@@ -51,9 +51,9 @@ export function InterrogationScreen({
           ← Back to suspects
         </CartoonButton>
         <div className="flex items-center gap-3">
-          <h2 className="font-display text-3xl tracking-wide text-yellow-300 [-webkit-text-stroke:1.5px_#000] drop-shadow-[3px_3px_0_#000] sm:text-4xl">
+          <h1 className="font-display text-3xl tracking-wide text-yellow-300 [-webkit-text-stroke:1.5px_#000] drop-shadow-[3px_3px_0_#000] sm:text-4xl">
             {suspect.name}
-          </h2>
+          </h1>
           <EmotionBadge emotion={emotion} />
         </div>
       </header>
