@@ -159,3 +159,13 @@ export function checkTimes(dialogue: string, allowed: Set<number>): CanonCheckRe
   }
   return { ok: offending.length === 0, offending };
 }
+
+/** Modern / meta words a 1920s character must never say (#13). "AI" is matched case-sensitively. */
+const MODERN_WORDS = /\b(emojis?|computers?|internet|online|e-?mails?|apps?|smartphones?|website|chatbots?|system prompts?|prompt injection|debug(?:ging)?|developers?|JSON|LLMs?|language model|artificial intelligence|okay|OK)\b/i;
+const MODERN_CASED = /\bAI\b/;
+
+/** Returns the first modern/meta word found in the text, or null. */
+export function findModernWord(text: string): string | null {
+  const m = MODERN_WORDS.exec(text) ?? MODERN_CASED.exec(text);
+  return m ? m[0] : null;
+}

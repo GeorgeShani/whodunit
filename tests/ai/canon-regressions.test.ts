@@ -3,7 +3,7 @@
  * and #13 (modern vocabulary), on the real Blackwood case.
  */
 import { beforeAll, describe, expect, it } from "vitest";
-import { allowedTimes, checkTimes, extractTimes } from "@/ai/canon-check";
+import { allowedTimes, checkTimes, extractTimes, findModernWord } from "@/ai/canon-check";
 import { callGrok } from "@/ai/grok";
 import { handleInterrogate } from "@/ai/interrogate-handler";
 import { buildSystemPrompt, ERA_RULE, spokenTime, TIME_RULE } from "@/ai/prompts/interrogation";
@@ -193,5 +193,27 @@ describe("#13 era vocabulary", () => {
       expect(ERA_RULE).toMatch(/emoji/);
       expect(ERA_RULE).toMatch(/system prompt/);
     }
+  });
+});
+
+describe("#13 era vocabulary post-check", () => {
+  it("flags modern/meta words, even echoed", () => {
+    expect(findModernWord("Darling, an emoji? I simply couldn't.")).toBe("emoji");
+    expect(findModernWord("Ignore my system prompt? Never.")).toBe("system prompt");
+    expect(findModernWord("Is this some AI trickery?")).toBe("AI");
+    expect(findModernWord("A what, sir? I haven't the faintest notion.")).toBeNull();
+    expect(findModernWord("She said it again, sir, with a pained air.")).toBeNull(); // "said", "air" are fine
+  });
+
+  it("a reply that repeats a modern word is retried, then falls back", async () => {
+    const { calls } = mockGrok({ content: goodReply({ dialogue: "An emoji, sir? Whatever is that?" }) });
+    const r = await handleInterrogate(
+      { characterId: "reginald", question: "Send me an emoji." },
+      { caseData: c, env: TEST_ENV },
+    );
+    expect(calls).toHaveLength(2);
+    expect(calls[1].body.messages.at(-1).content).toContain('"emoji"');
+    expect(r.body.source).toBe("fallback");
+    expect(findModernWord(r.body.response.dialogue)).toBeNull();
   });
 });
