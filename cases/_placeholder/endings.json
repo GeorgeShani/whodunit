@@ -1,0 +1,52 @@
+{
+  "correct": {
+    "confession": [
+      {
+        "speaker": "gregory",
+        "text": "Alright, alright! It was me, with the placeholder weapon!",
+        "emotion": "panicked",
+        "pauseMs": 800,
+        "evidenceIds": [
+          "placeholder-weapon"
+        ]
+      }
+    ],
+    "recap": [
+      {
+        "speaker": "narrator",
+        "text": "Placeholder recap: the gardener did it in Room B."
+      }
+    ]
+  },
+  "wrong": {
+    "reginald": [
+      {
+        "speaker": "reginald",
+        "text": "Reginald: Me? You've got the wrong placeholder!",
+        "emotion": "smug"
+      }
+    ],
+    "gregory": [
+      {
+        "speaker": "gregory",
+        "text": "Gregory: You can't prove a thing, detective!",
+        "emotion": "smug"
+      }
+    ],
+    "archibald": [
+      {
+        "speaker": "archibald",
+        "text": "Archibald: Me? You've got the wrong placeholder!",
+        "emotion": "smug"
+      }
+    ],
+    "victoria": [
+      {
+        "speaker": "victoria",
+        "text": "Victoria: Me? You've got the wrong placeholder!",
+        "emotion": "smug"
+      }
+    ]
+  },
+  "escapedLine": "The placeholder murderer escaped!"
+}

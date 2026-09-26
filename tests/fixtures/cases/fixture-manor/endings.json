@@ -1,0 +1,45 @@
+{
+  "correct": {
+    "confession": [
+      {
+        "speaker": "alpha",
+        "text": "ENDING_CONFESSION: fine, it was me.",
+        "emotion": "angry",
+        "pauseMs": 500,
+        "evidenceIds": [
+          "heavy-wrench"
+        ]
+      }
+    ],
+    "recap": [
+      {
+        "speaker": "narrator",
+        "text": "ENDING_RECAP: alpha, study, 21:00.",
+        "evidenceIds": [
+          "note"
+        ]
+      }
+    ]
+  },
+  "wrong": {
+    "alpha": [
+      {
+        "speaker": "narrator",
+        "text": "ENDING_WRONG_alpha"
+      }
+    ],
+    "bravo": [
+      {
+        "speaker": "bravo",
+        "text": "ENDING_WRONG_bravo"
+      }
+    ],
+    "charlie": [
+      {
+        "speaker": "charlie",
+        "text": "ENDING_WRONG_charlie"
+      }
+    ]
+  },
+  "escapedLine": "ENDING_ESCAPED"
+}

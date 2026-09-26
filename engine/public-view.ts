@@ -3,7 +3,7 @@
  * and key evidence), the timeline, facts, every character's private inner
  * world (knowledge, beliefs, secrets + reveal conditions, intended lies,
  * relationships, personality scores), evidence engine links, and any evidence
- * the player has not discovered. Pure (no fs), so client components may import
+ * the player has not discovered, and the endings (endings.json). Pure (no fs), so client components may import
  * its TYPES.
  */
 import type { LoadedCase, MotiveOption, Victim } from "./case-schema";
@@ -21,7 +21,7 @@ export interface PublicSuspect {
   emotion: EmotionalState;
 }
 
-export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image">;
+export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "discoveryLine">;
 
 export interface PublicCaseMeta {
   id: string;
@@ -45,8 +45,8 @@ export function initialDiscoveredEvidenceIds(c: LoadedCase): string[] {
 }
 
 export function toPublicEvidence(e: Evidence): PublicEvidence {
-  const { id, name, description, kind, locationId, image } = e;
-  return { id, name, description, kind, locationId, image };
+  const { id, name, description, kind, locationId, image, discoveryLine } = e;
+  return { id, name, description, kind, locationId, image, ...(discoveryLine ? { discoveryLine } : {}) };
 }
 
 export function getPublicCaseView(

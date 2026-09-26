@@ -33,6 +33,12 @@ beforeAll(async () => {
 });
 
 describe("buildCharacterContext", () => {
+  it.each(["alpha", "bravo", "charlie"])("never includes endings (%s)", (id) => {
+    expect(c.endings).toBeDefined();
+    const json = JSON.stringify(buildCharacterContext(makeState(), id));
+    for (const banned of ["ENDING_", "endings", "confession", "escapedLine"]) expect(json).not.toContain(banned);
+  });
+
   it("throws on an unknown characterId", () => {
     expect(() => buildCharacterContext(makeState(), "zed")).toThrow(UnknownCharacterError);
     expect(() => buildCharacterContext(makeState(), "victim-v")).toThrow(UnknownCharacterError);

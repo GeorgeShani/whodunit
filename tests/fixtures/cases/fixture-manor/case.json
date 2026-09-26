@@ -16,17 +16,33 @@
     {
       "id": "hall",
       "name": "Hall",
-      "description": "Fixture hall."
+      "description": "Fixture hall.",
+      "searchFlavor": {
+        "lines": [
+          "FIXTURE_SEARCH_hall"
+        ]
+      }
     },
     {
       "id": "study",
       "name": "Study",
-      "description": "Fixture study."
+      "description": "Fixture study.",
+      "searchFlavor": {
+        "lines": [
+          "FIXTURE_SEARCH_study"
+        ]
+      }
     },
     {
       "id": "garden",
       "name": "Garden",
-      "description": "Fixture garden."
+      "description": "Fixture garden.",
+      "searchFlavor": {
+        "lines": [
+          "FIXTURE_SEARCH_garden"
+        ],
+        "emptyLine": "FIXTURE_EMPTY_garden"
+      }
     }
   ],
   "facts": [

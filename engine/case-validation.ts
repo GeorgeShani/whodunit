@@ -159,6 +159,33 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     });
   }
 
+  // endings.json (optional)
+  if (c.endings) {
+    const END = "endings.json";
+    const checkLines = (lines: { speaker: string; evidenceIds?: string[] }[], p: string) =>
+      lines.forEach((l, k) => {
+        if (l.speaker !== "narrator" && !characterIds.has(l.speaker)) {
+          issues.push({ file: END, path: `${p}.${k}.speaker`, message: `unknown speaker "${l.speaker}" (use a character id or "narrator")` });
+        }
+        (l.evidenceIds ?? []).forEach((id, j) => ref(evidenceIds, "evidence", id, END, `${p}.${k}.evidenceIds.${j}`));
+      });
+    checkLines(c.endings.correct.confession, "correct.confession");
+    checkLines(c.endings.correct.recap, "correct.recap");
+    for (const [suspectId, lines] of Object.entries(c.endings.wrong)) {
+      if (!characterIds.has(suspectId)) issues.push({ file: END, path: `wrong.${suspectId}`, message: `"${suspectId}" is not a suspect` });
+      checkLines(lines, `wrong.${suspectId}`);
+    }
+    for (const id of characterIds) {
+      if (!c.endings.wrong[id]) {
+        issues.push({
+          file: END,
+          path: "wrong",
+          message: `missing wrong ending for suspect "${id}"${id === s.murdererId ? " (the murderer: right culprit, couldn't prove it)" : ""}`,
+        });
+      }
+    }
+  }
+
   for (const ch of c.characters) {
     if (ch.id !== s.murdererId && ch.secrets.length === 0) {
       issues.push({ file: charFile(ch.id), path: "secrets", message: `innocent "${ch.id}" needs at least one secret (red herrings keep the game fun)` });
