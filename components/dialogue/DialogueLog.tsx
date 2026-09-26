@@ -5,7 +5,7 @@ import { useEffect, useRef } from "react";
 
 export interface DialogueMessage {
   id: string;
-  speaker: "player" | "character";
+  speaker: "player" | "character" | "narrator";
   text: string;
   /** Cartoon stage direction, shown in italics. */
   action?: string;
@@ -34,7 +34,17 @@ export function DialogueLog({
           {characterName} eyes you warily. Ask a question, detective.
         </p>
       )}
-      {messages.map((m) => (
+      {messages.map((m) =>
+        m.speaker === "narrator" ? (
+          <motion.p
+            key={m.id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="self-center rounded-xl border-[3px] border-dashed border-black bg-yellow-100 px-4 py-2 text-center text-sm font-bold italic text-black"
+          >
+            {m.text}
+          </motion.p>
+        ) : (
         <motion.div
           key={m.id}
           initial={{ opacity: 0, y: 12, scale: 0.95 }}
@@ -49,7 +59,8 @@ export function DialogueLog({
           {m.action && <p className="text-sm italic text-neutral-600">*{m.action}*</p>}
           <p className="font-medium">{m.text}</p>
         </motion.div>
-      ))}
+        ),
+      )}
       {footer}
       <div ref={end} />
     </div>

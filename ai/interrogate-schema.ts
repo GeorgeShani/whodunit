@@ -1,29 +1,33 @@
 /**
- * Request contract for POST /api/interrogate (shared by client and server).
- * The client only says WHAT the player did; the server resolves everything
- * else from the case it holds.
+ * Request/response contract for POST /api/interrogate (shared by client and server).
+ * The client says WHAT the player did and hands back the opaque, server-signed
+ * state token; the server resolves everything else from the case it holds.
  */
 import { z } from "zod";
 import { IdSchema } from "@/engine/types";
+import type { CharacterResponse } from "./schemas";
 
-export const InterrogateActionSchema = z.discriminatedUnion("type", [
-  /** "Where were you?" */
-  z.strictObject({ type: z.literal("whereabouts") }),
-  /** "Tell me about the victim." */
-  z.strictObject({ type: z.literal("victim") }),
-  /** "What do you think of <suspect>?" */
-  z.strictObject({ type: z.literal("about_suspect"), suspectId: IdSchema }),
-  /** Present a discovered piece of evidence. */
-  z.strictObject({ type: z.literal("present_evidence"), evidenceId: IdSchema }),
-  /** Free-text question. */
-  z.strictObject({ type: z.literal("free_text"), text: z.string().trim().min(1).max(500) }),
-]);
-export type InterrogateAction = z.infer<typeof InterrogateActionSchema>;
+export const MAX_QUESTION_CHARS = 500;
 
 export const InterrogateRequestSchema = z.strictObject({
   characterId: IdSchema,
-  action: InterrogateActionSchema,
-  /** How many exchanges the player has had with this character (used for variety only). */
-  turn: z.number().int().nonnegative().max(10_000).default(0),
+  /** What the detective says (free text or a quick-question button's line). */
+  question: z.string().trim().min(1).max(MAX_QUESTION_CHARS),
+  /** Evidence held up this turn; must already be discovered (checked server-side). */
+  presentedEvidenceId: IdSchema.optional(),
+  /** Opaque HMAC-signed runtime state from the previous response (omit on a new game). */
+  stateToken: z.string().max(60_000).optional(),
 });
 export type InterrogateRequest = z.input<typeof InterrogateRequestSchema>;
+
+export interface InterrogateResponseBody {
+  response: CharacterResponse;
+  /** Who performed this line: the live model, or the in-character fallback. */
+  source: "model" | "fallback";
+  /** New signed state to send with the next request (absent only if the request itself was unusable). */
+  stateToken?: string;
+  /** In-character narrator line, e.g. when a tampered/stale state was reset. */
+  notice?: string;
+  /** Non-secret machine-readable reason for a fallback or rejection. */
+  error?: string;
+}

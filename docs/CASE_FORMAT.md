@@ -12,7 +12,7 @@ The validator lists every problem as `file -> path: message` and exits non-zero 
 Working examples:
 
 - `tests/fixtures/cases/fixture-manor/`: shows every feature, including point and window timeline entries, lies and reveal conditions.
-- `cases/_placeholder/`: the stand-in case the running game currently uses. Switch cases by changing `ACTIVE_CASE_ID` in `engine/active-case.ts`.
+- `cases/_placeholder/`: a small stand-in case kept for development. The running game uses `blackwood`; switch cases by changing `ACTIVE_CASE_ID` in `engine/active-case.ts`.
 
 ## Layout
 

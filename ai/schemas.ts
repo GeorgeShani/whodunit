@@ -35,6 +35,13 @@ export const CharacterResponseSchema = z.strictObject({
   evidenceReactions: z.array(EvidenceReactionSchema).max(5).default([]),
   /** Performance hint that the character wants to end the conversation. */
   wantsToLeave: z.boolean().default(false),
+  /**
+   * SUGGESTED change to the character's stress / trust from this exchange.
+   * Only a hint: the engine clamps it (see engine/interrogation.ts
+   * MAX_MODEL_DELTA) and applies it; secrets and evidence are never touched.
+   */
+  stressDelta: z.number().finite().default(0),
+  trustDelta: z.number().finite().default(0),
 });
 export type CharacterResponse = z.infer<typeof CharacterResponseSchema>;
 
@@ -60,5 +67,7 @@ export function createFallbackCharacterResponse(
     action: "fidgets awkwardly",
     evidenceReactions: [],
     wantsToLeave: false,
+    stressDelta: 0,
+    trustDelta: 0,
   });
 }

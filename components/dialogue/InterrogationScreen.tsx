@@ -2,11 +2,11 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import type { InterrogateAction } from "@/ai/interrogate-schema";
 import { EmotionBadge } from "@/components/characters/EmotionBadge";
 import { Portrait } from "@/components/characters/Portrait";
 import { EvidencePicker } from "@/components/evidence/EvidencePicker";
 import { CartoonButton } from "@/components/game/CartoonButton";
+import type { AskInput } from "@/components/game/Game";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { Emotion } from "@/engine/types";
 import { DialogueLog, type DialogueMessage } from "./DialogueLog";
@@ -32,16 +32,16 @@ export function InterrogationScreen({
   messages: DialogueMessage[];
   pending: boolean;
   speaking?: boolean;
-  onAsk: (action: InterrogateAction, playerLine: string) => void;
+  onAsk: (input: AskInput) => void;
   onBack: () => void;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
   const [text, setText] = useState("");
   const firstName = suspect.name.split(" ")[0];
 
-  const ask = (action: InterrogateAction, line: string) => {
+  const ask = (question: string, presentedEvidenceId?: string) => {
     setMenu(null);
-    onAsk(action, line);
+    onAsk({ question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}) });
   };
 
   return (
@@ -68,10 +68,10 @@ export function InterrogationScreen({
           />
 
           <div className="flex flex-wrap gap-2">
-            <CartoonButton disabled={pending} onClick={() => ask({ type: "whereabouts" }, "Where were you when it happened?")}>
+            <CartoonButton disabled={pending} onClick={() => ask("Where were you this evening, and what did you see?")}>
               📍 Whereabouts
             </CartoonButton>
-            <CartoonButton disabled={pending} onClick={() => ask({ type: "victim" }, "Tell me about the victim.")}>
+            <CartoonButton disabled={pending} onClick={() => ask("Tell me about the victim. What were they like?")}>
               💀 The victim
             </CartoonButton>
             <CartoonButton
@@ -106,7 +106,7 @@ export function InterrogationScreen({
                           key={o.id}
                           tone="white"
                           disabled={pending}
-                          onClick={() => ask({ type: "about_suspect", suspectId: o.id }, `What can you tell me about ${o.name}?`)}
+                          onClick={() => ask(`What can you tell me about ${o.name}?`)}
                         >
                           {o.name}
                         </CartoonButton>
@@ -116,7 +116,7 @@ export function InterrogationScreen({
                     <EvidencePicker
                       evidence={evidence}
                       disabled={pending}
-                      onPick={(e) => ask({ type: "present_evidence", evidenceId: e.id }, `Care to explain this? (${e.name})`)}
+                      onPick={(e) => ask(`Care to explain this? (${e.name})`, e.id)}
                     />
                   )}
                 </div>
@@ -131,7 +131,7 @@ export function InterrogationScreen({
               const q = text.trim();
               if (!q || pending) return;
               setText("");
-              ask({ type: "free_text", text: q }, q);
+              ask(q);
             }}
           >
             <input

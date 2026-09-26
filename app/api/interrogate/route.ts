@@ -1,31 +1,24 @@
 /**
- * POST /api/interrogate  (Phase 1 stub: canned responses, no LLM)
- *
- * Flow: validate request (Zod) -> load case (server-side) -> build engine state
- * -> engine checks (character exists, evidence discovered) -> build the
- * character's scoped context -> performer (canned for now) -> validated
- * CharacterResponse. Any failure returns the safe in-character fallback.
- *
- * NOTE: there is no persistence yet; the state is rebuilt per request from the
- * case's initial state. Discovery is therefore limited to initially available
- * evidence until the engine owns sessions.
+ * POST /api/interrogate: live Grok interrogation (see ai/interrogate-handler.ts).
+ * Request:  { characterId, question, presentedEvidenceId?, stateToken? }
+ * Response: { response: CharacterResponse, source: "model"|"fallback", stateToken, notice?, error? }
+ * Engine is truth, AI is performance: the solution never leaves the server.
  */
 import { NextResponse } from "next/server";
-import { cannedCharacterResponse } from "@/ai/canned-responses";
-import { InterrogateRequestSchema } from "@/ai/interrogate-schema";
-import { createFallbackCharacterResponse, type CharacterResponse } from "@/ai/schemas";
+import { handleInterrogate } from "@/ai/interrogate-handler";
+import type { InterrogateResponseBody } from "@/ai/interrogate-schema";
+import { createFallbackCharacterResponse } from "@/ai/schemas";
 import { ACTIVE_CASE_ID } from "@/engine/active-case";
 import { getCase } from "@/engine/case-loader";
-import { buildCharacterContext } from "@/engine/context-builder";
-import { createInitialGameState } from "@/engine/game-state";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
-type Body = { response: CharacterResponse; error?: string };
-
-function fallback(status: number, error: string, seed = 0) {
-  return NextResponse.json<Body>({ response: createFallbackCharacterResponse({ seed }), error }, { status });
-}
+const fallback = (status: number, error: string) =>
+  NextResponse.json<InterrogateResponseBody>(
+    { response: createFallbackCharacterResponse(), source: "fallback", error },
+    { status },
+  );
 
 export async function POST(request: Request) {
   let json: unknown;
@@ -34,28 +27,12 @@ export async function POST(request: Request) {
   } catch {
     return fallback(400, "invalid_json");
   }
-  const parsed = InterrogateRequestSchema.safeParse(json);
-  if (!parsed.success) return fallback(400, "invalid_request");
-  const { characterId, action, turn } = parsed.data;
-
   try {
     const caseData = await getCase(ACTIVE_CASE_ID);
-    const game = createInitialGameState(caseData);
-    const runtime = game.characters[characterId];
-    if (!runtime) return fallback(404, "unknown_character", turn);
-
-    if (action.type === "about_suspect" && (action.suspectId === characterId || !game.characters[action.suspectId])) {
-      return fallback(400, "unknown_suspect", turn);
-    }
-    if (action.type === "present_evidence") {
-      if (!game.discoveredEvidenceIds.includes(action.evidenceId)) return fallback(400, "evidence_not_discovered", turn);
-      runtime.evidenceShownIds.push(action.evidenceId);
-    }
-
-    const ctx = buildCharacterContext({ caseData, game }, characterId);
-    return NextResponse.json<Body>({ response: cannedCharacterResponse(ctx, action, turn) });
+    const { status, body } = await handleInterrogate(json, { caseData });
+    return NextResponse.json<InterrogateResponseBody>(body, { status });
   } catch (e) {
-    console.error("[interrogate] failed:", (e as Error).message);
-    return fallback(500, "internal_error", turn);
+    console.error("[interrogate] failed:", (e as Error).name);
+    return fallback(500, "internal_error");
   }
 }

@@ -1,5 +1,4 @@
 /**
- * The case the running game loads. Switch to "blackwood" once Agatha's case
- * passes `npm run validate:case -- blackwood`.
+ * The case the running game loads (must pass `npm run validate:case -- <id>`).
  */
-export const ACTIVE_CASE_ID = "_placeholder";
+export const ACTIVE_CASE_ID = "blackwood";

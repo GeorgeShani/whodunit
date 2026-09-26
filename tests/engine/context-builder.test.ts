@@ -5,6 +5,7 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext, UnknownCharacterError } from "@/engine/context-builder";
 import { createInitialGameState, type CaseState } from "@/engine/game-state";
 import { FIXTURE_ID, FIXTURES_DIR } from "../helpers/fixture";
+import { deepScan, SOLUTION_KEYS } from "../helpers/leak-scan";
 
 let c: LoadedCase;
 
@@ -26,25 +27,6 @@ function makeState(): CaseState {
   ];
   return { caseData: c, game };
 }
-
-/** Collect every key and string value anywhere in the object. */
-function deepScan(value: unknown, keys = new Set<string>(), strings = new Set<string>()) {
-  if (typeof value === "string") strings.add(value);
-  else if (Array.isArray(value)) value.forEach((v) => deepScan(v, keys, strings));
-  else if (value && typeof value === "object") {
-    for (const [k, v] of Object.entries(value)) {
-      keys.add(k);
-      deepScan(v, keys, strings);
-    }
-  }
-  return { keys, strings };
-}
-
-const SOLUTION_KEYS = [
-  "solution", "murdererId", "murderer", "weaponId", "motive", "motiveId", "motives", "keyEvidenceIds", "explanation",
-  "isMurderer", "isGuilty", "guilty", "culprit", "timeline", "isAccurate", "revealConditions", "stressThreshold",
-  "afterSecretIds", "brokenByEvidenceIds", "aboutFactId", "relatedCharacters", "outcome",
-];
 
 beforeAll(async () => {
   c = await loadCase(FIXTURE_ID, FIXTURES_DIR);

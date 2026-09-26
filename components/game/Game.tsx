@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useMemo, useRef, useState } from "react";
-import type { InterrogateAction } from "@/ai/interrogate-schema";
+import type { InterrogateRequest } from "@/ai/interrogate-schema";
 import { CharacterResponseSchema, createFallbackCharacterResponse, type CharacterResponse } from "@/ai/schemas";
 import { SuspectSelect } from "@/components/characters/SuspectSelect";
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
@@ -14,19 +14,41 @@ import { TitleScreen } from "./TitleScreen";
 
 type Screen = "title" | "intro" | "suspects" | "interrogation";
 
-async function interrogate(characterId: string, action: InterrogateAction, turn: number): Promise<CharacterResponse> {
+interface InterrogateResult {
+  response: CharacterResponse;
+  stateToken?: string;
+  notice?: string;
+}
+
+/** Talk to the server. Any network/shape failure degrades to the in-character fallback. */
+async function interrogate(req: InterrogateRequest, seed: number): Promise<InterrogateResult> {
   try {
     const res = await fetch("/api/interrogate", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ characterId, action, turn }),
+      body: JSON.stringify(req),
     });
-    const json: unknown = await res.json();
-    const parsed = CharacterResponseSchema.safeParse((json as { response?: unknown })?.response);
-    return parsed.success ? parsed.data : createFallbackCharacterResponse({ seed: turn });
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown };
+    const parsed = CharacterResponseSchema.safeParse(json?.response);
+    return {
+      response: parsed.success ? parsed.data : createFallbackCharacterResponse({ seed }),
+      ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
+      ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
+    };
   } catch {
-    return createFallbackCharacterResponse({ seed: turn });
+    return {
+      response: {
+        ...createFallbackCharacterResponse({ seed }),
+        dialogue: "The storm has knocked the telephone lines about, detective. I didn't catch that. Ask me again?",
+      },
+    };
   }
+}
+
+/** Player-facing request from the interrogation screen. */
+export interface AskInput {
+  question: string;
+  presentedEvidenceId?: string;
 }
 
 /** Client-side game shell. The server holds the case; this holds UI state only. */
@@ -42,6 +64,8 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [speakingId, setSpeakingId] = useState<string | null>(null);
   const speakTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const nextId = useRef(0);
+  /** Opaque server-signed game state (stress, trust, memory, reveals). The client cannot edit it. */
+  const stateToken = useRef<string | undefined>(undefined);
 
   const active = useMemo(() => view.suspects.find((s) => s.id === activeId) ?? null, [view.suspects, activeId]);
 
@@ -51,13 +75,23 @@ export function Game({ view }: { view: PublicCaseView }) {
   }, []);
 
   const onAsk = useCallback(
-    async (action: InterrogateAction, playerLine: string) => {
+    async ({ question, presentedEvidenceId }: AskInput) => {
       if (!active || pendingId) return;
       const characterId = active.id;
       const turn = (conversations[characterId] ?? []).length;
-      push(characterId, { speaker: "player", text: playerLine });
+      push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
-      const response = await interrogate(characterId, action, turn);
+      const { response, stateToken: next, notice } = await interrogate(
+        {
+          characterId,
+          question,
+          ...(presentedEvidenceId ? { presentedEvidenceId } : {}),
+          ...(stateToken.current ? { stateToken: stateToken.current } : {}),
+        },
+        turn,
+      );
+      if (next) stateToken.current = next;
+      if (notice) push(characterId, { speaker: "narrator", text: notice });
       push(characterId, { speaker: "character", text: response.dialogue, action: response.action });
       setEmotions((e) => ({ ...e, [characterId]: response.emotion }));
       setPendingId(null);
