@@ -592,7 +592,10 @@ export function Game({ view }: { view: PublicCaseView }) {
           // #10: after a navigation, move focus into the new screen (its input or heading).
           if (!navigated.current || (def as { opacity?: number }).opacity !== 1) return;
           navigated.current = false;
-          document.querySelector<HTMLElement>(`[data-screen="${screen}"] [data-autofocus]`)?.focus({ preventScroll: true });
+          const target = document.querySelector<HTMLElement>(`[data-screen="${screen}"] [data-autofocus]`);
+          // Touch screens: don't pop the on-screen keyboard just by entering a screen; the player taps the box.
+          if (target instanceof HTMLInputElement && window.matchMedia("(pointer: coarse)").matches) return;
+          target?.focus({ preventScroll: true });
         }}
         data-screen={screen}
       >

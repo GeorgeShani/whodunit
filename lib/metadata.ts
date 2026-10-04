@@ -26,4 +26,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: SITE.themeColor,
   colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+  // Draw under the notch / home indicator; screens pad themselves with env(safe-area-inset-*).
+  viewportFit: "cover",
+  // Android Chrome: the on-screen keyboard resizes the layout viewport, so bottom bars ride above it.
+  interactiveWidget: "resizes-content",
 };

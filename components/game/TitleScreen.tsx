@@ -21,7 +21,7 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
     audio.play("theme_noir_minor");
   };
   return (
-    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6vh] text-center max-sm:pb-[3vh]" style={backdropStyle(backdrop)}>
+    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6dvh] text-center max-sm:pb-[3dvh]" style={backdropStyle(backdrop)}>
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[22%] w-[130vmin] -translate-x-1/2 -translate-y-1/2">
         <motion.img
           src="/assets/title/sunburst.webp"
@@ -33,7 +33,7 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
         />
       </div>
       <motion.h1
-        className="relative mt-[2vh] w-[min(90vw,1100px,105vh)]"
+        className="relative mt-[2dvh] w-[min(90vw,1100px,105dvh)]"
         initial={{ scale: 0, rotate: -16 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 12 }}

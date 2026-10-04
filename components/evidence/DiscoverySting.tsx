@@ -61,7 +61,7 @@ function StingDialog({ clue, remaining, onDone }: { clue: FoundEvidence; remaini
               initial="hidden"
               animate={["popIn", "throb"]}
             />
-            <div className="scroll-area flex max-h-[calc(100dvh-10rem)] w-full flex-col items-center gap-3">
+            <div className="scroll-area flex max-h-[calc(var(--app-h)-10rem)] w-full flex-col items-center gap-3">
             <p className="font-display text-4xl tracking-widest text-red-600 [-webkit-text-stroke:1px_#000]">CLUE FOUND!</p>
             <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-black bg-amber-200 text-5xl shadow-[4px_4px_0_#000]">
               {KIND_ICON[clue.kind] ?? "🔍"}

@@ -149,7 +149,7 @@ export function ConfrontScreen({
           )}
         </section>
 
-        <div className="relative flex h-[34dvh] shrink-0 md:h-auto md:flex-[1.15]">
+        <div className="kb-hide relative flex h-[calc(var(--app-h)*0.34)] shrink-0 md:h-auto md:flex-[1.15]">
           <InterrogationStage
             art={stage}
             actors={[

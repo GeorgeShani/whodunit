@@ -2,6 +2,7 @@
 
 import { MotionConfig } from "framer-motion";
 import { MuteToggle, useAudioUnlock } from "@/components/effects/MuteToggle";
+import { useVisualViewport } from "@/components/effects/useVisualViewport";
 
 /**
  * App-wide client wrapper:
@@ -12,6 +13,7 @@ import { MuteToggle, useAudioUnlock } from "@/components/effects/MuteToggle";
  */
 export function Providers({ children }: { children: React.ReactNode }) {
   useAudioUnlock();
+  useVisualViewport();
   return (
     <MotionConfig reducedMotion="user">
       {children}
