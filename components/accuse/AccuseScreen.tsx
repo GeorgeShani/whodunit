@@ -18,11 +18,11 @@ const pick = (on: boolean) =>
 
 function Section({ n, title, hint, children }: { n: number; title: string; hint?: string; children: React.ReactNode }) {
   return (
-    <section className="w-full max-w-5xl rounded-3xl border-4 border-black bg-violet-950/80 p-4 shadow-[6px_6px_0_#000]" aria-labelledby={`accuse-${n}`}>
+    <section className="w-full max-w-5xl rounded-3xl border-4 border-black bg-violet-950/80 p-4 shadow-[6px_6px_0_#000] short:p-3" aria-labelledby={`accuse-${n}`}>
       <h2 id={`accuse-${n}`} className="font-display text-3xl tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000]">
         {n}. {title}
       </h2>
-      {hint && <p className="mb-2 text-sm font-semibold text-yellow-100">{hint}</p>}
+      {hint && <p className="mb-2 text-base font-semibold text-yellow-100">{hint}</p>}
       {children}
     </section>
   );
@@ -64,16 +64,16 @@ export function AccuseScreen({
     validateAccusationDraft(draft, { suspectIds: suspects.map((s) => s.id), evidenceIds: evidence.map((e) => e.id), motiveIds: motives.map((m) => m.id) });
 
   return (
-    <main className="screen-scroll relative flex min-h-0 flex-1 flex-col items-center gap-5 bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)] px-4 py-6">
-      <div className="flex w-full max-w-5xl items-center justify-between gap-2 max-xl:pe-12">
-        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="shrink-0" disabled={busy}>
+    <main className="screen-scroll relative flex scroll-pb-28 min-h-0 flex-1 flex-col items-center gap-5 bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)] px-4 pb-0 pt-3 sm:px-6 sm:py-6">
+      <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-xl:pe-12">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 data-autofocus tabIndex={-1} className="font-display text-5xl tracking-wider text-red-500 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className="order-2 basis-full text-center font-display text-5xl leading-none tracking-wider text-red-500 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl">
           ACCUSE!
         </h1>
-        <span className="hidden w-40 sm:block" />
+        <span className="order-3 hidden w-40 sm:block" />
       </div>
 
       <Section n={1} title="Who did it?">
@@ -109,7 +109,7 @@ export function AccuseScreen({
               data-accuse-weapon={e.id}
               disabled={busy}
               onClick={() => set({ weaponId: e.id })}
-              className={`${pick(draft.weaponId === e.id)} px-3 py-2 font-bold`}
+              className={`${pick(draft.weaponId === e.id)} min-h-12 px-4 py-2 text-base font-bold`}
             >
               <span aria-hidden>{KIND_ICON[e.kind] ?? "🔍"}</span> {e.name}
             </button>
@@ -128,10 +128,10 @@ export function AccuseScreen({
               data-accuse-motive={m.id}
               disabled={busy}
               onClick={() => set({ motiveId: m.id })}
-              className={`${pick(draft.motiveId === m.id)} px-3 py-2`}
+              className={`${pick(draft.motiveId === m.id)} min-h-12 px-4 py-2.5`}
             >
               <span className="block font-display text-xl tracking-wide">{m.label}</span>
-              {m.description && <span className="block text-sm">{m.description}</span>}
+              {m.description && <span className="block text-base">{m.description}</span>}
             </button>
           ))}
         </div>
@@ -150,7 +150,7 @@ export function AccuseScreen({
                 data-accuse-proof={e.id}
                 disabled={busy || (!on && draft.keyEvidenceIds.length >= MAX_ACCUSE_EVIDENCE)}
                 onClick={() => toggleProof(e.id)}
-                className={`${pick(on)} px-3 py-2 font-bold`}
+                className={`${pick(on)} min-h-12 px-4 py-2 text-base font-bold`}
               >
                 {on ? "☑" : "☐"} {e.name}
               </button>
@@ -160,7 +160,7 @@ export function AccuseScreen({
       </Section>
 
       {(errors.length > 0 || error) && (
-        <div role="alert" className="w-full max-w-5xl rounded-2xl border-4 border-black bg-red-100 p-3 font-bold text-red-800">
+        <div role="alert" data-accuse-errors className="w-full max-w-5xl rounded-2xl border-4 border-black bg-red-100 p-3 text-base font-bold text-red-800">
           {error && <p>{error}</p>}
           {errors.map((e) => (
             <p key={e}>• {e}</p>
@@ -168,18 +168,24 @@ export function AccuseScreen({
         </div>
       )}
 
-      <CartoonButton
-        tone="red"
-        className="font-display text-3xl tracking-widest"
-        disabled={busy}
-        onClick={() => {
-          const r = check();
-          if (!r.ok) setErrors(r.errors);
-          else setConfirming(true);
-        }}
-      >
-        {busy ? "THE DETECTIVE CLEARS THEIR THROAT…" : "SUBMIT ACCUSATION"}
-      </CartoonButton>
+      {/* Sticky on phones: the submit button stays under the thumb however far the form is scrolled. */}
+      <div className="sticky bottom-0 z-10 -mx-4 flex w-[calc(100%+2rem)] justify-center bg-gradient-to-t from-[#1b1035] via-[#1b1035]/90 to-transparent px-4 pb-3 pt-6 pointer-events-none sm:pointer-events-auto sm:static sm:mx-0 sm:w-auto sm:bg-none sm:p-0">
+        <CartoonButton
+          tone="red"
+          className="pointer-events-auto min-h-14 w-full max-w-md font-display text-3xl tracking-widest sm:w-auto"
+          disabled={busy}
+          onClick={() => {
+            const r = check();
+            if (!r.ok) {
+              setErrors(r.errors);
+              // The sticky submit bar sits over the bottom of the form: bring the list of problems into view.
+              requestAnimationFrame(() => document.querySelector("[data-accuse-errors]")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+            } else setConfirming(true);
+          }}
+        >
+          {busy ? "THE DETECTIVE CLEARS THEIR THROAT…" : "SUBMIT ACCUSATION"}
+        </CartoonButton>
+      </div>
 
       <AnimatePresence>
         {confirming && (
@@ -208,17 +214,17 @@ function ConfirmDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfir
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-accuse"
-        className="w-full max-w-md rounded-3xl border-4 border-black bg-[#fff8e7] p-6 text-center text-black shadow-[8px_8px_0_#000]"
+        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border-4 border-black bg-[#fff8e7] p-6 text-center text-black shadow-[8px_8px_0_#000]"
       >
         <p id="confirm-accuse" className="font-display text-4xl tracking-wide text-red-600">
           Are you sure?
         </p>
         <p className="mt-2 font-bold">This ends the case. There&apos;s no taking it back.</p>
-        <div className="mt-4 flex justify-center gap-3">
-          <CartoonButton tone="white" onClick={onCancel}>
+        <div className="mt-4 flex flex-wrap justify-center gap-3">
+          <CartoonButton tone="white" className="min-h-12 px-5 text-base" onClick={onCancel}>
             Not yet
           </CartoonButton>
-          <CartoonButton tone="red" autoFocus onClick={onConfirm}>
+          <CartoonButton tone="red" className="min-h-12 px-5 text-base" autoFocus onClick={onConfirm}>
             Yes, accuse!
           </CartoonButton>
         </div>
