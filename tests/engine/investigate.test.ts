@@ -70,7 +70,7 @@ describe("handleInvestigate / POST /api/investigate", () => {
     expect(r.status).toBe(200);
     expect(r.body.found.map((f) => f.id).sort()).toEqual(["burned-letter", "library-key"]);
     for (const f of r.body.found) {
-      expect(Object.keys(f).every((k) => ["id", "name", "description", "kind", "image", "discoveryLine"].includes(k))).toBe(true);
+      expect(Object.keys(f).every((k) => ["id", "name", "description", "kind", "image", "icon", "discoveryLine"].includes(k))).toBe(true);
       expect(f.discoveryLine).toBeTruthy();
     }
     expect(r.body.searchedLocationIds).toEqual(["dining-room"]);

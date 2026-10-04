@@ -3,7 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion, type TargetAndTransition } from "framer-motion";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getAudio } from "@/components/effects/audio";
-import { KIND_ICON } from "@/components/evidence/notebook-model";
+import { ClueArt } from "@/components/evidence/ClueArt";
 import { InterrogationStage, type StageActor } from "@/components/stage/InterrogationStage";
 import type { EndingPayload } from "@/engine/accuse-schema";
 import type { PublicEvidence, PublicSuspect, StageArt } from "@/engine/public-view";
@@ -238,9 +238,7 @@ export function EndingScene({
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ duration: 0.6 }}
               >
-                <span aria-hidden className="text-2xl">
-                  {KIND_ICON[e.kind] ?? "🔍"}
-                </span>
+                <ClueArt evidence={e} className="inline-flex size-8 items-center justify-center text-2xl" />
                 {e.name}
               </motion.div>
             ))}

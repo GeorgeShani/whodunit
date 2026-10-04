@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { Portrait } from "@/components/characters/Portrait";
-import { KIND_ICON } from "@/components/evidence/notebook-model";
+import { ClueArt } from "@/components/evidence/ClueArt";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { useModal } from "@/components/ui/use-modal";
 import { MAX_ACCUSE_EVIDENCE, MAX_ACCUSE_TESTIMONY, validateAccusationDraft, type AccusationDraft } from "@/engine/accuse-schema";
@@ -127,7 +127,7 @@ export function AccuseScreen({
               onClick={() => set({ weaponId: e.id })}
               className={`${pick(draft.weaponId === e.id)} min-h-12 px-4 py-2 text-base font-bold`}
             >
-              <span aria-hidden>{KIND_ICON[e.kind] ?? "🔍"}</span> {e.name}
+              <ClueArt evidence={e} className="inline-block size-6 align-middle leading-6" /> {e.name}
             </button>
           ))}
         </div>
@@ -168,7 +168,7 @@ export function AccuseScreen({
                 onClick={() => toggleProof(e.id)}
                 className={`${pick(on)} min-h-12 px-4 py-2 text-base font-bold`}
               >
-                {on ? "☑" : "☐"} {e.name}
+                {on ? "☑" : "☐"} <ClueArt evidence={e} className="inline-block size-6 align-middle leading-6" /> {e.name}
               </button>
             );
           })}

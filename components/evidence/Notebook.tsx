@@ -8,7 +8,8 @@ import { useModal } from "@/components/ui/use-modal";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Location } from "@/engine/types";
-import { contradictionLines, KIND_ICON, whereFound, type ContradictionNotes, type NotebookItem } from "./notebook-model";
+import { ClueArt } from "./ClueArt";
+import { contradictionLines, whereFound, type ContradictionNotes, type NotebookItem } from "./notebook-model";
 
 /**
  * The detective's notebook (Phase 5): evidence cards (image, name, description,
@@ -187,12 +188,7 @@ export function Notebook({
                     <li key={e.id} className="flex flex-col rounded-2xl border-[3px] border-black bg-white p-3 shadow-[4px_4px_0_#000]" data-card-evidence={e.id}>
                       <div className="flex gap-3">
                         <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-[3px] border-black bg-amber-200 text-3xl">
-                          {e.image ? (
-                            // eslint-disable-next-line @next/next/no-img-element -- small authored card art
-                            <img src={e.image} alt="" className="h-full w-full object-cover" />
-                          ) : (
-                            <span aria-hidden>{KIND_ICON[e.kind] ?? "🔍"}</span>
-                          )}
+                          <ClueArt evidence={e} fill />
                         </div>
                         <div className="min-w-0">
                           <p className="font-display text-xl tracking-wide">{e.name}</p>

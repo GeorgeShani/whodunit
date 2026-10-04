@@ -160,10 +160,26 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
     "relatedFactIds": ["…"],            // optional; facts or timeline ids (engine use only)
     "relatedCharacters": ["victoria"],  // optional; characters or the victim (engine use only)
     "initiallyAvailable": true,         // true = the player starts with it
-    "image": "silver-candlestick"       // optional asset key
+    "icon": "🕯️",                       // optional emoji (1-8 chars, no plain letters) shown when there is no illustration
+    "image": "silver-candlestick"       // optional legacy asset key (an illustration file name, see "Clue art")
   }
 ]
 ```
+
+### Clue art
+
+Every screen that shows a clue (notebook, "clue found" overlay, Present evidence, the accuse pickers, the end screen) uses the one
+resolver `resolveClueArt` in `lib/clue-art.ts`, in this order:
+
+1. **Illustration**: the first file that exists of `assets/evidence/<caseId>/<id>.webp`, `assets/evidence/<id>.webp`, then the legacy `image` key
+   (`assets/evidence/<image>.webp`). `<id>` is the evidence `id` exactly. Drop the file in and it is picked up with no code or JSON change: the list
+   of files is read when the app is built or started (a Vercel deploy does that; restart `npm run dev` after adding one).
+2. **`icon`**: the item's own emoji.
+3. **Generic icon**: 🔍. The clue's `kind` is never used to guess a picture.
+
+Illustration format: **WebP, square, 256x256 px** (it is shown at 64 px on cards and 96 px in the overlay, so 2-3x for sharp screens), a cartoon
+object with the same black outline as the other art, on a transparent or flat warm background (the frame behind it is amber), ideally under 40 KB.
+If an image fails to load the screen falls back to the icon. `npm run validate:case -- <caseId>` warns about a clue that has neither an icon nor a file.
 
 ## characters/&lt;id&gt;.json
 

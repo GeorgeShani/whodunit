@@ -22,6 +22,7 @@ const toFound = (e: Evidence): FoundEvidence => ({
   description: e.description,
   kind: e.kind,
   ...(e.image ? { image: e.image } : {}),
+  ...(e.icon ? { icon: e.icon } : {}),
   ...(e.discoveryLine ? { discoveryLine: e.discoveryLine } : {}),
 });
 
