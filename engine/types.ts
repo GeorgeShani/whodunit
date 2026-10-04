@@ -133,6 +133,70 @@ export const AssetPathSchema = z
   .regex(/^\/assets\/(?:[a-z0-9_-]+\/)*[a-z0-9_.-]+\.(?:webp|png|jpe?g|svg)$/i, "asset paths look like /assets/<folder>/<file>.webp")
   .refine((p) => !p.includes(".."), "asset paths may not contain ..");
 
+// ---------------------------------------------------------------------------
+// Progression: conditions, gated rooms/clues, leads, the accuse gate (docs/BLACKWOOD_PROGRESSION_PROPOSAL.md §5)
+// ---------------------------------------------------------------------------
+
+/**
+ * A monotone predicate over the signed game state (it only ever goes false -> true as the game is played).
+ * `mode` "all" (default): every listed atom must hold; "any": one is enough. At least one atom is required.
+ */
+export const ConditionSchema = z
+  .strictObject({
+    mode: z.enum(["any", "all"]).optional(),
+    /** characters[id].interrogationCount >= minExchanges (default 1). */
+    interrogated: z.array(z.strictObject({ characterId: IdSchema, minExchanges: z.number().int().min(1).optional() })).optional(),
+    /** In discoveredEvidenceIds. */
+    evidenceIds: z.array(IdSchema).optional(),
+    /** In the case-wide revealed secret set. */
+    secretIds: z.array(IdSchema).optional(),
+    /** In searchedLocationIds. */
+    searchedLocationIds: z.array(IdSchema).optional(),
+    /** The lead is open OR closed (a closed lead counts as open). */
+    leadIds: z.array(IdSchema).optional(),
+  })
+  .refine((c) => (c.interrogated?.length ?? 0) + (c.evidenceIds?.length ?? 0) + (c.secretIds?.length ?? 0) + (c.searchedLocationIds?.length ?? 0) + (c.leadIds?.length ?? 0) > 0, {
+    message: "a condition needs at least one atom (interrogated, evidenceIds, secretIds, searchedLocationIds or leadIds)",
+  });
+export type Condition = z.infer<typeof ConditionSchema>;
+
+/** Public line shown while a room or clue is locked (never reveals the requirement). */
+export const LockedLineSchema = z.string().trim().min(1).max(160);
+
+/** An open question for the player (the notebook's Leads tab). State is derived on demand: hidden | open | closed. */
+export const LeadSchema = z.strictObject({
+  id: IdSchema,
+  /** PUBLIC. */
+  title: z.string().trim().min(1).max(70),
+  /** PUBLIC; shown while the lead is open. */
+  hint: z.string().trim().min(1).max(240),
+  /** Omitted: open from the start. */
+  opensWhen: ConditionSchema.optional(),
+  closesWhen: ConditionSchema,
+  /** PUBLIC; shown when closed. */
+  closedLine: LockedLineSchema.optional(),
+});
+export type Lead = z.infer<typeof LeadSchema>;
+
+/** When ACCUSE unlocks. Omitted on the case: today's behaviour (a single clue is enough). */
+export const AccuseGateSchema = z.strictObject({
+  minEvidence: z.number().int().min(1),
+  minSuspectsQuestioned: z.strictObject({ count: z.number().int().min(1), minExchanges: z.number().int().min(1) }).optional(),
+  minRevealedSecrets: z.number().int().min(0).optional(),
+  closedLeadIds: z.array(IdSchema).optional(),
+  /** PUBLIC hints for the first unmet item. */
+  lockedLines: z
+    .strictObject({
+      evidence: LockedLineSchema.optional(),
+      suspects: LockedLineSchema.optional(),
+      secrets: LockedLineSchema.optional(),
+      leads: LockedLineSchema.optional(),
+      default: LockedLineSchema,
+    })
+    .optional(),
+});
+export type AccuseGate = z.infer<typeof AccuseGateSchema>;
+
 export const LocationSchema = z.strictObject({
   id: IdSchema,
   name: NonEmptyText,
@@ -141,8 +205,15 @@ export const LocationSchema = z.strictObject({
   searchFlavor: SearchFlavorSchema.optional(),
   /** Optional PUBLIC background art for this location (Investigate card, scenes). Falls back to assets/backgrounds/<id>.webp, then an icon. */
   background: AssetPathSchema.optional(),
+  /** Searching is blocked until this holds (checked against the state BEFORE the search). Never public. */
+  requires: ConditionSchema.optional(),
+  /** PUBLIC line shown while locked. */
+  lockedLine: LockedLineSchema.optional(),
 });
 export type Location = z.infer<typeof LocationSchema>;
+
+/** The client-safe location: everything but the private `requires`. */
+export type PublicLocation = Omit<Location, "requires">;
 
 /**
  * An objective, engine-owned truth about the case world ("The butler was in
@@ -385,6 +456,10 @@ export const EvidenceSchema = z.strictObject({
   initiallyAvailable: z.boolean().default(false),
   /** Asset key for its icon/illustration. */
   image: IdSchema.optional(),
+  /** The clue stays hidden from searches until this holds (state BEFORE the search). Never public. Needs a locationId. */
+  requires: ConditionSchema.optional(),
+  /** PUBLIC line appended to a search that skipped this clue because it is locked. */
+  lockedLine: LockedLineSchema.optional(),
 });
 export type Evidence = z.infer<typeof EvidenceSchema>;
 
@@ -478,6 +553,8 @@ export const AccusationSchema = z.strictObject({
   motiveId: IdSchema,
   /** Evidence the player presents as proof. */
   keyEvidenceIds: z.array(IdSchema).min(1).max(5),
+  /** Revealed testimony (secret ids) cited as proof; required by cases whose solution sets minKeyTestimony. */
+  keyTestimonyIds: z.array(IdSchema).max(3).optional(),
 });
 export type Accusation = z.infer<typeof AccusationSchema>;
 

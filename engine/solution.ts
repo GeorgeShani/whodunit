@@ -21,6 +21,12 @@ export const CaseSolutionSchema = z.strictObject({
   motiveId: IdSchema,
   /** Evidence that proves the case; an accusation must cite these (judging rules come later). */
   keyEvidenceIds: z.array(IdSchema).min(1),
+  /** How many of keyEvidenceIds an accusation must cite to win (default 1). */
+  minKeyEvidence: z.number().int().min(1).optional(),
+  /** Revealed secrets (testimony) that prove the case; with minKeyTestimony an accusation must cite some of them. */
+  keyTestimonyIds: z.array(IdSchema).optional(),
+  /** How many of keyTestimonyIds an accusation must cite to win (default 0). */
+  minKeyTestimony: z.number().int().min(0).optional(),
   /** Optional server-only write-up for the reveal screen. */
   explanation: z.string().trim().min(1).optional(),
 });

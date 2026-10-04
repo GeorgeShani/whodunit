@@ -15,6 +15,7 @@ import { EndingsSchema } from "./endings";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
 import {
+  AccuseGateSchema,
   AssetPathSchema,
   CaseIdSchema,
   CharacterSchema,
@@ -22,6 +23,7 @@ import {
   FactSchema,
   GameTimeSchema,
   IdSchema,
+  LeadSchema,
   LocationSchema,
   TimelineEntrySchema,
 } from "./types";
@@ -88,6 +90,10 @@ export const CaseEnvelopeSchema = z.strictObject({
    * "explicit": direct links only, no window heuristic. In both modes a fact with `hiddenUntil` follows only its own rule.
    */
   knowledgeGate: z.enum(["explicit", "proximity"]).default("proximity"),
+  /** Progression (optional): open questions the player works through. Omitted: no leads. */
+  leads: z.array(LeadSchema).optional(),
+  /** Progression (optional): when ACCUSE unlocks. Omitted: today's behaviour (a single clue is enough). */
+  accuseGate: AccuseGateSchema.optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 
