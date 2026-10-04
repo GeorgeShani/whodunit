@@ -7,6 +7,7 @@ import { Notebook } from "@/components/evidence/Notebook";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { LeadsPanel } from "@/components/progress/LeadsPanel";
 import { CaseNotReady } from "@/components/progress/CaseNotReady";
+import { NewLeadToast, NEW_LEAD_TOAST_MS } from "@/components/progress/NewLeadToast";
 import { publicProgress, type PublicProgress } from "@/engine/progress";
 import { GameStateSchema } from "@/engine/types";
 import { isPublicProgress, parseSavedGame, SESSION_VERSION } from "@/lib/game-session";
@@ -88,6 +89,25 @@ describe("progression UI", () => {
     expect(out).toContain("1/3");
     expect(out).toContain("1/2");
     expect(out).not.toContain("0/0");
+  });
+});
+
+describe("NewLeadToast (#37)", () => {
+  it("never intercepts taps, holds for about 2.2 s and sits clear of the header and the top of the screen", () => {
+    const out = html(h(NewLeadToast, { lead: leads[0]!, onDone: () => {} }));
+    expect(out).toContain("NEW LEAD!");
+    expect(out).toContain("Who burned the letter?");
+    expect(out).not.toContain("pointer-events-auto");
+    expect(out).not.toContain("<button");
+    expect(out).not.toContain("tabindex");
+    expect(out.match(/pointer-events-none/g)?.length).toBeGreaterThanOrEqual(2); // the layer and the card
+    expect(out).not.toMatch(/top-\[|top-\d/); // bottom-anchored
+    expect(out).toContain("safe-area-inset-bottom");
+    expect(NEW_LEAD_TOAST_MS).toBeLessThanOrEqual(2200);
+  });
+  it("says LEAD SOLVED for a closed lead and renders an empty layer (still pointer-events-none) with no lead", () => {
+    expect(html(h(NewLeadToast, { lead: leads[1]!, onDone: () => {} }))).toContain("LEAD SOLVED!");
+    expect(html(h(NewLeadToast, { lead: null, onDone: () => {} }))).toContain("pointer-events-none");
   });
 });
 
