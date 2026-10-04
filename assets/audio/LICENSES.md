@@ -1,8 +1,8 @@
 # WHODUNIT?! SFX kit — licenses & provenance
 
-Every file exists as `.ogg` (Vorbis q5, primary) and `.mp3` (LAME V2 VBR, fallback). Both files of a cue share the same source and license.
+Every file exists as `.ogg` (Vorbis, mono, ~48-64 kbps, primary) and `.mp3` (LAME CBR mono 32-56 kbps, fallback). All cues were re-mastered in the noir sound pass (loudness classes, true peak <= -1 dBTP, mono; see `docs/SOUND_NOTES.md`). Both files of a cue share the same source and license.
 
-**Summary:** 13 cues are fully synthesized in original code (no samples); 3 cues (impact, door_slam, footsteps_sneak) are hybrids built from Kenney CC0 recordings plus synthesis. No CC-BY, CC-BY-NC, 'personal use', Sonniss, or ripped/imitated copyrighted audio is used. Attribution is not legally required for any file.
+**Summary:** 38 of the 42 cues are fully synthesized in original code (no samples): the 13 original synthesized cues plus the 25 noir-pass cues (`scripts/audio/make_noir.py`); 3 cues (impact, door_slam, footsteps_sneak) are hybrids built from Kenney CC0 recordings plus synthesis. (`rain_loop` was rebuilt from scratch in the noir pass; it is still synthesized.) No CC-BY, CC-BY-NC, 'personal use', Sonniss, or ripped/imitated copyrighted audio is used. Attribution is not legally required for any file.
 
 | Cue | Files | Source | Author | License | Modifications |
 |---|---|---|---|---|---|
@@ -23,6 +23,31 @@ Every file exists as `.ogg` (Vorbis q5, primary) and `.mp3` (LAME V2 VBR, fallba
 | surprise_sting | `surprise_sting.ogg`, `surprise_sting.mp3` | synthesized in code by Toon (`audio_tools/make_sfx.py`) | Toon (original) | CC0 1.0 | Original synthesis; mastered (trim, loudness-normalize, limit), encoded |
 | rain_loop | `rain_loop.ogg`, `rain_loop.mp3` | synthesized in code by Toon (`audio_tools/make_sfx.py`) | Toon (original) | CC0 1.0 | Original synthesis; mastered (trim, loudness-normalize, limit), encoded |
 | clue_ding | `clue_ding.ogg`, `clue_ding.mp3` | synthesized in code by Toon (`audio_tools/make_sfx.py`) | Toon (original) | CC0 1.0 | Original synthesis; mastered (trim, loudness-normalize, limit), encoded |
+| accusation_roll | `accusation_roll.ogg`, `accusation_roll.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| bed_library | `bed_library.ogg`, `bed_library.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); bed-class loudness master, trimmed/limited, encoded mono |
+| bed_manor | `bed_manor.ogg`, `bed_manor.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); bed-class loudness master, trimmed/limited, encoded mono |
+| breakdown_crack | `breakdown_crack.ogg`, `breakdown_crack.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| case_open | `case_open.ogg`, `case_open.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| clue_stinger | `clue_stinger.ogg`, `clue_stinger.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| confront_sting | `confront_sting.ogg`, `confront_sting.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| contradiction_stab | `contradiction_stab.ogg`, `contradiction_stab.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| door_creak | `door_creak.ogg`, `door_creak.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| emo_angry | `emo_angry.ogg`, `emo_angry.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); accent-class loudness master, trimmed/limited, encoded mono |
+| emo_nervous | `emo_nervous.ogg`, `emo_nervous.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); accent-class loudness master, trimmed/limited, encoded mono |
+| emo_sad | `emo_sad.ogg`, `emo_sad.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); accent-class loudness master, trimmed/limited, encoded mono |
+| emo_shocked | `emo_shocked.ogg`, `emo_shocked.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); accent-class loudness master, trimmed/limited, encoded mono |
+| emo_smug | `emo_smug.ogg`, `emo_smug.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); accent-class loudness master, trimmed/limited, encoded mono |
+| gavel_bang | `gavel_bang.ogg`, `gavel_bang.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); accent-class loudness master, trimmed/limited, encoded mono |
+| heartbeat_fast | `heartbeat_fast.ogg`, `heartbeat_fast.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| heartbeat_mid | `heartbeat_mid.ogg`, `heartbeat_mid.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| heartbeat_slow | `heartbeat_slow.ogg`, `heartbeat_slow.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| search_rustle | `search_rustle.ogg`, `search_rustle.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| theme_noir_minor | `theme_noir_minor.ogg`, `theme_noir_minor.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| theme_resolved | `theme_resolved.ogg`, `theme_resolved.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); sting-class loudness master, trimmed/limited, encoded mono |
+| typewriter_return | `typewriter_return.ogg`, `typewriter_return.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| typewriter_tap | `typewriter_tap.ogg`, `typewriter_tap.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| ui_paper | `ui_paper.ogg`, `ui_paper.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); foley-class loudness master, trimmed/limited, encoded mono |
+| ui_tap | `ui_tap.ogg`, `ui_tap.mp3` | synthesized in code by Toon (`scripts/audio/make_noir.py`) | Toon (original) | CC0 1.0 | Original synthesis (numpy/scipy); tap-class loudness master, trimmed/limited, encoded mono |
 
 ## Third-party sources
 
@@ -32,4 +57,6 @@ Every file exists as `.ogg` (Vorbis q5, primary) and `.mp3` (LAME V2 VBR, fallba
 
 ## Synthesized cues
 
-Synthesized cues were generated from scratch with numpy/scipy by Toon (the project's sound designer) using `toon-drafts/audio_tools/make_sfx.py` + `dsp.py`; the project may treat them as CC0 / wholly owned. Musical figures (fanfare, wah-wah descending semitones, pizzicato sneak, siren wail) are generic idioms, not transcriptions or imitations of any specific recording.
+Synthesized cues were generated from scratch with numpy/scipy by Toon (the project's sound designer) using `scripts/audio/make_sfx.py`, `make_noir.py` + `dsp.py` (mastering/encoding in `master_all.py`); the project may treat them as CC0 / wholly owned. Musical figures (the noir themes, clue/contradiction stings, fanfare, wah-wah descending semitones, pizzicato sneak, siren wail) are generic idioms, not transcriptions or imitations of any specific recording.
+
+No recordings, samples, loops, or melodies from any film, cartoon, game, or library are used or imitated by the noir-pass cues; the muted-trumpet themes are original generic jazz-idiom figures (i-iv-V7-i and I-ii-V-I chord changes with short stepwise lines), not transcriptions.

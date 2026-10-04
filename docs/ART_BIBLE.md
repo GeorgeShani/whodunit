@@ -222,24 +222,24 @@ Full, type-checked presets (strict TS against framer-motion 13.4.4): **`docs/too
 
 | Emotion | Sprite | Overlay(s) | Motion recipe | SFX |
 |---|---|---|---|---|
-| neutral | `assets/characters/<id>/neutral.webp` | — | Idle breathing: scaleX [1, .995, 1], scaleY [1, 1.015, 1], 2.4 s easeInOut, loop | `dialogue_pop` (line start only) |
+| neutral | `assets/characters/<id>/neutral.webp` | — | Idle breathing: scaleX [1, .995, 1], scaleY [1, 1.015, 1], 2.4 s easeInOut, loop | `dialogue_pop` (line start only, gain 0.35) |
 | talking | `…/talking.webp` | — | Syllable bob: scaleX [1, .98, 1.02, 1], scaleY [1, 1.03, .98, 1], y [0, −6, 0, 0], 0.36 s easeInOut, loop while text types | `dialogue_pop` |
-| angry | `…/angry.webp` | anger (popIn → throb) | Stomp: scaleX [1, 1.15, .92, 1.04, 1], scaleY [1, .85, 1.1, .97, 1], 0.45 s easeOut (times 0/.25/.55/.8/1); then shake x [0, −6, 6, −4, 4, 0], 0.3 s × 3 | `door_slam` |
-| nervous | `…/nervous.webp` | sweat (popIn → drip) | Collapse to scaleY .94, scaleX 1.03, y +4, rotate −1.5° on spring {stiffness 140, damping 20}; jitter x [0, −2, 2, −1, 1, 0], 0.3 s linear loop | `slide_whistle` (descending) |
-| shocked | `…/shocked.webp` | shock (behind, slowSpin) + surprise (popIn) | Anticipation → stretch hop: scaleX [1, 1.2, .8, 1.05, .98, 1], scaleY [1, .8, 1.35, .95, 1.03, 1], y [0, 0, −40, 0, −6, 0], 0.6 s easeOut (times 0/.15/.4/.65/.85/1) | `boing` |
-| smug | `…/smug.webp` | — | Lean back: rotate +4° (top toward the back), y −4, scaleY 1.02 on spring {stiffness 300, damping 10} | `boing` (soft, −10 dB) |
-| sad | `…/sad.webp` | — | Droop: scaleY .94, scaleX 1.02, y +8 over 0.8 s easeOut; sway rotate [−2, −3, −2]° 3 s loop | `wah_wah` |
+| angry | `…/angry.webp` | anger (popIn → throb) | Stomp: scaleX [1, 1.15, .92, 1.04, 1], scaleY [1, .85, 1.1, .97, 1], 0.45 s easeOut (times 0/.25/.55/.8/1); then shake x [0, −6, 6, −4, 4, 0], 0.3 s × 3 | `emo_angry` (was `door_slam`; the slam stays for exits) |
+| nervous | `…/nervous.webp` | sweat (popIn → drip) | Collapse to scaleY .94, scaleX 1.03, y +4, rotate −1.5° on spring {stiffness 140, damping 20}; jitter x [0, −2, 2, −1, 1, 0], 0.3 s linear loop | `emo_nervous` (was `slide_whistle_down`) |
+| shocked | `…/shocked.webp` | shock (behind, slowSpin) + surprise (popIn) | Anticipation → stretch hop: scaleX [1, 1.2, .8, 1.05, .98, 1], scaleY [1, .8, 1.35, .95, 1.03, 1], y [0, 0, −40, 0, −6, 0], 0.6 s easeOut (times 0/.15/.4/.65/.85/1) | `emo_shocked` (was `boing`) |
+| smug | `…/smug.webp` | — | Lean back: rotate +4° (top toward the back), y −4, scaleY 1.02 on spring {stiffness 300, damping 10} | `emo_smug` (was `boing`, −10 dB) |
+| sad | `…/sad.webp` | — | Droop: scaleY .94, scaleX 1.02, y +8 over 0.8 s easeOut; sway rotate [−2, −3, −2]° 3 s loop | `emo_sad` (was `wah_wah`; the long `wah_wah` is only for the wrong-accusation ending) |
 
 ### Event beats
 
 | Beat | Recipe (ms offsets) | Overlays | SFX |
 |---|---|---|---|
-| Accusation | 0: accuser `accuse` (wind-up x +12 → lunge −30 → −20, scaleX .92 → 1.1 → 1, 0.4 s). 120: stage `cameraShake` (x ±8 → 0, 0.35 s). 200: accused switches to **shocked** | impact at accused `faceFront` | `impact` |
-| Clue discovered | 0: investigator's sprite pops (talking/smug); clue item `popIn` | discovery at `headTop` | `fanfare` (short sting) |
-| Wrong accusation | 0: stage `desaturate` (grayscale 0 → .6 → 0, 1.4 s). 300: accuser → **sad**; accused → **smug** | confusion on the accuser | `siren`, then `wah_wah` |
-| Correct accusation / case solved | 0: `whiteFlash`. 150: culprit → **shocked**. 900: culprit → **angry**; others `victoryHop` (y [0, −30, 0, −10, 0], 0.7 s); stage `cameraPunchIn` (scale 1 → 1.08, spring {stiffness 200, damping 14, mass 1.6}) | shock on the culprit, then anger | `thunder` → `fanfare` |
-| Lightning flash transition | 0: full-screen white div `whiteFlash` (opacity 0 → 1 → 0 → .8 → 0, 0.6 s) + lightning overlay over the window. 150: swap scene at peak white. 400: thunder | lightning (screen) | `thunder` |
-| Character entrance | 0: `enter` (x 60vw → 0 on spring {stiffness 520, damping 18, mass .8}; landing squash scaleX [1.15, .95, 1] / scaleY [.85, 1.05, 1], 0.5 s at +250 ms) | speed behind (during slide), dust at `feet` (at 250 ms) | `slide_whistle` |
+| Accusation | 0: accuser `accuse` (wind-up x +12 → lunge −30 → −20, scaleX .92 → 1.1 → 1, 0.4 s). 120: stage `cameraShake` (x ±8 → 0, 0.35 s). 200: accused switches to **shocked** | impact at accused `faceFront` | `accusation_roll` (was `impact`; the roll lands at 1.2 s, put the shake there) |
+| Clue discovered | 0: investigator's sprite pops (talking/smug); clue item `popIn` | discovery at `headTop` | `clue_stinger`, then `typewriter_tap` (was `fanfare`; a fanfare is a victory sound and is reserved for the solved ending) |
+| Wrong accusation | 0: stage `desaturate` (grayscale 0 → .6 → 0, 1.4 s). 300: accuser → **sad**; accused → **smug** | confusion on the accuser | `wah_wah`, then `theme_noir_minor` (was `siren`, then `wah_wah`; the siren overlapped the trombone and said "justice arrives") |
+| Correct accusation / case solved | 0: `whiteFlash`. 150: culprit → **shocked**. 900: culprit → **angry**; others `victoryHop` (y [0, −30, 0, −10, 0], 0.7 s); stage `cameraPunchIn` (scale 1 → 1.08, spring {stiffness 200, damping 14, mass 1.6}) | shock on the culprit, then anger | `thunder` → `fanfare` → `theme_resolved` (the ONLY place for the fanfare) |
+| Lightning flash transition | 0: full-screen white div `whiteFlash` (opacity 0 → 1 → 0 → .8 → 0, 0.6 s) + lightning overlay over the window. 150: swap scene at peak white. 400: thunder | lightning (screen) | `thunder` (`thunder_2` at gain 0.35 under prefers-reduced-motion) |
+| Character entrance | 0: `enter` (x 60vw → 0 on spring {stiffness 520, damping 18, mass .8}; landing squash scaleX [1.15, .95, 1] / scaleY [.85, 1.05, 1], 0.5 s at +250 ms) | speed behind (during slide), dust at `feet` (at 250 ms) | `door_creak` (was `slide_whistle`) |
 | Character exit | 0: `exit` (lean back rotate 6°, then zip x → −70vw with fade, 0.5 s easeIn) | smoke at `feet` (at the start position) | `door_slam` |
 
 Copy-paste starter (excerpt of `docs/toonMotion.ts`):
@@ -271,6 +271,30 @@ export const popIn: Variants = {
 ```
 
 ---
+
+### 6.1 Sound design (noir pass)
+
+Direction: **detective noir** (rainy 1940s night, smoky jazz, shadows) with slapstick only as light seasoning; every sound fits its moment, and **victory/fanfare belongs only to the solved ending**. Cue files: `assets/audio/`; documentation, the full sound-to-event map, loudness table, ducking levels and mobile notes: **`docs/SOUND_NOTES.md`**; licensing: `assets/audio/LICENSES.md` (all cues synthesized in code, CC0). The SFX columns of the two tables above were updated to the new cues; the old keys still exist.
+
+| Moment | Cue (file stem) | Character |
+|---|---|---|
+| Title / START (opening the case) | `case_open` (+ `rain_loop` bed, `theme_noir_minor` once) | door creak, two clock ticks, low cello/bass sting under a muted-piano Cm(add9); unresolved |
+| Title / wrong-ending theme | `theme_noir_minor` | 66 bpm C-minor, Harmon-muted trumpet, felt piano, walking pizzicato bass, brushes |
+| Solved-ending theme | `theme_resolved` | 100 bpm C-major, same band, resolves to C6/9 with a brush-cymbal swell; plays after the `fanfare` |
+| Searching | `search_rustle` | tiptoe steps, drawer/paper rustle, small magnifier tink |
+| Clue found | `clue_stinger` (+ `typewriter_tap`) | low felt-piano "dun-dun", vibraphone shimmer |
+| Notebook / evidence | `ui_paper`, `typewriter_tap`, `typewriter_return` | paper, keystrokes, carriage bell |
+| UI taps | `ui_tap` | soft wooden desk tick, the quietest cue |
+| Emotion stings | `emo_angry`, `emo_nervous`, `emo_shocked`, `emo_smug`, `emo_sad` | growling muted trombone, violin shiver, orchestral stab + xylophone zip, lazy muted-trumpet slide, soft sagging trombone |
+| Stress | `heartbeat_slow` / `heartbeat_mid` / `heartbeat_fast` | 54 / 84 / 132 bpm lub-dub loops for bands 31-60 / 61-80 / 81-100 |
+| Contradiction | `contradiction_stab` | muted-brass "dun-DUN" tritone + piano + timpani |
+| Breakdown | `breakdown_crack` | glass crack, string cluster screech, falling slide whistle (slapstick seasoning), timpani |
+| Confrontation | `confront_sting` | stalking pizzicato into a dissonant string stab |
+| Accusation | `accusation_roll` (and `gavel_bang`) | snare roll + timpani + cymbal swell into a gavel bang |
+| Solved | `thunder` → `fanfare` → `theme_resolved` | the only brass fanfare in the game |
+| Wrong | `wah_wah` → `theme_noir_minor` | plunger-muted sad trombone, then the minor theme; no siren |
+| Beds | `rain_loop` (title), `bed_manor` (intro, suspects, investigate), `bed_library` (interrogation, confront, accuse) | seamless 30-36 s mono loops; bed gain 0.40, duck to 0.16 |
+| Doors / entrances | `door_creak` (enter a room), `door_slam` (storm out) | |
 
 ## 7. Backgrounds
 
