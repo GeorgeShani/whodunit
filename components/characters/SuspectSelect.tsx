@@ -47,9 +47,9 @@ export function SuspectSelect({
     >
       {/* Phones: back link (mute toggle owns the top-right corner), then the title, then a two-button action bar. */}
       <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:flex-nowrap sm:gap-2 sm:max-xl:pe-12">
-        <button type="button" onClick={onBack} className="order-1 -ms-2 flex min-h-11 cursor-pointer items-center gap-1 px-2 text-base font-bold text-yellow-200 underline-offset-4 hover:underline">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to the case file" className="order-1 min-h-12 shrink-0 text-base">
           <span aria-hidden>←</span> Case file
-        </button>
+        </CartoonButton>
         <h1
           data-autofocus
           tabIndex={-1}
