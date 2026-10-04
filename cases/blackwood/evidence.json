@@ -38,7 +38,15 @@
     "relatedCharacters": [
       "gregory"
     ],
-    "initiallyAvailable": false
+    "initiallyAvailable": false,
+    "requires": {
+      "mode": "any",
+      "leadIds": [
+        "lead-lantern",
+        "lead-boots"
+      ]
+    },
+    "lockedLine": "The draughty hall has more to say, but you don't yet know what to ask it. Poke about outside, or ask someone who watches their feet."
   },
   {
     "id": "burned-letter",
@@ -61,7 +69,17 @@
       "reginald",
       "lord-blackwood"
     ],
-    "initiallyAvailable": false
+    "initiallyAvailable": false,
+    "requires": {
+      "mode": "all",
+      "evidenceIds": [
+        "library-key"
+      ],
+      "leadIds": [
+        "lead-letter"
+      ]
+    },
+    "lockedLine": "The grate is keeping a second helping to itself. Find what the hearth is hiding first, and ask who saw what lay on that desk."
   },
   {
     "id": "library-key",
@@ -87,6 +105,14 @@
       "gregory",
       "lord-blackwood"
     ],
-    "initiallyAvailable": false
+    "initiallyAvailable": false,
+    "requires": {
+      "mode": "any",
+      "leadIds": [
+        "lead-keyhole",
+        "lead-fireplace"
+      ]
+    },
+    "lockedLine": "The hearth is still holding out on you."
   }
 ]

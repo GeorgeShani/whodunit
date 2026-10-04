@@ -168,3 +168,8 @@ Counts only: it never says which clue, who or why. `requires`, `opensWhen`, `clo
 3. Add `accuseGate` as in §5.4 with four playful lines; add `minKeyEvidence: 2`, `keyTestimonyIds` and `minKeyTestimony: 1` to `solution.json`.
 4. Run `validate:case` (zero warnings, fastest path = 11) and update `SOLUTION_PROOF.md`: new fastest path, leads table, gate, provable-from-evidence section, and the no-stress reachability.
 5. Update the case tests that expect both dining-room clues from a single search; add tests for every lead, the gate, the 403, and the cited-testimony win rule. Full tests, typecheck, lint green, then one PR, not merged.
+
+## 9. Implementation notes (after the backend and the Blackwood migration)
+- The validator's exact fastest legal path for Blackwood is **10 actions**, not the 11 counted by hand in §4: showing a clue to Victoria is also an exchange that cracks one of her secrets (`library-key` → `s-victoria-left-dining`, `burned-letter` → `s-victoria-new-will`), so she supplies both a second suspect-exchange and the second revealed secret. See `cases/blackwood/docs/SOLUTION_PROOF.md` §12.4 for the path. Raising `minSuspectsQuestioned.minExchanges` to 3 or `minRevealedSecrets` to 3 would restore 11; that is George's call.
+- Schema differences from §5, all minor: `accuseGate.minSuspectsQuestioned`, `minRevealedSecrets`, `closedLeadIds` and `lockedLines` are optional (`lockedLines.default` is required only when `lockedLines` is given); `progress.leads[].state` is `open|closed` only (hidden leads are omitted); `progress.accuse` also carries `citeTestimony`; the exchange counts are capped at the largest threshold used.
+- Blackwood's jabs and touchy subjects use the relationship `jabs` / `defensiveOn` fields from #27.

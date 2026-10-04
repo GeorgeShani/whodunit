@@ -33,9 +33,10 @@ describe("the progress-light fixture", () => {
     expect(s.game.revealedSecretIds).toEqual(expect.arrayContaining(["marlow-secret", "marlow-saw-quill", "quill-secret"]));
     expect(s.unlockedLocationIds.sort()).toEqual(["dock", "galley", "lamp-room"]);
   });
-  it("Blackwood and the other fixtures do not use progression (no behaviour change)", async () => {
-    expect(usesProgression(await loadCase("blackwood"))).toBe(false);
-    expect(fastestPath(await loadCase("blackwood"))).toBeNull();
+  it("the other shipped cases do not use progression (no behaviour change); Blackwood does, with a 10-action fastest path", async () => {
+    expect(usesProgression(await loadCase("blackwood"))).toBe(true);
+    expect(fastestPath(await loadCase("blackwood"))).toBe(10);
+    expect(usesProgression(await loadCase("harbor-light", "tests/fixtures/cases"))).toBe(false);
   });
 });
 

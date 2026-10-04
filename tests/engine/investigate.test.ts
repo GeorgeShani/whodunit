@@ -1,6 +1,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { POST } from "@/app/api/investigate/route";
 import { handleInterrogate } from "@/ai/interrogate-handler";
+import { ungated } from "../helpers/ungated";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
@@ -13,7 +14,7 @@ import { SOLUTION_KEYS, deepScan } from "../helpers/leak-scan";
 
 let c: LoadedCase;
 beforeAll(async () => {
-  c = await loadCase("blackwood");
+  c = ungated(await loadCase("blackwood"));
 });
 
 const search = (locationId: string, stateToken?: string) =>

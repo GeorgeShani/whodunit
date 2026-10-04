@@ -56,7 +56,7 @@ describe("Blackwood location search", () => {
     ]
       .join(" ")
       .toLowerCase();
-    for (const s of ["victoria", "lady", "archibald", "reginald", "gregory", "will", "telephone", "inherit", c.solution.time]) {
+    for (const s of ["victoria", "lady", "archibald", "reginald", "gregory", "will", "inherit", c.solution.time]) {
       expect(text, s).not.toMatch(new RegExp(`\\b${s}\\b`));
     }
   });

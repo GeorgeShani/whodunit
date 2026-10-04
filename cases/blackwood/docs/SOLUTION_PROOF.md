@@ -38,7 +38,7 @@ Server-only truth (`solution.json`): `murdererId: "victoria"`, `weaponId: "silve
 | 21:20 | Victoria **burns the letter** in the dining-room fire (`ev-letter-burned`) and **drops the key in the coal scuttle** (`ev-key-hidden`). Gregory flees to the garden and Archibald hangs up. |
 | 21:22 | Archibald returns to the dining room (`ev-archibald-returns`). |
 | 21:30 | Reginald brings the coal and finds the door locked with an **empty keyhole**. He sees the Lord's hand through it and **screams** (`ev-reginald-scream`). |
-| 21:31–21:32 | Archibald shoulders the door open. **Body discovered**; no key in the lock, on the body or anywhere in the room (`ev-door-forced`, `ev-body-discovered`). |
+| 21:31–21:32 | Archibald shoulders the door open. At 21:32 Reginald notices that the letter that lay open on the desk at 21:12 is gone (`f-letter-gone`). **Body discovered**; no key in the lock, on the body or anywhere in the room (`ev-door-forced`, `ev-body-discovered`). |
 | 21:36 | Gregory arrives from the kitchen (`ev-gregory-arrives`). |
 | 21:38 | Lights return (`ev-lights-restored`). |
 | 21:40 | Victoria murmurs to Archibald that they were "together the whole time" and he agrees (`ev-alibi-pact`). |
@@ -271,9 +271,9 @@ All eleven gaps from the first draft are closed by contract v2 (commit 3608125).
 
 ## 10. Location search and endings
 
-**Where each clue is found** (`evidence.json` `locationId`): `silver-candlestick` in the library, `muddy-footprint` in the hall, and `burned-letter` and `library-key` both in the dining room. No clue is `initiallyAvailable`: the notebook starts empty and all four, including the weapon, are found by searching. The garden and the kitchen/servants' quarters hold no clue. Every location has an `emptyLine` (a comic line shown when a search finds nothing new).
+**Where each clue is found** (`evidence.json` `locationId`): `silver-candlestick` in the library, `muddy-footprint` in the hall, and `burned-letter` and `library-key` both in the dining room. No clue is `initiallyAvailable`: the notebook starts empty and all four, including the weapon, are found by searching, in the order and under the conditions of §12. The garden and the kitchen/servants' quarters hold no clue. Every location has an `emptyLine` (a comic line shown when a search finds nothing new).
 
-Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discoveryLine` are public. They never name a suspect or mention the will, the telephone or the time.
+Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discoveryLine` are public. They never name a suspect or mention the will or the time, and no text shown before a clue is found names the clue or its hiding place (a test checks this; §12.5). The kitchen flavour does mention the servants' telephone, as a lead (§12.2).
 
 `endings.json` is server-only. It holds:
 - `correct.confession`: Victoria's confession, with an Archibald cameo that breaks the alibi.
@@ -342,8 +342,65 @@ The proof does not use this lie: WHO, HOW, WHY and WHEN are derived in §5 witho
 | Gregory → Archibald | Nervous of the loud gentleman who keeps pointing at him; stubborn mutters about the greenhouse. |
 | Gregory → Reginald | Trusts him most; turns to him like a lost lamb. |
 
-What the data cannot do: a description cannot be limited to confrontations and cannot be tied to a fact, so it cannot say "throw this only after you know X". The engine prompt and a new field would do that. See the report's ask for Dexter.
+The table is the tone of each pair. The barbs themselves now live in `relationships[].jabs` (each tied by `aboutFactId` to a fact the speaker knows where the barb rests on one, and `when: confrontation` for the sharp ones) and the touchy subjects in `relationships[].defensiveOn` (§12.6). `description` keeps only the feeling.
 
 ### 11.6 End-screen location name
 
 `solution.json` holds only `locationId`. The "Where, when" row prints `locations[].name` ("The Library, 21:17"). `locations[].name` also titles the Investigate cards and appears in prompts, so it stays capitalised. Blackwood's authored `correct.recap` already reads "in the library". The capitalised "in The Library" appears only in the engine's fallback `engineRecapLine` (cases without an authored recap): that is an engine change, not data.
+
+## 12. Progression (rooms, leads, the accuse gate)
+
+Implemented with Dexter's progression backend (docs/CASE_FORMAT.md "Progression"). Conditions are checked against the state before each action, and every one only ever goes from false to true.
+
+### 12.1 The solve path
+1. **Library** (open from the start): `silver-candlestick`. The dining room is shut until it is found (`requires: silver-candlestick`, `lockedLine` "Crime scene first, detective! Procedure!").
+2. **Talk.** Two exchanges with a suspect open a lead (§12.2).
+3. **Dining room, first search:** `library-key` (coal scuttle). Needs `lead-keyhole` (Reginald x2 or Archibald x2) **or** `lead-fireplace` (Victoria x2). Nag until then: "The hearth is still holding out on you."
+4. **Dining room, second search:** `burned-letter` (grate). Needs `library-key` already found **and** `lead-letter` (Reginald x2), checked against the state before the search, so key and letter are always two searches.
+5. **Garden / kitchen / hall:** the garden and kitchen give leads (§12.2) and no clue. `muddy-footprint` (hall) needs `lead-lantern` (garden searched) **or** `lead-boots` (Gregory x2).
+6. **Crack them.** Show `burned-letter` to Reginald (`s-reginald-theft`), `library-key` to Archibald (`s-archibald-false-alibi`), the footprint then the key to Gregory (`s-gregory-in-hall`, then `s-gregory-saw-victoria`). Showing a clue to Victoria also cracks her (`library-key` → `s-victoria-left-dining`, `burned-letter` → `s-victoria-new-will`).
+7. **Accuse** (§12.3): murderer, weapon, motive, **both** key clues and a **revealed key testimony** (`s-reginald-theft`, `s-archibald-false-alibi` or `s-gregory-saw-victoria`).
+
+### 12.2 Leads (all nine, `case.json` `leads`)
+| Lead | Opens when | Closes when | Unlocks |
+|---|---|---|---|
+| `lead-weapon` | start | `silver-candlestick` found | (the dining room opens on the clue itself) |
+| `lead-motive` | start | `burned-letter` found | tracking only |
+| `lead-keyhole` | Reginald >= 2 **or** Archibald >= 2 | `library-key` found | `library-key` |
+| `lead-fireplace` | Victoria >= 2 | `library-key` found | `library-key` |
+| `lead-letter` | Reginald >= 2 | `burned-letter` found | `burned-letter` (with the key) |
+| `lead-lantern` | garden searched | `muddy-footprint` found | `muddy-footprint` |
+| `lead-boots` | Gregory >= 2 | `muddy-footprint` found | `muddy-footprint` |
+| `lead-alibi` | kitchen searched, Victoria >= 2 or Archibald >= 2 | any of `s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria` revealed | ACCUSE |
+| `lead-eyewitness` | hall searched | `s-gregory-saw-victoria` revealed | bonus |
+
+Canon added for the leads: `f-letter-gone` (`case.json`, 21:32, library, witnessed by Reginald, confidence 0.8, known only by Reginald): the letter that lay open at 21:12 had gone by 21:32. It fits the timeline: Victoria took it at 21:18 (`ev-victoria-takes-letter`) and burned it at 21:20 (`ev-letter-burned`), and Reginald is in the library at 21:32 (`loc-reginald-2132`). The garden's snuffed lantern and the kitchen's crooked telephone with a shred of cigar are search flavour (lead hints), not clues and not secrets: Gregory's lantern died at 21:14 and he came in by the garden door at 21:16; Archibald phoned at 21:15-21:20 and chews an unlit cigar.
+
+### 12.3 The accuse gate
+`accuseGate`: >= 3 clues, >= 3 suspects questioned >= 2 exchanges each, >= 2 revealed secrets, and `lead-alibi` closed. While locked, `/api/accuse` answers 403 `accuse_locked` with the first unmet item's line (clues, suspects, secrets, leads) and spends nothing. Win rule (`solution.json`): `minKeyEvidence: 2` (`library-key` and `burned-letter`) and `minKeyTestimony: 1` of `keyTestimonyIds` (`s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria`). Citing testimony that is not revealed in the signed state is rejected (`testimony_not_revealed`).
+
+### 12.4 Fastest legal path: 10 actions
+`validate:case` prints "fastest legal path: 10 actions". The proposal's hand count was 11, but it missed that showing a clue to Victoria is also an exchange that cracks one of her secrets, so she can supply both the second suspect-exchange and the second revealed secret:
+
+| # | Action |
+|---|---|
+| 1 | Search the library (candlestick) |
+| 2-3 | Two exchanges with Reginald (opens `lead-keyhole` and `lead-letter`) |
+| 4 | Search the dining room (key) |
+| 5 | Search the dining room again (letter) |
+| 6 | Show the key to Archibald (`s-archibald-false-alibi`, closes `lead-alibi`; Archibald 1) |
+| 7 | Show the key to Victoria (`s-victoria-left-dining`; Victoria 1) |
+| 8 | Show the letter to Victoria (`s-victoria-new-will`; Victoria 2) |
+| 9 | One more exchange with Archibald (Archibald 2) |
+| 10 | Accuse: Victoria, candlestick, inheritance, key + letter, citing `s-archibald-false-alibi` |
+
+The gate is met after action 9: three clues, three suspects at >= 2 (Reginald 2, Victoria 2, Archibald 2), three secrets, `lead-alibi` closed. A test replays this path against the real functions. A typical game with the garden, kitchen, hall and Gregory takes about 18-25 actions. Whether to accept 10, or to make 11 the floor by raising `minSuspectsQuestioned.minExchanges` to 3 or `minRevealedSecrets` to 3, is George's call; the data is not changed to chase the number.
+
+### 12.5 Fairness argument
+- **No lucky guess.** ACCUSE is locked until the gate is met, and the gate cannot be met without talking to three suspects, cracking two secrets and closing the alibi lead. The server recomputes the gate from the signed token (403 otherwise). Winning also needs both key clues and a real revealed key testimony, all re-checked against the token. Because one accusation is final (#22), the only residual guess after the gate is murderer x weapon x motive, and a player at that point holds the proof. A test shows that all four clues with nobody questioned still gets 403.
+- **Provable from evidence alone.** Every unlock is evidence, search or talk; none needs stress. The two key clues are reachable at zero stress through leads that open on plain conversation. Every key testimony is cracked by a clue (`s-reginald-theft` by `burned-letter`, `s-archibald-false-alibi` by `library-key`, `s-gregory-saw-victoria` by `library-key` after `s-gregory-in-hall`), with no stress route; the reachability simulation in `validate:case` fails the build otherwise, and a test checks it. The deduction chain of §5 is unchanged.
+- **Reachability and redundancy.** The unlock graph is a DAG (talk, leads, key, letter, secrets) and monotone, so no order of play undoes an unlock. The key has three routes (Reginald, Archibald, Victoria), the footprint two (garden, Gregory), the alibi lead three secrets. The one single point is Reginald for the letter: he is mandatory but deterministic (two exchanges), and fallback replies count as exchanges, so a model outage cannot lock the game.
+- **Early leaks.** Before a clue is found, nothing shown names it or its hiding place: the dining-room card no longer lists the scuttle, the hall card no longer measures the alcove, the dining-room flavour no longer pokes the scuttle, and the nag lines are vague. A test scans every public pre-clue string. Lead hints name rooms and people already on the map (as designed) but no clue, no motive and no culprit.
+
+### 12.6 Pair material (supersedes the table of §11.5 for the barbs)
+Each of the 12 ordered pairs has a short `description` (feeling), at least one `jabs[]` entry and one `defensiveOn[]` entry. About half the barbs are tied by `aboutFactId` to a fact the speaker knows, so the engine offers them only while the speaker knows it: the dinner threat (`ev-archibald-threat`) for Victoria, Reginald and Archibald; the dismissal (`f-gregory-dismissed`) for Victoria, Reginald and Gregory; the candlesticks (`ev-candlesticks-lit`), the door forced (`ev-door-forced`), the arrival (`ev-gregory-arrives`) and the 20:57 sighting (`ev-victoria-passes-reginald`). None names a secret, the library or the key (a test checks the same giveaway word list as §7.2). Archibald's barbs never mention the dismissal, and Gregory's never mention the dinner threat, because they do not know them. The `description` texts of §11.5 are kept for the tone.

@@ -33,19 +33,25 @@
     {
       "id": "dining-room",
       "name": "The Dining Room",
-      "description": "Long table, a pair of silver candlesticks, a roaring hearth with a brass coal scuttle beside it.",
+      "description": "Long table, a pair of silver candlesticks and a roaring hearth.",
       "searchFlavor": {
         "lines": [
           "Dinner for four, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
-          "The fire has sulked down to embers. You poke the grate and the coal scuttle, because detectives poke things. It's in the job description."
+          "The fire has sulked down to embers, and the hearth wears the smug look of a fireplace that knows something."
         ],
         "emptyLine": "You count the pudding bowls again. Still four. Still nobody finished the trifle. Nothing new here."
-      }
+      },
+      "requires": {
+        "evidenceIds": [
+          "silver-candlestick"
+        ]
+      },
+      "lockedLine": "Crime scene first, detective! Procedure! Start where his lordship fell, and the dining room will still be here when you get back."
     },
     {
       "id": "hall",
       "name": "The Hall",
-      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it, six paces from the library door.",
+      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
       "searchFlavor": {
         "lines": [
           "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
@@ -60,9 +66,10 @@
       "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters.",
       "searchFlavor": {
         "lines": [
-          "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms."
+          "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms.",
+          "Beside the garden door lies a storm lantern, snuffed out and abandoned. Somebody came in out of the dark in a hurry, and left their light behind."
         ],
-        "emptyLine": "You search every flowerbed and find mud, more mud, and a snail who refuses to answer questions. No clues out here."
+        "emptyLine": "You search the flowerbeds again and find mud, more mud, and a snail who refuses to answer questions. The lantern has told you all it is going to."
       }
     },
     {
@@ -71,9 +78,10 @@
       "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage.",
       "searchFlavor": {
         "lines": [
-          "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves."
+          "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves.",
+          "The servants' telephone hangs a little crooked on its hook, with a soggy shred of cigar stuck to the mouthpiece. Somebody has been chewing on their calls."
         ],
-        "emptyLine": "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, zero clues."
+        "emptyLine": "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, nothing else to find."
       }
     }
   ],
@@ -195,6 +203,18 @@
       ],
       "source": "witnessed",
       "confidence": 1
+    },
+    {
+      "id": "f-letter-gone",
+      "statement": "At 21:32, when the library door gave way, Reginald saw that the solicitor's letter, which had lain open on the desk at 21:12, was no longer there.",
+      "category": "object",
+      "locationId": "library",
+      "time": "21:32",
+      "involvesCharacterIds": [
+        "reginald"
+      ],
+      "source": "witnessed",
+      "confidence": 0.8
     }
   ],
   "motives": [
@@ -218,5 +238,190 @@
       "label": "Revenge",
       "description": "Someone had a score to settle with his lordship."
     }
-  ]
+  ],
+  "leads": [
+    {
+      "id": "lead-weapon",
+      "title": "What struck his lordship down?",
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "closesWhen": {
+        "evidenceIds": [
+          "silver-candlestick"
+        ]
+      },
+      "closedLine": "A candlestick! The butler will be mortified about the polish."
+    },
+    {
+      "id": "lead-motive",
+      "title": "Who gains from his death?",
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "closesWhen": {
+        "evidenceIds": [
+          "burned-letter"
+        ]
+      },
+      "closedLine": "Paper never lies, though it does burn."
+    },
+    {
+      "id": "lead-keyhole",
+      "title": "Where does a key go when it leaves a locked room?",
+      "hint": "The library door was locked and the key was gone. Keys do not walk. Somebody carried it out, so where would they put it?",
+      "opensWhen": {
+        "mode": "any",
+        "interrogated": [
+          {
+            "characterId": "reginald",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "archibald",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "library-key"
+        ]
+      },
+      "closedLine": "The key, found. It had been sulking in the coal."
+    },
+    {
+      "id": "lead-fireplace",
+      "title": "Her ladyship keeps eyeing the dining-room fireplace",
+      "hint": "Lady Victoria's gaze drifts to the dining-room hearth whenever you press her. Fires keep their own counsel, but not for ever.",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "victoria",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "library-key"
+        ]
+      },
+      "closedLine": "Her ladyship's favourite fireplace gave up its first secret."
+    },
+    {
+      "id": "lead-letter",
+      "title": "A letter on the desk at 21:12, gone by 21:32",
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the desk was bare. Papers do not walk off either.",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "reginald",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "burned-letter"
+        ]
+      },
+      "closedLine": "The letter, rescued from the flames and only slightly toasted."
+    },
+    {
+      "id": "lead-lantern",
+      "title": "A snuffed lantern by the garden door",
+      "hint": "A storm lantern lies snuffed out beside the garden door. Who came in out of the dark? The hall by that door may remember.",
+      "opensWhen": {
+        "searchedLocationIds": [
+          "garden"
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "muddy-footprint"
+        ]
+      },
+      "closedLine": "The lantern's owner left a footprint behind. People never think of the floor."
+    },
+    {
+      "id": "lead-boots",
+      "title": "The gardener never looks up from his boots",
+      "hint": "Gregory will not lift his eyes from his boots. Boots go places, and floors remember them. The hall is where boots get noticed.",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "gregory",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "muddy-footprint"
+        ]
+      },
+      "closedLine": "The boots had been in the hall after all."
+    },
+    {
+      "id": "lead-alibi",
+      "title": "Who was really with whom during the blackout?",
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "opensWhen": {
+        "mode": "any",
+        "searchedLocationIds": [
+          "kitchen"
+        ],
+        "interrogated": [
+          {
+            "characterId": "victoria",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "archibald",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "mode": "any",
+        "secretIds": [
+          "s-reginald-theft",
+          "s-archibald-false-alibi",
+          "s-gregory-saw-victoria"
+        ]
+      },
+      "closedLine": "One story has a hole in it, and now everybody can see through."
+    },
+    {
+      "id": "lead-eyewitness",
+      "title": "Did anyone see who stood at the library door?",
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "opensWhen": {
+        "searchedLocationIds": [
+          "hall"
+        ]
+      },
+      "closesWhen": {
+        "secretIds": [
+          "s-gregory-saw-victoria"
+        ]
+      },
+      "closedLine": "A witness, at last, and a lightning flash to thank for it."
+    }
+  ],
+  "accuseGate": {
+    "minEvidence": 3,
+    "minSuspectsQuestioned": {
+      "count": 3,
+      "minExchanges": 2
+    },
+    "minRevealedSecrets": 2,
+    "closedLeadIds": [
+      "lead-alibi"
+    ],
+    "lockedLines": {
+      "evidence": "A hunch and a hat don't close a case, detective. Keep looking.",
+      "suspects": "You've barely spoken to the household! Everyone has something to say, and somebody is fibbing.",
+      "secrets": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
+      "leads": "One of tonight's stories hasn't been put to the test yet. Somebody is still telling it with a straight face.",
+      "default": "Not so fast, detective! The case isn't ready for the gavel."
+    }
+  }
 }
