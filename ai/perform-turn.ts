@@ -14,6 +14,7 @@ import type { GameState } from "@/engine/types";
 import { cannedCharacterResponse } from "./canned-responses";
 import { fixArticles } from "./text-fixes";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
+import { checkOrder } from "./order-check";
 import { callGrok, type GrokResult } from "./grok";
 import type { Contradiction } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type ConfrontDirective, type TurnDirectives } from "./prompts/interrogation";
@@ -78,6 +79,11 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
     const res = checkTimes(said, allowed);
     if (!res.ok) {
       return `You stated a time you do not know (${res.offending.map((x) => `"${x}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir").`;
+    }
+    // Order of events (#26): "from after the lights went out till the candles" must fit when this person really moved.
+    const order = checkOrder(said, ctx);
+    if (!order.ok) {
+      return `You described when something happened in a way that contradicts the order of events (${order.offending.map((x) => `"${x}"`).join(", ")}). ${order.hint ?? ""} Use the clock times from WHAT YOU KNOW, or one landmark from THE EVENING IN ORDER exactly as listed.`;
     }
     // Breakdown turns must actually read as an outburst (performance only; the engine already decided it).
     if (directives.breakdown && !isOutburst(r.dialogue)) {
