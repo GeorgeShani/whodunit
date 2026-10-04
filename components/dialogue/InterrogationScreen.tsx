@@ -79,10 +79,10 @@ export function InterrogationScreen({
   };
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4">
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
       {/* pe-12 leaves room for the fixed mute toggle; the name truncates instead of wrapping (#12). */}
-      <header className="mb-2 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
-        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="shrink-0 px-3 sm:px-4">
+      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
@@ -93,26 +93,27 @@ export function InterrogationScreen({
           <span className="max-sm:hidden">{suspect.name}</span>
           <span className="sm:hidden">{firstName}</span>
         </h1>
-        <EmotionBadge emotion={emotion} className="max-sm:text-xs" />
+        <EmotionBadge emotion={emotion} className="max-sm:hidden" />
       </header>
 
       {/* DOM order: conversation first. Phones: stage on top; md+: conversation left, stage right (the sprite faces left, toward it). */}
-      <div className="flex min-h-0 flex-1 flex-col-reverse gap-3 md:flex-row md:gap-4">
-        <section className="flex min-h-0 flex-1 flex-col gap-3" aria-label={`Questioning ${suspect.name}`}>
+      <div className="flex min-h-0 flex-1 flex-col-reverse gap-3 md:flex-row md:gap-4 short:flex-row short:gap-2">
+        <section className="flex min-h-0 flex-1 flex-col gap-3 short:gap-2 short:[&_button]:text-sm" aria-label={`Questioning ${suspect.name}`}>
           <DialogueLog
             messages={messages}
             characterName={suspect.name}
             footer={pending ? <ThinkingIndicator name={firstName} seed={messages.length} /> : null}
           />
 
-          <div className="flex flex-wrap gap-2">
-            <CartoonButton disabled={locked} onClick={() => ask("Where were you this evening, and what did you see?")}>
+          <div className="grid grid-cols-2 gap-2 md:flex md:flex-wrap short:grid short:grid-cols-3">
+            <CartoonButton className="min-h-12 short:min-h-11 px-2" disabled={locked} onClick={() => ask("Where were you this evening, and what did you see?")}>
               📍 Whereabouts
             </CartoonButton>
-            <CartoonButton disabled={locked} onClick={() => ask("Tell me about the victim. What were they like?")}>
+            <CartoonButton className="min-h-12 short:min-h-11 px-2" disabled={locked} onClick={() => ask("Tell me about the victim. What were they like?")}>
               💀 The victim
             </CartoonButton>
             <CartoonButton
+              className="min-h-12 short:min-h-11 px-2"
               tone={menu === "suspects" ? "violet" : "yellow"}
               disabled={locked || otherSuspects.length === 0}
               onClick={() => setMenu(menu === "suspects" ? null : "suspects")}
@@ -121,6 +122,7 @@ export function InterrogationScreen({
             </CartoonButton>
             {onConfront && (
               <CartoonButton
+                className="min-h-12 short:min-h-11 px-2"
                 tone={menu === "confront" ? "violet" : "yellow"}
                 disabled={locked || otherSuspects.length === 0}
                 onClick={() => setMenu(menu === "confront" ? null : "confront")}
@@ -128,7 +130,7 @@ export function InterrogationScreen({
                 ⚔️ Confront…
               </CartoonButton>
             )}
-            <CartoonButton disabled={locked} onClick={onOpenNotebook} aria-haspopup="dialog">
+            <CartoonButton className="col-span-2 min-h-12 short:min-h-11 px-2 short:col-span-1 md:col-auto" disabled={locked} onClick={onOpenNotebook} aria-haspopup="dialog">
               🔍 Present evidence
               {evidence.length + testimonies.length > 0 ? ` (${evidence.length + testimonies.length})` : ""}
             </CartoonButton>
@@ -143,7 +145,7 @@ export function InterrogationScreen({
                 className="overflow-hidden"
               >
                 <div className="rounded-xl border-[3px] border-black bg-violet-900/80 p-3">
-                  {menu === "confront" && <p className="mb-2 text-sm font-bold text-yellow-100">Bring {firstName} face to face with…</p>}
+                  {menu === "confront" && <p className="mb-2 text-base font-bold text-yellow-100">Bring {firstName} face to face with…</p>}
                   <div className="flex flex-wrap gap-2">
                     {otherSuspects.map((o) => (
                       <CartoonButton
@@ -163,7 +165,7 @@ export function InterrogationScreen({
           </AnimatePresence>
 
           {busyWith && (
-            <p role="status" className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1 text-sm font-bold text-black">
+            <p role="status" className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-base font-bold text-black">
               ⏳ {busyWith}. Your question will keep.
             </p>
           )}
@@ -187,16 +189,16 @@ export function InterrogationScreen({
                 aria-describedby={hintId}
                 aria-invalid={over > 0 || undefined}
                 data-autofocus
-                className="min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
+                className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
               />
-              <CartoonButton type="submit" tone="red" disabled={locked || !text.trim() || over > 0}>
+              <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || over > 0}>
                 ASK!
               </CartoonButton>
             </div>
             <p
               id={hintId}
               aria-live="polite"
-              className={`px-1 text-right text-xs font-bold ${over > 0 ? "text-red-300" : "text-yellow-100/70"}`}
+              className={`px-1 text-right text-sm font-bold ${over > 0 ? "text-red-300" : "text-yellow-100/70"}`}
             >
               {over > 0
                 ? `Question too long: trim ${over} character${over === 1 ? "" : "s"} (max ${MAX_QUESTION_CHARS}).`
@@ -207,13 +209,15 @@ export function InterrogationScreen({
           </form>
         </section>
 
-        <div className="kb-hide relative flex h-[calc(var(--app-h)*0.34)] shrink-0 md:h-auto md:flex-[1.15]">
+        <div className="kb-hide relative flex h-[calc(var(--app-h)*0.34)] shrink-0 md:h-auto md:flex-[1.15] short:h-auto short:flex-[0.55]">
           <InterrogationStage
             art={stage}
             actors={[{ suspect, emotion, speaking, pending }]}
             className="h-full w-full rounded-2xl border-4 border-black shadow-[6px_6px_0_#000]"
           />
           <StressMeter value={stress} name={suspect.name} className="absolute left-2 top-2 w-44 sm:w-52" />
+          {/* Phones: the mood badge rides on the stage (the header has no room for it next to the name). */}
+          <EmotionBadge emotion={emotion} className="absolute right-2 top-2 z-10 sm:hidden" />
         </div>
       </div>
     </main>

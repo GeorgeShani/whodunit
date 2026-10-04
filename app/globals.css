@@ -55,6 +55,9 @@ body {
   padding: var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l);
 }
 
+/* Phones held sideways (and other very short viewports): screens switch to two columns, see the `short:` variant. */
+@custom-variant short (@media (orientation: landscape) and (max-height: 520px));
+
 /* Keyboard open on a short viewport: drop the stage art so the chat and the question box get the room. */
 html[data-kb] .kb-hide {
   display: none;

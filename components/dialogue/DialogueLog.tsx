@@ -53,7 +53,7 @@ export function DialogueLog({
             key={m.id}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="self-center rounded-xl border-[3px] border-dashed border-black bg-yellow-100 px-4 py-2 text-center text-sm font-bold italic text-black"
+            className="self-center rounded-xl border-[3px] border-dashed border-black bg-yellow-100 px-4 py-2 text-center text-base font-bold italic text-black"
           >
             {m.text}
           </motion.p>
@@ -66,10 +66,10 @@ export function DialogueLog({
             m.speaker === "player" ? "self-end bg-sky-200" : "self-start bg-white"
           }`}
         >
-          <p className="text-xs font-black uppercase tracking-wide text-neutral-600">
+          <p className="text-sm font-black uppercase tracking-wide text-neutral-600">
             {m.speaker === "player" ? "You" : (m.speakerName ?? characterName)}
           </p>
-          {m.action && <p className="text-sm italic text-neutral-600">*{m.action}*</p>}
+          {m.action && <p className="text-base italic text-neutral-600">*{m.action}*</p>}
           <p className="font-medium">{m.text}</p>
         </motion.div>
         ),
