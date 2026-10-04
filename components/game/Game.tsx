@@ -762,6 +762,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             suspects={view.suspects}
             evidence={evidence}
             motives={view.motives}
+            testimonies={testimonies}
             onReplay={() => setEndingPart("scene")}
             onPlayAgain={playAgain}
           />

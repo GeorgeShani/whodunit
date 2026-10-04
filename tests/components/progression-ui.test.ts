@@ -1,6 +1,8 @@
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { EndScreen } from "@/components/ending/EndScreen";
+import { citedConfessions } from "@/components/ending/summary";
 import { AccuseScreen } from "@/components/accuse/AccuseScreen";
 import { SuspectSelect } from "@/components/characters/SuspectSelect";
 import { Notebook } from "@/components/evidence/Notebook";
@@ -139,5 +141,41 @@ describe("progress persistence and the questioned badges", () => {
     expect(withGate.questioned).toEqual({ need: 2, counts: { ann: 2, bob: 1 } });
     const none = publicProgress({ leads: [], locations: [], characters: chars, solution: {} } as never, g);
     expect(none.questioned).toBeUndefined();
+  });
+});
+
+describe("end screen lists the confessions the player cited (#39)", () => {
+  const cards = [
+    { id: "s1", characterId: "ann", characterName: "Ann Lee", summary: "I burned the letter." },
+    { id: "s2", characterId: "bob", characterName: "Bob Ray", summary: "I saw Ann by the grate." },
+  ];
+  const result = (outcome: "won" | "lost", keyTestimonyIds?: string[]) =>
+    ({
+      outcome,
+      accusation: { murdererId: "ann", weaponId: "w", motiveId: "m", keyEvidenceIds: ["w"], ...(keyTestimonyIds ? { keyTestimonyIds } : {}) },
+      ending: { outcome, headline: outcome === "won" ? "CASE CLOSED!" : "THE MURDERER ESCAPED!", accusedId: "ann", beats: [] },
+      ...(outcome === "won" ? { verdict: { murdererCorrect: true, weaponCorrect: true, motiveCorrect: true, hasKeyEvidence: true, keyEvidenceCited: ["w"], hasKeyTestimony: true } } : {}),
+    }) as never;
+  const props = { suspects, evidence: [], motives: [], onPlayAgain: () => {} };
+
+  it("citedConfessions keeps only cited, held cards, in the order cited", () => {
+    expect(citedConfessions({ keyTestimonyIds: ["s2", "s1", "zzz"] }, cards).map((c) => c.id)).toEqual(["s2", "s1"]);
+    expect(citedConfessions({}, cards)).toEqual([]);
+    expect(citedConfessions(undefined, cards)).toEqual([]);
+  });
+  it("a win lists the cited confessions with their summaries, not the uncited ones", () => {
+    const out = html(h(EndScreen, { ...props, result: result("won", ["s1"]), testimonies: cards }));
+    expect(out).toContain("Confessions you cited");
+    expect(out).toContain("I burned the letter.");
+    expect(out).not.toContain("I saw Ann by the grate.");
+  });
+  it("a loss shows exactly what was cited and nothing else", () => {
+    const out = html(h(EndScreen, { ...props, result: result("lost", ["s2"]), testimonies: cards }));
+    expect(out).toContain("I saw Ann by the grate.");
+    expect(out).not.toContain("I burned the letter.");
+  });
+  it("no section when nothing was cited (cases without a confession rule look as before)", () => {
+    expect(html(h(EndScreen, { ...props, result: result("won"), testimonies: cards }))).not.toContain("Confessions you cited");
+    expect(html(h(EndScreen, { ...props, result: result("won") }))).not.toContain("Confessions you cited");
   });
 });

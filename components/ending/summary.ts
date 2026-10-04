@@ -45,3 +45,12 @@ export function summaryRows(
     },
   ];
 }
+
+/**
+ * The confessions the player cited, as the notebook already shows them (#39). Only what the client already holds
+ * (revealed testimony cards): nothing from the solution, and on a loss exactly what was cited and nothing more.
+ */
+export function citedConfessions<T extends { id: string }>(accusation: { keyTestimonyIds?: string[] | undefined } | undefined, testimonies: readonly T[]): T[] {
+  const ids = accusation?.keyTestimonyIds ?? [];
+  return ids.map((id) => testimonies.find((t) => t.id === id)).filter((t): t is T => t !== undefined);
+}

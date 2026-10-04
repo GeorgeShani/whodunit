@@ -6,7 +6,8 @@ import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { MotiveOption } from "@/engine/case-schema";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
-import { summaryRows } from "./summary";
+import type { PublicTestimony } from "@/engine/testimony";
+import { citedConfessions, summaryRows } from "./summary";
 
 /**
  * Final screen: outcome headline, then on a WIN the per-field verdict and the
@@ -18,6 +19,7 @@ export function EndScreen({
   suspects,
   evidence,
   motives,
+  testimonies = [],
   onReplay,
   onPlayAgain,
 }: {
@@ -25,6 +27,8 @@ export function EndScreen({
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
   motives: MotiveOption[];
+  /** Testimony cards the player holds (already public to them); the cited ones are listed. */
+  testimonies?: PublicTestimony[];
   /** Watch the ending again (if there is one). */
   onReplay?: () => void;
   onPlayAgain: () => void;
@@ -45,6 +49,7 @@ export function EndScreen({
     motive: motives.find((m) => m.id === result.accusation!.motiveId)?.label ?? result.accusation.motiveId,
   };
   const s = result.solution;
+  const confessions = citedConfessions(result.accusation, testimonies);
   return (
     <main
       className={`screen-scroll relative flex min-h-0 flex-1 flex-col items-center gap-5 px-4 py-8 short:py-4 ${
@@ -94,6 +99,20 @@ export function EndScreen({
           ))}
         </ul>
       </section>
+
+      {confessions.length > 0 && (
+        <section aria-label="Confessions you cited" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-sky-100 p-4 text-black shadow-[6px_6px_0_#000]" data-cited-confessions>
+          <h2 className="mb-2 font-display text-3xl tracking-wide">Confessions you cited</h2>
+          <ul className="flex flex-col gap-2">
+            {confessions.map((t) => (
+              <li key={t.id} data-confession={t.id} className="rounded-xl border-[3px] border-black bg-white px-3 py-2">
+                <p className="font-display text-xl tracking-wide">🗣️ {t.characterName}</p>
+                <p className="text-base font-semibold">&ldquo;{t.summary}&rdquo;</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {s && (
         <section aria-label="The solution" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-amber-100 p-4 text-black shadow-[6px_6px_0_#000]" data-solution>
