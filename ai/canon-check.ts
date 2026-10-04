@@ -289,9 +289,13 @@ export function checkTimes(dialogue: string, allowed: Set<number> | CanonTimes):
 /** Modern / meta words a 1920s character must never say (#13). "AI" is matched case-sensitively. */
 const MODERN_WORDS = /\b(emojis?|computers?|internet|online|e-?mails?|apps?|smartphones?|website|chatbots?|system prompts?|prompt injection|debug(?:ging)?|developers?|JSON|LLMs?|language model|artificial intelligence|okay|OK)\b/i;
 const MODERN_CASED = /\bAI\b/;
+/** "any prompt", "the prompt" (the model echoing a request for its prompt, #13) but not "a prompt reply" or "promptly". */
+const MODERN_PROMPT = /\b(?:any|the|your|my|this|that|some|no)\s+prompts?\b(?!\s+(?:reply|response|answer|payment|action|service|attention|departure|return|dispatch))/i;
 
 /** Returns the first modern/meta word found in the text, or null. */
-export function findModernWord(text: string): string | null {
-  const m = MODERN_WORDS.exec(text) ?? MODERN_CASED.exec(text);
+export function findModernWord(text: string, heard = ""): string | null {
+  // "prompt" is a fine old word ("a prompt reply"), so it is only banned when the detective just said it (an echo, #13) or used as a noun.
+  const echo = /\bprompts?\b/i.test(heard) ? /\bprompts?\b/i.exec(text) : null;
+  const m = MODERN_WORDS.exec(text) ?? MODERN_CASED.exec(text) ?? MODERN_PROMPT.exec(text) ?? echo;
   return m ? m[0] : null;
 }

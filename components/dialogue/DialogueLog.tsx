@@ -16,10 +16,13 @@ export interface DialogueMessage {
 export function DialogueLog({
   messages,
   characterName,
+  emptyLine,
   footer,
 }: {
   messages: DialogueMessage[];
   characterName: string;
+  /** Replaces the default "<name> eyes you warily…" line (e.g. for two suspects, where the verb must be plural). */
+  emptyLine?: string;
   footer?: React.ReactNode;
 }) {
   const end = useRef<HTMLDivElement>(null);
@@ -41,7 +44,7 @@ export function DialogueLog({
       className="scroll-area flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border-4 border-black bg-[#fff8e7]/95 p-4 shadow-[6px_6px_0_#000]">
       {messages.length === 0 && (
         <p className="m-auto max-w-xs text-center font-semibold italic text-neutral-600">
-          {characterName} eyes you warily. Ask a question, detective.
+          {emptyLine ?? `${characterName} eyes you warily. Ask a question, detective.`}
         </p>
       )}
       {messages.map((m) =>

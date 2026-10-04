@@ -233,6 +233,8 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
     rt.brokeDown = true;
     rt.stress = POST_BREAKDOWN_STRESS;
   }
+  // A spent breakdown can't happen again, so the gauge tops out at "panicking" (it never reads BREAKDOWN with nothing to come, #29).
+  if (rt.brokeDown) rt.stress = Math.min(rt.stress, BREAKDOWN_STRESS - 1);
 
   const emotion: EmotionalState = {
     // Engine floor: the pose follows the stress gauge, whatever the model picked.
