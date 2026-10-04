@@ -187,7 +187,7 @@ export function InterrogationScreen({
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={onRetry && !text ? `Tap AGAIN, or ask ${firstName} something else…` : `Ask ${firstName} anything…`}
+                placeholder={onRetry && !text ? "Tap AGAIN, or type another…" : `Ask ${firstName} anything…`}
                 aria-label={`Ask ${suspect.name} a question`}
                 aria-describedby={hintId}
                 aria-invalid={over > 0 || undefined}

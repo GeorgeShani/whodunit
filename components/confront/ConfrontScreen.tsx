@@ -128,7 +128,7 @@ export function ConfrontScreen({
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder={onRetry && !text ? `Tap AGAIN, or ask ${first(addressed)} something else…` : `Ask ${first(addressed)}…`}
+                  placeholder={onRetry && !text ? "Tap AGAIN, or type another…" : `Ask ${first(addressed)}…`}
                   aria-label={`Question ${addressed.name} in front of ${other.name}`}
                   aria-describedby={hintId}
                   aria-invalid={tooLong || undefined}
