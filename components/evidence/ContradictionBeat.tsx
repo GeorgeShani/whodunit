@@ -15,7 +15,7 @@ export interface ContradictionBeatData {
 
 /**
  * OBJECTION-style beat for an engine-confirmed broken lie: impact burst,
- * camera shake, "CONTRADICTION!" and the impact + surprise stings. Shown only
+ * camera shake, "CONTRADICTION!" and one sting (contradiction_stab / breakdown_crack). Shown only
  * when the server says the presented item newly broke a lie. Under reduced
  * motion it simply fades in and out.
  */
@@ -24,13 +24,10 @@ export function ContradictionBeat({ beat, onDone }: { beat: ContradictionBeatDat
   useEffect(() => {
     if (!beat) return;
     const audio = getAudio();
-    audio.play(beat.kind === "breakdown" ? "thunder" : "impact");
-    const t1 = setTimeout(() => audio.play("surprise_sting", { gain: 0.7 }), 180);
+    // One cue per beat: the stab for a broken lie, the crack for a breakdown (which also stops the heartbeat).
+    audio.play(beat.kind === "breakdown" ? "breakdown_crack" : "contradiction_stab");
     const t2 = setTimeout(onDone, 2200);
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
+    return () => clearTimeout(t2);
   }, [beat, onDone]);
 
   return (

@@ -77,11 +77,11 @@ describe("one emotion map drives pose, overlay, motion and sound (ART_BIBLE §6)
 
   it("follows the ART_BIBLE table", () => {
     const all = availablePoses("reginald");
-    expect(cuesFor("angry", all)).toMatchObject({ pose: "angry", overlays: ["anger"], motion: "angry", sting: { cue: "door_slam" } });
-    expect(cuesFor("nervous", all)).toMatchObject({ pose: "nervous", overlays: ["sweat"], sting: { cue: "slide_whistle_down" } });
-    expect(cuesFor("shocked", all)).toMatchObject({ pose: "shocked", overlays: ["shock", "surprise"], sting: { cue: "boing" } });
-    expect(cuesFor("smug", all).sting).toEqual({ cue: "boing", gain: 0.32 }); // -10 dB
-    expect(cuesFor("sad", all).sting).toEqual({ cue: "wah_wah" });
+    expect(cuesFor("angry", all)).toMatchObject({ pose: "angry", overlays: ["anger"], motion: "angry", sting: { cue: "emo_angry" } });
+    expect(cuesFor("nervous", all)).toMatchObject({ pose: "nervous", overlays: ["sweat"], sting: { cue: "emo_nervous" } });
+    expect(cuesFor("shocked", all)).toMatchObject({ pose: "shocked", overlays: ["shock", "surprise"], sting: { cue: "emo_shocked" } });
+    expect(cuesFor("smug", all).sting).toEqual({ cue: "emo_smug" });
+    expect(cuesFor("sad", all).sting).toEqual({ cue: "emo_sad" });
     expect(cuesFor("calm", all)).toMatchObject({ pose: "neutral", overlays: [], line: { cue: "dialogue_pop" } });
     expect(cuesFor("angry", all, true)).toMatchObject({ pose: "talking", motion: "talking", overlays: [] });
     expect(cuesFor("angry", [])).toMatchObject({ pose: null, overlays: [] });
@@ -103,10 +103,10 @@ describe("one emotion map drives pose, overlay, motion and sound (ART_BIBLE §6)
 
   it("a reply stings when the pose changes, otherwise pops", () => {
     const all = availablePoses("gregory");
-    expect(replySfx("calm", "angry", all)).toEqual({ cue: "door_slam" });
+    expect(replySfx("calm", "angry", all)).toEqual({ cue: "emo_angry" });
     expect(replySfx("angry", "defensive", all)).toEqual({ cue: "dialogue_pop" }); // same pose: no repeat slam
     expect(replySfx("angry", "calm", all)).toEqual({ cue: "dialogue_pop" });
-    expect(replySfx(undefined, "scared", all)).toEqual({ cue: "slide_whistle_down" });
+    expect(replySfx(undefined, "scared", all)).toEqual({ cue: "emo_nervous" });
     expect(replySfx("calm", "angry", [])).toEqual({ cue: "dialogue_pop" });
   });
 

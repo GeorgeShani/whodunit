@@ -2,6 +2,7 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
+import { useRef } from "react";
 import { getAudio } from "@/components/effects/audio";
 import { backdropStyle } from "./backdrop";
 
@@ -10,8 +11,17 @@ import { backdropStyle } from "./backdrop";
 export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; backdrop?: string; onStart: () => void }) {
   // #9: no endless sunburst spin or button pulse under prefers-reduced-motion.
   const reduced = useReducedMotion() ?? false;
+  // A first tap anywhere but START unlocks audio and lets the noir theme play once over the rain (never before a gesture).
+  const themed = useRef(false);
+  const onFirstTap = (e: React.PointerEvent) => {
+    const audio = getAudio();
+    if (themed.current || audio.isUnlocked() || (e.target as HTMLElement).closest("[data-start]")) return;
+    themed.current = true;
+    audio.unlock();
+    audio.play("theme_noir_minor");
+  };
   return (
-    <main className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6vh] text-center max-sm:pb-[3vh]" style={backdropStyle(backdrop)}>
+    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6vh] text-center max-sm:pb-[3vh]" style={backdropStyle(backdrop)}>
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[22%] w-[130vmin] -translate-x-1/2 -translate-y-1/2">
         <motion.img
           src="/assets/title/sunburst.webp"
@@ -41,11 +51,13 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
         </motion.p>
         <motion.button
           type="button"
+          data-start
           onClick={() => {
-            // The START CASE click is the audio unlock gesture (autoplay rules): title-card fanfare.
+            // The START CASE tap is an audio unlock gesture (autoplay rules). Opening the case is case_open;
+            // the fanfare is for the SOLVED ending only.
             const audio = getAudio();
             audio.unlock();
-            audio.play("fanfare", { gain: 0.8 });
+            audio.play("case_open");
             onStart();
           }}
           className="relative mt-8 cursor-pointer rounded-full border-4 border-black bg-red-500 px-10 py-4 font-display text-3xl tracking-widest text-white shadow-[6px_6px_0_#000] hover:bg-red-400 active:translate-y-1 active:shadow-[2px_2px_0_#000] max-sm:mt-5 max-sm:px-8 max-sm:py-3 max-sm:text-2xl"

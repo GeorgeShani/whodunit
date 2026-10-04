@@ -12,12 +12,16 @@ const KIND_ICON: Record<string, string> = { physical: "🔧", document: "📜", 
 
 /**
  * ART_BIBLE "Clue discovered" beat: the clue card pops in with the discovery
- * overlay (popIn then throb) and the "clue found" ding (assets/audio README:
- * clue_ding = clue found / evidence added to notebook), plus the discoveryLine.
+ * overlay (popIn then throb) and the "clue found" stinger and a typewriter tap, plus the discoveryLine.
  */
 export function DiscoverySting({ clue, remaining, onDone }: { clue: FoundEvidence | null; remaining: number; onDone: () => void }) {
   useEffect(() => {
-    if (clue) getAudio().play("clue_ding");
+    if (!clue) return;
+    // The noir "dun-dun", then the typewriter logs it in the notebook.
+    const audio = getAudio();
+    audio.play("clue_stinger");
+    const t = setTimeout(() => audio.play("typewriter_tap"), 700);
+    return () => clearTimeout(t);
   }, [clue]);
 
   return (

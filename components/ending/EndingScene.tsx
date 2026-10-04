@@ -60,7 +60,7 @@ export function EndingScene({
     };
     const timers = verdictEvents(won, reduced).map((e) =>
       setTimeout(() => {
-        if (e.sfx) audio.play(e.sfx);
+        if (e.sfx) audio.play(e.sfx, e.gain !== undefined ? { gain: e.gain } : {});
         if (e.fx) apply(e.fx);
       }, e.at),
     );
@@ -79,9 +79,8 @@ export function EndingScene({
     const timers: ReturnType<typeof setTimeout>[] = [];
     if (s.phase === "lines") {
       const cue = lineSfx(beats[s.index]);
-      if (cue) getAudio().play(cue);
-      // The murderer sneaks off (footsteps), then the sad trombone.
-      if (beats[s.index]?.section === "escaped") timers.push(setTimeout(() => getAudio().play("wah_wah"), 900));
+      // Lines citing evidence get a quiet stinger; the murderer's escape is just the sneaking footsteps (the wah-wah is the verdict's).
+      if (cue) getAudio().play(cue, cue === "clue_stinger" ? { gain: 0.5 } : {});
     }
     const ms = autoDelayMs(s, beats);
     if (ms !== null) timers.push(setTimeout(next, ms));

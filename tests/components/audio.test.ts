@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { AudioManager, CUES, MUTE_KEY, type AudioLike } from "@/components/effects/audio";
+import { existsSync } from "node:fs";
+import { AudioManager, CORE_FILES, CUES, MUTE_KEY, oggIsRisky, type AudioLike } from "@/components/effects/audio";
 
 class FakeAudio implements AudioLike {
   static all: FakeAudio[] = [];
@@ -59,18 +60,41 @@ describe("audio manager", () => {
     expect(m.play("door_slam")).toBe(true);
   });
 
-  it("preloads every cue on unlock, preferring .ogg and falling back to .mp3", () => {
+  it("preloads the core group on unlock (.ogg when supported, else .mp3); the rest loads on demand", () => {
     const { m, byFile } = setup();
     m.unlock();
-    const files = Object.values(CUES).flatMap((c) => c.files);
-    for (const f of files) {
+    for (const f of CORE_FILES) {
       expect(byFile(f)?.src).toBe(`/assets/audio/${f}.ogg`);
       expect(byFile(f)?.loads).toBe(1);
       expect(byFile(f)?.preload).toBe("auto");
     }
+    expect(byFile("door_slam")).toBeUndefined();
+    m.play("door_slam");
+    expect(byFile("door_slam")?.src).toBe("/assets/audio/door_slam.ogg");
     const mp3 = setup({ ogg: false });
     mp3.m.unlock();
+    mp3.m.play("boing");
     expect(mp3.byFile("boing")?.src).toBe("/assets/audio/boing.mp3");
+  });
+
+  it("every cue file exists as .ogg and .mp3 in assets/audio", () => {
+    for (const def of Object.values(CUES)) {
+      for (const f of def.files) {
+        expect(existsSync(`assets/audio/${f}.ogg`), f).toBe(true);
+        expect(existsSync(`assets/audio/${f}.mp3`), f).toBe(true);
+      }
+    }
+  });
+
+  it("picks mp3 on Safari / iOS before 18.4 and ogg elsewhere", () => {
+    const iosOld = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
+    const iosNew = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.4 Mobile/15E148 Safari/604.1";
+    const iosChrome = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/120.0 Mobile/15E148 Safari/604.1";
+    const macSafari = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15";
+    const chrome = "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Mobile Safari/537.36";
+    expect([iosOld, iosChrome, macSafari].map(oggIsRisky)).toEqual([true, true, true]);
+    expect([iosNew, chrome, ""].map(oggIsRisky)).toEqual([false, false, false]);
+    expect(setup().m.format()).toBe("ogg");
   });
 
   it("one instance per cue and no spam: repeats inside the gap are dropped", () => {
@@ -135,7 +159,7 @@ describe("audio manager", () => {
     expect(rain.loop).toBe(true);
     expect(rain.paused).toBe(false);
     expect(rain.volume).toBe(0);
-    tick(1000);
+    tick(1100);
     runFades();
     expect(rain.volume).toBeCloseTo(CUES.rain_loop.volume);
     expect(m.play("rain_loop")).toBe(false); // loops aren't one-shots

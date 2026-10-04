@@ -85,22 +85,25 @@ describe("ending sequencer", () => {
   it("flashes only the current line's clues", () => {
     expect(flashIds(beats, seqStart())).toEqual([]);
     expect(flashIds(beats, { phase: "lines", index: 2 })).toEqual(["burned-letter"]);
-    expect(lineSfx(beats[2])).toBe("clue_ding");
+    expect(lineSfx(beats[2])).toBe("clue_stinger");
     expect(lineSfx(beats[0])).toBe("dialogue_pop");
   });
 
-  it("event beats follow ART_BIBLE: accusation, then solved (flash, thunder, punch-in, fanfare) or wrong (desaturate, siren, wah-wah)", () => {
+  it("event beats: accusation roll, then solved (thunder + flash, fanfare, resolved theme) or wrong (wah-wah, minor theme)", () => {
     const win = verdictEvents(true, false);
-    expect(win.map((e) => e.sfx).filter(Boolean)).toEqual(["impact", "thunder", "fanfare"]);
-    expect(win.map((e) => e.fx).filter(Boolean)).toEqual(["shake", "whiteFlash", "punchIn", "hop"]);
+    expect(win.filter((e) => e.sfx).map((e) => [e.at, e.sfx])).toEqual([[0, "accusation_roll"], [1300, "thunder"], [2400, "fanfare"], [5800, "theme_resolved"]]);
+    expect(win.filter((e) => e.fx).map((e) => [e.at, e.fx])).toEqual([[1200, "shake"], [1300, "whiteFlash"], [2400, "punchIn"], [2400, "hop"]]);
     const loss = verdictEvents(false, false);
-    expect(loss.map((e) => e.sfx).filter(Boolean)).toEqual(["impact", "siren", "wah_wah"]);
+    expect(loss.filter((e) => e.sfx).map((e) => [e.at, e.sfx])).toEqual([[0, "accusation_roll"], [1500, "wah_wah"], [4900, "theme_noir_minor"]]);
     expect(loss.some((e) => e.fx === "desaturate")).toBe(true);
-    // Reduced motion: every sound, no visual effect.
+    // The fanfare is for the solved ending only; no siren any more.
+    expect(loss.some((e) => e.sfx === "fanfare" || e.sfx === "siren")).toBe(false);
+    // Reduced motion: no visual effect and no flash-synced thunder; roll (gain 0.8), fanfare / wah-wah and themes stay.
     for (const w of [true, false]) {
       const rm = verdictEvents(w, true);
       expect(rm.every((e) => !e.fx)).toBe(true);
-      expect(rm.map((e) => e.sfx)).toEqual(verdictEvents(w, false).map((e) => e.sfx).filter(Boolean));
+      expect(rm.map((e) => e.sfx)).toEqual(verdictEvents(w, false).map((e) => e.sfx).filter((x) => x && x !== "thunder"));
+      expect(rm[0]).toMatchObject({ sfx: "accusation_roll", gain: 0.8 });
     }
     // At most one white flash (2 peaks in 0.6 s) → never more than 3 flashes a second.
     expect(win.filter((e) => e.fx === "whiteFlash")).toHaveLength(1);

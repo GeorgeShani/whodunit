@@ -21,8 +21,11 @@ export const FLASH_WINDOW_MS = 1000;
 export const MIN_STORM_GAP_MS = 9000;
 export const FIRST_STORM_MS = 2500;
 
-export function nextStormDelay(random: () => number = Math.random): number {
-  return MIN_STORM_GAP_MS + Math.floor(random() * 12000);
+/** Under prefers-reduced-motion the (audio-only) storm is rarer: at least 45 s apart. */
+export const REDUCED_STORM_GAP_MS = 45000;
+
+export function nextStormDelay(random: () => number = Math.random, reduced = false): number {
+  return (reduced ? REDUCED_STORM_GAP_MS : MIN_STORM_GAP_MS) + Math.floor(random() * 12000);
 }
 
 export function thunderDelay(random: () => number = Math.random): number {

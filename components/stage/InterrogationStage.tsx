@@ -24,7 +24,7 @@ const url = (p: string) => `url("${p}")`;
  * thunder after. Disabled under prefers-reduced-motion (the room stays in its
  * static, unlit state); thunder still plays because it's audio only.
  */
-function useStorm(enabled: boolean, flashes: boolean) {
+function useStorm(enabled: boolean, flashes: boolean, reduced = false) {
   const [lit, setLit] = useState(false);
   const guard = useRef(new FlashGuard());
   useEffect(() => {
@@ -45,7 +45,7 @@ function useStorm(enabled: boolean, flashes: boolean) {
         }
       }
       timers.push(setTimeout(() => getAudio().play("thunder"), thunderDelay()));
-      timers.push(setTimeout(storm, nextStormDelay()));
+      timers.push(setTimeout(storm, nextStormDelay(Math.random, reduced)));
     };
     timers.push(setTimeout(storm, FIRST_STORM_MS));
     return () => {
@@ -53,7 +53,7 @@ function useStorm(enabled: boolean, flashes: boolean) {
       timers.forEach(clearTimeout);
       setLit(false);
     };
-  }, [enabled, flashes]);
+  }, [enabled, flashes, reduced]);
   return lit;
 }
 
@@ -104,7 +104,7 @@ export function InterrogationStage({
   storm?: boolean;
 }) {
   const reduced = useReducedMotion() ?? false;
-  const lit = useStorm(storm && Boolean(art), !reduced && Boolean(art?.lightning));
+  const lit = useStorm(storm && Boolean(art), !reduced && Boolean(art?.lightning), reduced);
   const slots = stageSlots(actors.length as 1 | 2);
 
   return (

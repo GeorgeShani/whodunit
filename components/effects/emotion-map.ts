@@ -29,7 +29,32 @@ export type AudioCue =
   | "thunder"
   | "footsteps_sneak"
   | "ui_click"
-  | "rain_loop";
+  | "rain_loop"
+  | "accusation_roll"
+  | "bed_library"
+  | "bed_manor"
+  | "breakdown_crack"
+  | "case_open"
+  | "clue_stinger"
+  | "confront_sting"
+  | "contradiction_stab"
+  | "door_creak"
+  | "emo_angry"
+  | "emo_nervous"
+  | "emo_sad"
+  | "emo_shocked"
+  | "emo_smug"
+  | "gavel_bang"
+  | "heartbeat_fast"
+  | "heartbeat_mid"
+  | "heartbeat_slow"
+  | "search_rustle"
+  | "theme_noir_minor"
+  | "theme_resolved"
+  | "typewriter_return"
+  | "typewriter_tap"
+  | "ui_paper"
+  | "ui_tap";
 
 export interface SfxSpec {
   cue: AudioCue;
@@ -52,11 +77,11 @@ export interface PoseCue {
 export const POSE_CUES: Record<SpritePose, PoseCue> = {
   neutral: { overlays: [], motion: "neutral", line: { cue: "dialogue_pop" } },
   talking: { overlays: [], motion: "talking", line: { cue: "dialogue_pop" } },
-  angry: { overlays: ["anger"], motion: "angry", sting: { cue: "door_slam" } },
-  nervous: { overlays: ["sweat"], motion: "nervous", sting: { cue: "slide_whistle_down" } },
-  shocked: { overlays: ["shock", "surprise"], motion: "shocked", sting: { cue: "boing" } },
-  smug: { overlays: [], motion: "smug", sting: { cue: "boing", gain: 0.32 } },
-  sad: { overlays: [], motion: "sad", sting: { cue: "wah_wah" } },
+  angry: { overlays: ["anger"], motion: "angry", sting: { cue: "emo_angry" } },
+  nervous: { overlays: ["sweat"], motion: "nervous", sting: { cue: "emo_nervous" } },
+  shocked: { overlays: ["shock", "surprise"], motion: "shocked", sting: { cue: "emo_shocked" } },
+  smug: { overlays: [], motion: "smug", sting: { cue: "emo_smug" } },
+  sad: { overlays: [], motion: "sad", sting: { cue: "emo_sad" } },
 };
 
 export interface EmotionSpec {

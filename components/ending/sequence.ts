@@ -106,27 +106,42 @@ export interface TimedEvent {
   at: number;
   sfx?: AudioCue;
   fx?: StageFx;
+  /** Linear gain on the cue (default 1). */
+  gain?: number;
 }
 
 /**
- * ART_BIBLE §6 event beats (docs/toonMotion.ts `beats`), as ms offsets from
- * the start of the verdict: the accusation (impact + camera shake) for every
- * ending, then case solved (white flash + thunder, then camera punch-in,
- * victory hop and fanfare) or wrong accusation (desaturate + siren, then
- * wah-wah).
+ * ART_BIBLE §6 event beats, retimed to the new kit (docs/SOUND_NOTES.md §8B),
+ * as ms offsets from the start of the verdict: the accusation roll (with the
+ * camera shake just after) for every ending, then case solved (thunder + white
+ * flash, then fanfare with the camera punch-in and victory hop, then the
+ * resolved theme) or wrong accusation (wah-wah + desaturate, then the minor
+ * theme). The fanfare is for the SOLVED ending only.
  */
 export function verdictEvents(won: boolean, reduced: boolean): TimedEvent[] {
-  const ev: TimedEvent[] = [{ at: 0, sfx: "impact" }, { at: 120, fx: "shake" }];
-  if (won) ev.push({ at: 700, sfx: "thunder", fx: "whiteFlash" }, { at: 1600, sfx: "fanfare", fx: "punchIn" }, { at: 1600, fx: "hop" });
-  else ev.push({ at: 700, sfx: "siren", fx: "desaturate" }, { at: 1000, sfx: "wah_wah" });
-  // Reduced motion: no flash, shake, punch-in, hop or animated desaturate; the sounds stay.
-  return reduced ? ev.filter((e) => e.sfx).map((e) => ({ at: e.at, sfx: e.sfx })) : ev;
+  const ev: TimedEvent[] = [{ at: 0, sfx: "accusation_roll" }, { at: 1200, fx: "shake" }];
+  if (won) {
+    ev.push(
+      { at: 1300, sfx: "thunder", fx: "whiteFlash" },
+      { at: 2400, sfx: "fanfare", fx: "punchIn" },
+      { at: 2400, fx: "hop" },
+      { at: 5800, sfx: "theme_resolved" },
+    );
+  } else {
+    ev.push({ at: 1500, sfx: "wah_wah", fx: "desaturate" }, { at: 4900, sfx: "theme_noir_minor" });
+  }
+  if (!reduced) return ev;
+  // Reduced motion: no flash, shake, punch-in, hop or animated desaturate, and no flash-synced thunder.
+  // The roll (a touch quieter), the fanfare / wah-wah and the themes stay.
+  return ev
+    .filter((e) => e.sfx && e.sfx !== "thunder")
+    .map((e) => ({ at: e.at, sfx: e.sfx, ...(e.sfx === "accusation_roll" ? { gain: 0.8 } : {}) }));
 }
 
 /** Sound for entering a line: the escaped line sneaks off (footsteps), evidence lines ding, others pop. */
 export function lineSfx(beat: EndingBeat | undefined): AudioCue | null {
   if (!beat) return null;
   if (beat.section === "escaped") return "footsteps_sneak";
-  if (beat.evidenceIds.length) return "clue_ding";
+  if (beat.evidenceIds.length) return "clue_stinger";
   return "dialogue_pop";
 }

@@ -15,6 +15,7 @@ import { Notebook } from "@/components/evidence/Notebook";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
 import { getAudio } from "@/components/effects/audio";
+import { bedForScreen, bedFadeMs, heartbeatFor } from "@/components/effects/audio-scenes";
 import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { AccuseScreen } from "@/components/accuse/AccuseScreen";
@@ -213,14 +214,22 @@ export function Game({ view }: { view: PublicCaseView }) {
     setScreen(next);
   }, []);
 
-  // Storm ambience under every in-game screen (starts once audio is unlocked; the title stays quiet).
+  // Scene beds (one at a time, crossfaded; they start once audio is unlocked by a gesture) and the preloads for what comes next.
   useEffect(() => {
     const audio = getAudio();
-    if (screen === "title") audio.stopAmbient();
-    else audio.startAmbient();
-  }, [screen]);
+    audio.setBed(bedForScreen(screen, endingPart), { fadeMs: bedFadeMs(screen, endingPart) });
+    if (screen === "accuse") void audio.preloadGroup("ending");
+  }, [screen, endingPart]);
 
   const active = useMemo(() => view.suspects.find((s) => s.id === activeId) ?? null, [view.suspects, activeId]);
+
+  // Stress heartbeat (slow / mid / fast by band) while a suspect is on stage; off elsewhere, on mute, and after a breakdown.
+  const onStage = screen === "confront" && confrontPair ? confrontPair : screen === "interrogation" && activeId ? [activeId] : [];
+  const heartLevel = heartbeatFor(screen, onStage.map((id) => stress[id] ?? 0));
+  useEffect(() => {
+    getAudio().setHeartbeat(heartLevel);
+  }, [heartLevel]);
+  useEffect(() => () => getAudio().setHeartbeat(0), []);
 
   // #11: restore a saved investigation after hydration (sessionStorage is client-only,
   // so this can't be a lazy initial state without a hydration mismatch).
@@ -441,6 +450,7 @@ export function Game({ view }: { view: PublicCaseView }) {
   const onPresent = useCallback(
     (item: NotebookItem, suspectId: string) => {
       if (inFlight.current) return;
+      getAudio().play("ui_paper");
       setNotebookOpen(false);
       // In a confrontation the clue is held up to the suspect being questioned, as part of one exchange.
       if (screen === "confront") {
@@ -477,6 +487,7 @@ export function Game({ view }: { view: PublicCaseView }) {
     async (locationId: string) => {
       if (inFlight.current) return;
       inFlight.current = true;
+      getAudio().play("search_rustle");
       searchedFrom.current = locationId;
       setSearchingId(locationId);
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
@@ -532,7 +543,14 @@ export function Game({ view }: { view: PublicCaseView }) {
     window.location.reload();
   }, [caseId]);
 
-  const closeNotebook = useCallback(() => setNotebookOpen(false), []);
+  const closeNotebook = useCallback(() => {
+    getAudio().play("ui_paper");
+    setNotebookOpen(false);
+  }, []);
+  const openNotebook = useCallback(() => {
+    getAudio().play("ui_paper");
+    setNotebookOpen(true);
+  }, []);
 
   /** Phase 12: ask the engine for one POSSIBLE CONTRADICTION (spoiler-safe; cooldown enforced server-side). */
   const [hint, setHint] = useState<{ line: string; found: boolean } | null>(null);
@@ -544,7 +562,8 @@ export function Game({ view }: { view: PublicCaseView }) {
     if (r.stateToken) stateToken.current = r.stateToken;
     if (r.notice) resetProgress();
     setHint({ line: r.line, found: r.hint !== null });
-    getAudio().play(r.hint ? "clue_ding" : "boing");
+    if (r.hint) getAudio().play("clue_stinger", { gain: 0.6 });
+    else getAudio().play("ui_tap");
     setHintBusy(false);
   }, [caseId, hintBusy, resetProgress]);
   const clearBeat = useCallback(() => setBeats((q) => q.slice(1)), []);
@@ -586,13 +605,13 @@ export function Game({ view }: { view: PublicCaseView }) {
             emotions={emotions}
             onBack={() => go("intro")}
             onInvestigate={() => go("investigate")}
-            onOpenNotebook={() => setNotebookOpen(true)}
+            onOpenNotebook={openNotebook}
             {...(evidence.length > 0 ? { onAccuse: () => go(result ? "ending" : "accuse") } : {})}
             cluesFound={evidence.length}
             stress={stress}
             onSelect={(id) => {
               setActiveId(id);
-              getAudio().play("slide_whistle_up"); // character entrance (ART_BIBLE §6 beats)
+              getAudio().play("door_creak"); // character entrance (ART_BIBLE §6 beats)
               go("interrogation");
             }}
           />
@@ -611,11 +630,11 @@ export function Game({ view }: { view: PublicCaseView }) {
             speaking={speakingId === active.id}
             stress={stress[active.id] ?? 0}
             onAsk={onAsk}
-            onOpenNotebook={() => setNotebookOpen(true)}
+            onOpenNotebook={openNotebook}
             onConfront={(otherId) => {
               setConfrontPair([active.id, otherId]);
               setConfrontTarget(active.id);
-              getAudio().play("impact");
+              getAudio().play("confront_sting");
               go("confront");
             }}
             onBack={() => go("suspects")}
@@ -641,7 +660,7 @@ export function Game({ view }: { view: PublicCaseView }) {
               onAsk={onConfrontAsk}
               target={confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0]}
               onTarget={setConfrontTarget}
-              onOpenNotebook={() => setNotebookOpen(true)}
+              onOpenNotebook={openNotebook}
               onBack={() => go("suspects")}
             />
           );
