@@ -47,7 +47,7 @@ export function EndScreen({
   const s = result.solution;
   return (
     <main
-      className={`screen-scroll relative flex min-h-0 flex-1 flex-col items-center gap-5 px-4 py-8 ${
+      className={`screen-scroll relative flex min-h-0 flex-1 flex-col items-center gap-5 px-4 py-8 short:py-4 ${
         won ? "bg-[radial-gradient(circle_at_top,#a16207_0%,#1b1035_70%)]" : "bg-[radial-gradient(circle_at_top,#3f3f46_0%,#111827_75%)]"
       }`}
       data-end-screen={result.outcome}
@@ -72,7 +72,7 @@ export function EndScreen({
       <section aria-label="Your accusation" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-black shadow-[6px_6px_0_#000]">
         <h2 className="mb-2 font-display text-3xl tracking-wide">Your accusation</h2>
         {!result.verdict && (
-          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm" data-named>
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-base" data-named>
             <dt className="font-black uppercase text-neutral-600">Murderer</dt>
             <dd className="font-bold">{named.murderer}</dd>
             <dt className="font-black uppercase text-neutral-600">Weapon</dt>
@@ -84,12 +84,12 @@ export function EndScreen({
         <ul className="flex flex-col gap-2">
           {rows.map((r) => (
             <li key={r.field} className="flex flex-col rounded-xl border-[3px] border-black bg-white px-3 py-2 sm:flex-row sm:items-baseline sm:gap-3" data-summary={r.field} data-correct={r.correct}>
-              <span className="w-24 shrink-0 text-xs font-black uppercase text-neutral-600">{r.label}</span>
+              <span className="w-24 shrink-0 text-sm font-black uppercase text-neutral-600">{r.label}</span>
               <span className="flex-1 font-bold">
                 <span aria-hidden>{r.correct ? "✅" : "❌"}</span> {r.yours}
                 <span className="sr-only">{r.correct ? " (right)" : " (wrong)"}</span>
               </span>
-              {!r.correct && r.truth && <span className="text-sm font-semibold text-red-700">Truth: {r.truth}</span>}
+              {!r.correct && r.truth && <span className="text-base font-semibold text-red-700">Truth: {r.truth}</span>}
             </li>
           ))}
         </ul>
@@ -98,7 +98,7 @@ export function EndScreen({
       {s && (
         <section aria-label="The solution" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-amber-100 p-4 text-black shadow-[6px_6px_0_#000]" data-solution>
           <h2 className="mb-1 font-display text-3xl tracking-wide">The solution</h2>
-          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm">
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-base">
             <dt className="font-black uppercase text-neutral-600">Murderer</dt>
             <dd className="font-bold">{s.murderer.name}</dd>
             <dt className="font-black uppercase text-neutral-600">Weapon</dt>
@@ -112,17 +112,17 @@ export function EndScreen({
             <dt className="font-black uppercase text-neutral-600">Key evidence</dt>
             <dd className="font-bold">{s.keyEvidence.map((k) => k.name).join(", ")}</dd>
           </dl>
-          {s.explanation && <p className="mt-2 text-sm">{s.explanation}</p>}
+          {s.explanation && <p className="mt-2 text-base">{s.explanation}</p>}
         </section>
       )}
 
       <div className="flex flex-wrap justify-center gap-3 pb-4">
         {onReplay && (
-          <CartoonButton tone="white" onClick={onReplay}>
+          <CartoonButton tone="white" className="min-h-12 text-base" onClick={onReplay}>
             ↺ Watch the ending again
           </CartoonButton>
         )}
-        <CartoonButton tone="red" className="font-display text-3xl tracking-widest" onClick={onPlayAgain}>
+        <CartoonButton tone="red" className="min-h-14 font-display text-3xl tracking-widest" onClick={onPlayAgain}>
           PLAY AGAIN
         </CartoonButton>
       </div>

@@ -167,7 +167,7 @@ export function EndingScene({
             e.stopPropagation();
             skip();
           }}
-          className="cursor-pointer rounded-xl border-[3px] border-black bg-white px-3 py-1.5 font-bold text-black shadow-[3px_3px_0_#000] hover:bg-yellow-50"
+          className="cursor-pointer min-h-12 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 font-bold text-black shadow-[3px_3px_0_#000] hover:bg-yellow-50"
           aria-label="Skip the ending"
         >
           Skip ⏭
@@ -221,7 +221,7 @@ export function EndingScene({
       </div>
 
       {/* Bottom: flashing clue cards, then the line. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 p-3 sm:p-5">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex flex-col items-center gap-2 p-3 short:p-2 sm:p-5">
         <div className="flex flex-wrap justify-center gap-2" aria-live="polite">
           <AnimatePresence mode="popLayout">
             {flashing.map((e) => (
@@ -251,7 +251,7 @@ export function EndingScene({
             <motion.div
               key={s.index}
               role="status"
-              className={`pointer-events-auto w-full max-w-3xl rounded-3xl border-4 border-black p-3 shadow-[6px_6px_0_#000] sm:p-4 ${
+              className={`pointer-events-auto w-full max-w-3xl rounded-3xl border-4 border-black p-3 shadow-[6px_6px_0_#000] short:p-2 sm:p-4 ${
                 cast.narrator ? "bg-amber-100 text-black" : "bg-[#fff8e7] text-black"
               }`}
               initial={reduced ? { opacity: 0 } : { opacity: 0, y: 20 }}
@@ -265,7 +265,7 @@ export function EndingScene({
               <p data-ending-line className={`text-base font-semibold leading-snug sm:text-xl ${cast.narrator ? "italic" : ""}`}>
                 {beat.text}
               </p>
-              <p className="mt-1 text-right text-xs font-bold text-neutral-500" aria-hidden>
+              <p className="mt-1 text-right text-sm font-bold text-neutral-500" aria-hidden>
                 {s.index + 1}/{beats.length} · tap, Space or Enter ▶
               </p>
             </motion.div>
