@@ -122,6 +122,18 @@ const DISTINCT_LINES = [
   "I distinctly remember a cold wind from the garden door.",
   "Quite a few guests left their gloves lying about tonight.",
   "Enough, enough; my head is pounding like a drum.",
+  "Somebody ought to fetch more firewood before the cellar floods.",
+  "I wouldn't know a candlestick from a coat hook, honestly.",
+  "The telephone line died around supper, so nobody rang for help.",
+  "Heavens, what a dreadful draught creeping under that portrait.",
+  "Cook burnt the pudding again, which tells you the mood downstairs.",
+  "Perhaps his lordship simply wished to be left in peace.",
+  "Mind the third stair, it creaks louder than any confession.",
+  "Funny how quickly everyone remembers kindly words after a funeral.",
+  "Yesterday's post sat unopened on the silver tray all afternoon.",
+  "These dreary hallways always swallow footsteps whole.",
+  "None of us dined well; the soup had gone cold hours before.",
+  "Give a man a title and he forgets how to knock.",
 ];
 
 describe("POST /api/confront", () => {
@@ -159,6 +171,37 @@ describe("POST /api/confront", () => {
     expect(again.body.error).toBe("pair_finished");
     expect(again.body.line).toMatch(/said all they are going to say/);
     expect(calls).toHaveLength(12);
+  });
+
+  it("fresh game: 6 exchanges for one pair then 409 pair_finished; a second pair gets 6 more; then the game is capped at 12 (limit_reached)", async () => {
+    const { calls } = mockGrok(...DISTINCT_LINES.map((d) => ({ content: goodReply({ dialogue: d }) })));
+    let t: string | undefined;
+    const ask = async (pair: [string, string], q: string) => {
+      const r = await run({ characterIds: pair, question: q, ...(t ? { stateToken: t } : {}) });
+      if (r.body.stateToken) t = r.body.stateToken;
+      return r;
+    };
+    for (let i = 0; i < 6; i++) {
+      const r = await ask(["gregory", "archibald"], `A${i + 1}?`);
+      expect(r.status).toBe(200);
+      expect(r.body.confrontation).toMatchObject({ turnsUsed: i + 1, max: 6, totalLeft: 11 - i, over: i === 5 });
+    }
+    const refused = await ask(["archibald", "gregory"], "One more?");
+    expect(refused.status).toBe(409);
+    expect(refused.body.error).toBe("pair_finished");
+    expect(calls).toHaveLength(12);
+    // Switching to a fresh pair does not reset the game total.
+    for (let i = 0; i < 6; i++) {
+      const r = await ask(["victoria", "reginald"], `B${i + 1}?`);
+      expect(r.status).toBe(200);
+      expect(r.body.confrontation).toMatchObject({ turnsUsed: i + 1, totalLeft: 5 - i, over: i === 5 });
+    }
+    expect(calls).toHaveLength(24);
+    const capped = await ask(["gregory", "reginald"], "And these two?");
+    expect(capped.status).toBe(409);
+    expect(capped.body.error).toBe("limit_reached");
+    expect(calls).toHaveLength(24); // refusals never reach the model
+    expect((await ask(["victoria", "reginald"], "Again?")).body.error).toBe("pair_finished"); // a finished pair stays finished
   });
 
   it("rejects a repeated sentence within a confrontation and asks for something new (#27)", async () => {

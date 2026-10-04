@@ -34,7 +34,7 @@ const leadRefs = (c: Condition | undefined) => c?.leadIds ?? [];
 
 /**
  * hidden | open | closed for every lead. Closed wins over open; a lead counts as closed as soon as its closesWhen
- * holds, even if it never opened. Leads that (wrongly) depend on each other in a cycle resolve to hidden.
+ * holds, even if it never opened (that is what gates see; what the player is shown is visibleLeadStates). Leads that (wrongly) depend on each other in a cycle resolve to hidden.
  */
 export function leadStates(caseData: Pick<LoadedCase, "leads">, game: GameState): LeadStates {
   const leads = new Map((caseData.leads ?? []).map((l) => [l.id, l]));
@@ -60,6 +60,19 @@ export function leadStates(caseData: Pick<LoadedCase, "leads">, game: GameState)
   };
   for (const id of leads.keys()) stateOf(id);
   return memo;
+}
+
+/**
+ * What the player may be shown (#38 decision): the engine still counts a lead as closed the moment its closesWhen holds
+ * (gates and `leadIds` atoms use leadStates), but a lead that closed BEFORE it ever opened was never presented as a
+ * question, so it stays out of the Leads list until its opensWhen holds, and never gets a toast (see publicProgress).
+ */
+export function visibleLeadStates(caseData: Pick<LoadedCase, "leads">, game: GameState, states: LeadStates = leadStates(caseData, game)): LeadStates {
+  const out: LeadStates = { ...states };
+  for (const l of caseData.leads ?? []) {
+    if (states[l.id] === "closed" && l.opensWhen && !evaluateCondition(l.opensWhen, game, states)) out[l.id] = "hidden";
+  }
+  return out;
 }
 
 /** Is this room or clue unlocked right now? (No `requires`: always.) */
@@ -116,8 +129,10 @@ export interface PublicProgress {
   questioned?: { need: number; counts: Record<string, number> };
 }
 
+/** `before`: visibleLeadStates() of the state before the action (so a toast is only ever for a lead the player saw open or saw solved after opening). */
 export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution">, game: GameState, before?: LeadStates): PublicProgress {
-  const states = leadStates(caseData, game);
+  const raw = leadStates(caseData, game);
+  const states = visibleLeadStates(caseData, game, raw);
   const leads = (caseData.leads ?? []).filter((l): l is Lead => states[l.id] !== "hidden");
   const prev = before ?? states;
   const sq = caseData.accuseGate?.minSuspectsQuestioned;
@@ -127,9 +142,10 @@ export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" 
         ? { id: l.id, title: l.title, state: "closed" as const, ...(l.closedLine ? { closedLine: l.closedLine } : {}) }
         : { id: l.id, title: l.title, state: "open" as const, hint: l.hint },
     ),
-    newLeadIds: leads.filter((l) => (prev[l.id] ?? "hidden") !== states[l.id]).map((l) => l.id),
-    lockedLocationIds: caseData.locations.filter((l: Location) => !isUnlocked(l, game, states)).map((l) => l.id),
-    accuse: { ...accuseProgress(caseData, game, states), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1 },
+    // hidden -> open (NEW LEAD) and open -> closed (LEAD SOLVED). hidden -> closed is a lead nobody saw open: no toast.
+    newLeadIds: leads.filter((l) => (prev[l.id] ?? "hidden") !== states[l.id] && !((prev[l.id] ?? "hidden") === "hidden" && states[l.id] === "closed")).map((l) => l.id),
+    lockedLocationIds: caseData.locations.filter((l: Location) => !isUnlocked(l, game, raw)).map((l) => l.id),
+    accuse: { ...accuseProgress(caseData, game, raw), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1 },
     ...(sq ? { questioned: { need: sq.minExchanges, counts: Object.fromEntries(caseData.characters.map((c) => [c.id, Math.min(sq.minExchanges, exchanges(game, c.id))])) } } : {}),
   };
 }

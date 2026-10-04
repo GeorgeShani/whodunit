@@ -4,7 +4,7 @@
  * response's state, so the routes stay stateless.
  */
 import type { LoadedCase } from "./case-schema";
-import { leadStates, publicProgress, type PublicProgress } from "./progress";
+import { publicProgress, visibleLeadStates, type PublicProgress } from "./progress";
 import { restoreSession } from "./session";
 import type { Env } from "./state-token";
 
@@ -19,5 +19,5 @@ export function attachProgress<B extends { stateToken?: string }>(
   const options = { legacyCaseId: deps.legacyCaseId };
   const before = restoreSession(caseData, typeof reqToken === "string" ? reqToken : undefined, deps.env, options).game;
   const after = restoreSession(caseData, body.stateToken, deps.env, options).game;
-  return { ...body, progress: publicProgress(caseData, after, leadStates(caseData, before)) };
+  return { ...body, progress: publicProgress(caseData, after, visibleLeadStates(caseData, before)) };
 }
