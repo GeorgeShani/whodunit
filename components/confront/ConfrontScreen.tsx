@@ -125,7 +125,7 @@ export function ConfrontScreen({
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder={`Ask ${first(addressed)}, in front of ${first(other)}…`}
+                  placeholder={`Ask ${first(addressed)}…`}
                   aria-label={`Question ${addressed.name} in front of ${other.name}`}
                   aria-describedby={hintId}
                   aria-invalid={tooLong || undefined}
