@@ -34,9 +34,12 @@ export function IntroScreen({ view, onContinue }: { view: PublicCaseView; onCont
           </p>
         </div>
       </motion.div>
-      <CartoonButton tone="red" className="font-display text-2xl tracking-widest" onClick={onContinue}>
-        MEET THE SUSPECTS →
-      </CartoonButton>
+      {/* Sticky on phones: the card is taller than the screen, so the button must stay under the thumb (safe-area aware). */}
+      <div className="pointer-events-none sticky bottom-0 z-10 -mx-6 -mb-6 flex w-[calc(100%+3rem)] justify-center bg-gradient-to-t from-[#1b1035] via-[#1b1035]/90 to-transparent px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-6 short:pt-3">
+        <CartoonButton tone="red" className="pointer-events-auto min-h-14 w-full max-w-md font-display text-2xl tracking-widest sm:w-auto" onClick={onContinue}>
+          MEET THE SUSPECTS →
+        </CartoonButton>
+      </div>
     </main>
   );
 }
