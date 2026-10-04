@@ -170,6 +170,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     });
     ch.relationships.forEach((r, j) => {
       ref(personIds, "character/victim", r.targetCharacterId, f, `relationships.${j}.targetCharacterId`);
+      (r.jabs ?? []).forEach((jab, k) => ref(factIds, "fact", jab.aboutFactId, f, `relationships.${j}.jabs.${k}.aboutFactId`));
       if (r.targetCharacterId === ch.id) issues.push({ file: f, path: `relationships.${j}`, message: "a character cannot have a relationship with themselves" });
     });
     dupes("belief", f, ch.beliefs.map((b) => b.id));

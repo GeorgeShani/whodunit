@@ -282,6 +282,22 @@ export const RelationshipSchema = z.strictObject({
   kind: NonEmptyText.optional(),
   /** Optional flavour/context for the performance layer. */
   description: NonEmptyText.optional(),
+  /**
+   * Optional barbs this character may throw at THIS person (confrontations; #27). A jab tied to a fact
+   * (`aboutFactId`) is only offered while the character actually knows that fact.
+   */
+  jabs: z
+    .array(
+      z.strictObject({
+        text: NonEmptyText,
+        aboutFactId: IdSchema.optional(),
+        /** "confrontation": only face to face with them; "any" (default): whenever they come up. */
+        when: z.enum(["confrontation", "any"]).default("any"),
+      }),
+    )
+    .optional(),
+  /** Optional touchy subjects with THIS person: when `topic` comes up the character gets defensive in the way `text` describes. */
+  defensiveOn: z.array(z.strictObject({ topic: NonEmptyText, text: NonEmptyText })).optional(),
 });
 export type Relationship = z.infer<typeof RelationshipSchema>;
 

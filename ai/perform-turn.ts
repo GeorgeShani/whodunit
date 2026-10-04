@@ -15,6 +15,7 @@ import { cannedCharacterResponse } from "./canned-responses";
 import { fixArticles } from "./text-fixes";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { checkOrder } from "./order-check";
+import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
 import { callGrok, type GrokResult } from "./grok";
 import type { Contradiction } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type ConfrontDirective, type TurnDirectives } from "./prompts/interrogation";
@@ -69,7 +70,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
 
   const ctx = buildCharacterContext({ caseData, game }, characterId);
   const system = buildSystemPrompt(ctx, directives);
-  const user = t.userMessage ? t.userMessage(ctx) : buildUserMessage(ctx, question);
+  const user = t.userMessage ? t.userMessage(ctx) : buildUserMessage(ctx, question, t.confrontation ? { partnerName: t.confrontation.partnerName } : {});
   t.onPrompt?.({ system, user });
   // Canon post-check (#6): every clock time must come from this character's context (or what was just said to them).
   const heard = [question, t.confrontation?.partnerLine ?? ""].join(" ");
@@ -84,6 +85,13 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
     const order = checkOrder(said, ctx);
     if (!order.ok) {
       return `You described when something happened in a way that contradicts the order of events (${order.offending.map((x) => `"${x}"`).join(", ")}). ${order.hint ?? ""} Use the clock times from WHAT YOU KNOW, or one landmark from THE EVENING IN ORDER exactly as listed.`;
+    }
+    // Confrontation hygiene (#27): no repeated sentences, and nobody but the partner is addressed.
+    if (t.confrontation) {
+      const again = repeatsEarlier(r.dialogue, ctx);
+      if (again) return `You already said "${again}" earlier in this conversation. Say something NEW; do not repeat a sentence.`;
+      const wrong = addressesWrongPerson(r.dialogue, ctx, t.confrontation.partnerName);
+      if (wrong) return `You addressed "${wrong}" but you are face to face with ${t.confrontation.partnerName}. Speak only to ${t.confrontation.partnerName} (and the detective).`;
     }
     // Breakdown turns must actually read as an outburst (performance only; the engine already decided it).
     if (directives.breakdown && !isOutburst(r.dialogue)) {

@@ -100,7 +100,7 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
     confrontation: { partnerName: a.name, role: "reacting", partnerLine: aLine },
     memoryText: `(Face to face with ${a.name}) The detective asked ${a.name}: "${question}" ${a.name} said: "${aLine}"`,
     userMessage: (ctx) =>
-      buildUserMessage(ctx, question)
+      buildUserMessage(ctx, question, { partnerName: a.name })
         .replace("THE DETECTIVE NOW SAYS:", `THE DETECTIVE, questioning ${a.name} in front of you, says:`)
         .replace(`Respond as ${ctx.persona.name}`, `${a.name} answered (see the directive). Now react to ${a.name} as ${ctx.persona.name}`),
     env,

@@ -129,7 +129,8 @@ describe("POST /api/confront", () => {
   });
 
   it("stops after 6 exchanges: the 7th is refused in character with no model call", async () => {
-    const { calls } = mockGrok({});
+    // Distinct lines each time: a repeated sentence in a confrontation is rejected (#27).
+    const { calls } = mockGrok(...Array.from({ length: 12 }, (_, i) => ({ content: goodReply({ dialogue: `Remark number ${i + 1} about the evening, sir, and nothing more.` }) })));
     let t: string | undefined;
     let last;
     for (let i = 0; i < 6; i++) {
@@ -143,6 +144,17 @@ describe("POST /api/confront", () => {
     expect(again.body.error).toBe("pair_finished");
     expect(again.body.line).toMatch(/said all they are going to say/);
     expect(calls).toHaveLength(12);
+  });
+
+  it("rejects a repeated sentence within a confrontation and asks for something new (#27)", async () => {
+    const same = goodReply({ dialogue: "I will not discuss the brandy with you, sir, not tonight." });
+    const fresh = goodReply({ dialogue: "Ask the gardener about the brandy if you must." });
+    const { calls } = mockGrok({ content: same }, { content: same }, { content: same }, { content: fresh }, { content: fresh });
+    const first = await run({ characterIds: ["gregory", "archibald"], question: "Brandy?" });
+    const second = await run({ characterIds: ["gregory", "archibald"], question: "Brandy again?", stateToken: first.body.stateToken });
+    expect(second.body.lines[0].response.dialogue).not.toBe(first.body.lines[0].response.dialogue);
+    const retry = calls.find((c) => String(c.body.messages.at(-1).content).includes("already said"));
+    expect(retry).toBeTruthy();
   });
 
   it("alternating between pairs through the API keeps each pair's count (#24 reproduction)", async () => {

@@ -205,7 +205,9 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
   ],
   "relationships": [                                   // directional; target = a character or the victim
     { "targetCharacterId": "lord-blackwood", "trust": 30, "fear": 60, "affection": 10,
-      "resentment": 55, "suspicion": 20, "kind": "employer", "description": "optional flavour" }
+      "resentment": 55, "suspicion": 20, "kind": "employer", "description": "optional flavour",
+      "jabs": [ { "text": "one barb this character may throw at THIS person", "aboutFactId": "optional fact id the character must know", "when": "confrontation | any (default)" } ],  // optional
+      "defensiveOn": [ { "topic": "what touches a nerve", "text": "how they bristle" } ] }                                                                                            // optional
   ],
   "initialEmotion": { "emotion": "calm", "intensity": 0.3, "composure": 0.9 },
   "portrait": "reginald"                               // optional; defaults to id

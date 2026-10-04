@@ -60,6 +60,9 @@ export interface CharacterContext {
     suspicion: number;
     kind?: string;
     description?: string;
+    /** Barbs for this person (#27); fact-bound jabs only while the character knows the fact. */
+    jabs?: { text: string; aboutFactId?: string; when: "confrontation" | "any" }[];
+    defensiveOn?: { topic: string; text: string }[];
   }[];
   /**
    * Authored stories. "maintain" = keep telling it (truth withheld);
@@ -160,6 +163,8 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       suspicion: r.suspicion,
       ...(r.kind ? { kind: r.kind } : {}),
       ...(r.description ? { description: r.description } : {}),
+      ...(r.jabs?.length ? { jabs: r.jabs.map((j) => ({ ...j })) } : {}),
+      ...(r.defensiveOn?.length ? { defensiveOn: r.defensiveOn.map((d) => ({ ...d })) } : {}),
     })),
     // aboutFactId / brokenByEvidenceIds stay engine-side.
     intendedLies: ch.intendedLies.map((l) => ({
