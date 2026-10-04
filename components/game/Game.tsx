@@ -11,6 +11,7 @@ import type { FoundEvidence, InvestigateRequest } from "@/engine/investigate-sch
 import type { PublicCaseView, PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import { DiscoverySting } from "@/components/evidence/DiscoverySting";
 import { ContradictionBeat, type ContradictionBeatData } from "@/components/evidence/ContradictionBeat";
+import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
@@ -621,6 +622,7 @@ export function Game({ view }: { view: PublicCaseView }) {
   return (
     // Stage: one viewport, clipped. Each screen is an absolutely positioned layer,
     // so enter/exit scale transforms never push the document into overflow.
+    <ClueArtProvider caseId={caseId}>
     <div className="stage">
     <AnimatePresence mode="wait">
       <motion.div
@@ -803,5 +805,6 @@ export function Game({ view }: { view: PublicCaseView }) {
     <ContradictionBeat beat={beats[0] ?? null} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
     </div>
+    </ClueArtProvider>
   );
 }

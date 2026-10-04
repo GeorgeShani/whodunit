@@ -19,6 +19,7 @@ export interface FoundEvidence {
   description: string;
   kind: Evidence["kind"];
   image?: string;
+  icon?: string;
   discoveryLine?: string;
 }
 

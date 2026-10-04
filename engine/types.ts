@@ -437,6 +437,13 @@ export type Character = z.infer<typeof CharacterSchema>;
 // Evidence
 // ---------------------------------------------------------------------------
 
+/** A clue's emoji icon: short, and never a plain word. */
+export const ClueIconSchema = z
+  .string()
+  .min(1)
+  .max(8)
+  .refine((s) => s.trim().length > 0 && !/[A-Za-z]/.test(s), "icon must be a short emoji (no plain letters)");
+
 /** A clue the player can find and show to characters. */
 export const EvidenceSchema = z.strictObject({
   id: IdSchema,
@@ -454,8 +461,10 @@ export const EvidenceSchema = z.strictObject({
   relatedCharacters: z.array(IdSchema).default([]),
   /** Is it available from the start, or unlocked by the engine? */
   initiallyAvailable: z.boolean().default(false),
-  /** Asset key for its icon/illustration. */
+  /** Legacy asset key for an illustration (assets/evidence/<key>.webp). Prefer naming the file after the clue's id. */
   image: IdSchema.optional(),
+  /** Short emoji shown when there is no illustration (lib/clue-art.ts). 1-8 chars, no plain letters. */
+  icon: ClueIconSchema.optional(),
   /** The clue stays hidden from searches until this holds (state BEFORE the search). Never public. Needs a locationId. */
   requires: ConditionSchema.optional(),
   /** PUBLIC line appended to a search that skipped this clue because it is locked. */

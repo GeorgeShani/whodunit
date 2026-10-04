@@ -34,8 +34,6 @@ export function whereFound(e: Pick<PublicEvidence, "locationId">, locations: rea
   return loc ? `Found in ${loc.name}` : "In the case file";
 }
 
-export const KIND_ICON: Record<string, string> = { physical: "🔧", document: "📜", testimony: "🗣️", observation: "👣" };
-
 /** Name of a presented item, for lines like "The Library key contradicts ...". */
 export function itemName(item: NotebookItem, evidence: readonly Pick<PublicEvidence, "id" | "name">[], testimonies: readonly { id: string; characterName: string }[]): string {
   if (item.kind === "evidence") return evidence.find((e) => e.id === item.id)?.name ?? "That clue";

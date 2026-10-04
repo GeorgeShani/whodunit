@@ -7,9 +7,15 @@
  */
 import path from "node:path";
 import { assetExists } from "../lib/case-art";
+import { CLUE_ART_DIR, CLUE_FALLBACK_ICON } from "../lib/clue-art";
 import { validateCase } from "../engine/case-loader";
 import { checkCaseWarnings, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
 import { fastestPath } from "../engine/progression-validation";
+
+/** Does an illustration for this clue exist under assets/evidence/ (same lookup order as lib/clue-art.ts)? */
+function clueArtExists(caseId: string, e: { id: string; image?: string | undefined }): boolean {
+  return [`${caseId}/${e.id}`, e.id, ...(e.image ? [`${caseId}/${e.image}`, e.image] : [])].some((k) => assetExists(`${CLUE_ART_DIR}/${k}.webp`));
+}
 
 async function main() {
   const args = process.argv.slice(2);
@@ -45,6 +51,8 @@ async function main() {
     const missingArt = art.filter(([, p]) => p && !assetExists(p));
     for (const [field, p] of missingArt) console.log(`   ⚠ ${field}: ${p} not found under assets/ (the screen falls back to its default look)`);
     if (art.length && !missingArt.length) console.log(`   art: ${art.length} asset path(s) found.`);
+    const noArt = d.evidence.filter((e) => !e.icon && !clueArtExists(caseId, e));
+    for (const e of noArt) console.log(`   ⚠ evidence "${e.id}" has no icon and no assets/evidence/${e.id}.webp (it shows the generic ${CLUE_FALLBACK_ICON} icon)`);
     const path_ = fastestPath(d);
     if (path_ !== null) console.log(`   progression: ${d.leads?.length ?? 0} lead(s), accuse gate ${d.accuseGate ? "on" : "off"}; fastest legal path: ${path_} actions.`);
     else if (d.leads?.length || d.accuseGate) console.log("   progression: fastest legal path could not be computed (the gate may be unreachable, or the search budget ran out).");

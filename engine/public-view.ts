@@ -23,7 +23,7 @@ export interface PublicSuspect {
   emotion: EmotionalState;
 }
 
-export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "discoveryLine">;
+export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "icon" | "discoveryLine">;
 
 export interface PublicCaseMeta {
   id: string;
@@ -71,8 +71,8 @@ export function toPublicLocation(l: Location): PublicLocation {
 }
 
 export function toPublicEvidence(e: Evidence): PublicEvidence {
-  const { id, name, description, kind, locationId, image, discoveryLine } = e;
-  return { id, name, description, kind, locationId, image, ...(discoveryLine ? { discoveryLine } : {}) };
+  const { id, name, description, kind, locationId, image, icon, discoveryLine } = e;
+  return { id, name, description, kind, locationId, image, ...(icon ? { icon } : {}), ...(discoveryLine ? { discoveryLine } : {}) };
 }
 
 export function getPublicCaseView(
