@@ -1,8 +1,10 @@
-// Usage: node decode_test.cjs ../../assets/audio   (needs playwright-core + a Chromium; Safari/WebKit is NOT covered)
+// Usage: node decode_test.mjs ../../assets/audio   (needs playwright-core + a Chromium; Safari/WebKit is NOT covered)
 // Decode every shipped cue in headless Chromium (desktop + mobile emulation): canPlayType, fetch+decodeAudioData (ogg and mp3),
 // HTMLAudioElement load+duration, and an actual play() under autoplay-policy=no-user-gesture-required.
-const { chromium } = require("playwright-core");
-const http = require("http"), fs = require("fs"), path = require("path");
+import { chromium } from "playwright-core";
+import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
 const dir = process.argv[2];
 const srv = http.createServer((req, res) => {
   const f = path.join(dir, decodeURIComponent(req.url.split("?")[0]));
@@ -18,7 +20,7 @@ const srv = http.createServer((req, res) => {
     const b = await chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required"] });
     const c = await b.newContext(ctxOpts); const p = await c.newPage();
     await p.goto(`http://localhost:${port}/`);
-    out[label] = await p.evaluate(async ({ names, port }) => {
+    out[label] = await p.evaluate(async ({ names }) => {
       const a = document.createElement("audio");
       const res = { canPlay: { ogg_vorbis: a.canPlayType('audio/ogg; codecs="vorbis"'), mpeg: a.canPlayType("audio/mpeg") }, files: {} };
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -43,7 +45,7 @@ const srv = http.createServer((req, res) => {
         res.files[n] = r;
       }
       return res;
-    }, { names, port });
+    }, { names });
     await b.close();
   }
   console.log(JSON.stringify(out));
