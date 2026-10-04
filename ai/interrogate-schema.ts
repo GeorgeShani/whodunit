@@ -3,6 +3,7 @@
  * The client says WHAT the player did and hands back the opaque, server-signed
  * state token; the server resolves everything else from the case it holds.
  */
+import type { PublicProgress } from "@/engine/progress";
 import type { StressReading } from "@/engine/stress";
 import { z } from "zod";
 import { CaseIdSchema, IdSchema } from "@/engine/types";
@@ -46,6 +47,8 @@ export interface InterrogateResponseBody {
   source: "model" | "fallback";
   /** New signed state to send with the next request (absent only if the request itself was unusable). */
   stateToken?: string;
+  /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */
+  progress?: PublicProgress;
   /** The notebook's testimony cards: every secret revealed so far (public summaries). */
   testimonies?: PublicTestimony[];
   /** Set only when the presented item newly broke one of the character's lies. */

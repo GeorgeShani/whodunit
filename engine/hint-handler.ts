@@ -3,9 +3,11 @@
  * model call). Response carries only the character's public id/name and a
  * spoiler-safe line: never the lie, the item, or the lie id.
  */
+import type { PublicProgress } from "@/engine/progress";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
 import { HINT_COOLDOWN_TURNS, hintCooldown, takeHint } from "./hints";
+import { attachProgress } from "./route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "./session";
 import { CaseIdSchema } from "./types";
 
@@ -26,11 +28,18 @@ export interface HintResponseBody {
   readyInTurns: number;
   cooldownTurns: number;
   stateToken?: string;
+  /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */
+  progress?: PublicProgress;
   notice?: string;
   error?: string;
 }
 
 export function handleHint(json: unknown, deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string }): { status: number; body: HintResponseBody } {
+  const r = handleHintCore(json, deps);
+  return { ...r, body: attachProgress(deps.caseData, json, r.body, deps) };
+}
+
+function handleHintCore(json: unknown, deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string }): { status: number; body: HintResponseBody } {
   const { caseData, env, legacyCaseId } = deps;
   const parsed = HintRequestSchema.safeParse(json);
   const empty = { hint: null, readyInTurns: 0, cooldownTurns: HINT_COOLDOWN_TURNS };

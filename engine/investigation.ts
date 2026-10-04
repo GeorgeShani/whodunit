@@ -4,6 +4,7 @@
  * All locations are searchable from the start; repeat searches are idempotent.
  */
 import type { LoadedCase } from "./case-schema";
+import { isUnlocked, leadStates } from "./progress";
 import type { Evidence, GameState } from "./types";
 
 export interface SearchResult {
@@ -14,7 +15,11 @@ export interface SearchResult {
   alreadySearched: boolean;
   /** Public flavour lines to show. */
   lines: string[];
+  /** The room is closed for now (its `requires` is unmet): nothing was searched or found. */
+  locked?: boolean;
 }
+
+export const defaultLockedLine = (locationName: string) => `${locationName} is closed to you for now, detective. Try something else first.`;
 
 export const defaultEmptyLine = (locationName: string) =>
   `You turn ${locationName} upside down, check under every cushion twice... and find nothing new.`;
@@ -26,18 +31,28 @@ export function searchLocation(caseData: LoadedCase, game: GameState, locationId
 
   const alreadySearched = game.searchedLocationIds.includes(locationId);
   const discovered = new Set(game.discoveredEvidenceIds);
-  const newlyFound = caseData.evidence.filter((e) => e.locationId === locationId && !discovered.has(e.id));
+  // Progression: every condition is checked against the state BEFORE this action, so one search can't chain two unlocks.
+  const states = leadStates(caseData, game);
+  if (!isUnlocked(loc, game, states)) {
+    return { locationId, newlyFound: [], alreadySearched, lines: [loc.lockedLine ?? defaultLockedLine(loc.name)], locked: true };
+  }
+  const here = caseData.evidence.filter((e) => e.locationId === locationId && !discovered.has(e.id));
+  const newlyFound = here.filter((e) => isUnlocked(e, game, states));
+  const lockedLines = here.filter((e) => !isUnlocked(e, game, states) && e.lockedLine).map((e) => e.lockedLine as string);
   for (const e of newlyFound) game.discoveredEvidenceIds.push(e.id);
   if (!alreadySearched) game.searchedLocationIds.push(locationId);
 
   const empty = loc.searchFlavor?.emptyLine ?? defaultEmptyLine(loc.name);
   let lines: string[];
+  // A search that skipped a locked clue says so instead of "nothing new".
+  const nothing = newlyFound.length === 0 && lockedLines.length === 0;
   if (!alreadySearched) {
     lines = [...(loc.searchFlavor?.lines ?? [])];
-    if (newlyFound.length === 0) lines.push(empty);
+    if (nothing) lines.push(empty);
   } else {
-    lines = newlyFound.length ? [...(loc.searchFlavor?.lines ?? [])] : [empty];
+    lines = newlyFound.length ? [...(loc.searchFlavor?.lines ?? [])] : nothing ? [empty] : [];
   }
+  lines.push(...lockedLines);
   if (lines.length === 0) lines = [`You search ${loc.name} from top to bottom.`];
   return { locationId, newlyFound, alreadySearched, lines };
 }

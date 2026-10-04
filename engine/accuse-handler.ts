@@ -11,6 +11,7 @@ import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { gradeAccusation } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import { buildEnding, buildSolutionReveal, endingEvidence, toVerdict } from "./ending-payload";
+import { attachProgress } from "./route-progress";
 import { isCaseClosed, restoreSession, saveSession } from "./session";
 import type { Env } from "./state-token";
 import type { Accusation, GameState } from "./types";
@@ -56,6 +57,11 @@ export interface AccusedStore {
 }
 
 export async function handleAccuse(json: unknown, deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string; accused?: AccusedStore }): Promise<AccuseResult> {
+  const r = await handleAccuseCore(json, deps);
+  return { ...r, body: attachProgress(deps.caseData, json, r.body, deps) };
+}
+
+async function handleAccuseCore(json: unknown, deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string; accused?: AccusedStore }): Promise<AccuseResult> {
   const { caseData, env, legacyCaseId, accused } = deps;
   const parsed = AccuseRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: { error: "invalid_request", line: ACCUSE_LINES.invalid } };

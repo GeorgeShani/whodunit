@@ -15,6 +15,7 @@
 import type { LoadedCase } from "@/engine/case-schema";
 import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TURNS, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
 import { clampStress } from "@/engine/stress";
+import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { ConfrontRequestSchema, type ConfrontLine, type ConfrontResponseBody } from "./confront-schema";
@@ -41,6 +42,11 @@ export const CONFRONT_LINES = {
 } as const;
 
 export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise<{ status: number; body: ConfrontResponseBody }> {
+  const r = await handleConfrontCore(json, deps);
+  return { ...r, body: attachProgress(deps.caseData, json, r.body, deps) };
+}
+
+async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ status: number; body: ConfrontResponseBody }> {
   const { caseData, env, legacyCaseId } = deps;
   const parsed = ConfrontRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: { lines: [], error: "invalid_request" } };

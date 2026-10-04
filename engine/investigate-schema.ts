@@ -1,4 +1,5 @@
 /** Request/response contract for POST /api/investigate (client-safe). */
+import type { PublicProgress } from "@/engine/progress";
 import { z } from "zod";
 import { CaseIdSchema, IdSchema, type Evidence } from "./types";
 
@@ -27,9 +28,13 @@ export interface InvestigateResponseBody {
   found: FoundEvidence[];
   /** In-character flavour lines to show. */
   lines: string[];
+  /** The room is closed for now: `lines` holds its lockedLine and nothing was searched. */
+  locked?: boolean;
   /** Locations searched so far (for card state). */
   searchedLocationIds: string[];
   stateToken?: string;
+  /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */
+  progress?: PublicProgress;
   notice?: string;
   error?: string;
 }

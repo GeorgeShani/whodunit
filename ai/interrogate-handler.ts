@@ -11,6 +11,7 @@
  * Any failure yields the in-character fallback. Logs are non-secret only.
  */
 import type { LoadedCase } from "@/engine/case-schema";
+import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
@@ -46,6 +47,11 @@ const fallbackBody = (error: string, stateToken?: string, seed = 0): Interrogate
 });
 
 export async function handleInterrogate(json: unknown, deps: HandlerDeps): Promise<HandlerResult> {
+  const r = await handleInterrogateCore(json, deps);
+  return { ...r, body: attachProgress(deps.caseData, json, r.body, deps) };
+}
+
+async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<HandlerResult> {
   const { caseData, env, legacyCaseId } = deps;
   const parsed = InterrogateRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: fallbackBody("invalid_request"), diag: { reason: "invalid_request" } };

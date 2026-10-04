@@ -3,6 +3,7 @@
  * Nothing about the solution or the endings exists client-side until the
  * server returns an AccuseResponseBody for a graded accusation.
  */
+import type { PublicProgress } from "@/engine/progress";
 import { z } from "zod";
 import type { PublicEvidence } from "./public-view";
 import { AccusationSchema, CaseIdSchema, type Accusation, type Emotion } from "./types";
@@ -65,6 +66,8 @@ export interface AccuseResponseBody {
   /** Public cards for every clue the ending or the solution mentions. */
   evidence?: PublicEvidence[];
   stateToken?: string;
+  /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */
+  progress?: PublicProgress;
   /** In-character line for rejections (undiscovered clue, case closed...). */
   line?: string;
   notice?: string;

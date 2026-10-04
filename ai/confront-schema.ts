@@ -1,4 +1,5 @@
 /** Request/response contract for POST /api/confront (shared by client and server). */
+import type { PublicProgress } from "@/engine/progress";
 import { z } from "zod";
 import type { StressReading } from "@/engine/stress";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -33,6 +34,8 @@ export interface ConfrontResponseBody {
   lines: ConfrontLine[];
   confrontation?: { characterIds: [string, string]; turnsUsed: number; max: number; over: boolean; /** Exchanges left in the whole game (all pairs). */ totalLeft: number };
   stateToken?: string;
+  /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */
+  progress?: PublicProgress;
   testimonies?: PublicTestimony[];
   /** In-character line for a rejection (pair finished, case closed...). */
   line?: string;

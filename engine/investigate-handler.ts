@@ -5,6 +5,7 @@
 import type { LoadedCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { searchLocation } from "./investigation";
+import { attachProgress } from "./route-progress";
 import { CASE_CLOSED_SEARCH_LINE, isCaseClosed, restoreSession, saveSession } from "./session";
 import type { Env } from "./state-token";
 import type { Evidence } from "./types";
@@ -25,6 +26,14 @@ const toFound = (e: Evidence): FoundEvidence => ({
 });
 
 export function handleInvestigate(
+  json: unknown,
+  deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string },
+): { status: number; body: InvestigateResponseBody } {
+  const r = handleInvestigateCore(json, deps);
+  return { ...r, body: attachProgress(deps.caseData, json, r.body, deps) };
+}
+
+function handleInvestigateCore(
   json: unknown,
   deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string },
 ): { status: number; body: InvestigateResponseBody } {
@@ -67,6 +76,7 @@ export function handleInvestigate(
       found: r.newlyFound.map(toFound),
       lines: r.lines,
       searchedLocationIds: [...game.searchedLocationIds],
+      ...(r.locked ? { locked: true } : {}),
       stateToken: saveSession(game, env),
     }),
   };
