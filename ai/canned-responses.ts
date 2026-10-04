@@ -32,7 +32,7 @@ export function cannedCharacterResponse(
     return CharacterResponseSchema.parse({
       ...base,
       dialogue: ev
-        ? `The ${ev.name}?! I... I really couldn't say a word about that, detective. ...Is it warm in here?`
+        ? `${/^(the|a|an)\s/i.test(ev.name) ? ev.name.replace(/^./, (c) => c.toUpperCase()) : `The ${ev.name}`}?! I... I really couldn't say a word about that, detective. ...Is it warm in here?`
         : "What am I supposed to be looking at, detective?",
       emotion: "shocked",
       intensity: 0.7,

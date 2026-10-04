@@ -79,7 +79,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
     const said = `${r.dialogue} ${r.action ?? ""}`;
     const res = checkTimes(said, allowed);
     if (!res.ok) {
-      return `You stated a time you do not know (${res.offending.map((x) => `"${x}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir").`;
+      return `You stated a time you do not know (${res.offending.map((x) => `"${x}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir"). Do not work out a clock time yourself: if it is not listed, say it relative to a listed event ("a couple of minutes after the candles").`;
     }
     // Order of events (#26): "from after the lights went out till the candles" must fit when this person really moved.
     const order = checkOrder(said, ctx);

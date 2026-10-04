@@ -64,3 +64,15 @@ describe("modern words (#26)", () => {
     expect(findModernWord(t)).not.toBeNull();
   });
 });
+
+describe("canned evidence reaction", () => {
+  it("does not double the article ('The The Missing Library Key')", async () => {
+    const { cannedCharacterResponse } = await import("@/ai/canned-responses");
+    const ctx = ctxOf("archibald");
+    ctx.evidenceShown.push({ id: "library-key", name: "The Missing Library Key", description: "x", kind: "physical" } as never);
+    const line = cannedCharacterResponse(ctx, "What is this?", "library-key", 3).dialogue;
+    expect(line).toMatch(/^The Missing Library Key\?!/);
+    ctx.evidenceShown[0].name = "silver candlestick";
+    expect(cannedCharacterResponse(ctx, "What is this?", "library-key", 3).dialogue).toMatch(/^The silver candlestick\?!/);
+  });
+});
