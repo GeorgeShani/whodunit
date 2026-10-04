@@ -218,3 +218,54 @@ describe("#13 era vocabulary post-check", () => {
     expect(findModernWord(r.body.response.dialogue)).toBeNull();
   });
 });
+
+describe("#23 Victoria's confession turn is performed, not replaced by the canned denial", () => {
+  const CONFESSION = "Darling, that silver candlestick... I struck Edmund with it at a quarter past nine, in the library, to stop him signing that wretched new will.";
+  const ready = (stress: number) => {
+    const g = createInitialGameState(c);
+    g.discoveredEvidenceIds.push("silver-candlestick", "muddy-footprint", "burned-letter", "library-key");
+    const v = g.characters.victoria;
+    v.stress = stress;
+    v.evidenceShownIds.push("library-key", "burned-letter", "muddy-footprint");
+    v.revealedSecretIds.push("s-victoria-left-dining", "s-victoria-new-will", "s-victoria-locked-door");
+    g.revealedSecretIds.push("s-victoria-left-dining", "s-victoria-new-will", "s-victoria-locked-door");
+    return encodeStateToken(g, TEST_ENV);
+  };
+  const confess = (stress: number, dialogue: string) => {
+    const { calls } = mockGrok({ content: goodReply({ dialogue, emotion: "panicked", stressDelta: 5 }) });
+    return handleInterrogate({ characterId: "victoria", question: "And this one?", presentedEvidenceId: "silver-candlestick", stateToken: ready(stress) }, { caseData: c, env: TEST_ENV }).then((r) => ({ r, calls }));
+  };
+
+  it("'a quarter past nine' for her own 21:17 passes the canon check (no retry, no fallback)", async () => {
+    const { r, calls } = await confess(85, CONFESSION);
+    expect(calls).toHaveLength(1);
+    expect(r.body.source).toBe("model");
+    expect(r.body.response.dialogue).toBe(CONFESSION);
+    expect((r.body.testimonies ?? []).map((t) => t.id)).toContain("s-victoria-murder");
+    expect(r.body.response.dialogue).not.toMatch(/never seen it/i);
+  });
+
+  it("the breakdown lands on the same turn as the confession when the stress is already at the line", async () => {
+    const { r } = await confess(96, "OH GOD, I KILLED HIM! I struck Edmund with the candlestick at seventeen minutes past nine to stop that cursed new will!");
+    expect(r.body.source).toBe("model");
+    expect(r.body.stress?.breakdown).toBe(true);
+    expect((r.body.testimonies ?? []).map((t) => t.id)).toContain("s-victoria-murder");
+  });
+
+  it("the rounding allowance is small: 'a quarter past nine' still fails where no known time is within 3 minutes", () => {
+    const ctx = buildCharacterContext({ caseData: c, game: createInitialGameState(c) }, "gregory");
+    expect(allowedTimes(ctx, { exposedLieIds: [] }, "Where?").has(21 * 60 + 15)).toBe(false);
+    expect(checkTimes("It was a quarter past nine.", new Set([21 * 60 + 17])).ok).toBe(true); // 2 min off
+    expect(checkTimes("It was a quarter past nine.", new Set([21 * 60 + 40])).ok).toBe(false);
+    expect(checkTimes("It was twenty past nine.", new Set([21 * 60 + 17])).ok).toBe(false); // exact forms stay exact
+  });
+
+  it("the confession directive tells the model to give times as written, and the canned fallback never denies knowing a clue", async () => {
+    const ctx = buildCharacterContext({ caseData: c, game: createInitialGameState(c) }, "victoria");
+    const sys = buildSystemPrompt(ctx, { exposedLieIds: [], revealSecret: { id: "s-victoria-murder", description: "She killed him at 21:17." } });
+    expect(sys).toMatch(/exactly as written there/);
+    const { cannedCharacterResponse } = await import("@/ai/canned-responses");
+    const ev = { ...ctx, evidenceShown: [{ id: "silver-candlestick", name: "Silver Candlestick", description: "x" }] } as typeof ctx;
+    expect(cannedCharacterResponse(ev, "?", "silver-candlestick").dialogue).not.toMatch(/never seen/i);
+  });
+});

@@ -387,8 +387,12 @@ export function Game({ view }: { view: PublicCaseView }) {
           push(logKey, { speaker: "narrator", text: r.notice });
         }
         if (r.testimonies) setTestimonies(r.testimonies);
-        if (r.confrontation) setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: r.confrontation!.turnsUsed, over: r.confrontation!.over } }));
-        if (r.error === "pair_finished") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: MAX_CONFRONTATION_TURNS, over: true } }));
+        if (r.confrontation) {
+          // The counter shows whichever runs out first: this pair's exchanges or the whole game's (#24).
+          const c = r.confrontation;
+          setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: Math.max(c.turnsUsed, MAX_CONFRONTATION_TURNS - c.totalLeft), over: c.over || c.totalLeft === 0 } }));
+        }
+        if (r.error === "pair_finished" || r.error === "limit_reached") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: MAX_CONFRONTATION_TURNS, over: true } }));
         if (!r.lines.length) push(logKey, { speaker: "narrator", text: r.line ?? "Nobody says a word. Try again, detective." });
         // Deliver the two lines one after the other, each in its speaker's pose.
         r.lines.forEach((l, i) => {

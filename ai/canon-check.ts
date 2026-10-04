@@ -9,7 +9,7 @@
  * for when someone else left a room. extractTimes() finds clock times in
  * free text: "21:20", "9.20", "twenty past nine", "quarter to ten",
  * "half past nine", "half nine", "seventeen minutes past nine",
- * "nine o'clock", "nine fifteen", "twenty-one hundred", "9 pm". A 12-hour
+ * "nine o'clock" (hour-only, ±5 min), "a quarter past nine" / "half past nine" (rounded, ±3 min), "nine fifteen", "twenty-one hundred", "9 pm". A 12-hour
  * reading may mean h or h+12. Anything not in the allowed set fails the check,
  * and the caller retries once, then falls back.
  */
@@ -23,9 +23,13 @@ export interface TimeMention {
   candidates: number[];
   /** Hour-only mention ("nine o'clock", "9 pm"): allowed within HOUR_ONLY_TOLERANCE. */
   hourOnly: boolean;
+  /** "a quarter past nine", "half past nine": a rounded way of speaking, allowed within ROUNDED_TOLERANCE. */
+  rounded?: boolean;
 }
 
 const HOUR_ONLY_TOLERANCE = 5;
+/** People say "a quarter past nine" for 21:17 (#23); a rounded phrase may be a couple of minutes off a time they know. */
+const ROUNDED_TOLERANCE = 3;
 
 const UNITS: Record<string, number> = {
   zero: 0, oh: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9,
@@ -62,7 +66,7 @@ const minuteOf = (w: string) => (/^quarter$/i.test(w) ? 15 : /^half$/i.test(w) ?
 export function extractTimes(text: string): TimeMention[] {
   const out: TimeMention[] = [];
   const taken: [number, number][] = [];
-  const add = (re: RegExp, f: (m: RegExpExecArray) => { c: number[]; hourOnly?: boolean } | null) => {
+  const add = (re: RegExp, f: (m: RegExpExecArray) => { c: number[]; hourOnly?: boolean; rounded?: boolean } | null) => {
     for (const m of text.matchAll(re)) {
       const s = m.index ?? 0;
       const e = s + m[0].length;
@@ -70,7 +74,7 @@ export function extractTimes(text: string): TimeMention[] {
       const r = f(m as RegExpExecArray);
       if (!r || r.c.length === 0) continue;
       taken.push([s, e]);
-      out.push({ text: m[0].trim(), candidates: r.c, hourOnly: Boolean(r.hourOnly) });
+      out.push({ text: m[0].trim(), candidates: r.c, hourOnly: Boolean(r.hourOnly), ...(r.rounded ? { rounded: true } : {}) });
     }
   };
   // Order matters: most specific patterns first; later matches may not overlap earlier ones.
@@ -80,12 +84,12 @@ export function extractTimes(text: string): TimeMention[] {
     if (mins === null || h === null || mins > 59 || h > 24) return null;
     const back = /^(to|before|till|til)$/i.test(m[2]);
     const r = readings(h, 0).map((t) => (t + (back ? -mins : mins) + 1440) % 1440);
-    return { c: r };
+    return { c: r, rounded: /^(quarter|half)$/i.test(m[1]) };
   });
   add(new RegExp(`(?<![£$€\\d.])\\b(\\d{1,2})[:.](\\d{2})\\b(?!\\.\\d)`, "g"), (m) => ({ c: readings(Number(m[1]), Number(m[2])) }));
   add(new RegExp(`\\bhalf\\s+(${NUM})\\b`, "gi"), (m) => {
     const h = num(m[1]);
-    return h === null || h > 12 ? null : { c: readings(h, 30) };
+    return h === null || h > 12 ? null : { c: readings(h, 30), rounded: true };
   });
   add(new RegExp(`\\b(${NUM})\\s+hundred(?:\\s+hours)?\\b`, "gi"), (m) => {
     const h = num(m[1]);
@@ -232,7 +236,7 @@ export interface CanonCheckResult {
 }
 
 function matches(m: TimeMention, allowed: Set<number>): boolean {
-  const tol = m.hourOnly ? HOUR_ONLY_TOLERANCE : 0;
+  const tol = m.hourOnly ? HOUR_ONLY_TOLERANCE : m.rounded ? ROUNDED_TOLERANCE : 0;
   return m.candidates.some((c) => {
     for (let dx = -tol; dx <= tol; dx++) if (allowed.has((c + dx + 1440) % 1440)) return true;
     return false;
