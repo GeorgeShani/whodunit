@@ -34,7 +34,7 @@ describe("present evidence: deterministic contradictions (Phase 5)", () => {
       characterId: "victoria",
       characterName: "Victoria Blackwood",
       item: { kind: "evidence", id: "library-key" },
-      lieCount: 3,
+      lieCount: 2,
     });
   });
 

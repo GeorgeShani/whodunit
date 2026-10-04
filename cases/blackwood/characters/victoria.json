@@ -17,11 +17,8 @@
       "fond of luxury",
       "aloof"
     ],
-    "speechStyle": "Silky, dramatic society drawl. Calls everyone 'darling'. Answers every question with a flourish of widowly grief.",
-    "catchphrases": [
-      "Darling, I simply couldn't.",
-      "Must we dwell on unpleasantness?"
-    ],
+    "speechStyle": "Silky, unhurried society drawl: long, graceful sentences that sound sympathetic and say very little. Grief arrives in well-timed flourishes, and when pushed she answers a question with a gentler question or a wounded sigh. She never raises her voice; the sweeter she sounds, the sharper the point.",
+    "catchphrases": [],
     "quirks": [
       "dabs dry eyes with a lace handkerchief",
       "swoons onto the nearest chaise"
@@ -41,8 +38,8 @@
   },
   "goals": [
     "Keep the Blackwood fortune and her place as lady of the manor",
-    "Insists she spent the whole blackout by the dining-room fire with Archibald",
-    "Keeps reminding everyone of Archibald's threat at dinner and the sacked gardener's grudge"
+    "Come out of tonight with her good name untouched",
+    "Keep the household's eyes on Archibald's temper and the sacked gardener's grudge"
   ],
   "knownFactIds": [
     "loc-victoria-2030",
@@ -122,7 +119,7 @@
     },
     {
       "id": "b-victoria-archibald-loyal",
-      "statement": "Archibald will stick to our story. He has his own reasons to.",
+      "statement": "Archibald will keep quiet about tonight. He came back looking guilty enough to have reasons of his own.",
       "aboutFactId": "ev-alibi-pact",
       "isAccurate": false,
       "confidence": 0.6
@@ -136,7 +133,7 @@
     },
     {
       "id": "b-victoria-brandy-errand",
-      "statement": "Archibald really did go off to hunt for brandy.",
+      "statement": "Archibald went off at 21:13 to hunt for brandy and came back at 21:22 without it.",
       "aboutFactId": "ev-archibald-leaves-dining",
       "isAccurate": false,
       "confidence": 0.5
@@ -145,7 +142,7 @@
   "secrets": [
     {
       "id": "s-victoria-left-dining",
-      "description": "She left the dining room during the blackout while Archibald was away, so they were never together as they both claim, and at 21:40 she got him to agree to say they were.",
+      "description": "She left the dining room for a while between 21:13, when Archibald went off, and 21:22, when he came back, so they were never together as they both claim. At 21:40 she got him to agree to say they were.",
       "severity": "serious",
       "revealConditions": {
         "stressThreshold": 70,
@@ -163,7 +160,7 @@
         "loc-victoria-2114",
         "loc-victoria-2122"
       ],
-      "testimonySummary": "Lady Victoria admits she sat alone in the dining room during the blackout while Mr Crane was away, and that at 21:40 she asked him to say they had been together the whole time."
+      "testimonySummary": "Lady Victoria admits she left the dining room while Mr Crane was away, between 21:13 and 21:22, so they were not together all that time. At 21:40 she asked him to say they had been."
     },
     {
       "id": "s-victoria-locked-door",
@@ -259,7 +256,7 @@
       "resentment": 10,
       "suspicion": 30,
       "kind": "husband's business partner",
-      "description": "Finds his bluster tiresome. They were together by the fire all evening, she says, and she is quick to remind people of his threat at dinner."
+      "description": "Finds his bluster tiresome but handy: loud, easily rattled, and everyone heard what he shouted at dinner. In a row she purrs about his temper and that shouted threat; if he turns the questions on her she goes cool and reminds him whose house this is."
     },
     {
       "targetCharacterId": "reginald",
@@ -269,7 +266,7 @@
       "resentment": 20,
       "suspicion": 50,
       "kind": "butler",
-      "description": "Treats him as furniture and expects him to know his place."
+      "description": "Treats him as furniture that happens to carry trays. In a row she needles him for hovering at doors and for looking at her as if she owed him an explanation, and reminds him that his place now depends on hers."
     },
     {
       "targetCharacterId": "gregory",
@@ -279,7 +276,7 @@
       "resentment": 45,
       "suspicion": 35,
       "kind": "gardener",
-      "description": "Contempt for the muddy, gin-soaked gardener her husband sacked."
+      "description": "Contempt for the muddy, gin-soaked gardener her husband sacked this morning. She throws his dismissal, his drinking and his boots at him, and says a sacked man with a grudge is exactly who the police will want."
     }
   ],
   "intendedLies": [
@@ -287,7 +284,7 @@
       "id": "l-victoria-together",
       "topic": "whereabouts during the blackout",
       "aboutFactId": "ev-victoria-alone",
-      "claim": "Archibald and I sat by the dining-room fire the whole blackout, darling. Neither of us left.",
+      "claim": "Archibald and I sat by the dining-room fire from the moment the candles were lit until we heard the scream. Neither of us left.",
       "supersededBySecretIds": [
         "s-victoria-left-dining"
       ],
@@ -313,34 +310,40 @@
       "breaksOnSecretIds": [
         "s-gregory-saw-victoria"
       ],
-      "breakMode": "any"
+      "breakMode": "any",
+      "supersededBySecretIds": [
+        "s-victoria-locked-door"
+      ]
     },
     {
       "id": "l-victoria-never-in-hall",
       "topic": "going back to the library after nine",
       "aboutFactId": "ev-victoria-admitted",
       "claim": "I never went near the library after our little chat at nine.",
-      "brokenByEvidenceIds": [
-        "muddy-footprint",
-        "library-key"
-      ],
+      "brokenByEvidenceIds": [],
       "breaksOnSecretIds": [
         "s-gregory-saw-victoria"
       ],
-      "breakMode": "any"
+      "breakMode": "any",
+      "supersededBySecretIds": [
+        "s-victoria-locked-door"
+      ]
     },
     {
       "id": "l-victoria-menu",
       "topic": "the argument in the library",
       "aboutFactId": "ev-victoria-argument",
-      "claim": "Our little chat? The Sunday menu, darling. Nothing more.",
+      "claim": "Our little chat? The Sunday menu. Nothing more.",
       "brokenByEvidenceIds": [
         "burned-letter"
       ],
       "breaksOnSecretIds": [
         "s-reginald-overheard"
       ],
-      "breakMode": "any"
+      "breakMode": "any",
+      "supersededBySecretIds": [
+        "s-victoria-new-will"
+      ]
     },
     {
       "id": "l-victoria-letter",
@@ -349,6 +352,9 @@
       "claim": "I've never seen that letter in my life.",
       "brokenByEvidenceIds": [
         "burned-letter"
+      ],
+      "supersededBySecretIds": [
+        "s-victoria-new-will"
       ]
     }
   ],

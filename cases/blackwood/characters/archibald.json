@@ -14,11 +14,8 @@
       "self-serving",
       "cowardly under pressure"
     ],
-    "speechStyle": "Booming bluster and City slang. Blusters louder whenever he feels cornered.",
-    "catchphrases": [
-      "Now see here!",
-      "Preposterous, absolutely preposterous!"
-    ],
+    "speechStyle": "Booming City bluster: short barked sentences, trade slang, rhetorical questions and plenty of 'old boy'. Gets louder and redder when cornered, and answers a hard question by attacking the person asking it.",
+    "catchphrases": [],
     "quirks": [
       "chomps an unlit cigar",
       "checks his pocket watch"
@@ -37,9 +34,9 @@
     "aggression": 0.75
   },
   "goals": [
-    "Insists the company's books are in perfect order",
-    "Laughs off his outburst at dinner as a row about a racehorse",
-    "Swears he and Victoria sat together by the dining-room fire all through the blackout"
+    "Protect his name and his seat on the board",
+    "Wriggle out of any blame for his outburst at dinner",
+    "Steer the household's suspicion towards somebody else"
   ],
   "knownFactIds": [
     "loc-archibald-2030",
@@ -94,14 +91,14 @@
   "beliefs": [
     {
       "id": "b-archibald-gregory-did-it",
-      "statement": "That sacked gardener did it. The fellow had a grudge.",
+      "statement": "That gardener did it. Turns up soaked and shifty the moment the body is found.",
       "aboutFactId": "ev-body-discovered",
       "isAccurate": false,
       "confidence": 0.5
     },
     {
       "id": "b-archibald-victoria-stayed",
-      "statement": "Victoria sat by the fire the whole time I was on the telephone.",
+      "statement": "Victoria stayed by the dining-room fire all the while I was away, from 21:13 until I came back at 21:22.",
       "aboutFactId": "ev-archibald-phone",
       "isAccurate": false,
       "confidence": 0.7
@@ -133,11 +130,11 @@
         "ev-archibald-phone",
         "ev-archibald-threat"
       ],
-      "testimonySummary": "Mr Crane admits he embezzled company money, and that during the blackout he telephoned his broker to move it before midnight."
+      "testimonySummary": "Mr Crane admits he embezzled company money, and that between 21:15 and 21:20 he telephoned his broker to move it before midnight."
     },
     {
       "id": "s-archibald-false-alibi",
-      "description": "He was not with Victoria in the dining room from 21:13 to 21:22. He was on the servants' telephone, and he agreed to her story to hide the call.",
+      "description": "He was not with Victoria in the dining room from 21:13 to 21:22. He left two minutes after Reginald lit the candles, was on the servants' telephone from 21:15 to 21:20 and was back at 21:22. He agreed to her story at 21:40 to hide the call.",
       "severity": "serious",
       "revealConditions": {
         "evidenceIds": [
@@ -163,7 +160,7 @@
         "loc-archibald-2121",
         "loc-archibald-2122"
       ],
-      "testimonySummary": "Mr Crane admits he left the dining room at 21:13 and only came back at 21:22. He was on the servants' telephone, and at 21:18 the butler called out to him from the pantry. At 21:40 he agreed to Lady Victoria's story."
+      "testimonySummary": "Mr Crane admits he left the dining room at 21:13, after the candles were lit, and was back at 21:22. He used the servants' telephone 21:15-21:20; the butler called through the pantry door at 21:18. At 21:40 he backed Lady Victoria's story."
     }
   ],
   "relationships": [
@@ -175,7 +172,7 @@
       "resentment": 90,
       "suspicion": 40,
       "kind": "business partner",
-      "description": "Old friend and partner. Their row at dinner was nothing, he says, just business."
+      "description": "Old friend and business partner. Their quarrels were loud, frequent and, he insists, only ever about business."
     },
     {
       "targetCharacterId": "victoria",
@@ -185,7 +182,7 @@
       "resentment": 5,
       "suspicion": 15,
       "kind": "partner's wife",
-      "description": "Flirtatious condescension. They kept each other company by the fire all evening, he says."
+      "description": "Treats her as a grieving ornament. In a row he remarks that she is bearing up remarkably well for a new widow; if she brings up the dinner row he laughs it off as business and tells her not to trouble her pretty head."
     },
     {
       "targetCharacterId": "reginald",
@@ -195,7 +192,7 @@
       "resentment": 45,
       "suspicion": 55,
       "kind": "butler",
-      "description": "Thinks him a stiff-necked busybody."
+      "description": "Thinks him a stiff-necked busybody. Throws it back at him that it was his candlestick, carried in with his own two hands, and blusters about servants who forget their place."
     },
     {
       "targetCharacterId": "gregory",
@@ -205,7 +202,7 @@
       "resentment": 20,
       "suspicion": 70,
       "kind": "gardener",
-      "description": "Barely notices him. A convenient suspect."
+      "description": "Barely notices him until there is a body, then finds him very convenient. Says the fellow turned up soaked and shifty the moment the body was found, and talks over him whenever he mumbles."
     }
   ],
   "intendedLies": [
@@ -213,7 +210,7 @@
       "id": "l-archibald-together",
       "topic": "whereabouts during the blackout",
       "aboutFactId": "ev-archibald-phone",
-      "claim": "I was with Victoria the whole time. Ask her!",
+      "claim": "I was with Victoria by the dining-room fire from the moment the candles were lit until the scream. Ask her!",
       "brokenByEvidenceIds": [
         "library-key",
         "burned-letter"
@@ -221,7 +218,10 @@
       "breaksOnSecretIds": [
         "s-reginald-theft"
       ],
-      "breakMode": "any"
+      "breakMode": "any",
+      "supersededBySecretIds": [
+        "s-archibald-false-alibi"
+      ]
     },
     {
       "id": "l-archibald-racehorse",
@@ -230,6 +230,9 @@
       "claim": "The row at dinner? A racehorse, old boy. Purely sporting.",
       "brokenByEvidenceIds": [
         "library-key"
+      ],
+      "supersededBySecretIds": [
+        "s-archibald-embezzlement"
       ]
     }
   ],
