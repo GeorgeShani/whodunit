@@ -1,0 +1,61 @@
+{
+  "id": "finch",
+  "name": "Pip Finch",
+  "role": "The Deckhand",
+  "bio": "HL finch bio.",
+  "personality": {
+    "traits": [
+      "hl-trait"
+    ],
+    "speechStyle": "Salty test voice.",
+    "catchphrases": [],
+    "quirks": [],
+    "tells": [],
+    "confidence": 0.5,
+    "nervousness": 0.5,
+    "arrogance": 0.3,
+    "honesty": 0.5,
+    "impulsiveness": 0.4,
+    "empathy": 0.5,
+    "aggression": 0.2
+  },
+  "goals": [
+    "HL finch goal"
+  ],
+  "knownFactIds": [
+    "finch-asleep",
+    "hl-storm",
+    "hl-lamp-dark"
+  ],
+  "beliefs": [],
+  "secrets": [
+    {
+      "id": "finch-secret",
+      "description": "HL_FINCH_SECRET: I was asleep on watch.",
+      "severity": "embarrassing",
+      "relatedFactIds": [
+        "finch-asleep"
+      ],
+      "revealConditions": {
+        "stressThreshold": 60,
+        "mode": "any"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "targetCharacterId": "cook-marlow",
+      "trust": 50,
+      "fear": 10,
+      "affection": 30,
+      "resentment": 20,
+      "suspicion": 30
+    }
+  ],
+  "initialEmotion": {
+    "emotion": "calm",
+    "intensity": 0.3,
+    "composure": 0.8
+  },
+  "intendedLies": []
+}

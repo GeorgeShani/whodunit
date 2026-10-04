@@ -5,6 +5,7 @@
 import type { LoadedCase } from "./case-schema";
 import { gameMinutes } from "./time";
 import type { TimelineEntry } from "./types";
+import { checkProgression, progressionWarnings } from "./progression-validation";
 
 /**
  * Opportunity rule: some timeline entry with `locationId` = solution.locationId
@@ -229,6 +230,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     }
   }
 
+  issues.push(...checkProgression(c));
   return issues;
 }
 
@@ -321,5 +323,6 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   if (c.knowledgeGate === "explicit" && hidden.length === 0) {
     warnings.push({ file: "case.json", path: "knowledgeGate", message: 'is "explicit" but no fact has hiddenUntil: only lie aboutFactId / locked secret relatedFactIds are withheld' });
   }
+  warnings.push(...progressionWarnings(c));
   return warnings;
 }

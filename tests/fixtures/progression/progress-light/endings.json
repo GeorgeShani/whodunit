@@ -1,0 +1,41 @@
+{
+  "correct": {
+    "confession": [
+      {
+        "speaker": "keeper-quill",
+        "text": "HL_ENDING_CONFESSION",
+        "emotion": "angry",
+        "evidenceIds": [
+          "brass-spyglass"
+        ]
+      }
+    ],
+    "recap": [
+      {
+        "speaker": "narrator",
+        "text": "HL_ENDING_RECAP"
+      }
+    ]
+  },
+  "wrong": {
+    "keeper-quill": [
+      {
+        "speaker": "narrator",
+        "text": "HL_WRONG_quill"
+      }
+    ],
+    "cook-marlow": [
+      {
+        "speaker": "cook-marlow",
+        "text": "HL_WRONG_marlow"
+      }
+    ],
+    "finch": [
+      {
+        "speaker": "finch",
+        "text": "HL_WRONG_finch"
+      }
+    ]
+  },
+  "escapedLine": "HL_ESCAPED"
+}

@@ -9,6 +9,7 @@ import path from "node:path";
 import { assetExists } from "../lib/case-art";
 import { validateCase } from "../engine/case-loader";
 import { checkCaseWarnings, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
+import { fastestPath } from "../engine/progression-validation";
 
 async function main() {
   const args = process.argv.slice(2);
@@ -44,6 +45,9 @@ async function main() {
     const missingArt = art.filter(([, p]) => p && !assetExists(p));
     for (const [field, p] of missingArt) console.log(`   ⚠ ${field}: ${p} not found under assets/ (the screen falls back to its default look)`);
     if (art.length && !missingArt.length) console.log(`   art: ${art.length} asset path(s) found.`);
+    const path_ = fastestPath(d);
+    if (path_ !== null) console.log(`   progression: ${d.leads?.length ?? 0} lead(s), accuse gate ${d.accuseGate ? "on" : "off"}; fastest legal path: ${path_} actions.`);
+    else if (d.leads?.length || d.accuseGate) console.log("   progression: fastest legal path could not be computed (the gate may be unreachable, or the search budget ran out).");
     const warnings = checkCaseWarnings(d);
     for (const w of warnings) console.log(`   ⚠ ${formatIssue(w)}`);
     console.log(`   knowledge gate: ${d.knowledgeGate}${warnings.length ? `, ${warnings.length} design warning(s) above` : ", no design warnings"}.`);

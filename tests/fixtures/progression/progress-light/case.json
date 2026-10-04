@@ -1,0 +1,141 @@
+{
+  "id": "progress-light",
+  "title": "Murder at Progress Light",
+  "tagline": "Second fixture tagline.",
+  "intro": "Second fixture intro.",
+  "dayStartsAt": "12:00",
+  "victim": {
+    "id": "captain-brine",
+    "name": "Captain Brine",
+    "description": "HL_VICTIM_DESC",
+    "foundAtLocationId": "lamp-room",
+    "foundAt": "22:40",
+    "causeOfDeath": "HL blow to the head.",
+    "aliases": [
+      "the captain"
+    ]
+  },
+  "locations": [
+    {
+      "id": "lamp-room",
+      "name": "Lamp Room",
+      "description": "HL lamp room.",
+      "searchFlavor": {
+        "lines": [
+          "HL_SEARCH_lamp-room"
+        ],
+        "emptyLine": "HL_EMPTY_lamp-room"
+      },
+      "background": "/assets/backgrounds/manor.webp"
+    },
+    {
+      "id": "galley",
+      "name": "Galley",
+      "description": "HL galley.",
+      "searchFlavor": {
+        "lines": [
+          "HL_SEARCH_galley"
+        ]
+      },
+      "lockedLine": "The galley door is wedged shut. Someone should talk to the cook first."
+    },
+    {
+      "id": "dock",
+      "name": "Dock",
+      "description": "HL dock.",
+      "searchFlavor": {
+        "lines": [
+          "HL_SEARCH_dock"
+        ]
+      },
+      "requires": {
+        "searchedLocationIds": [
+          "galley"
+        ]
+      },
+      "lockedLine": "The dock is roped off until you have seen the galley."
+    }
+  ],
+  "facts": [
+    {
+      "id": "hl-storm",
+      "statement": "HL_FACT: A gale blew all night.",
+      "category": "background"
+    },
+    {
+      "id": "hl-lamp-dark",
+      "statement": "HL_LAMP_DARK: The lighthouse lamp was dark.",
+      "category": "timeline",
+      "from": "22:28",
+      "to": "22:50",
+      "locationId": "lamp-room"
+    }
+  ],
+  "motives": [
+    {
+      "id": "salvage-rights",
+      "label": "A quarrel over salvage rights"
+    },
+    {
+      "id": "rum-debt",
+      "label": "An unpaid rum debt"
+    }
+  ],
+  "backdrops": {
+    "suspects": "/assets/backgrounds/library.webp"
+  },
+  "leads": [
+    {
+      "id": "lead-galley",
+      "title": "What did the cook see?",
+      "hint": "The cook keeps glancing at the galley stove.",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "cook-marlow",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "wet-logbook"
+        ]
+      },
+      "closedLine": "The logbook has been found."
+    },
+    {
+      "id": "lead-spyglass",
+      "title": "Who was at the dock?",
+      "hint": "Something shiny was left at the end of the dock.",
+      "opensWhen": {
+        "searchedLocationIds": [
+          "galley"
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "brass-spyglass"
+        ]
+      }
+    }
+  ],
+  "accuseGate": {
+    "minEvidence": 3,
+    "minSuspectsQuestioned": {
+      "count": 2,
+      "minExchanges": 2
+    },
+    "minRevealedSecrets": 2,
+    "closedLeadIds": [
+      "lead-spyglass"
+    ],
+    "lockedLines": {
+      "evidence": "More clues, detective.",
+      "suspects": "Talk to more of the household.",
+      "secrets": "Nobody has cracked yet.",
+      "leads": "One question is still open.",
+      "default": "The case is not ready."
+    }
+  }
+}
