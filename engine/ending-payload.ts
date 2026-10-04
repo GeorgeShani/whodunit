@@ -108,6 +108,7 @@ export function toVerdict(g: AccusationGrade): AccuseVerdict {
     motiveCorrect: g.motiveCorrect,
     hasKeyEvidence: g.hasKeyEvidence,
     keyEvidenceCited: g.keyEvidenceCited,
+    hasKeyTestimony: g.hasKeyTestimony,
   };
 }
 

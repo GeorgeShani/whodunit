@@ -39,7 +39,7 @@ describe("gradeAccusation branches through POST /api/accuse", () => {
     const r = await accuse(WIN);
     expect(r.status).toBe(200);
     expect(r.body.outcome).toBe("won");
-    expect(r.body.verdict).toEqual({ murdererCorrect: true, weaponCorrect: true, motiveCorrect: true, hasKeyEvidence: true, keyEvidenceCited: ["library-key"] });
+    expect(r.body.verdict).toEqual({ murdererCorrect: true, weaponCorrect: true, motiveCorrect: true, hasKeyEvidence: true, hasKeyTestimony: true, keyEvidenceCited: ["library-key"] });
     expect(r.body.ending?.headline).toBe("CASE CLOSED!");
   });
 

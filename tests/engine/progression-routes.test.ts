@@ -6,7 +6,9 @@ import { handleConfront } from "@/ai/confront-handler";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
+import { handleAccuse } from "@/engine/accuse-handler";
 import { handleHint } from "@/engine/hint-handler";
+import { saveSession } from "@/engine/session";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { searchLocation } from "@/engine/investigation";
 import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
@@ -89,5 +91,79 @@ describe("progress on the routes", () => {
     const r = inv("lamp-room", "garbage");
     expect(r.body.notice).toBeTruthy();
     expect(r.body.progress!.lockedLocationIds).toEqual(["dock"]);
+  });
+});
+
+describe("the accuse gate and the win rule", () => {
+  const env = TEST_ENV;
+  const base = () => {
+    const g = createInitialGameState(c);
+    g.gameId = "game-progress-1";
+    return g;
+  };
+  const ready = () => {
+    const g = base();
+    g.discoveredEvidenceIds = ["oil-can", "wet-logbook", "brass-spyglass"];
+    g.searchedLocationIds = ["galley", "dock"];
+    g.revealedSecretIds = ["marlow-secret", "marlow-saw-quill"];
+    g.characters["cook-marlow"].interrogationCount = 4;
+    g.characters["keeper-quill"].interrogationCount = 2;
+    return g;
+  };
+  const accuse = (g: ReturnType<typeof base>, accusation: Record<string, unknown>) =>
+    handleAccuse({ caseId: "progress-light", stateToken: saveSession(g, env), accusation }, { caseData: c, env });
+  const right = { murdererId: "keeper-quill", weaponId: "brass-spyglass", motiveId: "salvage-rights", keyEvidenceIds: ["brass-spyglass", "wet-logbook"] };
+
+  it("403 accuse_locked with the first unmet line, token unchanged, counts only", async () => {
+    const g = base();
+    g.discoveredEvidenceIds = ["oil-can"];
+    const token = saveSession(g, env);
+    const r = await handleAccuse({ caseId: "progress-light", stateToken: token, accusation: right }, { caseData: c, env });
+    expect(r.status).toBe(403);
+    expect(r.body).toMatchObject({ error: "accuse_locked", line: "More clues, detective." });
+    expect(r.body.outcome).toBeUndefined();
+    expect(r.body.progress!.accuse.checklist.clues).toEqual({ have: 1, need: 3 });
+    const after = await handleAccuse({ caseId: "progress-light", stateToken: r.body.stateToken!, accusation: right }, { caseData: c, env });
+    expect(after.status).toBe(403); // still a pending game: the refusal did not spend the one accusation
+  });
+  it("each unmet item gives its own line, in order", async () => {
+    const g = ready();
+    g.characters["keeper-quill"].interrogationCount = 0;
+    expect((await accuse(g, right)).body.line).toBe("Talk to more of the household.");
+    g.characters["keeper-quill"].interrogationCount = 2;
+    g.revealedSecretIds = ["marlow-secret"];
+    expect((await accuse(g, right)).body.line).toBe("Nobody has cracked yet.");
+    g.revealedSecretIds = ["marlow-secret", "marlow-saw-quill"];
+    g.discoveredEvidenceIds = ["oil-can", "wet-logbook", "x"];
+    g.discoveredEvidenceIds = ["oil-can", "wet-logbook", "brass-spyglass"];
+    expect((await accuse(g, right)).status).not.toBe(403);
+  });
+  it("citing testimony nobody revealed is refused", async () => {
+    const r = await accuse(ready(), { ...right, keyTestimonyIds: ["quill-secret"] });
+    expect(r.status).toBe(400);
+    expect(r.body.error).toBe("testimony_not_revealed");
+  });
+  it("a win needs the right culprit/weapon/motive, BOTH key clues and the key testimony", async () => {
+    const win = await accuse(ready(), { ...right, keyTestimonyIds: ["marlow-saw-quill"] });
+    expect(win.body.outcome).toBe("won");
+    expect(win.body.verdict).toMatchObject({ hasKeyEvidence: true, hasKeyTestimony: true });
+    const noTestimony = await accuse(ready(), right);
+    expect(noTestimony.body.outcome).toBe("lost");
+    const oneClue = await accuse(ready(), { ...right, keyEvidenceIds: ["brass-spyglass"], keyTestimonyIds: ["marlow-saw-quill"] });
+    expect(oneClue.body.outcome).toBe("lost");
+    const wrongTestimony = await accuse(ready(), { ...right, keyTestimonyIds: ["marlow-secret"] });
+    expect(wrongTestimony.body.outcome).toBe("lost");
+    // a loss never carries the solution or the per-field verdict (#22)
+    expect(JSON.stringify(noTestimony.body)).not.toMatch(/"solution"|"verdict"/);
+  });
+  it("the accusation round-trips through the signed token with its cited testimony", async () => {
+    const win = await accuse(ready(), { ...right, keyTestimonyIds: ["marlow-saw-quill"] });
+    const replay = await handleAccuse({ caseId: "progress-light", stateToken: win.body.stateToken!, accusation: right }, { caseData: c, env });
+    expect(replay.status).toBe(409);
+    expect(replay.body.accusation?.keyTestimonyIds).toEqual(["marlow-saw-quill"]);
+    expect(replay.body.outcome).toBe("won");
+  });
+  it("public progress tells the form to cite testimony", () => {
+    expect(handleInvestigate({ caseId: "progress-light", locationId: "lamp-room" }, { caseData: c, env }).body.progress!.accuse.citeTestimony).toBe(true);
   });
 });

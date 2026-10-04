@@ -285,6 +285,32 @@ Endings spell out the solution, so they never reach the public view, the charact
 
 **A loss must not confirm anything (one accusation per game).** The loss response carries no solution and no per-field right/wrong, so the engine plays a `wrong` ending only when it gives nothing away: the entry for the real murderer is never used (a generic "sent home for lack of proof" ending plays instead, so Victoria's "right lady, wrong story" is kept in the file but not shown), and in everyone else's `wrong` entry, lines **spoken by the real murderer** are dropped (a gloating killer cameo would name them). Write each innocent's entry so it works with no cameo from the killer, and note the player then sees `escapedLine` followed by "The case went unsolved."
 
+## Progression (optional): gated rooms and clues, leads, the accuse gate
+
+Every field below is optional and strict; a case that uses none of them plays exactly as before. Design: `docs/BLACKWOOD_PROGRESSION_PROPOSAL.md`. A worked example with every field is `tests/fixtures/progression/progress-light`.
+
+**`Condition`** (anywhere a rule is needed; at least one atom; `mode` "all" by default): `interrogated: [{characterId, minExchanges?}]` (exchanges = `interrogationCount`, bumped by every committed turn, default 1), `evidenceIds` (discovered), `secretIds` (revealed anywhere in the case), `searchedLocationIds`, `leadIds` (the lead is open OR closed). Conditions only ever go false -> true and are checked against the state BEFORE an action, so one search never chains two unlocks.
+
+```jsonc
+// case.json: locations[]
+{ "id": "dock", "requires": { "searchedLocationIds": ["galley"] }, "lockedLine": "The dock is roped off until you have seen the galley." }   // lockedLine <= 160, public; requires is private
+// evidence.json (needs a locationId, not initiallyAvailable): hidden from searches until requires holds; lockedLine is appended to the search lines
+{ "id": "wet-logbook", "locationId": "galley", "requires": { "leadIds": ["lead-galley"] }, "lockedLine": "Something in the galley is still hidden from you." }
+// case.json
+"leads": [ { "id": "lead-galley", "title": "<=70, public", "hint": "<=240, public, shown while open",
+             "opensWhen": { "interrogated": [{ "characterId": "cook-marlow", "minExchanges": 2 }] },   // omit = open at start
+             "closesWhen": { "evidenceIds": ["wet-logbook"] },                                          // required; closed wins over open
+             "closedLine": "optional, <= 160" } ],
+"accuseGate": { "minEvidence": 3, "minSuspectsQuestioned": { "count": 2, "minExchanges": 2 }, "minRevealedSecrets": 2, "closedLeadIds": ["lead-spyglass"],
+                "lockedLines": { "evidence": "...", "suspects": "...", "secrets": "...", "leads": "...", "default": "required, <= 160 each" } }   // omit = a single clue is enough
+// solution.json
+{ "minKeyEvidence": 2, "keyTestimonyIds": ["marlow-saw-quill"], "minKeyTestimony": 1 }   // defaults 1, [], 0
+```
+
+Engine behaviour: a locked room answers with its `lockedLine` and is not marked searched; `/api/accuse` recomputes the gate from the signed token and answers **403 `accuse_locked`** with the line of the first unmet item (clues, suspects, secrets, leads; the token is unchanged, the one accusation is not spent); cited `keyTestimonyIds` must be revealed (`testimony_not_revealed`); a win needs the right murderer, weapon and motive plus `minKeyEvidence` key clues and `minKeyTestimony` key testimony. Every route that returns a `stateToken` also returns `progress` (`leads` that are open/closed, `newLeadIds` = changed in this action, `lockedLocationIds`, `accuse: {unlocked, checklist {clues,suspects,secrets: {have,need}}, line?, citeTestimony}`); counts only, never which clue, who or why. `requires`, `opensWhen`, `closesWhen` and `accuseGate` never leave the server.
+
+`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues and `afterSecretIds` only, stress-only counts as unreachable): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`. It prints the fastest legal path in actions (exact, breadth-first).
+
 ## What the AI and the player can see
 
 - **The player** (`getPublicCaseView`) sees:

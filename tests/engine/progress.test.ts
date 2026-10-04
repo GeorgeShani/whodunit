@@ -24,6 +24,7 @@ const c = {
     { id: "hall", name: "Hall", description: "d" },
     { id: "study", name: "Study", description: "d", lockedLine: "Not yet.", requires: { evidenceIds: ["clue-a"] } },
   ],
+  solution: {},
   accuseGate: {
     minEvidence: 2,
     minSuspectsQuestioned: { count: 2, minExchanges: 2 },

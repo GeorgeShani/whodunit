@@ -41,9 +41,11 @@ export interface AccuseVerdict {
   murdererCorrect: boolean;
   weaponCorrect: boolean;
   motiveCorrect: boolean;
-  /** At least one cited clue is key evidence. */
+  /** Enough cited clues are key evidence (solution.minKeyEvidence, default 1). */
   hasKeyEvidence: boolean;
   keyEvidenceCited: string[];
+  /** Enough cited testimony is key testimony (solution.minKeyTestimony, default 0). */
+  hasKeyTestimony: boolean;
 }
 
 /** The full solution, revealed only after the case is over. */
@@ -80,11 +82,15 @@ export interface AccusationDraft {
   weaponId?: string;
   motiveId?: string;
   keyEvidenceIds: string[];
+  /** Revealed confessions (secret ids) cited as proof. */
+  keyTestimonyIds?: string[];
 }
+
+export const MAX_ACCUSE_TESTIMONY = 3;
 
 export function validateAccusationDraft(
   d: AccusationDraft,
-  options: { suspectIds: readonly string[]; evidenceIds: readonly string[]; motiveIds: readonly string[] },
+  options: { suspectIds: readonly string[]; evidenceIds: readonly string[]; motiveIds: readonly string[]; testimonyIds?: readonly string[]; requireTestimony?: boolean },
 ): { ok: true; accusation: Accusation } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!d.murdererId || !options.suspectIds.includes(d.murdererId)) errors.push("Pick the murderer.");
@@ -94,6 +100,13 @@ export function validateAccusationDraft(
   if (ids.length < 1) errors.push("Cite at least one clue as proof.");
   if (ids.length > MAX_ACCUSE_EVIDENCE) errors.push(`Cite at most ${MAX_ACCUSE_EVIDENCE} clues.`);
   if (!ids.every((id) => options.evidenceIds.includes(id))) errors.push("You can only cite clues in your notebook.");
+  const testimony = [...new Set(d.keyTestimonyIds ?? [])];
+  if (options.requireTestimony && testimony.length < 1) errors.push("Cite a confession as proof: pick revealed testimony from your notebook.");
+  if (testimony.length > MAX_ACCUSE_TESTIMONY) errors.push(`Cite at most ${MAX_ACCUSE_TESTIMONY} confessions.`);
+  if (!testimony.every((id) => (options.testimonyIds ?? []).includes(id))) errors.push("You can only cite confessions in your notebook.");
   if (errors.length) return { ok: false, errors };
-  return { ok: true, accusation: { murdererId: d.murdererId!, weaponId: d.weaponId!, motiveId: d.motiveId!, keyEvidenceIds: ids } };
+  return {
+    ok: true,
+    accusation: { murdererId: d.murdererId!, weaponId: d.weaponId!, motiveId: d.motiveId!, keyEvidenceIds: ids, ...(testimony.length ? { keyTestimonyIds: testimony } : {}) },
+  };
 }

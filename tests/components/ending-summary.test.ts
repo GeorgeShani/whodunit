@@ -28,7 +28,7 @@ describe("end screen summary", () => {
   it("marks each field right or wrong and shows the truth only when revealed", () => {
     const r = {
       accusation: { murdererId: "gregory", weaponId: "silver-candlestick", motiveId: "revenge", keyEvidenceIds: ["burned-letter"] },
-      verdict: { murdererCorrect: false, weaponCorrect: true, motiveCorrect: false, hasKeyEvidence: true, keyEvidenceCited: ["burned-letter"] },
+      verdict: { murdererCorrect: false, weaponCorrect: true, motiveCorrect: false, hasKeyEvidence: true, hasKeyTestimony: true, keyEvidenceCited: ["burned-letter"] },
       solution,
     };
     const rows = summaryRows(r, lookup, true);

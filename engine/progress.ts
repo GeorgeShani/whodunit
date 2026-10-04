@@ -110,10 +110,11 @@ export interface PublicProgress {
   newLeadIds: string[];
   /** Rooms whose `requires` is unmet now. */
   lockedLocationIds: string[];
-  accuse: AccuseProgress;
+  /** `citeTestimony`: the accuse form must cite a revealed confession (solution.minKeyTestimony >= 1). Says nothing about which. */
+  accuse: AccuseProgress & { citeTestimony: boolean };
 }
 
-export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate">, game: GameState, before?: LeadStates): PublicProgress {
+export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution">, game: GameState, before?: LeadStates): PublicProgress {
   const states = leadStates(caseData, game);
   const leads = (caseData.leads ?? []).filter((l): l is Lead => states[l.id] !== "hidden");
   const prev = before ?? states;
@@ -125,6 +126,6 @@ export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" 
     ),
     newLeadIds: leads.filter((l) => (prev[l.id] ?? "hidden") !== states[l.id]).map((l) => l.id),
     lockedLocationIds: caseData.locations.filter((l: Location) => !isUnlocked(l, game, states)).map((l) => l.id),
-    accuse: accuseProgress(caseData, game, states),
+    accuse: { ...accuseProgress(caseData, game, states), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1 },
   };
 }

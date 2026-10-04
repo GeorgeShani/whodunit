@@ -11,6 +11,7 @@ import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { gradeAccusation } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import { buildEnding, buildSolutionReveal, endingEvidence, toVerdict } from "./ending-payload";
+import { accuseProgress } from "./progress";
 import { attachProgress } from "./route-progress";
 import { isCaseClosed, restoreSession, saveSession } from "./session";
 import type { Env } from "./state-token";
@@ -23,6 +24,8 @@ export const ACCUSE_LINES = {
   unknownSuspect: "You point dramatically at... a hat stand. Nobody by that name is in this house.",
   unknownMotive: "That's not a motive anyone here could have, detective.",
   notDiscovered: "You can't cite a clue you haven't found, detective. Check your notebook.",
+  testimonyNotRevealed: "You can't cite a confession nobody has made, detective. Check the testimony in your notebook.",
+  locked: "The case isn't ready yet, detective.",
   caseClosed: "You've already named your culprit, detective. The case is closed.",
 } as const;
 
@@ -85,6 +88,10 @@ async function handleAccuseCore(json: unknown, deps: { caseData: LoadedCase; env
     return { status: 409, body: { ...verdictBody(caseData, game, earlier, env), error: "case_closed", line: ACCUSE_LINES.caseClosed } };
   }
 
+  // Progression: the gate is recomputed from the signed token. A refusal leaves the token unchanged.
+  const gate = accuseProgress(caseData, game);
+  if (!gate.unlocked) return { status: 403, body: { error: "accuse_locked", line: gate.line ?? ACCUSE_LINES.locked, stateToken: saveSession(game, env) } };
+
   const reject = (error: string, line: string): AccuseResult => ({ status: 400, body: { error, line, stateToken: saveSession(game, env) } });
   if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", ACCUSE_LINES.unknownSuspect);
   if (!caseData.motives.some((m) => m.id === accusation.motiveId)) return reject("unknown_motive", ACCUSE_LINES.unknownMotive);
@@ -92,7 +99,10 @@ async function handleAccuseCore(json: unknown, deps: { caseData: LoadedCase; env
   const cited = [...new Set(accusation.keyEvidenceIds)];
   if (!discovered.has(accusation.weaponId) || !cited.every((id) => discovered.has(id))) return reject("evidence_not_discovered", ACCUSE_LINES.notDiscovered);
 
-  const clean: Accusation = { ...accusation, keyEvidenceIds: cited };
+  const citedTestimony = [...new Set(accusation.keyTestimonyIds ?? [])];
+  if (!citedTestimony.every((id) => game.revealedSecretIds.includes(id))) return reject("testimony_not_revealed", ACCUSE_LINES.testimonyNotRevealed);
+
+  const clean: Accusation = { ...accusation, keyEvidenceIds: cited, ...(citedTestimony.length ? { keyTestimonyIds: citedTestimony } : {}) };
   const grade = gradeAccusation(caseData.solution, clean);
   game.accusation = clean;
   game.outcome = grade.won ? "won" : "lost";
