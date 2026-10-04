@@ -40,31 +40,41 @@ export function SuspectSelect({
 }) {
   return (
     <main
-      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-8 px-4 py-10 ${
+      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-8 sm:px-6 sm:py-10 ${
         backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#7b1fa2_0%,#1b1035_70%)]"
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className="flex w-full max-w-6xl items-center justify-between gap-2 max-xl:pe-12">
-        <button type="button" onClick={onBack} className="cursor-pointer font-bold text-yellow-200 underline-offset-4 hover:underline">
-          ← Case file
+      {/* Phones: back link (mute toggle owns the top-right corner), then the title, then a two-button action bar. */}
+      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:flex-nowrap sm:gap-2 sm:max-xl:pe-12">
+        <button type="button" onClick={onBack} className="order-1 -ms-2 flex min-h-11 cursor-pointer items-center gap-1 px-2 text-base font-bold text-yellow-200 underline-offset-4 hover:underline">
+          <span aria-hidden>←</span> Case file
         </button>
-        <h1 data-autofocus tabIndex={-1} className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
+        <h1
+          data-autofocus
+          tabIndex={-1}
+          className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl"
+        >
           PICK A SUSPECT!
         </h1>
         {onInvestigate ? (
-          <div className="flex flex-col items-end gap-2 sm:flex-row sm:items-center">
+          <div className="order-3 grid basis-full grid-cols-2 gap-3 sm:flex sm:basis-auto sm:items-center sm:gap-2">
             {onOpenNotebook && (
-              <CartoonButton tone="white" onClick={onOpenNotebook} aria-haspopup="dialog">
-                📓 Notebook
+              <CartoonButton tone="white" onClick={onOpenNotebook} aria-haspopup="dialog" className="min-h-12 px-3 text-base">
+                <span aria-hidden>📓</span> Notebook
               </CartoonButton>
             )}
-            <CartoonButton tone="red" onClick={onInvestigate}>
-              🔍 Investigate{cluesFound !== undefined ? ` (${cluesFound} clue${cluesFound === 1 ? "" : "s"})` : ""}
+            <CartoonButton tone="red" onClick={onInvestigate} className="min-h-12 px-3 text-base">
+              <span aria-hidden>🔍</span> Investigate
+              {cluesFound !== undefined && (
+                <span className="ms-1 rounded-full border-2 border-black bg-yellow-300 px-2 py-0.5 text-sm font-black text-black" aria-label={`${cluesFound} clue${cluesFound === 1 ? "" : "s"}`}>
+                  {cluesFound}
+                </span>
+              )}
             </CartoonButton>
           </div>
         ) : (
-          <span className="w-20" />
+          <span className="hidden w-20 sm:block" />
         )}
       </div>
       {onAccuse && (
@@ -72,12 +82,12 @@ export function SuspectSelect({
           tone="red"
           onClick={onAccuse}
           data-accuse-open
-          className="-my-4 font-display text-3xl tracking-widest ring-4 ring-yellow-300"
+          className="min-h-14 w-full max-w-sm font-display text-3xl tracking-widest ring-4 ring-yellow-300 sm:-my-4 sm:w-auto"
         >
           ⚖️ ACCUSE!
         </CartoonButton>
       )}
-      <ul className="grid w-full max-w-6xl grid-cols-2 gap-6 lg:grid-cols-4">
+      <ul className="grid w-full max-w-6xl grid-cols-1 gap-5 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         {suspects.map((s, i) => {
           const emotion = emotions[s.id] ?? s.emotion.emotion;
           return (
@@ -92,18 +102,20 @@ export function SuspectSelect({
                 onClick={() => onSelect(s.id)}
                 data-suspect-id={s.id}
                 whileHover={{ y: -8, rotate: i % 2 ? 1.5 : -1.5 }}
-                whileTap={{ scale: 0.96 }}
-                className="flex w-full cursor-pointer flex-col items-center rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-black shadow-[6px_6px_0_#000]"
+                whileTap={{ scale: 0.97 }}
+                className="flex w-full cursor-pointer flex-row items-center gap-4 rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-start text-black shadow-[6px_6px_0_#000] md:flex-col md:text-center"
               >
-                <div className="flex h-64 w-full items-end justify-center overflow-hidden rounded-2xl border-[3px] border-black bg-gradient-to-b from-sky-200 to-yellow-100">
-                  <Portrait suspect={s} emotion={emotion} className="h-60" decorative />
+                <div className="flex h-40 w-[36%] max-w-44 shrink-0 items-end justify-center overflow-hidden rounded-2xl border-[3px] border-black bg-gradient-to-b from-sky-200 to-yellow-100 md:h-64 md:w-full md:max-w-none">
+                  <Portrait suspect={s} emotion={emotion} className="h-36 md:h-60" decorative />
                 </div>
-                <span className="mt-3 font-display text-3xl tracking-wide">{s.name}</span>
-                <span className="text-sm font-semibold italic text-neutral-700">{s.role}</span>
-                <span className="mt-2">
-                  <EmotionBadge emotion={emotion} />
-                </span>
-                {(stress[s.id] ?? 0) > 0 && <StressMeter value={stress[s.id]} name={s.name} compact className="mt-2 w-full max-w-44" />}
+                <div className="flex min-w-0 flex-1 flex-col items-start gap-1 md:w-full md:flex-none md:items-center">
+                  <span className="text-balance font-display text-[1.7rem] leading-[1.05] tracking-wide md:mt-3 md:text-3xl">{s.name}</span>
+                  <span className="text-base font-semibold italic text-neutral-700">{s.role}</span>
+                  <span className="mt-1.5">
+                    <EmotionBadge emotion={emotion} />
+                  </span>
+                  {(stress[s.id] ?? 0) > 0 && <StressMeter value={stress[s.id]} name={s.name} compact className="mt-2 w-full max-w-56" />}
+                </div>
               </motion.button>
             </motion.li>
           );
