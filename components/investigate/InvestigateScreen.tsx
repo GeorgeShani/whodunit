@@ -32,25 +32,25 @@ export function InvestigateScreen({
 }) {
   return (
     <main
-      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-6 px-4 py-8 ${
+      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-6 sm:px-6 sm:py-8 ${
         backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#3b1d6e_0%,#1b1035_70%)]"
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className="flex w-full max-w-6xl items-center justify-between gap-2 max-xl:pe-12">
-        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="shrink-0">
+      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-xl:pe-12">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 data-autofocus tabIndex={-1} className="font-display text-4xl tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl">
           INVESTIGATE!
         </h1>
-        <span className="hidden w-40 sm:block" />
+        <span className="order-3 hidden w-40 sm:block" />
       </div>
-      <p className="max-w-2xl text-center font-semibold text-yellow-100">
+      <p className="max-w-2xl text-balance text-center text-base font-semibold text-yellow-100">
         Pick a room and search it from top to bottom. Anything you find can be shoved under a suspect&apos;s nose.
       </p>
-      <ul className="grid w-full max-w-6xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid w-full max-w-6xl grid-cols-1 gap-5 min-[600px]:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {locations.map((l, i) => {
           const done = searched.includes(l.id);
           const busy = pendingId === l.id;
@@ -73,7 +73,7 @@ export function InvestigateScreen({
                   </span>
                 )}
                 <span
-                  className={`absolute right-2 top-2 rounded-full border-[3px] border-black px-3 py-0.5 text-xs font-black uppercase shadow-[2px_2px_0_#000] ${
+                  className={`absolute right-2 top-2 rounded-full border-[3px] border-black px-3 py-1 text-sm font-black uppercase shadow-[2px_2px_0_#000] ${
                     done ? "bg-lime-300" : "bg-white"
                   }`}
                 >
@@ -82,15 +82,15 @@ export function InvestigateScreen({
               </div>
               <div className="flex flex-1 flex-col gap-2 p-4">
                 <h2 className="font-display text-2xl tracking-wide">{l.name}</h2>
-                <p className="text-sm text-neutral-700">{l.description}</p>
+                <p className="text-base text-neutral-700">{l.description}</p>
                 {(lines[l.id] ?? []).map((t, k) => (
-                  <p key={k} className="rounded-lg border-2 border-dashed border-black bg-yellow-100 px-3 py-1 text-sm font-semibold italic">
+                  <p key={k} className="rounded-lg border-2 border-dashed border-black bg-yellow-100 px-3 py-1.5 text-base font-semibold italic">
                     {t}
                   </p>
                 ))}
                 <CartoonButton
                   tone={done ? "white" : "red"}
-                  className="mt-auto"
+                  className="mt-auto min-h-12 text-base"
                   disabled={pendingId !== null || otherBusy}
                   onClick={() => onSearch(l.id)}
                   aria-label={`Search ${l.name}`}
