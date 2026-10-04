@@ -58,6 +58,15 @@ const isTestimony = (x: unknown): x is PublicTestimony =>
   isObj(x) && typeof x.id === "string" && typeof x.characterId === "string" && typeof x.characterName === "string" && typeof x.summary === "string";
 
 /** Parse and sanity-check a saved blob; anything malformed is ignored. */
+/**
+ * A question whose reply never arrived (page reloaded mid-reply, #28) is not
+ * kept: the saved state token predates it, so the suspect never heard it either.
+ * Dropping a trailing player line keeps the transcript and the suspect's memory in step.
+ */
+export function withoutUnansweredQuestions(c: Record<string, DialogueMessage[]>): Record<string, DialogueMessage[]> {
+  return Object.fromEntries(Object.entries(c).map(([k, msgs]) => [k, Array.isArray(msgs) && msgs.at(-1)?.speaker === "player" ? msgs.slice(0, -1) : msgs]));
+}
+
 export function parseSavedGame(raw: string | null, caseId: string): SavedGame | null {
   if (!raw) return null;
   let j: unknown;
@@ -76,7 +85,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     screen: j.screen as SavedGame["screen"],
     activeId: typeof j.activeId === "string" ? j.activeId : null,
     ...(typeof j.stateToken === "string" ? { stateToken: j.stateToken } : {}),
-    conversations: j.conversations as SavedGame["conversations"],
+    conversations: withoutUnansweredQuestions(j.conversations as SavedGame["conversations"]),
     emotions: j.emotions as SavedGame["emotions"],
     evidence: j.evidence as PublicEvidence[],
     ...(Array.isArray(j.testimonies) ? { testimonies: (j.testimonies as unknown[]).filter(isTestimony) } : {}),

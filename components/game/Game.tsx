@@ -29,7 +29,7 @@ import type { Accusation } from "@/engine/types";
 import type { StressReading } from "@/engine/stress";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
-import { clearGame, loadGame, saveGame, SESSION_VERSION } from "@/lib/game-session";
+import { clearGame, loadGame, saveGame, SESSION_VERSION, withoutUnansweredQuestions } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
 
@@ -265,7 +265,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       screen,
       activeId,
       ...(stateToken.current ? { stateToken: stateToken.current } : {}),
-      conversations,
+      conversations: withoutUnansweredQuestions(conversations),
       emotions,
       evidence,
       testimonies,
@@ -459,10 +459,25 @@ export function Game({ view }: { view: PublicCaseView }) {
     [screen, activeId, go, askAs, evidence, testimonies, onConfrontAsk],
   );
 
+  /** Room whose Search button gets focus back when the last clue sting closes (#25). */
+  const searchedFrom = useRef<string | null>(null);
+  const stingWasOpen = useRef(false);
+  useEffect(() => {
+    if (stingQueue.length > 0) {
+      stingWasOpen.current = true;
+      return;
+    }
+    if (!stingWasOpen.current) return;
+    stingWasOpen.current = false;
+    const t = setTimeout(() => document.querySelector<HTMLElement>(`button[data-location-id="${searchedFrom.current}"]:not(:disabled)`)?.focus({ preventScroll: true }), 0);
+    return () => clearTimeout(t);
+  }, [stingQueue.length]);
+
   const onSearch = useCallback(
     async (locationId: string) => {
       if (inFlight.current) return;
       inFlight.current = true;
+      searchedFrom.current = locationId;
       setSearchingId(locationId);
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
       if (r.stateToken) stateToken.current = r.stateToken;

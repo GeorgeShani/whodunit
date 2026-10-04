@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { getAudio } from "@/components/effects/audio";
 import { CartoonButton } from "@/components/game/CartoonButton";
+import { useModal } from "@/components/ui/use-modal";
 import { effectSrc, overlayVariants } from "@/docs/toonMotion";
 import type { FoundEvidence } from "@/engine/investigate-schema";
 
@@ -21,9 +22,18 @@ export function DiscoverySting({ clue, remaining, onDone }: { clue: FoundEvidenc
 
   return (
     <AnimatePresence>
-      {clue && (
+      {clue && <StingDialog key={clue.id} clue={clue} remaining={remaining} onDone={onDone} />}
+    </AnimatePresence>
+  );
+}
+
+/** One clue card. Modal like the notebook: focus trapped, Escape dismisses it (#25); the owner puts focus back when the queue empties. */
+function StingDialog({ clue, remaining, onDone }: { clue: FoundEvidence; remaining: number; onDone: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useModal(ref, { onClose: onDone, restoreFocus: false });
+  return (
         <motion.div
-          key={clue.id}
+          ref={ref}
           role="dialog"
           aria-modal="true"
           aria-label={`Clue found: ${clue.name}`}
@@ -61,7 +71,5 @@ export function DiscoverySting({ clue, remaining, onDone }: { clue: FoundEvidenc
             </CartoonButton>
           </motion.div>
         </motion.div>
-      )}
-    </AnimatePresence>
   );
 }
