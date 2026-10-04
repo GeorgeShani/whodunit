@@ -8,6 +8,7 @@ import { usePreloadPoses } from "@/components/characters/Portrait";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AskInput } from "@/components/game/Game";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
+import { RetryBar } from "./RetryBar";
 import { StressMeter } from "@/components/stress/StressMeter";
 import type { PublicEvidence, PublicSuspect, StageArt } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -33,6 +34,7 @@ export function InterrogationScreen({
   onOpenNotebook,
   onConfront,
   onBack,
+  onRetry,
 }: {
   suspect: PublicSuspect;
   emotion: Emotion;
@@ -56,6 +58,8 @@ export function InterrogationScreen({
   /** Put this suspect face to face with another (MASTER_PLAN §32). */
   onConfront?: (otherId: string) => void;
   onBack: () => void;
+  /** The model could not answer the last question (nothing was spent): ask it again. */
+  onRetry?: () => void;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
   const [text, setText] = useState("");
@@ -169,6 +173,8 @@ export function InterrogationScreen({
               ⏳ {busyWith}. Your question will keep.
             </p>
           )}
+
+          {onRetry && !pending && <RetryBar onRetry={onRetry} disabled={locked} />}
 
           <form
             className="flex flex-col gap-1"

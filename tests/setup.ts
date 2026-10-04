@@ -3,12 +3,14 @@
  * shell) is removed, and any fetch that a test has not mocked fails loudly.
  */
 import { afterEach, beforeEach, vi } from "vitest";
+import { resetGrokBreaker } from "@/ai/grok";
 
 delete process.env.XAI_API_KEY;
 delete process.env.GAME_STATE_SECRET;
 delete process.env.XAI_MODEL;
 
 beforeEach(() => {
+  resetGrokBreaker();
   vi.stubGlobal(
     "fetch",
     vi.fn(async () => {

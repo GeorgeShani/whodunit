@@ -45,12 +45,13 @@ describe("POST /api/interrogate (route wrapper)", () => {
     return { status: res.status, json: (await res.json()) as Record<string, unknown> };
   };
 
-  it("with no XAI_API_KEY returns the in-character fallback, a state token, and no network call", async () => {
+  it("with no XAI_API_KEY answers 'unavailable' in character, with a state token and no network call", async () => {
     const { fn } = mockGrok({});
     const { status, json } = await call(ask);
-    expect(status).toBe(200);
-    expect(json.source).toBe("fallback");
+    expect(status).toBe(503);
+    expect(json.source).toBe("unavailable");
     expect(json.error).toBe("missing_key");
+    expect((json.unavailable as { line: string }).line).toMatch(/\w/);
     expect(typeof json.stateToken).toBe("string");
     expect(CharacterResponseSchema.safeParse(json.response).success).toBe(true);
     expect(fn).not.toHaveBeenCalled();
@@ -92,36 +93,36 @@ describe("handleInterrogate", () => {
     expect(user).toContain(`${PLAYER_OPEN}And after that?${PLAYER_CLOSE}`);
   });
 
-  it("malformed model output is rejected (after one retry) and yields the fallback; no deltas applied", async () => {
+  it("malformed model output is rejected (after one retry) and the turn is not spent", async () => {
     const { calls } = mockGrok({ content: "{ this is not json" });
     const r = await run(ask);
     expect(calls).toHaveLength(2);
-    expect(r.body).toMatchObject({ source: "fallback", error: "schema_invalid" });
+    expect(r.body).toMatchObject({ source: "unavailable", error: "schema_invalid" });
     expect(CharacterResponseSchema.safeParse(r.body.response).success).toBe(true);
     expect(stateOf(r.body.stateToken).characters.reginald).toMatchObject({ stress: 0, trust: 50 });
   });
 
-  it("schema-invalid output (decision fields) is rejected and yields the fallback", async () => {
+  it("schema-invalid output (decision fields) is rejected and nothing is revealed", async () => {
     mockGrok({ content: goodReply({ murdererId: "victoria", revealSecretIds: ["s-reginald-theft"] }) });
     const r = await run(ask);
-    expect(r.body.source).toBe("fallback");
+    expect(r.body.source).toBe("unavailable");
     expect(stateOf(r.body.stateToken).characters.reginald.revealedSecretIds).toEqual([]);
   });
 
-  it("timeout yields the fallback", async () => {
+  it("timeout is reported as unavailable (busy), nothing spent", async () => {
     mockHangingGrok();
     const { vi } = await import("vitest");
     vi.useFakeTimers();
     const p = run(ask);
     await vi.advanceTimersByTimeAsync(12_500);
     const r = await p;
-    expect(r.body).toMatchObject({ source: "fallback", error: "timeout" });
+    expect(r.body).toMatchObject({ source: "unavailable", error: "timeout", unavailable: { kind: "busy" } });
   });
 
-  it("HTTP errors yield the fallback", async () => {
+  it("a plain 429 is a rate limit (busy), not a quota failure", async () => {
     mockGrok({ status: 429, content: "rate limited" });
     const r = await run(ask);
-    expect(r.body).toMatchObject({ source: "fallback", error: "http_error" });
+    expect(r.body).toMatchObject({ source: "unavailable", error: "rate_limited", unavailable: { kind: "busy" } });
   });
 
   it("clamps the model's suggested deltas", async () => {

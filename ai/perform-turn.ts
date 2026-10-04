@@ -16,7 +16,8 @@ import { fixArticles } from "./text-fixes";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { checkOrder } from "./order-check";
 import { addressesWrongPerson, repeatsEarlier, variedConfrontationFallback } from "./confront-check";
-import { callGrok, type GrokResult } from "./grok";
+import { callGrok, isModelDown, isQuotaFailure, type GrokFailure, type GrokResult } from "./grok";
+import type { ModelDownKind } from "./model-down";
 import type { Contradiction } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type ConfrontDirective, type TurnDirectives } from "./prompts/interrogation";
 import type { CharacterResponse } from "./schemas";
@@ -50,7 +51,17 @@ export interface TurnOutput {
   contradiction?: Contradiction;
 }
 
-export async function performTurn(t: TurnInput): Promise<TurnOutput> {
+/** The model could not answer. Nothing was committed: the caller must return the state it was given. */
+export interface TurnUnavailable {
+  unavailable: true;
+  kind: ModelDownKind;
+  reason: GrokFailure;
+  grok: GrokResult;
+}
+
+export const isTurnUnavailable = (o: TurnOutput | TurnUnavailable): o is TurnUnavailable => "unavailable" in o;
+
+export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavailable> {
   const { caseData, game, characterId, question, move = {}, env } = t;
   const { presentedEvidenceId, presentedTestimonyId } = move;
   const plan = planTurn(caseData, game, characterId, { ...move, playerText: question, addressed: t.confrontation?.role !== "reacting" });
@@ -110,7 +121,13 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
     source = "model";
     // The model may only react to the clue shown THIS turn.
     response = { ...grok.response, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
+  } else if (isModelDown(grok.reason) && !(plan.newlyExposedLieIds.length > 0 && (presentedEvidenceId || presentedTestimonyId))) {
+    // Model out of reach: no improvised line, nothing committed (stress, trust, turn count, reveals all stay as they were).
+    console.warn(`[turn] unavailable reason=${grok.reason}${grok.status ? ` status=${grok.status}` : ""}${grok.skipped ? " (breaker)" : ""} model=${grok.model} attempts=${grok.attempts} ms=${grok.latencyMs}`);
+    return { unavailable: true, kind: isQuotaFailure(grok.reason) ? "quiet" : "busy", reason: grok.reason, grok };
   } else {
+    // Either the model answered but broke the canon rules twice (the engine's own wording stands in), or the player held up
+    // a clue/testimony that the ENGINE has just proved a lie: that contradiction beat does not need the model, so it is shown.
     source = "fallback";
     response = cannedCharacterResponse(ctx, question, presentedEvidenceId, game.turn);
     if (t.confrontation && !presentedEvidenceId) {

@@ -9,6 +9,7 @@ import { z } from "zod";
 import { CaseIdSchema, IdSchema } from "@/engine/types";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { CharacterResponse } from "./schemas";
+import type { Unavailable } from "./model-down";
 
 export const MAX_QUESTION_CHARS = 500;
 
@@ -43,8 +44,13 @@ export interface Contradiction {
 
 export interface InterrogateResponseBody {
   response: CharacterResponse;
-  /** Who performed this line: the live model, or the in-character fallback. */
-  source: "model" | "fallback";
+  /** Who performed this line: the live model, the in-character fallback, or nobody ("unavailable": the model could not answer, nothing was spent). */
+  source: "model" | "fallback" | "unavailable";
+  /**
+   * Set when the model could not answer: show `line` as narration and offer a retry. The question is NOT lost and NO state
+   * changed: `stateToken` is the one the request carried, and `response` is an inert placeholder to ignore.
+   */
+  unavailable?: Unavailable;
   /** New signed state to send with the next request (absent only if the request itself was unusable). */
   stateToken?: string;
   /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */

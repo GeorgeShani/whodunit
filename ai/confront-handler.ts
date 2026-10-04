@@ -19,7 +19,8 @@ import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { ConfrontRequestSchema, type ConfrontLine, type ConfrontResponseBody } from "./confront-schema";
-import { performTurn } from "./perform-turn";
+import { isTurnUnavailable, performTurn } from "./perform-turn";
+import { confrontDownLine } from "./model-down";
 import { buildUserMessage } from "./prompts/interrogation";
 
 type Env = Record<string, string | undefined>;
@@ -72,6 +73,8 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
           ? "testimony_not_revealed"
           : null;
   if (presentError) return { status: 400, body: base({ lines: [], line: CONFRONT_LINES[presentError], error: presentError, stateToken: saveSession(game, env) }) };
+  // The state to hand back if the model cannot answer: exactly what the client sent (taken before anything below touches `game`).
+  const heldToken = notice ? saveSession(game, env) : (stateToken ?? saveSession(game, env));
   const gate = openConfrontation(game, aId, bId);
   if (!gate.ok) return { status: gate.reason === "same_character" ? 400 : 409, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
 
@@ -81,6 +84,12 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
   const thrown = testimonyToThrow(caseData, game, aId, bId);
   const thrownCard = thrown ? publicTestimonies(caseData, game).find((t) => t.id === thrown) : undefined;
   const onPrompt = (id: string) => (deps.onPrompt ? (p: { system: string; user: string }) => deps.onPrompt!({ ...p, characterId: id }) : undefined);
+
+  // Face-to-face pressure was applied to the in-memory game above; if the model cannot answer it is all thrown away.
+  const down = (kind: "busy" | "quiet", reason: string): { status: number; body: ConfrontResponseBody } => ({
+    status: 503,
+    body: base({ lines: [], line: confrontDownLine(kind, a.name, b.name), unavailable: { kind, line: confrontDownLine(kind, a.name, b.name) }, error: reason, stateToken: heldToken }),
+  });
 
   // 1. A answers the detective, in front of B.
   const first = await performTurn({
@@ -94,6 +103,8 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
     env,
     ...(onPrompt(aId) ? { onPrompt: onPrompt(aId) } : {}),
   });
+
+  if (isTurnUnavailable(first)) return down(first.kind, first.reason);
 
   // 2. B reacts to A. If A threw an admission, the engine counts it as presented to B.
   const aLine = first.response.dialogue;
@@ -112,6 +123,8 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
     env,
     ...(onPrompt(bId) ? { onPrompt: onPrompt(bId) } : {}),
   });
+
+  if (isTurnUnavailable(second)) return down(second.kind, second.reason);
 
   const spent = spendExchange(game);
   const line = (id: string, name: string, t: typeof first): ConfrontLine => ({

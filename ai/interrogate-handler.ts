@@ -15,7 +15,8 @@ import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
-import { performTurn } from "./perform-turn";
+import { isTurnUnavailable, performTurn } from "./perform-turn";
+import { unavailable } from "./model-down";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { createFallbackCharacterResponse } from "./schemas";
 
@@ -104,7 +105,8 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
   }
 
   // 3-5. Engine effects + reveal decision, prompt, model (or fallback), engine commit (ai/perform-turn.ts).
-  const { response, source, grok, revealed, stress, contradiction } = await performTurn({
+  const heldToken = notice ? unchangedToken() : (stateToken ?? unchangedToken());
+  const turn = await performTurn({
     caseData,
     game,
     characterId,
@@ -114,6 +116,24 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
     ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
   });
 
+  if (isTurnUnavailable(turn)) {
+    // The model is out of reach: say so in character, spend nothing, hand back the state the client already holds.
+    const name = caseData.characters.find((c) => c.id === characterId)?.name ?? "They";
+    const { response: _r, ...down } = turn.grok as GrokResult & { response?: unknown };
+    void _r;
+    return {
+      status: 503,
+      body: withNotice({
+        response: createFallbackCharacterResponse({ seed: game.turn }),
+        source: "unavailable",
+        unavailable: unavailable(turn.kind, name, game.turn),
+        stateToken: heldToken,
+        error: turn.reason,
+      }),
+      diag: { grok: down as Omit<GrokResult, "response">, reason: "model_unavailable" },
+    };
+  }
+  const { response, source, grok, revealed, stress, contradiction } = turn;
   const { response: _drop, ...grokDiag } = grok as GrokResult & { response?: unknown };
   void _drop;
   return {

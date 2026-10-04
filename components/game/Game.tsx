@@ -15,6 +15,7 @@ import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
+import { confrontDownLine, stillDownLine, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
 import { getAudio } from "@/components/effects/audio";
 import { bedForScreen, bedFadeMs, heartbeatFor } from "@/components/effects/audio-scenes";
 import { replySfx } from "@/components/effects/emotion-map";
@@ -40,7 +41,23 @@ import { TitleScreen } from "./TitleScreen";
 
 type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate" | "accuse" | "ending" | "confront";
 
+/** Longer than the server's own model timeout (12 s, one retry) so the server's answer wins when there is one. */
+const REQUEST_TIMEOUT_MS = 40_000;
+
+/** fetch with a hard client-side timeout; a hung request becomes an AbortError the callers treat as "busy". */
+async function timedFetch(url: string, init: RequestInit): Promise<Response> {
+  const c = new AbortController();
+  const t = setTimeout(() => c.abort(), REQUEST_TIMEOUT_MS);
+  try {
+    return await fetch(url, { ...init, signal: c.signal });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
 interface InterrogateResult {
+  /** The model could not answer: show this narration + a retry; nothing was spent and `response` is a placeholder. */
+  unavailable?: Unavailable;
   response: CharacterResponse;
   stress?: StressReading;
   contradiction?: Contradiction;
@@ -51,17 +68,31 @@ interface InterrogateResult {
 }
 
 /** Talk to the server. Any network/shape failure degrades to the in-character fallback. */
-async function interrogate(req: InterrogateRequest, seed: number): Promise<InterrogateResult> {
+async function interrogate(req: InterrogateRequest, seed: number, name: string): Promise<InterrogateResult> {
+  const busy = (): InterrogateResult => ({ response: createFallbackCharacterResponse({ seed }), unavailable: unavailableLine("busy", name, seed) });
   try {
-    const res = await fetch("/api/interrogate", {
+    const res = await timedFetch("/api/interrogate", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req),
     });
-    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown };
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown };
+    if (json?.unavailable && typeof json.unavailable.line === "string") {
+      // Model out of reach: nothing was spent. Keep the token the server handed back (it is the one we sent).
+      return {
+        response: createFallbackCharacterResponse({ seed }),
+        unavailable: { kind: json.unavailable.kind === "quiet" ? "quiet" : "busy", line: json.unavailable.line },
+        ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
+        ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
+        ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
+      };
+    }
+    // A 5xx/gateway page without our JSON shape, or a reply with no usable response: the same "a moment" as a hang.
+    if (res.status >= 500 && !json?.response) return busy();
     const parsed = CharacterResponseSchema.safeParse(json?.response);
+    if (!parsed.success) return busy();
     return {
-      response: parsed.success ? parsed.data : createFallbackCharacterResponse({ seed }),
+      response: parsed.data,
       ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
       ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
       ...(Array.isArray(json?.testimonies) ? { testimonies: json.testimonies as PublicTestimony[] } : {}),
@@ -70,12 +101,8 @@ async function interrogate(req: InterrogateRequest, seed: number): Promise<Inter
       ...(json?.stress && typeof json.stress.value === "number" && typeof json.stress.band === "string" ? { stress: json.stress } : {}),
     };
   } catch {
-    return {
-      response: {
-        ...createFallbackCharacterResponse({ seed }),
-        dialogue: "The storm has knocked the telephone lines about, detective. I didn't catch that. Ask me again?",
-      },
-    };
+    // Offline, aborted (timeout) or a non-JSON body (e.g. a gateway page): nothing reached the engine, so nothing was spent.
+    return busy();
   }
 }
 
@@ -100,13 +127,19 @@ async function accuse(req: AccuseRequest): Promise<AccuseResponseBody> {
 }
 
 /** POST /api/confront. Failures come back as an in-character line. */
-async function confront(req: ConfrontRequest): Promise<ConfrontResponseBody> {
+async function confront(req: ConfrontRequest, names: [string, string]): Promise<ConfrontResponseBody> {
+  const busy = (): ConfrontResponseBody => {
+    const line = confrontDownLine("busy", names[0], names[1]);
+    return { lines: [], line, unavailable: { kind: "busy", line } };
+  };
   try {
-    const res = await fetch("/api/confront", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
+    const res = await timedFetch("/api/confront", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
     const j = (await res.json()) as ConfrontResponseBody;
-    return { ...j, lines: Array.isArray(j.lines) ? j.lines.filter((l) => CharacterResponseSchema.safeParse(l.response).success) : [] };
+    const lines = Array.isArray(j.lines) ? j.lines.filter((l) => CharacterResponseSchema.safeParse(l.response).success) : [];
+    if (res.status >= 500 && !j.unavailable && !lines.length) return busy();
+    return { ...j, lines };
   } catch {
-    return { lines: [], line: "A thunderclap drowns everyone out. Try that again, detective." };
+    return busy();
   }
 }
 
@@ -163,6 +196,11 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [pendingId, setPendingId] = useState<string | null>(null);
   /** The detective's notebook: evidence discovered so far (server-confirmed). Present evidence offers only these. */
   const [evidence, setEvidence] = useState<PublicEvidence[]>(view.evidence);
+  /** The last question the model could not answer, to ask again (cleared by any new ask). */
+  const [retry, setRetry] = useState<{ logKey: string; run: () => void } | null>(null);
+  /** Latest ask handlers, so a stored retry always runs the current closure. */
+  const askAsRef = useRef<(characterId: string, input: AskInput, isRetry?: boolean) => boolean>(() => false);
+  const onConfrontAskRef = useRef<(addressedId: string, question: string, item?: NotebookItem, isRetry?: boolean) => boolean>(() => false);
   /** Testimony cards: what suspects have admitted (server-confirmed). Presentable like evidence. */
   const [testimonies, setTestimonies] = useState<PublicTestimony[]>([]);
   /** Progression (leads, locked rooms, accuse gate): server-reported with every route response; display only. */
@@ -337,15 +375,17 @@ export function Game({ view }: { view: PublicCaseView }) {
   }, []);
 
   const askAs = useCallback(
-    (characterId: string, { question, presentedEvidenceId, presentedTestimonyId }: AskInput): boolean => {
+    (characterId: string, { question, presentedEvidenceId, presentedTestimonyId }: AskInput, isRetry = false): boolean => {
       if (!view.suspects.some((s) => s.id === characterId) || inFlight.current) return false;
       inFlight.current = true;
       // The reply is bound to THIS suspect, whichever screen the player is on when it lands (#8).
       const turn = (conversations[characterId] ?? []).length;
-      push(characterId, { speaker: "player", text: question });
+      setRetry(null);
+      // A retry re-sends the question that is already in the log; it is not written there twice.
+      if (!isRetry) push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, notice, testimonies: cards, contradiction, stress: reading, progress: prog } = await interrogate(
+        const { response, stateToken: next, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down } = await interrogate(
           {
             characterId,
             question,
@@ -355,8 +395,24 @@ export function Game({ view }: { view: PublicCaseView }) {
             ...(stateToken.current ? { stateToken: stateToken.current } : {}),
           },
           turn,
+          view.suspects.find((s) => s.id === characterId)?.name ?? "They",
         );
         if (next) stateToken.current = next;
+        if (down) {
+          // The model could not answer (out of reach, slow, or an unusable reply). Nothing was spent: no stress, trust, turn or
+          // progress change, no sound or pose change. The question stays in the log and can be asked again.
+          if (notice) {
+            resetProgress();
+            setStress({});
+            push(characterId, { speaker: "narrator", text: notice });
+          }
+          applyProgress(prog);
+          push(characterId, { speaker: "narrator", text: isRetry ? stillDownLine(down.kind) : down.line });
+          setRetry({ logKey: characterId, run: () => askAsRef.current(characterId, { question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) }, true) });
+          inFlight.current = false;
+          setPendingId(null);
+          return;
+        }
         if (cards) setTestimonies(cards);
         if (notice) {
           resetProgress();
@@ -405,14 +461,15 @@ export function Game({ view }: { view: PublicCaseView }) {
 
   /** One confrontation exchange: the detective questions `addressedId` in front of the other; both reply (server decides everything). */
   const onConfrontAsk = useCallback(
-    (addressedId: string, question: string, item?: NotebookItem): boolean => {
+    (addressedId: string, question: string, item?: NotebookItem, isRetry = false): boolean => {
       if (!confrontPair || inFlight.current) return false;
       const partnerId = confrontPair[0] === addressedId ? confrontPair[1] : confrontPair[0];
       const key = pairKey(addressedId, partnerId);
       const logKey = `vs:${key}`;
       const addressedName = view.suspects.find((s) => s.id === addressedId)?.name ?? addressedId;
       inFlight.current = true;
-      push(logKey, { speaker: "player", text: `(to ${addressedName.split(" ")[0]}) ${question}` });
+      setRetry(null);
+      if (!isRetry) push(logKey, { speaker: "player", text: `(to ${addressedName.split(" ")[0]}) ${question}` });
       setPendingId(addressedId);
       void (async () => {
         const r = await confront({
@@ -421,8 +478,21 @@ export function Game({ view }: { view: PublicCaseView }) {
           question,
           ...(item ? (item.kind === "evidence" ? { presentedEvidenceId: item.id } : { presentedTestimonyId: item.id }) : {}),
           ...(stateToken.current ? { stateToken: stateToken.current } : {}),
-        });
+        }, [addressedName, view.suspects.find((s) => s.id === partnerId)?.name ?? partnerId]);
         if (r.stateToken) stateToken.current = r.stateToken;
+        if (r.unavailable) {
+          // Nothing was spent (no exchange, no stress). The question is still in the log; offer to put it again.
+          if (r.notice) {
+            resetProgress();
+            push(logKey, { speaker: "narrator", text: r.notice });
+          }
+          applyProgress(r.progress);
+          push(logKey, { speaker: "narrator", text: isRetry ? stillDownLine(r.unavailable.kind) : r.unavailable.line });
+          setRetry({ logKey, run: () => onConfrontAskRef.current(addressedId, question, item, true) });
+          inFlight.current = false;
+          setPendingId(null);
+          return;
+        }
         if (r.notice) {
           resetProgress();
           push(logKey, { speaker: "narrator", text: r.notice });
@@ -477,6 +547,11 @@ export function Game({ view }: { view: PublicCaseView }) {
     [caseId, confrontPair, push, resetProgress, applyProgress, view.suspects],
   );
 
+
+  useEffect(() => {
+    askAsRef.current = askAs;
+    onConfrontAskRef.current = onConfrontAsk;
+  }, [askAs, onConfrontAsk]);
   const onAsk = useCallback((input: AskInput) => (active ? askAs(active.id, input) : false), [active, askAs]);
 
   /** "Present to <name>" from the notebook: opens that suspect's interrogation and holds the item up. */
@@ -688,6 +763,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             speaking={speakingId === active.id}
             stress={stress[active.id] ?? 0}
             onAsk={onAsk}
+            {...(retry && retry.logKey === active.id ? { onRetry: retry.run } : {})}
             onOpenNotebook={openNotebook}
             onConfront={(otherId) => {
               setConfrontPair([active.id, otherId]);
@@ -716,6 +792,7 @@ export function Game({ view }: { view: PublicCaseView }) {
               max={MAX_CONFRONTATION_TURNS}
               over={st.over}
               onAsk={onConfrontAsk}
+              {...(retry && retry.logKey === `vs:${key}` ? { onRetry: retry.run } : {})}
               target={confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0]}
               onTarget={setConfrontTarget}
               onOpenNotebook={openNotebook}

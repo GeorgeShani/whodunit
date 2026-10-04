@@ -7,6 +7,7 @@ import { CaseIdSchema, IdSchema } from "@/engine/types";
 import { MAX_QUESTION_CHARS } from "./interrogate-schema";
 import type { Contradiction } from "./interrogate-schema";
 import type { CharacterResponse } from "./schemas";
+import type { Unavailable } from "./model-down";
 
 export const ConfrontRequestSchema = z.strictObject({
   caseId: CaseIdSchema.optional(),
@@ -37,6 +38,8 @@ export interface ConfrontResponseBody {
   /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */
   progress?: PublicProgress;
   testimonies?: PublicTestimony[];
+  /** The model could not answer: nothing was spent (no exchange, no stress); `line` is the narration, the token is unchanged. */
+  unavailable?: Unavailable;
   /** In-character line for a rejection (pair finished, case closed...). */
   line?: string;
   notice?: string;

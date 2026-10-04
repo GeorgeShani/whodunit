@@ -5,6 +5,7 @@ import { DialogueLog, type DialogueMessage } from "@/components/dialogue/Dialogu
 import { ThinkingIndicator } from "@/components/dialogue/ThinkingIndicator";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
+import { RetryBar } from "@/components/dialogue/RetryBar";
 import { StressMeter } from "@/components/stress/StressMeter";
 import { MAX_QUESTION_CHARS } from "@/ai/interrogate-schema";
 import type { PublicSuspect, StageArt } from "@/engine/public-view";
@@ -31,6 +32,7 @@ export function ConfrontScreen({
   onTarget,
   onOpenNotebook,
   onBack,
+  onRetry,
 }: {
   pair: [PublicSuspect, PublicSuspect];
   emotions: Record<string, Emotion>;
@@ -50,6 +52,8 @@ export function ConfrontScreen({
   /** Open the notebook to hold up a clue or testimony to `target` (counts as the exchange). */
   onOpenNotebook?: () => void;
   onBack: () => void;
+  /** The model could not answer the last exchange (nothing was spent): put it again. */
+  onRetry?: () => void;
 }) {
   const [a, b] = pair;
   const setTarget = onTarget;
@@ -113,6 +117,7 @@ export function ConfrontScreen({
                   </CartoonButton>
                 ))}
               </div>
+              {onRetry && !pending && <RetryBar onRetry={onRetry} disabled={over} />}
               <form
                 className="flex gap-2"
                 onSubmit={(e) => {

@@ -62,10 +62,10 @@ describe("liesTold (MASTER_PLAN §20)", () => {
     expect(system).toMatch(/MAINTAIN THIS STORY \(the solicitor's letter\): "[^"]+"\n/); // never told: no marker
   });
 
-  it("a fallback turn records nothing (the model's performance, not a guess, is required)", async () => {
+  it("a failed model turn records nothing (the model's performance, not a guess, is required)", async () => {
     mockGrok({ status: 500 }, { status: 500 });
     const r = await ask("victoria", "Where were you during the blackout?");
-    expect(r.body.source).toBe("fallback");
+    expect(r.body.source).toBe("unavailable");
     expect(decode(r.body.stateToken).characters.victoria.liesToldIds).toEqual([]);
   });
 
