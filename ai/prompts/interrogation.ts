@@ -9,7 +9,7 @@
  */
 import type { CharacterContext } from "@/engine/context-builder";
 import { BAND_BEHAVIOUR, STRESS_BANDS } from "@/engine/stress";
-import { scrubStalePartners } from "../confront-check";
+import { avoidPhrasingsBlock, scrubStalePartners } from "../confront-check";
 import { ORDER_RULE, orderLines } from "../order-check";
 import { EmotionSchema } from "@/engine/types";
 
@@ -259,7 +259,9 @@ export function buildUserMessage(ctx: CharacterContext, question: string, opts: 
       ? `DETECTIVE: ${PLAYER_OPEN}${sanitizePlayerText(m.text)}${PLAYER_CLOSE}`
       : `${ctx.persona.name.toUpperCase()} (you): ${m.text}`,
   );
+  const avoid = opts.partnerName ? avoidPhrasingsBlock({ ...ctx, memory }) : "";
   return [
+    ...(avoid ? [avoid] : []),
     history.length ? "CONVERSATION SO FAR:" : "This is the start of your conversation with the detective.",
     ...history,
     "",

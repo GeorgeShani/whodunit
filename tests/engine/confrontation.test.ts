@@ -109,6 +109,21 @@ describe("confrontation rules (MASTER_PLAN §32-33)", () => {
   });
 });
 
+const DISTINCT_LINES = [
+  "The brandy was already low when I came in, and that is all I know.",
+  "Ask the butler about the cellar door; he keeps the keys.",
+  "Rain on the glass, sir, and a draught under the stairs.",
+  "My cousin sulks whenever the will is mentioned, ask anyone.",
+  "Nobody thanked me for staying up past midnight, I might add.",
+  "A grandfather clock chimed somewhere, though which one I cannot say.",
+  "There was talk of a quarrel in the library earlier this week.",
+  "Pass me the water, please; this room is stifling.",
+  "Whoever tidied the hearth did a very poor job of it.",
+  "I distinctly remember a cold wind from the garden door.",
+  "Quite a few guests left their gloves lying about tonight.",
+  "Enough, enough; my head is pounding like a drum.",
+];
+
 describe("POST /api/confront", () => {
   it("one exchange = exactly two model calls (A answers, B reacts), both under pressure", async () => {
     const { calls } = mockGrok(
@@ -130,7 +145,7 @@ describe("POST /api/confront", () => {
 
   it("stops after 6 exchanges: the 7th is refused in character with no model call", async () => {
     // Distinct lines each time: a repeated sentence in a confrontation is rejected (#27).
-    const { calls } = mockGrok(...Array.from({ length: 12 }, (_, i) => ({ content: goodReply({ dialogue: `Remark number ${i + 1} about the evening, sir, and nothing more.` }) })));
+    const { calls } = mockGrok(...Array.from({ length: 12 }, (_, i) => ({ content: goodReply({ dialogue: DISTINCT_LINES[i]! }) })));
     let t: string | undefined;
     let last;
     for (let i = 0; i < 6; i++) {

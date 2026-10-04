@@ -1,6 +1,6 @@
 /** Regression tests for QA issue #27 (confrontation hygiene, per-pair jabs/defensiveOn) on the real Blackwood case. */
 import { beforeAll, describe, expect, it } from "vitest";
-import { addressesWrongPerson, repeatsEarlier, scrubStalePartners } from "@/ai/confront-check";
+import { addressesWrongPerson, avoidPhrasingsBlock, nearDuplicate, repeatsEarlier, scrubStalePartners, variedConfrontationFallback } from "@/ai/confront-check";
 import { buildSystemPrompt, buildUserMessage } from "@/ai/prompts/interrogation";
 import { loadCase } from "@/engine/case-loader";
 import { checkCaseReferences } from "@/engine/case-validation";
@@ -90,7 +90,8 @@ describe("stale partner names (#27)", () => {
 describe("checks (#27)", () => {
   it("rejects a sentence already said face to face, accepts a new one", () => {
     const ctx = victoriaAfterGregory();
-    expect(repeatsEarlier("You were in the garden all night long! And you know it.", ctx)).toBeNull(); // different words
+    expect(repeatsEarlier("I never trusted you anywhere near the decanters. And you know it.", ctx)).toBeNull(); // new words
+    expect(repeatsEarlier("You were in the garden all night long! And you know it.", ctx)).toBeTruthy(); // a clipped copy is still a repeat
     expect(repeatsEarlier("Gregory, you filthy liar, you were in the garden all night long!", ctx)).toBeTruthy();
     expect(repeatsEarlier("In the dining room with my husband, as I said.", ctx)).toBeNull(); // one-on-one story, may be repeated
   });
@@ -101,5 +102,64 @@ describe("checks (#27)", () => {
     expect(addressesWrongPerson("I saw Gregory in the garden.", ctx, "Archibald Crane")).toBeNull();
     expect(addressesWrongPerson("Gregory, how dare you!", ctx, "Gregory")).toBeNull();
     expect(addressesWrongPerson("Archibald, darling, say something.", ctx, "Archibald Crane")).toBeNull();
+  });
+});
+
+// The exact line Gremlin's round 3 saw repeated almost word for word in 2 of 3 exchanges (#27 leftover).
+const FIRE = "I was right here with Victoria by the dining-room fire, sir, the whole time the lights were out.";
+const FIRE_AGAIN = "I was right here with Victoria by the dining-room fire, the entire time the lights were out, sir.";
+
+function archibaldAfterVictoria(lines: string[]) {
+  const game = createInitialGameState(c);
+  const rt = game.characters.archibald;
+  lines.forEach((text, i) => {
+    rt.memory.push({ turn: i + 1, speaker: "player", text: "(Face to face with Victoria Blackwood) What were you doing?" }, { turn: i + 1, speaker: "character", text });
+  });
+  game.turn = lines.length + 1;
+  return buildCharacterContext({ caseData: c, game }, "archibald");
+}
+
+describe("near-duplicate repeats (#27 leftover)", () => {
+  it("treats the reworded dining-room-fire line as a repeat", () => {
+    expect(nearDuplicate(FIRE.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim(), FIRE_AGAIN.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").replace(/\s+/g, " ").trim())).toBe(true);
+    const ctx = archibaldAfterVictoria([FIRE]);
+    expect(repeatsEarlier(FIRE, ctx)).toBeTruthy(); // verbatim
+    expect(repeatsEarlier(FIRE_AGAIN, ctx)).toBeTruthy(); // almost word for word
+    expect(repeatsEarlier(`${FIRE_AGAIN} Ask her yourself.`, ctx)).toBeTruthy();
+  });
+  it("accepts a genuinely different reply about the same facts", () => {
+    const ctx = archibaldAfterVictoria([FIRE]);
+    expect(repeatsEarlier("Ask Victoria about the candles, not me. She was the one who snuffed them, if anyone did.", ctx)).toBeNull();
+    expect(repeatsEarlier("Pah! You would take the word of a man who cannot remember his own whisky.", ctx)).toBeNull();
+  });
+  it("catches the same sentence twice inside one reply", () => {
+    expect(repeatsEarlier(`${FIRE} Truly. ${FIRE_AGAIN}`, archibaldAfterVictoria([]))).toBeTruthy();
+  });
+  it("puts DO NOT REUSE with the suspect's own earlier lines into the confrontation prompt only", () => {
+    const ctx = archibaldAfterVictoria([FIRE, "Pah! A man may sit by a fire without being cross-examined."]);
+    const block = avoidPhrasingsBlock(ctx);
+    expect(block).toContain("DO NOT REUSE");
+    expect(block).toContain(FIRE);
+    expect(buildUserMessage(ctx, "Well?", { partnerName: "Victoria Blackwood" })).toContain("DO NOT REUSE");
+    expect(buildUserMessage(ctx, "Well?")).not.toContain("DO NOT REUSE");
+    expect(avoidPhrasingsBlock(archibaldAfterVictoria([]))).toBe("");
+  });
+  it("includes recent one-on-one replies in the avoid list", () => {
+    const game = createInitialGameState(c);
+    game.characters.archibald.memory.push({ turn: 1, speaker: "player", text: "Where were you?" }, { turn: 1, speaker: "character", text: "By the study window, watching the rain come down." });
+    game.turn = 2;
+    expect(avoidPhrasingsBlock(buildCharacterContext({ caseData: c, game }, "archibald"))).toContain("By the study window, watching the rain come down.");
+  });
+  it("falls back to varied lines aimed at the partner, never echoing earlier ones, never confessing", () => {
+    const ctx = archibaldAfterVictoria([FIRE]);
+    const seen = new Set<string>();
+    for (let seed = 0; seed < 12; seed++) {
+      const v = variedConfrontationFallback(ctx, "Victoria Blackwood", seed);
+      expect(v.dialogue).toContain("Victoria");
+      expect(repeatsEarlier(v.dialogue, ctx)).toBeNull();
+      expect(v.dialogue).not.toMatch(/confess|killed|murdered|I did it/i);
+      seen.add(v.dialogue);
+    }
+    expect(seen.size).toBeGreaterThan(2);
   });
 });

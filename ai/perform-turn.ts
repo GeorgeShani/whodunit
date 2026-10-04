@@ -15,7 +15,7 @@ import { cannedCharacterResponse } from "./canned-responses";
 import { fixArticles } from "./text-fixes";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { checkOrder } from "./order-check";
-import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
+import { addressesWrongPerson, repeatsEarlier, variedConfrontationFallback } from "./confront-check";
 import { callGrok, type GrokResult } from "./grok";
 import type { Contradiction } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type ConfrontDirective, type TurnDirectives } from "./prompts/interrogation";
@@ -89,7 +89,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
     // Confrontation hygiene (#27): no repeated sentences, and nobody but the partner is addressed.
     if (t.confrontation) {
       const again = repeatsEarlier(r.dialogue, ctx);
-      if (again) return `You already said "${again}" earlier in this conversation. Say something NEW; do not repeat a sentence.`;
+      if (again) return `You already said almost exactly this earlier in the conversation: "${again}". Do NOT repeat it or reword it lightly. Answer ${t.confrontation.partnerName}'s last point first, then say something NEW (a different fact, angle or reaction).`;
       const wrong = addressesWrongPerson(r.dialogue, ctx, t.confrontation.partnerName);
       if (wrong) return `You addressed "${wrong}" but you are face to face with ${t.confrontation.partnerName}. Speak only to ${t.confrontation.partnerName} (and the detective).`;
     }
@@ -113,6 +113,11 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
   } else {
     source = "fallback";
     response = cannedCharacterResponse(ctx, question, presentedEvidenceId, game.turn);
+    if (t.confrontation && !presentedEvidenceId) {
+      // Face to face the generic one-on-one lines read oddly and repeat: pick a varied line aimed at the partner (#27).
+      const v = variedConfrontationFallback(ctx, t.confrontation.partnerName, game.turn);
+      response = { ...response, dialogue: v.dialogue, action: v.action, emotion: "defensive", intensity: 0.5 };
+    }
     console.warn(`[turn] fallback reason=${grok.reason}${grok.status ? ` status=${grok.status}` : ""} model=${grok.model} attempts=${grok.attempts} ms=${grok.latencyMs}`);
   }
 
