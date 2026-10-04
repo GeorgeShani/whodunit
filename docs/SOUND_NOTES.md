@@ -270,7 +270,7 @@ B. Remap events (do not rename keys; just change which key each event plays):
    - TitleScreen.tsx START: `fanfare` gain 0.8  ->  `case_open` (moody; NEVER fanfare here). `fanfare` is for the SOLVED ending only.
    - POSE_CUES stings: angry `door_slam` -> `emo_angry`; nervous `slide_whistle_down` -> `emo_nervous`; shocked `boing` -> `emo_shocked`;
      smug `boing` gain 0.32 -> `emo_smug` (gain 1); sad `wah_wah` -> `emo_sad` (the long `wah_wah` is reserved for the wrong-accusation ending). neutral/talking keep `dialogue_pop` (lower gain to 0.35).
-   - CartoonButton `ui_click` (dialogue_pop_2 @0.3) -> `ui_tap` (keep the key `ui_click`, change its file to `ui_tap`, volume 0.32).
+   - CartoonButton `ui_click` (dialogue_pop_2 @0.3) -> `ui_tap` (keep the key `ui_click`, change its file to `ui_tap`, volume 0.46 like the ui_tap key).
    - DiscoverySting `clue_ding` -> `clue_stinger`, then `typewriter_tap` ~700 ms later (note written). Hint found -> `clue_stinger` gain 0.6; no hint (`boing`) -> `ui_tap`.
    - onSearch (Game.tsx): play `search_rustle` when the request starts (today searching is silent).
    - Notebook open/close and "present evidence" press -> `ui_paper`.
