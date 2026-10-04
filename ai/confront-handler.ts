@@ -32,6 +32,7 @@ export interface ConfrontDeps {
 
 export const CONFRONT_LINES = {
   pair_finished: "The two of them fold their arms and turn their backs on each other. They have said all they are going to say to each other tonight.",
+  limit_reached: "The household has had quite enough shouting for one night. Nobody will face anybody else again, detective: put your questions to them one at a time.",
   same_character: "You can't very well sit someone down opposite themselves, detective.",
   present_one_item: "One thing at a time, detective: a clue or a testimony, not both.",
   evidence_not_discovered: "You pat your pockets. You haven't found that yet, detective.",
@@ -66,7 +67,7 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
           : null;
   if (presentError) return { status: 400, body: base({ lines: [], line: CONFRONT_LINES[presentError], error: presentError, stateToken: saveSession(game, env) }) };
   const gate = openConfrontation(game, aId, bId);
-  if (!gate.ok) return { status: gate.reason === "pair_finished" ? 409 : 400, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
+  if (!gate.ok) return { status: gate.reason === "same_character" ? 400 : 409, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
 
   // Face-to-face pressure (engine rule), before either side's reveal is decided.
   for (const id of [aId, bId]) game.characters[id].stress = clampStress(game.characters[id].stress + CONFRONTATION_PRESSURE);
@@ -119,7 +120,7 @@ export async function handleConfront(json: unknown, deps: ConfrontDeps): Promise
     status: 200,
     body: base({
       lines: [line(aId, a.name, first), line(bId, b.name, second)],
-      confrontation: { characterIds: [aId, bId], turnsUsed: spent.turnsUsed, max: MAX_CONFRONTATION_TURNS, over: spent.over },
+      confrontation: { characterIds: [aId, bId], turnsUsed: spent.turnsUsed, max: MAX_CONFRONTATION_TURNS, over: spent.over, totalLeft: spent.totalLeft },
       stateToken: saveSession(game, env),
       testimonies: publicTestimonies(caseData, game),
     }),

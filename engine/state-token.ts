@@ -22,7 +22,7 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
-import { CLAIM_LIMITS } from "./constants";
+import { CLAIM_LIMITS, MAX_CONFRONTATION_TURNS } from "./constants";
 import { createInitialGameState } from "./game-state";
 import { revealedSecretIds, secretIndex } from "./testimony";
 import {
@@ -87,6 +87,8 @@ const TokenPayloadSchema = z.strictObject({
   /** Live confrontation and finished pairs (absent in older tokens). */
   confrontation: ConfrontationStateSchema.nullable().default(null),
   confrontedPairs: z.array(z.string().max(80)).max(20).default([]),
+  /** Exchanges spent per pair (absent in older tokens). */
+  pairTurns: z.record(z.string().max(80), z.number().int().min(0).max(MAX_CONFRONTATION_TURNS)).default({}),
   /**
    * Engine-private memory, ENCRYPTED (AES-256-GCM): which answers were authored
    * lies (liesTold). The rest of the payload is only signed, so it is readable by
@@ -192,6 +194,7 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
     outcome: game.outcome,
     confrontation: game.activeConfrontation ? { characterIds: [...game.activeConfrontation.characterIds], turnsUsed: game.activeConfrontation.turnsUsed } : null,
     confrontedPairs: [...game.confrontedPairs],
+    pairTurns: { ...game.pairTurns },
     ...(Object.keys(liesTold).length || game.hintedLieIds.length ? { sealed: seal({ liesTold, hinted: [...game.hintedLieIds] }, env) } : {}),
     hintTurn: game.hintTurn,
   };
@@ -294,6 +297,8 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   }
 
   if (p.confrontation && !p.confrontation.characterIds.every((id) => chars.has(id))) return { ok: false, reason: "invalid_payload" };
+  const validPair = (k: string) => k.split("|").length === 2 && k.split("|").every((id) => chars.has(id));
+  if (!Object.keys(p.pairTurns).every(validPair)) return { ok: false, reason: "invalid_payload" };
   if (!p.confrontedPairs.every((k) => k.split("|").length === 2 && k.split("|").every((id) => chars.has(id)))) return { ok: false, reason: "invalid_payload" };
 
   const game = createInitialGameState(caseData);
@@ -301,6 +306,13 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   game.gameId = p.gameId ?? createHash("sha256").update(token ?? "").digest("base64url").slice(0, 22);
   game.activeConfrontation = p.confrontation;
   game.confrontedPairs = [...p.confrontedPairs];
+  // Older tokens had only the active pair's count: carry it over so it isn't lost.
+  game.pairTurns = { ...p.pairTurns };
+  if (p.confrontation) {
+    const k = p.confrontation.characterIds.slice().sort().join("|");
+    game.pairTurns[k] = Math.max(game.pairTurns[k] ?? 0, p.confrontation.turnsUsed);
+  }
+  for (const k of p.confrontedPairs) game.pairTurns[k] = MAX_CONFRONTATION_TURNS;
   game.hintTurn = p.hintTurn !== null && p.hintTurn <= p.turn ? p.hintTurn : null;
   const allLies = new Set(caseData.characters.flatMap((c) => c.intendedLies.map((l) => l.id)));
   if (!sealed.hinted.every((id) => allLies.has(id))) return { ok: false, reason: "invalid_payload" };
