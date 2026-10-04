@@ -215,7 +215,7 @@ export function InterrogationScreen({
             actors={[{ suspect, emotion, speaking, pending }]}
             className="h-full w-full rounded-2xl border-4 border-black shadow-[6px_6px_0_#000]"
           />
-          <StressMeter value={stress} name={suspect.name} className="absolute left-2 top-2 w-44 sm:w-52" />
+          <StressMeter value={stress} name={suspect.name} className="absolute left-2 top-2 w-32 sm:w-52" />
           {/* Phones: the mood badge rides on the stage (the header has no room for it next to the name). */}
           <EmotionBadge emotion={emotion} className="absolute right-2 top-2 z-10 sm:hidden" />
         </div>

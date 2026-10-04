@@ -38,11 +38,11 @@ export function StressMeter({ value, name, compact = false, className = "" }: { 
       aria-valuenow={value}
       aria-valuetext={`${value} of 100, ${label}`}
       data-stress-band={band}
-      className={`rounded-xl border-[3px] border-black bg-white/95 text-black shadow-[3px_3px_0_#000] ${compact ? "px-2 py-1.5" : "px-2.5 py-2"} ${className}`}
+      className={`rounded-xl border-[3px] border-black bg-white/95 text-black shadow-[3px_3px_0_#000] ${compact ? "px-2 py-1.5" : "px-2.5 py-2 max-sm:px-2 max-sm:py-1.5"} ${className}`}
       animate={jolt && !reduced ? { x: [0, -5, 5, -3, 3, 0], scale: [1, 1.08, 1] } : undefined}
       transition={{ duration: 0.4 }}
     >
-      <div className={`flex items-baseline justify-between gap-2 font-black uppercase leading-none ${compact ? "text-xs" : "text-sm"}`}>
+      <div className={`flex items-baseline justify-between gap-2 font-black uppercase leading-none ${compact ? "text-xs" : "text-sm max-sm:text-xs"}`}>
         <span>Stress</span>
         <span className={band === "panicking" || band === "breakdown" ? "text-red-600" : ""}>{label}</span>
       </div>
