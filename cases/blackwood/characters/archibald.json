@@ -182,7 +182,23 @@
       "resentment": 5,
       "suspicion": 15,
       "kind": "partner's wife",
-      "description": "Treats her as a grieving ornament. In a row he remarks that she is bearing up remarkably well for a new widow; if she brings up the dinner row he laughs it off as business and tells her not to trouble her pretty head."
+      "description": "Treats her as a grieving ornament: decorative, dramatic and not to be taken seriously. Underneath, he is wary of how sharp she is when she thinks nobody is looking.",
+      "jabs": [
+        {
+          "text": "Bearing up awfully well for a new widow, Victoria. Quite the little trouper.",
+          "when": "confrontation"
+        },
+        {
+          "text": "Funny how you always know where everyone was, when you were so busy swooning.",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "the row at dinner",
+          "text": "He laughs too loudly, calls it business, and tells her not to trouble her pretty head."
+        }
+      ]
     },
     {
       "targetCharacterId": "reginald",
@@ -192,7 +208,25 @@
       "resentment": 45,
       "suspicion": 55,
       "kind": "butler",
-      "description": "Thinks him a stiff-necked busybody. Throws it back at him that it was his candlestick, carried in with his own two hands, and blusters about servants who forget their place."
+      "description": "Thinks him a stiff-necked busybody who forgets his place. Bluster is his first answer to anything the butler says.",
+      "jabs": [
+        {
+          "text": "It was your candlestick, Reginald. You lit it, you carried it, you fussed over it in front of all of us.",
+          "aboutFactId": "ev-candlesticks-lit",
+          "when": "confrontation"
+        },
+        {
+          "text": "A butler who remembers every word at dinner knows an awful lot for a man who only carries trays.",
+          "aboutFactId": "ev-archibald-threat",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being lectured by a servant",
+          "text": "He goes beetroot red and demands to know who pays the wages in this house."
+        }
+      ]
     },
     {
       "targetCharacterId": "gregory",
@@ -202,7 +236,24 @@
       "resentment": 20,
       "suspicion": 70,
       "kind": "gardener",
-      "description": "Barely notices him until there is a body, then finds him very convenient. Says the fellow turned up soaked and shifty the moment the body was found, and talks over him whenever he mumbles."
+      "description": "Barely notices him until there is a body, then finds him very convenient: the man with the mud on his boots and the face of a guilty spaniel.",
+      "jabs": [
+        {
+          "text": "You turned up soaked and shifty the moment the body was found, man. What were you doing out in that weather?",
+          "aboutFactId": "ev-gregory-arrives",
+          "when": "confrontation"
+        },
+        {
+          "text": "Speak up, man! Mumbling into your cap won't wash with me.",
+          "when": "any"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being contradicted by the gardener",
+          "text": "He talks straight over him and starts pointing again."
+        }
+      ]
     }
   ],
   "intendedLies": [

@@ -91,7 +91,8 @@
     "ev-gregory-arrives",
     "ev-lights-restored",
     "ev-household-waits",
-    "f-reginald-saw-no-one"
+    "f-reginald-saw-no-one",
+    "f-letter-gone"
   ],
   "beliefs": [
     {
@@ -190,7 +191,20 @@
       "resentment": 25,
       "suspicion": 30,
       "kind": "mistress of the house",
-      "description": "Wary deference; she now holds his job in her hands. He will never accuse her of anything, but under pressure his courtesy turns stiff and he remembers, out loud and with regret, exactly when her ladyship swept past him in the hall."
+      "description": "Wary deference: she holds his position in her hands now. He will never accuse her of anything, and under pressure his courtesy turns stiff and exact.",
+      "jabs": [
+        {
+          "text": "I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and it was striking at the time.",
+          "aboutFactId": "ev-victoria-passes-reginald",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "any hint that her ladyship is in difficulties",
+          "text": "He bristles on her behalf, and his answers become correct to the point of rudeness."
+        }
+      ]
     },
     {
       "targetCharacterId": "archibald",
@@ -200,7 +214,25 @@
       "resentment": 60,
       "suspicion": 85,
       "kind": "house guest",
-      "description": "Despises the vulgar, bullying guest. Quotes what Mr Crane shouted at dinner back at him word for word, with a perfectly straight face, and answers every bluster with exaggerated politeness."
+      "description": "Despises the vulgar, bullying guest and has the memory to match. Answers bluster with exaggerated politeness and never raises his voice.",
+      "jabs": [
+        {
+          "text": "I took the liberty of memorising what you said at dinner, sir: 'You won't live to see your auditors.' I can recite it for the constable, word perfect.",
+          "aboutFactId": "ev-archibald-threat",
+          "when": "confrontation"
+        },
+        {
+          "text": "You put your shoulder to that door very promptly, sir. One does notice these things in a gentleman.",
+          "aboutFactId": "ev-door-forced",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being told to mind his place",
+          "text": "He goes very still, recites the duties of a butler in a flat voice, and polishes the nearest thing."
+        }
+      ]
     },
     {
       "targetCharacterId": "gregory",
@@ -210,7 +242,24 @@
       "resentment": 5,
       "suspicion": 20,
       "kind": "fellow servant",
-      "description": "Mild, fatherly fondness for the nervous gardener. Scolds him gently about the gin and the mud on a clean floor, and steps between him and anyone who raises a voice at him."
+      "description": "Mild, fatherly fondness for the nervous gardener. He scolds because it is easier than worrying, and steps between the lad and anyone who raises a voice.",
+      "jabs": [
+        {
+          "text": "Mind that gin, Gregory. It has already cost you one position and it is quite capable of costing you another.",
+          "aboutFactId": "f-gregory-dismissed",
+          "when": "any"
+        },
+        {
+          "text": "You tracked mud across a clean floor on the worst night of my career, lad.",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "Gregory being shouted at",
+          "text": "He steps forward, clasps his hands behind his back and speaks very slowly and very politely to the shouter."
+        }
+      ]
     }
   ],
   "intendedLies": [

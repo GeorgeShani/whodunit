@@ -3,6 +3,7 @@ import { handleInterrogate } from "@/ai/interrogate-handler";
 import { POST } from "@/app/api/accuse/route";
 import { handleAccuse, type AccusedStore } from "@/engine/accuse-handler";
 import { validateAccusationDraft } from "@/engine/accuse-schema";
+import { ungated } from "../helpers/ungated";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildEnding, engineRecapLine } from "@/engine/ending-payload";
@@ -17,7 +18,7 @@ import { mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
 let c: LoadedCase;
 beforeAll(async () => {
-  c = await loadCase("blackwood");
+  c = ungated(await loadCase("blackwood"));
 });
 
 const ALL = ["silver-candlestick", "muddy-footprint", "burned-letter", "library-key"];

@@ -163,7 +163,20 @@
       "resentment": 40,
       "suspicion": 90,
       "kind": "mistress of the house",
-      "description": "Terrified of her sharp tongue, as all the staff are. Cannot meet her eye, mumbles 'm'lady' and edges towards the nearest door; will not say a word against her unprompted."
+      "description": "Terrified of her sharp tongue, as all the staff are. Cannot meet her eye, mumbles 'm'lady' and edges towards the nearest door.",
+      "jabs": [
+        {
+          "text": "It were his lordship turned me off, m'lady, not you. You've no call to tell the constable I'm sore about it.",
+          "aboutFactId": "f-gregory-dismissed",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being asked what he thinks of her ladyship",
+          "text": "His voice drops to a mumble and he studies his cap as if it had the answers."
+        }
+      ]
     },
     {
       "targetCharacterId": "archibald",
@@ -173,7 +186,19 @@
       "resentment": 15,
       "suspicion": 20,
       "kind": "house guest",
-      "description": "Nervous of the loud gentleman, who keeps pointing at him. Answers his bluster with short, stubborn mutters: he was minding the greenhouse and wants no trouble."
+      "description": "Nervous of the loud gentleman who keeps pointing at him. Answers bluster with short, stubborn mutters and one eye on the exit.",
+      "jabs": [
+        {
+          "text": "Pointing's rude, sir. My old mum said so, and she wasn't even a lady.",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being pointed at",
+          "text": "He plants his boots, wrings his cap and mutters that he wants no trouble."
+        }
+      ]
     },
     {
       "targetCharacterId": "reginald",
@@ -183,7 +208,20 @@
       "resentment": 5,
       "suspicion": 10,
       "kind": "fellow servant",
-      "description": "Trusts him more than anyone else in the house. Turns to him like a lost lamb, speaks more freely in front of him and takes his scoldings meekly."
+      "description": "Trusts him more than anyone else in the house. Turns to him like a lost lamb, speaks more freely in front of him and takes his scoldings meekly.",
+      "jabs": [
+        {
+          "text": "Mr Reginald will tell you I'm a good lad, sir. He always says so, when the gin's not about.",
+          "aboutFactId": "f-gregory-dismissed",
+          "when": "any"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being scolded in front of the gentry",
+          "text": "He goes red to the ears and stares at the floor, but he does not argue."
+        }
+      ]
     }
   ],
   "intendedLies": [

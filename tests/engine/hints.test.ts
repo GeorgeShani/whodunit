@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
+import { ungated } from "../helpers/ungated";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
@@ -10,7 +11,7 @@ import { TEST_ENV } from "../helpers/grok-mock";
 
 let c: LoadedCase;
 beforeAll(async () => {
-  c = await loadCase("blackwood");
+  c = ungated(await loadCase("blackwood"));
 });
 const fresh = (edit: (g: GameState) => void = () => undefined) => {
   const g = createInitialGameState(c);

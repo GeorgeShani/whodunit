@@ -256,7 +256,24 @@
       "resentment": 10,
       "suspicion": 30,
       "kind": "husband's business partner",
-      "description": "Finds his bluster tiresome but handy: loud, easily rattled, and everyone heard what he shouted at dinner. In a row she purrs about his temper and that shouted threat; if he turns the questions on her she goes cool and reminds him whose house this is."
+      "description": "Finds his bluster tiresome but handy: loud, easily rattled, and a useful lightning rod. When he turns on her she goes cool and reminds him whose house this is.",
+      "jabs": [
+        {
+          "text": "Across my own dinner table you told Edmund he would not live to see his auditors. Say it again for the constable, Archibald; I should like to watch your face.",
+          "aboutFactId": "ev-archibald-threat",
+          "when": "confrontation"
+        },
+        {
+          "text": "You do go such a delightful shade of red when you are frightened. It rather clashes with the curtains.",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "being asked to account for her own evening",
+          "text": "She turns icy and answers a question with a question, then reminds him whose house this is."
+        }
+      ]
     },
     {
       "targetCharacterId": "reginald",
@@ -266,7 +283,23 @@
       "resentment": 20,
       "suspicion": 50,
       "kind": "butler",
-      "description": "Treats him as furniture that happens to carry trays. In a row she needles him for hovering at doors and for looking at her as if she owed him an explanation, and reminds him that his place now depends on hers."
+      "description": "Treats him as furniture that happens to carry trays, and resents being watched by a man who has served the family for twenty years and notices everything.",
+      "jabs": [
+        {
+          "text": "You have been hovering at doors all evening, Reginald. One might think you were paid to.",
+          "when": "confrontation"
+        },
+        {
+          "text": "Your position here rests on mine now. Do weigh that before you volunteer an opinion.",
+          "when": "confrontation"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "a show of pity from the staff",
+          "text": "Pity from servants makes her brittle and sharp; she changes the subject to the silver."
+        }
+      ]
     },
     {
       "targetCharacterId": "gregory",
@@ -276,7 +309,24 @@
       "resentment": 45,
       "suspicion": 35,
       "kind": "gardener",
-      "description": "Contempt for the muddy, gin-soaked gardener her husband sacked this morning. She throws his dismissal, his drinking and his boots at him, and says a sacked man with a grudge is exactly who the police will want."
+      "description": "Contempt for the muddy, gin-soaked gardener, and no patience for sniffling staff. She would happily see the household's troubles landed on him.",
+      "jabs": [
+        {
+          "text": "Edmund turned you off this morning, Gregory. A sacked man with a grudge and muddy boots is precisely who the police will want.",
+          "aboutFactId": "f-gregory-dismissed",
+          "when": "confrontation"
+        },
+        {
+          "text": "Do wipe your boots, or at least have the decency to be ashamed of them.",
+          "when": "any"
+        }
+      ],
+      "defensiveOn": [
+        {
+          "topic": "the gardener's muddy boots in her house",
+          "text": "Her nose wrinkles and she talks past him as if he were a draught."
+        }
+      ]
     }
   ],
   "intendedLies": [

@@ -707,37 +707,72 @@ describe("Blackwood round 2: pair material for confrontations (#27)", () => {
   const ids = ["victoria", "archibald", "reginald", "gregory"];
   const rel = (a: string, b: string) => byId(a).relationships.find((r) => r.targetCharacterId === b)!;
 
-  it("every ordered pair of suspects has a distinct, substantial note", () => {
+  it("every ordered pair of suspects has a distinct, substantial note, at least one barb and one touchy subject", () => {
     const seen = new Set<string>();
     for (const a of ids) for (const b of ids) {
       if (a === b) continue;
-      const d = rel(a, b)?.description;
+      const r = rel(a, b);
+      const d = r?.description;
       expect(d, `${a}->${b}`).toBeTruthy();
       expect(d!.length, `${a}->${b}`).toBeGreaterThan(80);
       expect(d, `${a}->${b}`).not.toMatch(TELLTALE);
       expect(seen.has(d!), `${a}->${b} duplicates`).toBe(false);
       seen.add(d!);
+      expect(r.jabs?.length, `${a}->${b} jabs`).toBeGreaterThanOrEqual(1);
+      expect(r.defensiveOn?.length, `${a}->${b} defensiveOn`).toBeGreaterThanOrEqual(1);
     }
     expect(seen.size).toBe(12);
+  });
+
+  it("barbs and touchy subjects carry no giveaway wording and no stock catchphrases", () => {
+    for (const a of ids) for (const r of byId(a).relationships) {
+      const texts = [...(r.jabs ?? []).map((j) => j.text), ...(r.defensiveOn ?? []).flatMap((d) => [d.topic, d.text])];
+      for (const t of texts) {
+        expect(t, `${a}->${r.targetCharacterId}: "${t}"`).not.toMatch(TELLTALE);
+        expect(t, t).not.toMatch(/darling|dwell on unpleasantness|if I may be so bold|now see here|old boy|old girl/i);
+      }
+    }
+  });
+
+  it("every barb tied to a fact is tied to one the speaker knows, and fact-free barbs tie to nothing secret", () => {
+    for (const a of ids) {
+      const known = new Set(byId(a).knownFactIds);
+      for (const r of byId(a).relationships) for (const j of r.jabs ?? []) {
+        if (j.aboutFactId) expect(known.has(j.aboutFactId), `${a}->${r.targetCharacterId}: ${j.aboutFactId}`).toBe(true);
+      }
+    }
+    // at least half the barbs are tied to a fact (so the engine can withhold them)
+    const all = ids.flatMap((a) => byId(a).relationships.flatMap((r) => r.jabs ?? []));
+    expect(all.filter((j) => j.aboutFactId).length / all.length).toBeGreaterThanOrEqual(0.4);
   });
 
   it("a note only brings up things the speaker actually knows", () => {
     // the dismissal: Victoria, Reginald and Gregory know it, Archibald does not
     for (const a of ids) {
       const knows = byId(a).knownFactIds.includes("f-gregory-dismissed");
-      for (const r of byId(a).relationships) if (!knows) expect(r.description ?? "", `${a}->${r.targetCharacterId}`).not.toMatch(/sack|dismiss/i);
+      for (const r of byId(a).relationships) {
+        const texts = [r.description ?? "", ...(r.jabs ?? []).map((j) => j.text), ...(r.defensiveOn ?? []).map((d) => d.text)];
+        if (!knows) for (const t of texts) expect(t, `${a}->${r.targetCharacterId}`).not.toMatch(/sack|dismiss|turned (you|me) off/i);
+      }
     }
     // the dinner threat: Gregory was not at the table
     expect(byId("gregory").knownFactIds).not.toContain("ev-archibald-threat");
-    for (const r of byId("gregory").relationships) expect(r.description ?? "").not.toMatch(/threat|dinner/i);
+    for (const r of byId("gregory").relationships) {
+      const texts = [r.description ?? "", ...(r.jabs ?? []).map((j) => j.text), ...(r.defensiveOn ?? []).map((d) => d.text)];
+      for (const t of texts) expect(t).not.toMatch(/threat|dinner|auditor/i);
+    }
     // the candlestick: Archibald watched it being lit
     expect(byId("archibald").knownFactIds).toContain("ev-candlesticks-lit");
     // Reginald's sighting of her ladyship at 20:57
     expect(byId("reginald").knownFactIds).toContain("ev-victoria-passes-reginald");
-    expect(rel("reginald", "victoria").description).toMatch(/20:57|swept past/);
+    const jab = rel("reginald", "victoria").jabs!.find((j) => j.aboutFactId === "ev-victoria-passes-reginald");
+    expect(jab?.text).toMatch(/three minutes to nine/);
   });
 
   it("no note puts the murderer in the library or accuses anyone outright", () => {
-    for (const a of ids) for (const r of byId(a).relationships) expect(r.description ?? "", `${a}->${r.targetCharacterId}`).not.toMatch(/library|murder|killed|killer|key\b/i);
+    for (const a of ids) for (const r of byId(a).relationships) {
+      const texts = [r.description ?? "", ...(r.jabs ?? []).map((j) => j.text), ...(r.defensiveOn ?? []).flatMap((d) => [d.topic, d.text])];
+      for (const t of texts) expect(t, `${a}->${r.targetCharacterId}: "${t}"`).not.toMatch(/library|murder|killed|killer|key\b/i);
+    }
   });
 });
