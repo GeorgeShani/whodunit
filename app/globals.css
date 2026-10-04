@@ -58,6 +58,27 @@ body {
 /* Phones held sideways (and other very short viewports): screens switch to two columns, see the `short:` variant. */
 @custom-variant short (@media (orientation: landscape) and (max-height: 520px));
 
+/*
+ * Stage sprite box. Default = ART_BIBLE §7 (feet line 74%, box 64%). Phone portrait (the stacked layout: below md,
+ * not landscape) frames a bust instead so the face is clearly visible; the values come from components/stage/layout.ts.
+ */
+.sprite-box {
+  top: var(--sb-top);
+  height: var(--sb-h);
+  transform: translateX(-50%);
+}
+@media (max-width: 767px) and (orientation: portrait) {
+  .sprite-box {
+    top: var(--bust-top);
+    height: var(--bust-h);
+    transform: translateX(calc(-50% + var(--bust-shift) * 100%));
+  }
+  /* The contact shadow belongs to the feet line, which is out of frame in a bust. */
+  .sprite-box > [aria-hidden] {
+    display: none;
+  }
+}
+
 /* Keyboard open on a short viewport: drop the stage art so the chat and the question box get the room. */
 html[data-kb] .kb-hide {
   display: none;

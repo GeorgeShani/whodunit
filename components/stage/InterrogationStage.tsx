@@ -6,7 +6,8 @@ import { Portrait } from "@/components/characters/Portrait";
 import { getAudio } from "@/components/effects/audio";
 import type { PublicSuspect, StageArt } from "@/engine/public-view";
 import type { Emotion } from "@/engine/types";
-import { contactShadowPct, spriteBoxStyle, stageSlots, type StageSlot } from "./layout";
+import { cuesFor } from "@/components/effects/emotion-map";
+import { bustFrame, contactShadowPct, spriteBoxVars, stageSlots, type StageSlot } from "./layout";
 import { FIRST_STORM_MS, FlashGuard, nextStormDelay, STORM_FRAMES, thunderDelay } from "./lightning";
 
 export interface StageActor {
@@ -57,10 +58,13 @@ function useStorm(enabled: boolean, flashes: boolean, reduced = false) {
   return lit;
 }
 
-function Actor({ actor, slot, lit }: { actor: StageActor; slot: StageSlot; lit: boolean }) {
+function Actor({ actor, slot, count, lit }: { actor: StageActor; slot: StageSlot; count: 1 | 2; lit: boolean }) {
   const shadow = contactShadowPct(actor.suspect.portrait);
+  // Phone-portrait bust framing follows the pose actually on screen, so the face stays put when the pose swaps.
+  const pose = cuesFor(actor.emotion, actor.suspect.poses, actor.speaking).pose;
+  const bust = bustFrame(actor.suspect.portrait, pose, count, slot.mirrored);
   return (
-    <div className="absolute" style={spriteBoxStyle(slot)} data-stage-actor={actor.suspect.id} data-x={slot.xPct} data-mirrored={slot.mirrored || undefined}>
+    <div className="sprite-box absolute" style={spriteBoxVars(slot, bust)} data-stage-actor={actor.suspect.id} data-x={slot.xPct} data-mirrored={slot.mirrored || undefined}>
       {/* Soft contact shadow on the feet line (canvas y=1200 = 98% of the box). */}
       <div
         aria-hidden
@@ -79,7 +83,7 @@ function Actor({ actor, slot, lit }: { actor: StageActor; slot: StageSlot; lit: 
           speaking={actor.speaking}
           mirrored={slot.mirrored}
           className="h-full w-full"
-          sizes="(max-width: 768px) 45vw, 30vw"
+          sizes="(max-width: 767px) 100vw, 30vw"
           priority
         />
       </motion.div>
@@ -138,7 +142,7 @@ export function InterrogationStage({
         </>
       )}
       {actors.map((a, i) => (
-        <Actor key={a.suspect.id} actor={a} slot={slots[i]} lit={lit} />
+        <Actor key={a.suspect.id} actor={a} slot={slots[i]} count={actors.length as 1 | 2} lit={lit} />
       ))}
       {/* Sprite tint during the flash: 25% #CFE3FF screen over the same frames. */}
       {lit && <div aria-hidden className="pointer-events-none absolute inset-0 bg-[#CFE3FF] opacity-25 mix-blend-screen" />}
