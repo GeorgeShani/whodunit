@@ -20,6 +20,8 @@ export function SuspectSelect({
   cluesFound,
   stress = {},
   backdrop,
+  accuseReady = true,
+  questioned,
 }: {
   suspects: PublicSuspect[];
   emotions: Record<string, Emotion>;
@@ -37,6 +39,10 @@ export function SuspectSelect({
   cluesFound?: number;
   /** Case backdrop (e.g. the manor hall, ART_BIBLE §7.2); falls back to the purple radial. */
   backdrop?: string;
+  /** false while the accuse gate is shut: ACCUSE is stamped CASE NOT READY (still tappable: it explains why). */
+  accuseReady?: boolean;
+  /** "questioned n/need" badges (progress.questioned); absent when the case does not ask for it. */
+  questioned?: { need: number; counts: Record<string, number> };
 }) {
   return (
     <main
@@ -82,9 +88,15 @@ export function SuspectSelect({
           tone="red"
           onClick={onAccuse}
           data-accuse-open
-          className="min-h-14 w-full max-w-sm font-display text-3xl tracking-widest ring-4 ring-yellow-300 sm:-my-4 sm:w-auto"
+          {...(accuseReady ? {} : { "data-accuse-locked": true, "aria-label": "Accuse: case not ready" })}
+          className={`relative min-h-14 w-full max-w-sm font-display text-3xl tracking-widest sm:-my-4 sm:w-auto ${accuseReady ? "ring-4 ring-yellow-300" : "opacity-80 ring-4 ring-neutral-400"}`}
         >
-          ⚖️ ACCUSE!
+          {accuseReady ? "⚖️ ACCUSE!" : <>🔒 ACCUSE</>}
+          {!accuseReady && (
+            <span aria-hidden className="absolute -bottom-3 -right-2 rotate-[-6deg] rounded-md border-[3px] border-black bg-yellow-300 px-2 py-0.5 font-sans text-sm font-black uppercase tracking-normal text-black shadow-[2px_2px_0_#000]">
+              Case not ready
+            </span>
+          )}
         </CartoonButton>
       )}
       <ul className="grid w-full max-w-6xl grid-cols-1 gap-5 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-4">
@@ -114,6 +126,14 @@ export function SuspectSelect({
                   <span className="mt-1.5">
                     <EmotionBadge emotion={emotion} />
                   </span>
+                  {questioned && (
+                    <span
+                      data-questioned={s.id}
+                      className={`mt-1.5 rounded-full border-2 border-black px-2.5 py-0.5 text-sm font-black ${(questioned.counts[s.id] ?? 0) >= questioned.need ? "bg-lime-300" : "bg-white"}`}
+                    >
+                      {(questioned.counts[s.id] ?? 0) >= questioned.need ? "✔ " : ""}questioned {Math.min(questioned.counts[s.id] ?? 0, questioned.need)}/{questioned.need}
+                    </span>
+                  )}
                   {(stress[s.id] ?? 0) > 0 && <StressMeter value={stress[s.id]} name={s.name} compact className="mt-2 w-full max-w-56" />}
                 </div>
               </motion.button>

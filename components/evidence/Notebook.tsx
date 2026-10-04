@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useId, useRef } from "react";
+import { useId, useRef, useState } from "react";
+import { LeadsPanel } from "@/components/progress/LeadsPanel";
+import type { PublicProgress } from "@/engine/progress";
 import { useModal } from "@/components/ui/use-modal";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -29,6 +31,8 @@ export function Notebook({
   onHint,
   onPresent,
   onClose,
+  leads = [],
+  newLeadIds = [],
 }: {
   evidence: PublicEvidence[];
   testimonies: PublicTestimony[];
@@ -45,7 +49,13 @@ export function Notebook({
   onHint?: () => void;
   onPresent: (item: NotebookItem, suspectId: string) => void;
   onClose: () => void;
+  /** Progression leads (engine/progress.ts). The Leads tab only exists when the case has any. */
+  leads?: PublicProgress["leads"];
+  newLeadIds?: string[];
 }) {
+  const [tab, setTab] = useState<"evidence" | "leads">("evidence");
+  const showLeads = leads.length > 0 && tab === "leads";
+  const openLeads = leads.filter((l) => l.state === "open").length;
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -120,7 +130,35 @@ export function Notebook({
             ✕ Close
           </button>
         </header>
-        <div className="scroll-area flex-1 space-y-4 p-4">
+        {leads.length > 0 && (
+          <div role="tablist" aria-label="Notebook sections" className="flex gap-2 border-b-4 border-black bg-amber-100 px-4 py-2">
+            {(["evidence", "leads"] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                role="tab"
+                id={`${titleId}-tab-${t}`}
+                aria-selected={tab === t}
+                data-notebook-tab={t}
+                onClick={() => setTab(t)}
+                className={`min-h-11 flex-1 cursor-pointer rounded-xl border-[3px] border-black px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] sm:flex-none ${tab === t ? "bg-yellow-300" : "bg-white"}`}
+              >
+                {t === "evidence" ? "🔎 Evidence" : "🧭 Leads"}
+                {t === "leads" && openLeads > 0 && (
+                  <span className="ms-2 rounded-full border-2 border-black bg-red-500 px-2 py-0.5 text-sm text-white" aria-label={`${openLeads} open`}>
+                    {openLeads}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+        {showLeads && (
+          <div className="scroll-area flex-1 p-4" role="tabpanel" aria-labelledby={`${titleId}-tab-leads`}>
+            <LeadsPanel leads={leads} newLeadIds={newLeadIds} />
+          </div>
+        )}
+        <div className={`scroll-area flex-1 space-y-4 p-4 ${showLeads ? "hidden" : ""}`}>
           {onHint && (
             <section aria-label="Contradiction check" className="flex flex-wrap items-center gap-2 rounded-2xl border-[3px] border-black bg-white p-2 shadow-[3px_3px_0_#000]">
               <button

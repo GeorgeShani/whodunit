@@ -247,6 +247,14 @@ async function run(): Promise<number> {
           await hintBtn.first().click({ force: true });
           await wait(1500);
         }
+        const leadsTab = p.locator('[data-notebook-tab="leads"]');
+        if (await leadsTab.count()) {
+          await leadsTab.first().click({ force: true });
+          await wait(600);
+          await label(p, "notebook leads");
+          await p.locator('[data-notebook-tab="evidence"]').first().click({ force: true });
+          await wait(400);
+        }
         await p.evaluate(() => document.querySelector("[data-notebook] .scroll-area")?.scrollTo({ top: 99999 }));
         await wait(500);
         await p.keyboard.press("Escape");
@@ -258,6 +266,13 @@ async function run(): Promise<number> {
         await label(p, "suspects→accuse");
         await accuseBtn.first().click({ force: true });
         await wait(1500);
+        if (await p.locator("[data-case-not-ready]").count()) {
+          // Progression cases shut the gate until the checklist is met: audit the CASE NOT READY dialog and stop there.
+          await label(p, "case not ready dialog");
+          await wait(600);
+          await p.keyboard.press("Escape");
+          await wait(600);
+        } else {
         await label(p, "accuse form");
         await p.locator("[data-accuse-suspect]").first().click({ force: true });
         await p.locator("[data-accuse-weapon]").first().click({ force: true });
@@ -285,6 +300,7 @@ async function run(): Promise<number> {
         await label(p, "end screen (scrolled)");
         await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
         await wait(800);
+        }
       }
     }
 

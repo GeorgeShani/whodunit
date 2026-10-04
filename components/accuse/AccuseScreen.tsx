@@ -6,9 +6,10 @@ import { Portrait } from "@/components/characters/Portrait";
 import { KIND_ICON } from "@/components/evidence/notebook-model";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { useModal } from "@/components/ui/use-modal";
-import { MAX_ACCUSE_EVIDENCE, validateAccusationDraft, type AccusationDraft } from "@/engine/accuse-schema";
+import { MAX_ACCUSE_EVIDENCE, MAX_ACCUSE_TESTIMONY, validateAccusationDraft, type AccusationDraft } from "@/engine/accuse-schema";
 import type { MotiveOption } from "@/engine/case-schema";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
+import type { PublicTestimony } from "@/engine/testimony";
 import type { Accusation } from "@/engine/types";
 
 const pick = (on: boolean) =>
@@ -39,6 +40,8 @@ export function AccuseScreen({
   motives,
   busy,
   error,
+  testimonies = [],
+  citeTestimony = false,
   onSubmit,
   onBack,
 }: {
@@ -48,6 +51,9 @@ export function AccuseScreen({
   busy: boolean;
   /** In-character rejection line from the server, if any. */
   error?: string | null;
+  /** Confessions in the notebook; the picker shows only when the case asks for one (citeTestimony). */
+  testimonies?: PublicTestimony[];
+  citeTestimony?: boolean;
   onSubmit: (a: Accusation) => void;
   onBack: () => void;
 }) {
@@ -60,8 +66,18 @@ export function AccuseScreen({
   };
   const toggleProof = (id: string) =>
     set({ keyEvidenceIds: draft.keyEvidenceIds.includes(id) ? draft.keyEvidenceIds.filter((x) => x !== id) : [...draft.keyEvidenceIds, id] });
+  const toggleTestimony = (id: string) => {
+    const cur = draft.keyTestimonyIds ?? [];
+    set({ keyTestimonyIds: cur.includes(id) ? cur.filter((x) => x !== id) : [...cur, id] });
+  };
   const check = () =>
-    validateAccusationDraft(draft, { suspectIds: suspects.map((s) => s.id), evidenceIds: evidence.map((e) => e.id), motiveIds: motives.map((m) => m.id) });
+    validateAccusationDraft(draft, {
+      suspectIds: suspects.map((s) => s.id),
+      evidenceIds: evidence.map((e) => e.id),
+      motiveIds: motives.map((m) => m.id),
+      testimonyIds: testimonies.map((t) => t.id),
+      requireTestimony: citeTestimony,
+    });
 
   return (
     <main className="screen-scroll relative flex scroll-pb-28 min-h-0 flex-1 flex-col items-center gap-5 bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)] px-4 pb-0 pt-3 sm:px-6 sm:py-6">
@@ -158,6 +174,54 @@ export function AccuseScreen({
           })}
         </div>
       </Section>
+
+      {citeTestimony && (
+        <Section
+          n={5}
+          title="A confession"
+          hint={`Clues alone won't do. Cite 1 to ${MAX_ACCUSE_TESTIMONY} confessions someone gave you (${(draft.keyTestimonyIds ?? []).length} chosen).`}
+        >
+          {testimonies.length === 0 ? (
+            <p
+              data-accuse-no-testimony
+              className="text-base font-semibold italic text-yellow-100"
+            >
+              Nobody has admitted anything yet. Press the suspects, show them
+              what you found, then come back.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {testimonies.map((t) => {
+                const on = (draft.keyTestimonyIds ?? []).includes(t.id);
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    role="checkbox"
+                    aria-checked={on}
+                    data-accuse-testimony={t.id}
+                    disabled={
+                      busy ||
+                      (!on &&
+                        (draft.keyTestimonyIds ?? []).length >=
+                          MAX_ACCUSE_TESTIMONY)
+                    }
+                    onClick={() => toggleTestimony(t.id)}
+                    className={`${pick(on)} min-h-12 px-4 py-2 text-base`}
+                  >
+                    <span className="block font-display text-xl tracking-wide">
+                      {on ? "☑" : "☐"} 🗣️ {t.characterName}
+                    </span>
+                    <span className="block font-semibold">
+                      &ldquo;{t.summary}&rdquo;
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </Section>
+      )}
 
       {(errors.length > 0 || error) && (
         <div role="alert" data-accuse-errors className="w-full max-w-5xl rounded-2xl border-4 border-black bg-red-100 p-3 text-base font-bold text-red-800">

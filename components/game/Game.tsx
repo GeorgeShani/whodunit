@@ -30,7 +30,10 @@ import type { Accusation } from "@/engine/types";
 import type { StressReading } from "@/engine/stress";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
-import { clearGame, loadGame, saveGame, SESSION_VERSION, withoutUnansweredQuestions } from "@/lib/game-session";
+import { CaseNotReady } from "@/components/progress/CaseNotReady";
+import { NewLeadToast } from "@/components/progress/NewLeadToast";
+import type { PublicProgress } from "@/engine/progress";
+import { clearGame, isPublicProgress, loadGame, saveGame, SESSION_VERSION, withoutUnansweredQuestions } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
 
@@ -43,6 +46,7 @@ interface InterrogateResult {
   testimonies?: PublicTestimony[];
   stateToken?: string;
   notice?: string;
+  progress?: PublicProgress;
 }
 
 /** Talk to the server. Any network/shape failure degrades to the in-character fallback. */
@@ -53,7 +57,7 @@ async function interrogate(req: InterrogateRequest, seed: number): Promise<Inter
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req),
     });
-    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading };
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown };
     const parsed = CharacterResponseSchema.safeParse(json?.response);
     return {
       response: parsed.success ? parsed.data : createFallbackCharacterResponse({ seed }),
@@ -61,6 +65,7 @@ async function interrogate(req: InterrogateRequest, seed: number): Promise<Inter
       ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
       ...(Array.isArray(json?.testimonies) ? { testimonies: json.testimonies as PublicTestimony[] } : {}),
       ...(json?.contradiction && typeof json.contradiction.characterName === "string" ? { contradiction: json.contradiction } : {}),
+      ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
       ...(json?.stress && typeof json.stress.value === "number" && typeof json.stress.band === "string" ? { stress: json.stress } : {}),
     };
   } catch {
@@ -79,6 +84,7 @@ interface InvestigateResult {
   searchedLocationIds?: string[];
   stateToken?: string;
   notice?: string;
+  progress?: PublicProgress;
 }
 
 /** Search a location. Network/shape failure degrades to an in-character line. */
@@ -129,6 +135,7 @@ async function investigate(req: InvestigateRequest): Promise<InvestigateResult> 
       ...(Array.isArray(j.searchedLocationIds) ? { searchedLocationIds: j.searchedLocationIds } : {}),
       ...(typeof j.stateToken === "string" ? { stateToken: j.stateToken } : {}),
       ...(typeof j.notice === "string" ? { notice: j.notice } : {}),
+      ...(isPublicProgress(j.progress) ? { progress: j.progress } : {}),
     };
   } catch {
     return { found: [], lines: ["A thunderclap makes you drop your magnifying glass. Try searching again."] };
@@ -157,6 +164,12 @@ export function Game({ view }: { view: PublicCaseView }) {
   const [evidence, setEvidence] = useState<PublicEvidence[]>(view.evidence);
   /** Testimony cards: what suspects have admitted (server-confirmed). Presentable like evidence. */
   const [testimonies, setTestimonies] = useState<PublicTestimony[]>([]);
+  /** Progression (leads, locked rooms, accuse gate): server-reported with every route response; display only. */
+  const [progress, setProgress] = useState<PublicProgress>(view.progress);
+  /** Leads waiting for their NEW LEAD sting, and leads the player has not looked at in the notebook yet. */
+  const [leadQueue, setLeadQueue] = useState<PublicProgress["leads"]>([]);
+  const [unseenLeadIds, setUnseenLeadIds] = useState<string[]>([]);
+  const [notReady, setNotReady] = useState(false);
   const [searched, setSearched] = useState<string[]>([]);
   const [searchLines, setSearchLines] = useState<Record<string, string[]>>({});
   const [searchingId, setSearchingId] = useState<string | null>(null);
@@ -243,6 +256,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       setEmotions((e) => ({ ...e, ...saved.emotions }));
       setEvidence(saved.evidence.length ? saved.evidence : view.evidence);
       setTestimonies(saved.testimonies ?? []);
+      if (saved.progress) setProgress(saved.progress);
       setSearched(saved.searched);
       setSearchLines(saved.searchLines);
       setNotes(saved.notes ?? {});
@@ -284,9 +298,10 @@ export function Game({ view }: { view: PublicCaseView }) {
       notes,
       ...(result ? { result } : {}),
       stress,
+      progress,
       confront: { pair: confrontPair, status: confrontStatus },
     });
-  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes, result, stress, confrontPair, confrontStatus]);
+  }, [restored, caseId, screen, activeId, conversations, emotions, evidence, testimonies, searched, searchLines, notes, result, stress, progress, confrontPair, confrontStatus]);
 
   const push = useCallback((characterId: string, msg: Omit<DialogueMessage, "id">) => {
     const id = `m${nextId.current++}`;
@@ -303,7 +318,22 @@ export function Game({ view }: { view: PublicCaseView }) {
     setNotes({});
     setStress({});
     setConfrontStatus({});
-  }, [view.evidence]);
+    setProgress(view.progress);
+    setLeadQueue([]);
+    setUnseenLeadIds([]);
+  }, [view.evidence, view.progress]);
+
+  /** Take the server's progress; leads that just opened (or closed) get their sting. */
+  const applyProgress = useCallback((p: PublicProgress | undefined) => {
+    if (!p) return;
+    setProgress(p);
+    const fresh = p.leads.filter((l) => p.newLeadIds.includes(l.id));
+    if (fresh.length) {
+      setLeadQueue((q) => [...q, ...fresh]);
+      setUnseenLeadIds((u) => [...new Set([...u, ...fresh.map((l) => l.id)])]);
+      getAudio().play("clue_stinger", { gain: 0.7 });
+    }
+  }, []);
 
   const askAs = useCallback(
     (characterId: string, { question, presentedEvidenceId, presentedTestimonyId }: AskInput): boolean => {
@@ -314,7 +344,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, notice, testimonies: cards, contradiction, stress: reading } = await interrogate(
+        const { response, stateToken: next, notice, testimonies: cards, contradiction, stress: reading, progress: prog } = await interrogate(
           {
             characterId,
             question,
@@ -334,6 +364,7 @@ export function Game({ view }: { view: PublicCaseView }) {
           push(characterId, { speaker: "narrator", text: notice });
         }
         push(characterId, { speaker: "character", text: response.dialogue, action: response.action });
+        applyProgress(prog);
         if (contradiction && !notice) {
           // Deterministic engine verdict (Phase 5): OBJECTION beat + a note on the card.
           const name = itemName(contradiction.item, evidenceRef.current, cards ?? []);
@@ -368,7 +399,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       })();
       return true;
     },
-    [caseId, conversations, push, resetProgress, view.suspects],
+    [caseId, conversations, push, resetProgress, applyProgress, view.suspects],
   );
 
   /** One confrontation exchange: the detective questions `addressedId` in front of the other; both reply (server decides everything). */
@@ -396,6 +427,7 @@ export function Game({ view }: { view: PublicCaseView }) {
           push(logKey, { speaker: "narrator", text: r.notice });
         }
         if (r.testimonies) setTestimonies(r.testimonies);
+        applyProgress(r.progress);
         if (r.confrontation) {
           // The counter shows whichever runs out first: this pair's exchanges or the whole game's (#24).
           const c = r.confrontation;
@@ -441,7 +473,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       })();
       return true;
     },
-    [caseId, confrontPair, push, resetProgress, view.suspects],
+    [caseId, confrontPair, push, resetProgress, applyProgress, view.suspects],
   );
 
   const onAsk = useCallback((input: AskInput) => (active ? askAs(active.id, input) : false), [active, askAs]);
@@ -493,6 +525,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
       if (r.stateToken) stateToken.current = r.stateToken;
       if (r.notice) resetProgress();
+      applyProgress(r.progress);
       if (r.searchedLocationIds) setSearched(r.searchedLocationIds);
       setSearchLines((m) => ({ ...(r.notice ? {} : m), [locationId]: r.notice ? [r.notice, ...r.lines] : r.lines }));
       if (r.found.length) {
@@ -508,7 +541,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       inFlight.current = false;
       setSearchingId(null);
     },
-    [caseId, view.evidence, resetProgress],
+    [caseId, view.evidence, resetProgress, applyProgress],
   );
 
   const onAccuse = useCallback(
@@ -524,6 +557,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       inFlight.current = false;
       setAccusing(false);
       if (r.stateToken) stateToken.current = r.stateToken;
+      applyProgress(r.progress);
       // A replay after game over (409) still carries the original verdict and ending.
       if (r.outcome && r.ending && r.accusation) {
         setResult(r);
@@ -531,9 +565,15 @@ export function Game({ view }: { view: PublicCaseView }) {
         go("ending");
         return;
       }
+      if (r.error === "accuse_locked") {
+        // The gate shut (e.g. a stale screen): back to the suspects with the explanation.
+        go("suspects");
+        setNotReady(true);
+        return;
+      }
       setAccuseError(r.line ?? "The inspector frowns. Something about that accusation doesn't add up. Try again.");
     },
-    [caseId, go],
+    [caseId, go, applyProgress],
   );
 
   const showSummary = useCallback(() => setEndingPart("summary"), []);
@@ -546,6 +586,7 @@ export function Game({ view }: { view: PublicCaseView }) {
   const closeNotebook = useCallback(() => {
     getAudio().play("ui_paper");
     setNotebookOpen(false);
+    setUnseenLeadIds([]);
   }, []);
   const openNotebook = useCallback(() => {
     getAudio().play("ui_paper");
@@ -561,11 +602,12 @@ export function Game({ view }: { view: PublicCaseView }) {
     const r = await askHint({ caseId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
     if (r.stateToken) stateToken.current = r.stateToken;
     if (r.notice) resetProgress();
+    applyProgress(r.progress);
     setHint({ line: r.line, found: r.hint !== null });
     if (r.hint) getAudio().play("clue_stinger", { gain: 0.6 });
     else getAudio().play("ui_tap");
     setHintBusy(false);
-  }, [caseId, hintBusy, resetProgress]);
+  }, [caseId, hintBusy, resetProgress, applyProgress]);
   const clearBeat = useCallback(() => setBeats((q) => q.slice(1)), []);
 
   const pendingName = pendingId ? view.suspects.find((s) => s.id === pendingId)?.name.split(" ")[0] : undefined;
@@ -609,7 +651,18 @@ export function Game({ view }: { view: PublicCaseView }) {
             onBack={() => go("intro")}
             onInvestigate={() => go("investigate")}
             onOpenNotebook={openNotebook}
-            {...(evidence.length > 0 ? { onAccuse: () => go(result ? "ending" : "accuse") } : {})}
+            {...(evidence.length > 0
+              ? {
+                  onAccuse: () => {
+                    if (!result && !progress.accuse.unlocked) {
+                      getAudio().play("ui_tap");
+                      setNotReady(true);
+                    } else go(result ? "ending" : "accuse");
+                  },
+                }
+              : {})}
+            accuseReady={progress.accuse.unlocked || result !== null}
+            {...(progress.questioned ? { questioned: progress.questioned } : {})}
             cluesFound={evidence.length}
             stress={stress}
             onSelect={(id) => {
@@ -676,6 +729,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             backdrop={view.backdrops.investigate}
             pendingId={searchingId}
             otherBusy={pendingId !== null}
+            lockedLocationIds={progress.lockedLocationIds}
             onSearch={onSearch}
             onBack={() => go("suspects")}
           />
@@ -687,6 +741,8 @@ export function Game({ view }: { view: PublicCaseView }) {
             motives={view.motives}
             busy={accusing}
             error={accuseError}
+            testimonies={testimonies}
+            citeTestimony={progress.accuse.citeTestimony}
             onSubmit={onAccuse}
             onBack={() => go("suspects")}
           />
@@ -734,9 +790,15 @@ export function Game({ view }: { view: PublicCaseView }) {
           onHint={onHint}
           onPresent={onPresent}
           onClose={closeNotebook}
+          leads={progress.leads}
+          newLeadIds={unseenLeadIds}
         />
       )}
     </AnimatePresence>
+    {notReady && <CaseNotReady accuse={progress.accuse} onClose={() => setNotReady(false)} />}
+    {screen !== "title" && screen !== "intro" && screen !== "ending" && stingQueue.length === 0 && beats.length === 0 && (
+      <NewLeadToast lead={leadQueue[0] ?? null} onDone={() => setLeadQueue((q) => q.slice(1))} />
+    )}
     <ContradictionBeat beat={beats[0] ?? null} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
     </div>

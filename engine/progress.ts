@@ -112,12 +112,15 @@ export interface PublicProgress {
   lockedLocationIds: string[];
   /** `citeTestimony`: the accuse form must cite a revealed confession (solution.minKeyTestimony >= 1). Says nothing about which. */
   accuse: AccuseProgress & { citeTestimony: boolean };
+  /** "questioned n/2" badges: exchanges per suspect, capped at `need` (only when the gate asks for questioned suspects). */
+  questioned?: { need: number; counts: Record<string, number> };
 }
 
 export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution">, game: GameState, before?: LeadStates): PublicProgress {
   const states = leadStates(caseData, game);
   const leads = (caseData.leads ?? []).filter((l): l is Lead => states[l.id] !== "hidden");
   const prev = before ?? states;
+  const sq = caseData.accuseGate?.minSuspectsQuestioned;
   return {
     leads: leads.map((l) =>
       states[l.id] === "closed"
@@ -127,5 +130,6 @@ export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" 
     newLeadIds: leads.filter((l) => (prev[l.id] ?? "hidden") !== states[l.id]).map((l) => l.id),
     lockedLocationIds: caseData.locations.filter((l: Location) => !isUnlocked(l, game, states)).map((l) => l.id),
     accuse: { ...accuseProgress(caseData, game, states), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1 },
+    ...(sq ? { questioned: { need: sq.minExchanges, counts: Object.fromEntries(caseData.characters.map((c) => [c.id, Math.min(sq.minExchanges, exchanges(game, c.id))])) } } : {}),
   };
 }

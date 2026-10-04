@@ -3,7 +3,7 @@
 import { motion } from "framer-motion";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
-import type { Location } from "@/engine/types";
+import type { PublicLocation } from "@/engine/types";
 
 const ICONS = ["🕯️", "🍽️", "🚪", "🌧️", "🫖", "📚", "🛏️", "🗝️"];
 
@@ -15,10 +15,11 @@ export function InvestigateScreen({
   backdrop,
   pendingId,
   otherBusy = false,
+  lockedLocationIds = [],
   onSearch,
   onBack,
 }: {
-  locations: Location[];
+  locations: PublicLocation[];
   searched: string[];
   /** Last flavour lines per location. */
   lines: Record<string, string[]>;
@@ -27,6 +28,8 @@ export function InvestigateScreen({
   pendingId: string | null;
   /** Another request (an interrogation reply) is in flight: searching waits for it. */
   otherBusy?: boolean;
+  /** Rooms still locked by progression (progress.lockedLocationIds): a padlock and the room's lockedLine instead of a search. */
+  lockedLocationIds?: string[];
   onSearch: (locationId: string) => void;
   onBack: () => void;
 }) {
@@ -52,6 +55,8 @@ export function InvestigateScreen({
       </p>
       <ul className="grid w-full max-w-6xl grid-cols-1 gap-5 min-[600px]:grid-cols-2 sm:gap-6 lg:grid-cols-3">
         {locations.map((l, i) => {
+          const locked =
+            lockedLocationIds.includes(l.id) && !searched.includes(l.id);
           const done = searched.includes(l.id);
           const busy = pendingId === l.id;
           const bg = l.background;
@@ -74,15 +79,29 @@ export function InvestigateScreen({
                 )}
                 <span
                   className={`absolute right-2 top-2 rounded-full border-[3px] border-black px-3 py-1 text-sm font-black uppercase shadow-[2px_2px_0_#000] ${
-                    done ? "bg-lime-300" : "bg-white"
+                    locked
+                      ? "bg-neutral-300"
+                      : done
+                        ? "bg-lime-300"
+                        : "bg-white"
                   }`}
                 >
-                  {done ? "✔ Searched" : "Unsearched"}
+                  {locked ? "🔒 Locked" : done ? "✔ Searched" : "Unsearched"}
                 </span>
               </div>
               <div className="flex flex-1 flex-col gap-2 p-4">
                 <h2 className="font-display text-2xl tracking-wide">{l.name}</h2>
                 <p className="text-base text-neutral-700">{l.description}</p>
+                {locked && (
+                  <p
+                    data-locked-line
+                    className="rounded-lg border-2 border-black bg-neutral-200 px-3 py-1.5 text-base font-semibold italic"
+                  >
+                    🔒{" "}
+                    {l.lockedLine ??
+                      "This room is locked for now. Come back when you know more."}
+                  </p>
+                )}
                 {(lines[l.id] ?? []).map((t, k) => (
                   <p key={k} className="rounded-lg border-2 border-dashed border-black bg-yellow-100 px-3 py-1.5 text-base font-semibold italic">
                     {t}
@@ -91,12 +110,12 @@ export function InvestigateScreen({
                 <CartoonButton
                   tone={done ? "white" : "red"}
                   className="mt-auto min-h-12 text-base"
-                  disabled={pendingId !== null || otherBusy}
+                  disabled={pendingId !== null || otherBusy || locked}
                   onClick={() => onSearch(l.id)}
                   aria-label={`Search ${l.name}`}
                   data-location-id={l.id}
                 >
-                  {busy ? "🔎 Searching…" : done ? "🔎 Search again" : "🔎 Search"}
+                  {locked ? "🔒 Locked" : busy ? "🔎 Searching…" : done ? "🔎 Search again" : "🔎 Search"}
                 </CartoonButton>
               </div>
             </motion.li>

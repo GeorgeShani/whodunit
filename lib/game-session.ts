@@ -10,6 +10,7 @@
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
 import type { PublicEvidence } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
+import type { PublicProgress } from "@/engine/progress";
 import type { Emotion } from "@/engine/types";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { ContradictionNotes } from "@/components/evidence/notebook-model";
@@ -32,6 +33,8 @@ export interface SavedGame {
   nextId: number;
   /** Engine contradiction verdicts noted on notebook cards. Optional: older saves lack it. */
   notes?: ContradictionNotes;
+  /** Leads, locked rooms and the accuse checklist as last reported (display only; the server recomputes them). */
+  progress?: PublicProgress;
   /** The /api/accuse result once the case is closed (verdict, ending, solution). */
   result?: AccuseResponseBody;
   /** Engine stress per suspect, as last reported (display only; the token is authoritative). */
@@ -67,6 +70,19 @@ export function withoutUnansweredQuestions(c: Record<string, DialogueMessage[]>)
   return Object.fromEntries(Object.entries(c).map(([k, msgs]) => [k, Array.isArray(msgs) && msgs.at(-1)?.speaker === "player" ? msgs.slice(0, -1) : msgs]));
 }
 
+/** Shape check for a progress block from a route response or a saved game (display data only). */
+export function isPublicProgress(x: unknown): x is PublicProgress {
+  return (
+    isObj(x) &&
+    Array.isArray(x.leads) &&
+    Array.isArray(x.newLeadIds) &&
+    Array.isArray(x.lockedLocationIds) &&
+    isObj(x.accuse) &&
+    typeof x.accuse.unlocked === "boolean" &&
+    isObj(x.accuse.checklist)
+  );
+}
+
 export function parseSavedGame(raw: string | null, caseId: string): SavedGame | null {
   if (!raw) return null;
   let j: unknown;
@@ -97,6 +113,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
       ? { confront: j.confront as SavedGame["confront"] }
       : {}),
     ...(isObj(j.stress) ? { stress: Object.fromEntries(Object.entries(j.stress).filter(([, v]) => typeof v === "number" && v >= 0 && v <= 100)) as Record<string, number> } : {}),
+    ...(isPublicProgress(j.progress) ? { progress: j.progress } : {}),
     ...(isObj(j.result) && (j.result.outcome === "won" || j.result.outcome === "lost") && isObj(j.result.ending) && isObj(j.result.accusation) ? { result: j.result as AccuseResponseBody } : {}),
   };
 }
