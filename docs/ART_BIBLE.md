@@ -396,6 +396,7 @@ Scene: the grand entrance hall of the same old mansion at night during a storm. 
 - Sprites: `assets/characters/<id>/<emotion>.webp` — ids `reginald`, `victoria`, `archibald`, `gregory`; emotions `neutral`, `talking`, `angry`, `nervous`, `shocked`, `smug`, `sad` (e.g. `assets/characters/gregory/nervous.webp`).
 - Effects: `assets/effects/<name>.webp` + placement spec `assets/effects/effects.json`; per-sprite anchors `assets/characters/anchors.json`.
 - Backgrounds: `assets/backgrounds/<room>.webp` + `<room>_lightning.webp` (1920×1080 q85); optional `<room>_window_mask.webp`; rain texture `assets/effects/rain_tile.webp`.
+- Evidence icons: `assets/evidence/<evidenceId>.webp` (256x256 transparent) + `_fallback.webp`; see §8.1 and `assets/evidence/README.md`.
 - Title card: `assets/title/` (background, dim background, logo webp/png/svg, sunburst); see §7.0.
 - Serving: `assets/` is the source of truth. `npm run sync:assets` (auto via `predev`/`prebuild`) copies it to the gitignored `public/assets/`, so every file above is loaded at `/assets/...` (e.g. `/assets/backgrounds/library.webp`). Never commit into `public/assets/`.
 - Motion presets: `docs/toonMotion.ts`.
@@ -416,6 +417,14 @@ Scene: the grand entrance hall of the same old mansion at night during a storm. 
 | victoria | 0.9115 | 0.92 | fits, no cap |
 | archibald | 0.8583 | 0.78 | sets the canvas width |
 | gregory | 0.6893 | 0.62 | fits, no cap; clearly shorter than Archibald |
+
+### 8.1 Evidence icons — v0.1
+One cartoon icon per clue, replacing the kind emoji (🔧 📜 🗣️ 👣) in the notebook, clue sting, accuse screen and ending recap.
+- **Path / format:** `assets/evidence/<evidenceId>.webp`, where `<evidenceId>` is exactly the `id` in `cases/<case>/evidence.json`. 256 × 256, RGBA, transparent, lossy WebP (quality 85, alpha quality 90, method 6; 5 to 10 KB each). Neutral fallback: `assets/evidence/_fallback.webp` (magnifying glass over a "?" tag). Display at 64 px in lists, 96 to 256 px in detail views.
+- **Blackwood ids:** `silver-candlestick`, `muddy-footprint`, `burned-letter`, `library-key`.
+- **Style:** one object, centered, about 8% transparent padding, slight comic tilt. Same ink as the effects (`#111114`, one consistent heavy outline, round joins), flat fills with ONE shade tone per material, one tiny white highlight, warm limited palette (cream, brass, silver-grey, oxblood, mud brown, ember orange). No text/letters (the "?" is a shape; writing is rounded bars), no background, no baked shadow. Must read at 64 px on both light and dark UI.
+- **Method:** hand-authored SVG like the effects (§5), rasterized with cairosvg and auto-fitted. Lossless masters and SVG sources stay out of git in `toon-drafts/evidence/`. If generated instead, prepend the style prefix in `assets/evidence/README.md` and keep the object on a pure green key.
+- **New cases:** keep Blackwood flat; use `assets/evidence/<caseId>/<id>.webp` for new cases (id uniqueness is only per case). Full convention and the Tallyho id list: `assets/evidence/README.md`. Preview: `docs/art/evidence_contact.jpg`.
 
 ### Prompt assembly
 `LOCKED STYLE PROMPT` + `LOCKED CHARACTER DESCRIPTION` + pose line + facing line + `LOCKED NEGATIVE`. Facing line (all characters except Reginald, whose reference already faced left):
@@ -463,3 +472,6 @@ Non-neutral poses use the xAI image edit endpoint with that character's approved
 - **Title 390×844**: phone-only (`max-sm`) tightening of the tagline, button and bottom padding in `TitleScreen.tsx`, so the tagline no longer covers the mansion base. No asset changes. Desktop screenshots at 1280×800 and 1920×1080 are pixel-identical before and after.
 - **Manor portraits**: each portrait crop (2×/4× upscaled from `raw/manor_BASE_nobolt.png`) went through the xAI edit with a "same sitter, clearer, stern anonymous ancestor, muted old palette, no text" instruction. Left: 2 candidates → v2. Right: 2 → v1. Landing: 5 → v4 (v1/v2 looked like a glamorous film star, so the prompt was re-worded to a plain stern matron). Only the canvas-interior polygons were composited back (5 px erode, 2.5 px feather), onto the pre-grade base AND the lightning base. The lightning copy got a per-portrait 3×3+offset colour fit (base→lightning) so the flash doesn't pop. Then the same `grade()` + q85 export as v0.1. Changed pixels are confined to the three canvases (1920 frame bbox x 83–1723, y 86–471; frames, curtain and window untouched), so `manor_window_mask.webp` is unchanged. Script: `toon-drafts/backgrounds/portraits/apply.py`.
 - Preview: `docs/art/polish1_preview.jpg`.
+
+### Evidence icons v0.1
+Five icons (4 Blackwood clues + fallback) drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) because the image API was out of credits at the time; one pass each, checked at 256 px and 64 px on light and dark backgrounds (`toon-drafts/evidence_contact.png`).
