@@ -30,7 +30,13 @@ export function DialogueLog({
   const hasFooter = Boolean(footer);
   useEffect(() => {
     // Braces matter: newer browsers return a Promise from scrollIntoView, which must not become the effect cleanup.
-    end.current?.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "end" });
+    const behavior = reduced ? "auto" : "smooth";
+    const marker = end.current;
+    const newest = marker?.previousElementSibling;
+    const box = marker?.parentElement;
+    // A reply taller than the visible log (small phones) is shown from its first line, not its last.
+    if (newest && box && newest.getBoundingClientRect().height > box.clientHeight - 32) newest.scrollIntoView({ behavior, block: "start" });
+    else marker?.scrollIntoView({ behavior, block: "end" });
   }, [messages.length, hasFooter, reduced]);
 
   return (

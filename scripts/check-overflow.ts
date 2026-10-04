@@ -17,10 +17,13 @@
  * Defaults: http://localhost:3000, /usr/bin/google-chrome (or $CHROME_PATH).
  * Exits 1 on any overflow sample. Interrogation talks to /api/interrogate, so
  * against a server with a model key it makes a couple of live calls.
+ * --model-down answers /api/interrogate and /api/confront in the browser with the "model unavailable" reply
+ * (no request reaches the server, no live call is made) so the walk-through also covers the Ask again state.
  */
 import { chromium, type Page } from "playwright-core";
 
 const args = process.argv.slice(2);
+const modelDown = args.includes("--model-down");
 const flagValues = new Set(["--chrome", "--only", "--shots"].flatMap((f) => (args.indexOf(f) >= 0 ? [args[args.indexOf(f) + 1]] : [])));
 const base = args.find((a) => !a.startsWith("--") && !flagValues.has(a)) ?? "http://localhost:3000";
 const chromeIdx = args.indexOf("--chrome");
@@ -137,7 +140,7 @@ async function waitReply(p: Page) {
   // The ASK button re-enables once the reply (model or fallback) has landed.
   await p.waitForFunction(() => {
     const b = [...document.querySelectorAll("button")].find((x) => x.textContent?.includes("ASK!"));
-    return b && !document.querySelector('[aria-busy="true"]') && document.querySelectorAll("p.font-medium").length >= 2;
+    return b && !document.querySelector('[aria-busy="true"]') && (document.querySelectorAll("p.font-medium").length >= 2 || document.querySelector("[data-model-retry]"));
   }, undefined, { timeout: 30_000 });
 }
 
@@ -152,6 +155,12 @@ async function run(): Promise<number> {
     shotN = 0;
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.isMobile, deviceScaleFactor: 1 });
     await ctx.addInitScript({ content: SAMPLER });
+    if (modelDown) {
+      const line = "The telephone line is down for the night, and they won't be drawn just now. Search the rooms, check your notebook, or make your accusation; talk resumes when the line is mended.";
+      const down = { source: "unavailable", error: "quota", unavailable: { kind: "quiet", line }, response: { dialogue: "…", emotion: "calm", intensity: 0.3, evidenceReactions: [], wantsToLeave: false, stressDelta: 0, trustDelta: 0 } };
+      await ctx.route("**/api/interrogate", (r) => r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify(down) }));
+      await ctx.route("**/api/confront", (r) => r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ lines: [], line, error: "quota", unavailable: { kind: "quiet", line } }) }));
+    }
     const p = await ctx.newPage();
     const errors: string[] = [];
     p.on("pageerror", (e) => errors.push(e.message));
@@ -176,6 +185,7 @@ async function run(): Promise<number> {
     await clickButton(p, /The victim/);
     await waitReply(p);
     await wait(2500); // emotion overlay intro + loop, speaking pose
+    if (modelDown) await label(p, "model down: Ask again");
     await label(p, "present evidence menu");
     await clickButton(p, /Present evidence/);
     await wait(800);

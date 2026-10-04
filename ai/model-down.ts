@@ -24,8 +24,8 @@ const BUSY: readonly ((n: string) => string)[] = [
 ];
 
 const QUIET: readonly ((n: string) => string)[] = [
-  (n) => `The telephone exchange has gone quiet for the night, and ${n} will not be drawn just now. The house still holds its secrets: search the rooms, study your notebook, or make your accusation. Conversation will resume when the line is mended.`,
-  (n) => `The storm has taken the lines down and ${n} has gone silent. There is still plenty to do: search the rooms, go over the notebook, or put your accusation. Try asking again in a little while.`,
+  (n) => `The telephone line is down for the night, and ${n} won't be drawn just now. Search the rooms, check your notebook, or make your accusation; talk resumes when the line is mended.`,
+  (n) => `The storm has cut the lines and ${n} has gone silent. Search the rooms, go over the notebook, or put your accusation, and ask again in a little while.`,
 ];
 
 /** The in-fiction line for an unavailable model. `seed` picks a variant deterministically. */
@@ -49,6 +49,6 @@ export function stillDownLine(kind: ModelDownKind): string {
 export function confrontDownLine(kind: ModelDownKind, a: string, b: string): string {
   const names = `${first(a)} and ${first(b)}`;
   return kind === "quiet"
-    ? `The telephone exchange has gone quiet for the night and ${names} will say nothing more just now. Search the rooms, study your notebook, or make your accusation; they will talk again when the line is mended.`
+    ? `The telephone line is down for the night and ${names} will say nothing more just now. Search the rooms, check your notebook, or make your accusation; they will talk when the line is mended.`
     : `Thunder rolls through the hall and ${names} both lose the thread. Nobody caught a word. Put it to them again, detective.`;
 }
