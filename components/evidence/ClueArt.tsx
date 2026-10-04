@@ -13,7 +13,7 @@ export function ClueArtProvider({ caseId, children }: { caseId: string; children
 /**
  * A clue's picture: its illustration when one exists (assets/evidence/<id>.webp), else its emoji icon, else a neutral
  * magnifying glass. Decorative (aria-hidden); the clue's name is always shown next to it. `fill` makes an illustration
- * cover its box (cards); otherwise it is scaled to fit.
+ * fill its box (cards, overlay; contained, since the art is a transparent 256x256 sticker on the amber tile).
  */
 export function ClueArt({ evidence, className = "", fill = false }: { evidence: ClueArtEvidence; className?: string; fill?: boolean }) {
   const caseId = useContext(CaseContext);
@@ -22,7 +22,7 @@ export function ClueArt({ evidence, className = "", fill = false }: { evidence: 
   if (art.kind === "image" && failed !== art.src) {
     return (
       // eslint-disable-next-line @next/next/no-img-element -- small authored card art, already sized
-      <img src={art.src} alt="" aria-hidden data-clue-art="image" onError={() => setFailed(art.src)} className={`${fill ? "h-full w-full object-cover" : "max-h-full max-w-full object-contain"} ${className}`} />
+      <img src={art.src} alt="" aria-hidden data-clue-art="image" onError={() => setFailed(art.src)} className={`${fill ? "h-full w-full p-1" : "max-h-full max-w-full"} object-contain ${className}`} />
     );
   }
   return (

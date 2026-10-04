@@ -175,7 +175,7 @@ resolver `resolveClueArt` in `lib/clue-art.ts`, in this order:
    (`assets/evidence/<image>.webp`). `<id>` is the evidence `id` exactly. Drop the file in and it is picked up with no code or JSON change: the list
    of files is read when the app is built or started (a Vercel deploy does that; restart `npm run dev` after adding one).
 2. **`icon`**: the item's own emoji.
-3. **Generic icon**: 🔍. The clue's `kind` is never used to guess a picture.
+3. **Generic fallback**: the shared `assets/evidence/_fallback.webp` (magnifier over a "?" tag) when present, else 🔍. The clue's `kind` is never used to guess a picture.
 
 Illustration format: **WebP, square, 256x256 px** (it is shown at 64 px on cards and 96 px in the overlay, so 2-3x for sharp screens), a cartoon
 object with the same black outline as the other art, on a transparent or flat warm background (the frame behind it is amber), ideally under 40 KB.

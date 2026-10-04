@@ -47,6 +47,13 @@ describe("resolveClueArt", () => {
     expect(clueIcon({ icon: " 👣 " })).toBe("👣");
   });
 
+  it("the shared _fallback.webp is the last resort when listed (after the icon), and cannot be claimed by an id", () => {
+    expect(resolveClueArt("c", { id: "a" }, set("_fallback"))).toEqual({ kind: "image", src: "/assets/evidence/_fallback.webp" });
+    expect(resolveClueArt("c", { id: "a", icon: "🗝️" }, set("_fallback"))).toEqual({ kind: "icon", icon: "🗝️" });
+    expect(resolveClueArt("c", { id: "_fallback" }, set("_fallback"))).toEqual({ kind: "image", src: "/assets/evidence/_fallback.webp" }); // via the fallback rule, not the id
+    expect(resolveClueArt("c", { id: "a", image: "_fallback" }, set("_fallback")).kind).toBe("image");
+  });
+
   it("the fallback is never kind-specific", () => {
     expect(CLUE_FALLBACK_ICON).toBe("🔍");
     expect(clueIcon({})).not.toBe("🔧");

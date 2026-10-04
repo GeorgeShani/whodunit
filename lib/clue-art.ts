@@ -6,7 +6,8 @@
  *  1. an illustration that exists under assets/evidence/: `<caseId>/<id>.webp`, then `<id>.webp`, then the legacy
  *     `image` key (`<image>.webp`). Toon drops files in; nothing else changes.
  *  2. the item's own `icon` emoji (cases/<case>/evidence.json).
- *  3. a neutral generic icon (CLUE_FALLBACK_ICON).
+ *  3. the shared neutral picture assets/evidence/_fallback.webp (magnifier over a "?" tag) when it exists, else the
+ *     generic CLUE_FALLBACK_ICON emoji.
  *
  * Which files exist is decided at BUILD/START time: next.config.ts lists assets/evidence/ into
  * NEXT_PUBLIC_CLUE_ART (relative paths without extension, comma separated), so a missing file is never requested.
@@ -17,6 +18,8 @@ import type { PublicEvidence } from "@/engine/public-view";
 /** Neutral stand-in when a clue has neither an illustration nor an authored icon. */
 export const CLUE_FALLBACK_ICON = "🔍";
 /** Public URL folder (assets/ is copied to public/assets/ by sync:assets). */
+/** The shared neutral picture (not matched by the id regex, so no clue can claim it). */
+export const CLUE_FALLBACK_FILE = "_fallback";
 export const CLUE_ART_DIR = "/assets/evidence";
 
 export type ClueArtEvidence = Pick<PublicEvidence, "id"> & { image?: string | undefined; icon?: string | undefined };
@@ -53,5 +56,7 @@ export function resolveClueArt(caseId: string, evidence: ClueArtEvidence, availa
   }
   const hit = candidates.find((c) => available.has(c));
   if (hit) return { kind: "image", src: `${CLUE_ART_DIR}/${hit}.webp` };
-  return { kind: "icon", icon: clueIcon(evidence) };
+  if (validClueIcon(evidence.icon)) return { kind: "icon", icon: evidence.icon.trim() };
+  if (available.has(CLUE_FALLBACK_FILE)) return { kind: "image", src: `${CLUE_ART_DIR}/${CLUE_FALLBACK_FILE}.webp` };
+  return { kind: "icon", icon: CLUE_FALLBACK_ICON };
 }
