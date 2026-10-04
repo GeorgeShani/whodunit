@@ -4,6 +4,7 @@ import { handleAccuse } from "@/engine/accuse-handler";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
+import { searchLocation } from "@/engine/investigation";
 import { accuseProgress, leadStates, publicProgress, visibleLeadStates } from "@/engine/progress";
 import { saveSession } from "@/engine/session";
 import { TEST_ENV } from "../helpers/grok-mock";
@@ -29,6 +30,18 @@ describe("a lead that closes before it ever opened (#38)", () => {
     const p = publicProgress(c, g, visibleLeadStates(c, createInitialGameState(c)));
     expect(p.leads.map((l) => l.id)).not.toContain("lead-boots");
     expect(JSON.stringify(p)).not.toContain("The boots had been in the hall");
+  });
+
+  it("reproduction through real searches: garden (lantern opens) then hall (footprint closes lantern and, unseen, boots)", () => {
+    const g = createInitialGameState(c);
+    searchLocation(c, g, "garden");
+    const before = visibleLeadStates(c, g);
+    expect(before["lead-lantern"]).toBe("open");
+    expect(before["lead-boots"]).toBe("hidden");
+    expect(searchLocation(c, g, "hall").newlyFound.map((e) => e.id)).toEqual(["muddy-footprint"]);
+    const p = publicProgress(c, g, before);
+    expect(p.leads.filter((l) => l.state === "closed").map((l) => l.id)).toEqual(["lead-lantern"]);
+    expect(p.newLeadIds.sort()).toEqual(["lead-eyewitness", "lead-lantern"]);
   });
 
   it("no NEW LEAD / LEAD SOLVED for it; leads the player did see open still announce", () => {
