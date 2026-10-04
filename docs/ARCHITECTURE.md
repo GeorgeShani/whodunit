@@ -71,7 +71,7 @@ One exchange (`ai/interrogate-handler.ts`):
 
 ### Accusations
 
-`engine/accusation.ts` `gradeAccusation(solution, accusation)` (server-only, pure): a win needs the right murderer, weapon and motive AND at least one cited id from `solution.keyEvidenceIds`. Extra evidence is fine. Time and place are returned for the recap but not graded. No route/UI yet.
+`engine/accusation.ts` `gradeAccusation(solution, accusation)` (server-only, pure): a win needs the right murderer, weapon and motive AND at least one cited id from `solution.keyEvidenceIds`. Extra evidence is fine. Time and place are returned for the recap but not graded. A WIN returns verdict, solution and ending; a LOSS returns only the (spoiler-filtered) wrong ending, `escapedLine` and "The case went unsolved." (#22). One accusation per game: the token carries a random `gameId`, `lib/accused-store.ts` records an accused game in the Vercel Runtime Cache (best effort: per region, 7-day TTL, fails open; in-process map elsewhere), and any other token of that game gets the original verdict back with its new guess ignored.
 
 ### Tests never call the model
 

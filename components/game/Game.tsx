@@ -495,7 +495,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       setAccusing(false);
       if (r.stateToken) stateToken.current = r.stateToken;
       // A replay after game over (409) still carries the original verdict and ending.
-      if (r.outcome && r.ending && r.verdict && r.accusation) {
+      if (r.outcome && r.ending && r.accusation) {
         setResult(r);
         setEndingPart("scene");
         go("ending");
@@ -656,7 +656,6 @@ export function Game({ view }: { view: PublicCaseView }) {
             suspects={view.suspects}
             evidence={[...(result.evidence ?? []), ...evidence.filter((e) => !result.evidence?.some((x) => x.id === e.id))]}
             stage={view.stage}
-            {...(result.outcome === "lost" && result.solution ? { escapedId: result.solution.murderer.id } : {})}
             onDone={showSummary}
           />
         )}

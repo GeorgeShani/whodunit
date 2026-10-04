@@ -120,6 +120,6 @@ describe("ending sequencer", () => {
     expect(speakers).toHaveLength(won.beats.length);
     const lost = buildEnding(c, { won: false }, { murdererId: "victoria", weaponId: "muddy-footprint", motiveId: "revenge", keyEvidenceIds: ["muddy-footprint"] });
     expect(lost.beats.at(-1)?.section).toBe("escaped");
-    expect(lost.beats[0].text).toMatch(/right lady/);
+    expect(lost.beats[0].text).not.toMatch(/right lady/); // the engine withholds it: a loss must not confirm the culprit (#22)
   });
 });

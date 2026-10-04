@@ -72,6 +72,8 @@ const TokenCharacterSchema = z.strictObject({
 const TokenPayloadSchema = z.strictObject({
   /** Optional only for legacy tokens; decode maps a missing id to options.legacyCaseId. */
   caseId: CaseIdSchema.optional(),
+  /** Random id of this game (absent in older tokens: derived from the token). */
+  gameId: z.string().regex(/^[A-Za-z0-9_-]{8,48}$/).optional(),
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema),
   searchedLocationIds: z.array(IdSchema).default([]),
@@ -147,12 +149,19 @@ function unseal(sealed: string, env?: Env): z.infer<typeof SealedSchema> | null 
   }
 }
 
+/** A fresh random game id (also assigned to a game the first time it is saved). */
+export const newGameId = () => randomBytes(12).toString("base64url");
+export function ensureGameId(game: GameState): string {
+  return (game.gameId ??= newGameId());
+}
+
 const clip = (s: string) => (s.length > STATE_LIMITS.textChars ? s.slice(0, STATE_LIMITS.textChars - 1) + "…" : s);
 
 function toPayload(game: GameState, env?: Env): TokenPayload {
   const liesTold = Object.fromEntries(Object.entries(game.characters).filter(([, r]) => r.liesToldIds.length).map(([id, r]) => [id, [...r.liesToldIds]]));
   return {
     caseId: game.caseId,
+    gameId: ensureGameId(game),
     turn: game.turn,
     discoveredEvidenceIds: [...game.discoveredEvidenceIds],
     searchedLocationIds: [...game.searchedLocationIds],
@@ -288,6 +297,8 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   if (!p.confrontedPairs.every((k) => k.split("|").length === 2 && k.split("|").every((id) => chars.has(id)))) return { ok: false, reason: "invalid_payload" };
 
   const game = createInitialGameState(caseData);
+  // Older tokens have no id: derive a stable one from the token itself so replays of the same token share it.
+  game.gameId = p.gameId ?? createHash("sha256").update(token ?? "").digest("base64url").slice(0, 22);
   game.activeConfrontation = p.confrontation;
   game.confrontedPairs = [...p.confrontedPairs];
   game.hintTurn = p.hintTurn !== null && p.hintTurn <= p.turn ? p.hintTurn : null;

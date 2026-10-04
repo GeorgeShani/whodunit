@@ -4,7 +4,8 @@
  *   ORIGINAL verdict (409) -> every cited id exists and is discovered ->
  *   gradeAccusation (engine only) -> mark the game over in the token ->
  *   outcome + verdict + solution reveal + ending payload.
- * This is the only place solution or ending data leaves the server.
+ * This is the only place solution or ending data leaves the server (and only
+ * on a win: a loss never carries the solution or per-field verdict).
  */
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { gradeAccusation } from "./accusation";
@@ -29,23 +30,33 @@ export interface AccuseResult {
   body: AccuseResponseBody;
 }
 
+/**
+ * A WIN carries the verdict and the full solution. A LOSS carries neither (#22):
+ * not the per-field right/wrong, not the solution, not the real murderer. The
+ * player only learns that the case went unsolved.
+ */
 function verdictBody(caseData: LoadedCase, game: GameState, accusation: Accusation, env?: Env): AccuseResponseBody {
   const grade = gradeAccusation(caseData.solution, accusation);
   const ending = buildEnding(caseData, grade, accusation);
+  const stateToken = saveSession(game, env);
+  if (!grade.won) return { outcome: "lost", accusation, ending, evidence: endingEvidence(caseData, ending, undefined, accusation), stateToken };
   const solution = buildSolutionReveal(caseData);
-  return {
-    outcome: grade.won ? "won" : "lost",
-    accusation,
-    verdict: toVerdict(grade),
-    solution,
-    ending,
-    evidence: endingEvidence(caseData, ending, solution, accusation),
-    stateToken: saveSession(game, env),
-  };
+  return { outcome: "won", accusation, verdict: toVerdict(grade), solution, ending, evidence: endingEvidence(caseData, ending, solution, accusation), stateToken };
 }
 
-export function handleAccuse(json: unknown, deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string }): AccuseResult {
-  const { caseData, env, legacyCaseId } = deps;
+/**
+ * One accusation per GAME, not per token (#22). Tokens are stateless, so an
+ * older token could otherwise be replayed to guess again. The accuser's game id
+ * is recorded here when it accuses; any later token carrying the same id gets
+ * the original verdict back and its new guess ignored.
+ */
+export interface AccusedStore {
+  get(gameId: string): Promise<Accusation | null>;
+  put(gameId: string, accusation: Accusation): Promise<void>;
+}
+
+export async function handleAccuse(json: unknown, deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string; accused?: AccusedStore }): Promise<AccuseResult> {
+  const { caseData, env, legacyCaseId, accused } = deps;
   const parsed = AccuseRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: { error: "invalid_request", line: ACCUSE_LINES.invalid } };
   const { accusation, stateToken, caseId } = parsed.data;
@@ -57,6 +68,15 @@ export function handleAccuse(json: unknown, deps: { caseData: LoadedCase; env?: 
   // Game over: one accusation per game. Replays get the ORIGINAL verdict back; the new guess is ignored.
   if (isCaseClosed(game) && game.accusation) {
     return { status: 409, body: { ...verdictBody(caseData, game, game.accusation, env), error: "case_closed", line: ACCUSE_LINES.caseClosed } };
+  }
+
+  // Same game, older token: replay the recorded verdict (best effort: a store outage fails open).
+  const earlier = game.gameId && accused ? await accused.get(game.gameId).catch(() => null) : null;
+  if (earlier) {
+    game.accusation = earlier;
+    game.outcome = gradeAccusation(caseData.solution, earlier).won ? "won" : "lost";
+    game.phase = "resolved";
+    return { status: 409, body: { ...verdictBody(caseData, game, earlier, env), error: "case_closed", line: ACCUSE_LINES.caseClosed } };
   }
 
   const reject = (error: string, line: string): AccuseResult => ({ status: 400, body: { error, line, stateToken: saveSession(game, env) } });
@@ -71,5 +91,6 @@ export function handleAccuse(json: unknown, deps: { caseData: LoadedCase; env?: 
   game.accusation = clean;
   game.outcome = grade.won ? "won" : "lost";
   game.phase = "resolved";
+  if (game.gameId && accused) await accused.put(game.gameId, clean).catch(() => undefined);
   return { status: 200, body: verdictBody(caseData, game, clean, env) };
 }

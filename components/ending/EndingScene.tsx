@@ -28,15 +28,12 @@ export function EndingScene({
   suspects,
   evidence,
   stage,
-  escapedId,
   onDone,
 }: {
   ending: EndingPayload;
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
   stage?: StageArt;
-  /** The real murderer (revealed with the ending on a loss): shown slinking off on the escaped line. */
-  escapedId?: string;
   onDone: () => void;
 }) {
   const reduced = useReducedMotion() ?? false;
@@ -105,7 +102,7 @@ export function EndingScene({
   }, [next, skip]);
 
   const byId = useMemo(() => new Map(suspects.map((x) => [x.id, x])), [suspects]);
-  const cast = castAt(beats, s, { accusedId: ending.accusedId, won, ...(escapedId ? { escapedId } : {}) });
+  const cast = castAt(beats, s, { accusedId: ending.accusedId, won });
   const lineEmotion = s.phase === "lines" ? beats[s.index]?.emotion : undefined;
   const actors = cast.actors
     .map((a): StageActor | null => {

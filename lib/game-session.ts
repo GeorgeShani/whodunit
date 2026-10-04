@@ -88,7 +88,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
       ? { confront: j.confront as SavedGame["confront"] }
       : {}),
     ...(isObj(j.stress) ? { stress: Object.fromEntries(Object.entries(j.stress).filter(([, v]) => typeof v === "number" && v >= 0 && v <= 100)) as Record<string, number> } : {}),
-    ...(isObj(j.result) && isObj(j.result.verdict) && isObj(j.result.ending) && isObj(j.result.accusation) ? { result: j.result as AccuseResponseBody } : {}),
+    ...(isObj(j.result) && (j.result.outcome === "won" || j.result.outcome === "lost") && isObj(j.result.ending) && isObj(j.result.accusation) ? { result: j.result as AccuseResponseBody } : {}),
   };
 }
 
