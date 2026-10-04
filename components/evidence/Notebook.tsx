@@ -61,8 +61,8 @@ export function Notebook({
     const list = targets(ownerId);
     if (list.length === 0) return null;
     return (
-      <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-2">
-        {!presentTo && <span className="text-xs font-black uppercase text-neutral-600">Present to</span>}
+      <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">
+        {!presentTo && <span className="text-sm font-black uppercase text-neutral-600">Present to</span>}
         {list.map((s) => (
           <button
             key={s.id}
@@ -71,7 +71,7 @@ export function Notebook({
             onClick={() => onPresent(item, s.id)}
             aria-label={`Present ${label} to ${s.name}`}
             {...(item.kind === "evidence" ? { "data-evidence-id": item.id } : { "data-testimony-id": item.id })}
-            className="cursor-pointer rounded-lg border-[3px] border-black bg-red-500 px-2.5 py-1 text-sm font-bold text-white shadow-[2px_2px_0_#000] hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+            className="cursor-pointer rounded-lg border-[3px] border-black bg-red-500 min-h-11 px-3 py-1.5 text-base font-bold text-white shadow-[2px_2px_0_#000] hover:bg-red-400 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {presentTo ? `Present to ${s.name.split(" ")[0]}` : s.name.split(" ")[0]}
           </button>
@@ -85,7 +85,7 @@ export function Notebook({
     return lines.length ? (
       <ul className="mt-1 flex flex-col gap-1">
         {lines.map((l) => (
-          <li key={l} className="w-fit rounded-md border-2 border-black bg-red-200 px-2 py-0.5 text-xs font-black uppercase text-red-800" data-contradiction>
+          <li key={l} className="w-fit rounded-md border-2 border-black bg-red-200 px-2 py-1 text-sm font-black uppercase text-red-800" data-contradiction>
             ⚡ {l}
           </li>
         ))}
@@ -100,14 +100,14 @@ export function Notebook({
       aria-modal="true"
       aria-labelledby={titleId}
       data-notebook
-      className="absolute inset-0 z-40 flex items-stretch justify-center bg-black/70 p-3 sm:p-6"
+      className="absolute inset-0 z-40 flex items-stretch justify-center bg-black/70 p-3 short:p-2 sm:p-6"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-[#fff8e7] text-black shadow-[8px_8px_0_#000]">
-        <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-14 sm:pe-4">
+        <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16 sm:pe-4">
           <h2 id={titleId} className="font-display text-3xl tracking-wider">
             📓 Notebook{presentTo ? `: present to ${presentTo.name.split(" ")[0]}` : ""}
           </h2>
@@ -115,7 +115,7 @@ export function Notebook({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            className="cursor-pointer rounded-xl border-[3px] border-black bg-white px-3 py-1 font-bold shadow-[3px_3px_0_#000]"
+            className="cursor-pointer min-h-11 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 font-bold shadow-[3px_3px_0_#000]"
           >
             ✕ Close
           </button>
@@ -128,11 +128,11 @@ export function Notebook({
                 data-hint-ask
                 disabled={hintBusy}
                 onClick={onHint}
-                className="shrink-0 cursor-pointer rounded-lg border-[3px] border-black bg-yellow-300 px-2.5 py-1 text-sm font-black shadow-[2px_2px_0_#000] hover:bg-yellow-200 disabled:cursor-wait disabled:opacity-60"
+                className="min-h-11 shrink-0 cursor-pointer rounded-lg border-[3px] border-black bg-yellow-300 px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] hover:bg-yellow-200 disabled:cursor-wait disabled:opacity-60"
               >
                 {hintBusy ? "Checking…" : "⚠ Check for contradictions"}
               </button>
-              <p role="status" aria-live="polite" data-hint-line className={`min-w-[12rem] flex-1 text-sm font-bold ${hint?.found ? "text-red-700" : "text-neutral-700"}`}>
+              <p role="status" aria-live="polite" data-hint-line className={`min-w-[12rem] flex-1 text-base font-bold ${hint?.found ? "text-red-700" : "text-neutral-700"}`}>
                 {hint ? hint.line : "Stuck? Ask whether anything you hold clashes with what you've been told."}
               </p>
             </section>
@@ -158,10 +158,10 @@ export function Notebook({
                         </div>
                         <div className="min-w-0">
                           <p className="font-display text-xl tracking-wide">{e.name}</p>
-                          <p className="text-xs font-bold uppercase text-neutral-600">{whereFound(e, locations)}</p>
+                          <p className="text-sm font-bold uppercase text-neutral-600">{whereFound(e, locations)}</p>
                         </div>
                       </div>
-                      <p className="mt-2 text-sm">{e.description}</p>
+                      <p className="mt-2 text-base">{e.description}</p>
                       {notesFor(item)}
                       {presentButtons(item, e.name)}
                     </li>
@@ -181,7 +181,7 @@ export function Notebook({
                   return (
                     <li key={t.id} className="flex flex-col rounded-2xl border-[3px] border-black bg-sky-100 p-3 shadow-[4px_4px_0_#000]" data-card-testimony={t.id}>
                       <p className="font-display text-xl tracking-wide">🗣️ {t.characterName}</p>
-                      <p className="text-sm font-semibold">&ldquo;{t.summary}&rdquo;</p>
+                      <p className="text-base font-semibold">&ldquo;{t.summary}&rdquo;</p>
                       {notesFor(item)}
                       {presentButtons(item, `${t.characterName}'s testimony`, t.characterId)}
                     </li>

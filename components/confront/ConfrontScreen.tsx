@@ -63,9 +63,9 @@ export function ConfrontScreen({
   const tooLong = text.trim().length > MAX_QUESTION_CHARS;
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#5b1d1d_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4">
-      <header className="mb-2 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
-        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="shrink-0 px-3 sm:px-4">
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#5b1d1d_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
+      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
@@ -73,7 +73,7 @@ export function ConfrontScreen({
           {first(a)} <span className="text-red-500">VS</span> {first(b)}
         </h1>
         <span
-          className={`ms-auto shrink-0 rounded-lg border-2 border-black px-2 py-0.5 text-xs font-black text-black sm:text-sm ${over ? "bg-neutral-300" : "bg-yellow-300"}`}
+          className={`ms-auto shrink-0 rounded-lg border-2 border-black px-2.5 py-1 text-sm font-black text-black ${over ? "bg-neutral-300" : "bg-yellow-300"}`}
           data-confront-left={left}
           aria-live="polite"
         >
@@ -82,8 +82,8 @@ export function ConfrontScreen({
         </span>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col-reverse gap-3 md:flex-row md:gap-4">
-        <section className="flex min-h-0 flex-1 flex-col gap-2" aria-label={`Confrontation between ${a.name} and ${b.name}`}>
+      <div className="flex min-h-0 flex-1 flex-col-reverse gap-3 md:flex-row md:gap-4 short:flex-row short:gap-2">
+        <section className="flex min-h-0 flex-1 flex-col gap-2 short:[&_button]:text-sm" aria-label={`Confrontation between ${a.name} and ${b.name}`}>
           <DialogueLog
             messages={messages}
             characterName={`${first(a)} and ${first(b)}`}
@@ -97,7 +97,7 @@ export function ConfrontScreen({
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Who are you questioning?">
-                <span className="text-sm font-bold text-yellow-100">Question:</span>
+                <span className="text-base font-bold text-yellow-100">Question:</span>
                 {[a, b].map((s) => (
                   <CartoonButton
                     key={s.id}
@@ -107,7 +107,7 @@ export function ConfrontScreen({
                     disabled={locked}
                     data-confront-target={s.id}
                     onClick={() => setTarget(s.id)}
-                    className="px-3 py-1 text-sm"
+                    className="min-h-12 short:min-h-11 px-4 text-base"
                   >
                     {first(s)}
                   </CartoonButton>
@@ -129,18 +129,18 @@ export function ConfrontScreen({
                   aria-label={`Question ${addressed.name} in front of ${other.name}`}
                   aria-describedby={hintId}
                   aria-invalid={tooLong || undefined}
-                  className="min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50"
+                  className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50"
                 />
-                <CartoonButton type="submit" tone="red" disabled={locked || !text.trim() || tooLong}>
+                <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || tooLong}>
                   ASK!
                 </CartoonButton>
               </form>
-              <div className="flex items-center gap-2">
-                <p id={hintId} className="min-w-0 flex-1 px-1 text-xs font-bold text-yellow-100/70">
+              <div className="flex flex-wrap items-center gap-2">
+                <p id={hintId} className="min-w-0 flex-1 basis-40 px-1 text-sm font-bold text-yellow-100/70">
                   {first(other)} will react to {first(addressed)}&apos;s answer.
                 </p>
                 {onOpenNotebook && (
-                  <CartoonButton tone="yellow" disabled={locked} data-confront-present onClick={onOpenNotebook} className="shrink-0 px-3 py-1 text-sm">
+                  <CartoonButton tone="yellow" disabled={locked} data-confront-present onClick={onOpenNotebook} className="min-h-12 short:min-h-11 shrink-0 px-3 text-base">
                     📓 Present to {first(addressed)}
                   </CartoonButton>
                 )}
@@ -149,7 +149,7 @@ export function ConfrontScreen({
           )}
         </section>
 
-        <div className="kb-hide relative flex h-[calc(var(--app-h)*0.34)] shrink-0 md:h-auto md:flex-[1.15]">
+        <div className="kb-hide relative flex h-[calc(var(--app-h)*0.34)] shrink-0 md:h-auto md:flex-[1.15] short:h-auto short:flex-[0.55]">
           <InterrogationStage
             art={stage}
             actors={[
@@ -158,8 +158,8 @@ export function ConfrontScreen({
             ]}
             className="h-full w-full rounded-2xl border-4 border-black shadow-[6px_6px_0_#000]"
           />
-          <StressMeter value={stress[a.id] ?? 0} name={a.name} compact className="absolute left-2 top-2 w-28 sm:w-36" />
-          <StressMeter value={stress[b.id] ?? 0} name={b.name} compact className="absolute right-2 top-2 w-28 sm:w-36" />
+          <StressMeter value={stress[a.id] ?? 0} name={a.name} compact className="absolute left-2 top-2 w-36 sm:w-40" />
+          <StressMeter value={stress[b.id] ?? 0} name={b.name} compact className="absolute right-2 top-2 w-36 sm:w-40" />
           <p aria-hidden className="pointer-events-none absolute inset-x-0 bottom-2 text-center font-display text-3xl tracking-widest text-red-500 [-webkit-text-stroke:1.5px_#000] drop-shadow-[3px_3px_0_#000] sm:text-5xl">
             VS
           </p>
