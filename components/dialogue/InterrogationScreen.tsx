@@ -8,7 +8,6 @@ import { usePreloadPoses } from "@/components/characters/Portrait";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AskInput } from "@/components/game/Game";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
-import { RetryBar } from "./RetryBar";
 import { StressMeter } from "@/components/stress/StressMeter";
 import type { PublicEvidence, PublicSuspect, StageArt } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -174,8 +173,6 @@ export function InterrogationScreen({
             </p>
           )}
 
-          {onRetry && !pending && <RetryBar onRetry={onRetry} disabled={locked} />}
-
           <form
             className="flex flex-col gap-1"
             onSubmit={(e) => {
@@ -190,16 +187,22 @@ export function InterrogationScreen({
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={`Ask ${firstName} anything…`}
+                placeholder={onRetry && !text ? `Tap AGAIN, or ask ${firstName} something else…` : `Ask ${firstName} anything…`}
                 aria-label={`Ask ${suspect.name} a question`}
                 aria-describedby={hintId}
                 aria-invalid={over > 0 || undefined}
                 data-autofocus
                 className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
               />
-              <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || over > 0}>
-                ASK!
-              </CartoonButton>
+              {onRetry && !text.trim() ? (
+                <CartoonButton type="button" tone="yellow" data-model-retry className="min-h-12 short:min-h-11 px-4 text-base" disabled={locked} onClick={onRetry}>
+                  ↻ AGAIN
+                </CartoonButton>
+              ) : (
+                <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || over > 0}>
+                  ASK!
+                </CartoonButton>
+              )}
             </div>
             <p
               id={hintId}

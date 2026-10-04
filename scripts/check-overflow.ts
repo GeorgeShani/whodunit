@@ -139,7 +139,7 @@ async function clickButton(p: Page, text: string | RegExp) {
 async function waitReply(p: Page) {
   // The ASK button re-enables once the reply (model or fallback) has landed.
   await p.waitForFunction(() => {
-    const b = [...document.querySelectorAll("button")].find((x) => x.textContent?.includes("ASK!"));
+    const b = [...document.querySelectorAll("button")].find((x) => x.textContent?.includes("ASK!")) ?? document.querySelector("[data-model-retry]");
     return b && !document.querySelector('[aria-busy="true"]') && (document.querySelectorAll("p.font-medium").length >= 2 || document.querySelector("[data-model-retry]"));
   }, undefined, { timeout: 30_000 });
 }

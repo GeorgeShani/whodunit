@@ -5,7 +5,6 @@ import { DialogueLog, type DialogueMessage } from "@/components/dialogue/Dialogu
 import { ThinkingIndicator } from "@/components/dialogue/ThinkingIndicator";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
-import { RetryBar } from "@/components/dialogue/RetryBar";
 import { StressMeter } from "@/components/stress/StressMeter";
 import { MAX_QUESTION_CHARS } from "@/ai/interrogate-schema";
 import type { PublicSuspect, StageArt } from "@/engine/public-view";
@@ -117,7 +116,6 @@ export function ConfrontScreen({
                   </CartoonButton>
                 ))}
               </div>
-              {onRetry && !pending && <RetryBar onRetry={onRetry} disabled={over} />}
               <form
                 className="flex gap-2"
                 onSubmit={(e) => {
@@ -130,15 +128,21 @@ export function ConfrontScreen({
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  placeholder={`Ask ${first(addressed)}…`}
+                  placeholder={onRetry && !text ? `Tap AGAIN, or ask ${first(addressed)} something else…` : `Ask ${first(addressed)}…`}
                   aria-label={`Question ${addressed.name} in front of ${other.name}`}
                   aria-describedby={hintId}
                   aria-invalid={tooLong || undefined}
                   className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50"
                 />
-                <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || tooLong}>
-                  ASK!
+                {onRetry && !text.trim() ? (
+                  <CartoonButton type="button" tone="yellow" data-model-retry className="min-h-12 short:min-h-11 px-4 text-base" disabled={locked} onClick={onRetry}>
+                  ↻ AGAIN
                 </CartoonButton>
+                ) : (
+                  <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || tooLong}>
+                    ASK!
+                  </CartoonButton>
+                )}
               </form>
               <div className="flex flex-wrap items-center gap-2">
                 <p id={hintId} className="min-w-0 flex-1 basis-40 px-1 text-sm font-bold text-yellow-100/70">

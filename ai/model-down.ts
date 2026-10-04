@@ -18,14 +18,14 @@ export interface Unavailable {
 const first = (name: string) => name.trim().split(/\s+/)[0] || "They";
 
 const BUSY: readonly ((n: string) => string)[] = [
-  (n) => `${n} opens their mouth, falters, and asks for a moment to collect their thoughts. Give it a breath, detective, then put the question again.`,
-  (n) => `A crack of thunder swallows ${n}'s answer whole. Nobody caught a word of it. Ask again, detective.`,
-  (n) => `The old house creaks, and ${n} hesitates as if the words won't come. A moment, detective, then try once more.`,
+  (n) => `${n} falters and asks for a moment to collect their thoughts. Give it a breath, detective, then ask again.`,
+  (n) => `A crack of thunder swallows ${n}'s answer whole. Nobody caught a word. Ask again, detective.`,
+  (n) => `The old house creaks and ${n} hesitates, the words won't come. A moment, detective, then try once more.`,
 ];
 
 const QUIET: readonly ((n: string) => string)[] = [
-  (n) => `The telephone line is down for the night, and ${n} won't be drawn just now. Search the rooms, check your notebook, or make your accusation; talk resumes when the line is mended.`,
-  (n) => `The storm has cut the lines and ${n} has gone silent. Search the rooms, go over the notebook, or put your accusation, and ask again in a little while.`,
+  (n) => `The telephone line is down for the night and ${n} won't be drawn. Search the rooms, check your notebook, or accuse; talk resumes when it's mended.`,
+  (n) => `The storm has cut the lines and ${n} has gone silent. Search the rooms, go over the notebook, or accuse, and ask again later.`,
 ];
 
 /** The in-fiction line for an unavailable model. `seed` picks a variant deterministically. */

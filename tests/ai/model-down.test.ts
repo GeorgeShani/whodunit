@@ -280,7 +280,7 @@ describe("POST /api/confront when the model is down", () => {
 });
 
 describe("retry affordance", () => {
-  it("InterrogationScreen and ConfrontScreen show an 'Ask again' button only when a retry is offered, with a 44px+ target", async () => {
+  it("InterrogationScreen and ConfrontScreen swap ASK! for an AGAIN button (empty box) only when a retry is offered, with a 44px+ target", async () => {
     const { createElement: h } = await import("react");
     const { renderToStaticMarkup } = await import("react-dom/server");
     const { InterrogationScreen } = await import("@/components/dialogue/InterrogationScreen");
@@ -291,9 +291,10 @@ describe("retry affordance", () => {
     const withRetry = renderToStaticMarkup(h(InterrogationScreen, { ...base, onRetry: () => {} } as never));
     expect(without).not.toContain("data-model-retry");
     expect(withRetry).toContain("data-model-retry");
-    expect(withRetry).toContain("Ask again");
+    expect(withRetry).toContain("AGAIN");
     expect(withRetry).toMatch(/<button[^>]*class="[^"]*min-h-12[^"]*"[^>]*data-model-retry/);
-    expect(renderToStaticMarkup(h(InterrogationScreen, { ...base, onRetry: () => {}, pending: true } as never))).not.toContain("data-model-retry");
+    expect(withRetry).not.toContain(">ASK!<");
+    expect(without).toContain(">ASK!<");
     const cbase = { pair: [s("ann"), s("bob")], emotions: {}, stress: {}, messages: [], pending: false, speakingId: null, turnsUsed: 0, max: 6, over: false, onAsk: () => true, target: "ann", onTarget: () => {}, onBack: () => {} };
     expect(renderToStaticMarkup(h(ConfrontScreen, cbase as never))).not.toContain("data-model-retry");
     expect(renderToStaticMarkup(h(ConfrontScreen, { ...cbase, onRetry: () => {} } as never))).toContain("data-model-retry");
