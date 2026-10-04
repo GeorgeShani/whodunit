@@ -269,3 +269,13 @@ describe("#23 Victoria's confession turn is performed, not replaced by the canne
     expect(cannedCharacterResponse(ev, "?", "silver-candlestick").dialogue).not.toMatch(/never seen/i);
   });
 });
+
+describe("extractTimes: ranges written as clock times", () => {
+  it.each([
+    ["from 21:13 to 21:22.", ["21:13", "21:22"]],
+    ["from 21:15 to 21:20 and was back", ["21:15", "21:20"]],
+    ["between 21:10 and 21:30", ["21:10", "21:30"]],
+  ])("reads %s as two clock times", (text, expected) => {
+    expect(extractTimes(text).map((m) => hhmm(m.candidates[0]))).toEqual(expected);
+  });
+});

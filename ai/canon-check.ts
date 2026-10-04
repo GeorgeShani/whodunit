@@ -78,6 +78,8 @@ export function extractTimes(text: string): TimeMention[] {
     }
   };
   // Order matters: most specific patterns first; later matches may not overlap earlier ones.
+  // Clock times first, so the digits of "21:13 to 21:22" are never read as "13 minutes to 21" (#26 follow-up).
+  add(new RegExp(`(?<![£$€\\d.])\\b(\\d{1,2})[:.](\\d{2})\\b(?!\\.\\d)`, "g"), (m) => ({ c: readings(Number(m[1]), Number(m[2])) }));
   add(new RegExp(`\\b(quarter|half|${NUM})(?:\\s+minutes?)?\\s+(past|after|to|before|till|til)\\s+(${NUM})\\b`, "gi"), (m) => {
     const mins = minuteOf(m[1]);
     const h = num(m[3]);
@@ -86,7 +88,6 @@ export function extractTimes(text: string): TimeMention[] {
     const r = readings(h, 0).map((t) => (t + (back ? -mins : mins) + 1440) % 1440);
     return { c: r, rounded: /^(quarter|half)$/i.test(m[1]) };
   });
-  add(new RegExp(`(?<![£$€\\d.])\\b(\\d{1,2})[:.](\\d{2})\\b(?!\\.\\d)`, "g"), (m) => ({ c: readings(Number(m[1]), Number(m[2])) }));
   add(new RegExp(`\\bhalf\\s+(${NUM})\\b`, "gi"), (m) => {
     const h = num(m[1]);
     return h === null || h > 12 ? null : { c: readings(h, 30), rounded: true };
