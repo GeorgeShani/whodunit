@@ -28,7 +28,7 @@ Server-only truth (`solution.json`): `murdererId: "victoria"`, `weaponId: "silve
 | **21:10** | **Lightning takes out the power. Blackout** (`ev-blackout`). |
 | 21:11 | In the dining room Reginald lights the pair of silver candlesticks and carries one off for the Lord. Victoria and Archibald watch (`ev-candlesticks-lit`). |
 | 21:12 | Reginald sets the lit candlestick with a **fresh candle** on the library desk. The Lord is alive, the letter lies open, and he orders "coal at half past" (`ev-candlestick-delivered`). |
-| 21:13 | Reginald hears the Lord re-lock the door behind him (`ev-lord-relocks`). Archibald leaves the dining room "to find the brandy" (`ev-archibald-leaves-dining`). |
+| 21:13 | Reginald hears the Lord re-lock the door behind him (`ev-lord-relocks`). Two minutes after the candles were lit, Archibald leaves the dining room "to find the brandy" (`ev-archibald-leaves-dining`). |
 | 21:14 | Victoria is alone in the dining room (`ev-victoria-alone`). Reginald shuts himself in his pantry. |
 | 21:15 | Archibald is on the servants' telephone to his broker until 21:20 (`ev-archibald-phone`). Reginald hears him (`ev-reginald-hears-phone`), and Archibald sees candlelight under the pantry door and hears coins (`ev-archibald-notices-pantry`). **Victoria knocks and the Lord lets her in**, leaving the key in the lock (`ev-victoria-admitted`). |
 | 21:16 | Gregory, his lantern blown out, slips in by the garden door and stands in the dark hall alcove, leaving the **muddy footprint** (`ev-gregory-enters-hall`). |
@@ -62,7 +62,7 @@ Every suspect has a `loc-<id>-<HHMM>` point entry at each of the 28 checkpoints 
 
 ## 4. Pressured testimony (engine reveal rules)
 
-Victoria's alibi is: *"Archibald and I sat by the dining-room fire through the whole blackout."* Archibald backs it up. Three testimonies break it. Each is a secret with `revealConditions`, evaluated by `engine/secrets.ts`, never by the model.
+Victoria's alibi is: *"Archibald and I sat by the dining-room fire from the moment the candles were lit until we heard the scream. Neither of us left."* (21:11 to 21:30) Archibald backs it up. Three testimonies break it. Each is a secret with `revealConditions`, evaluated by `engine/secrets.ts`, never by the model.
 
 | Who | Secret | revealConditions | What they then admit (fact ids) |
 |---|---|---|---|
@@ -85,12 +85,12 @@ A revealed secret becomes a notebook card (`testimonySummary`, public) that the 
 
 | Lie | Evidence path (`brokenByEvidenceIds`) | Testimony path (`breaksOnSecretIds`, mode `any`) | Canon that makes the testimony break it |
 |---|---|---|---|
-| `l-victoria-together` "Neither of us left." | `library-key`, `burned-letter` | `s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria` | Crane on the servants' telephone 21:15–21:20 (`ev-reginald-hears-phone`); Crane left at 21:13 (`ev-archibald-leaves-dining`); she was in the hall at 21:19 (`ev-gregory-sees-victoria`) |
-| `l-archibald-together` "I was with Victoria the whole time." | `library-key`, `burned-letter` | `s-reginald-theft` | Reginald heard Crane's voice on the telephone 21:15–21:20, and Crane answered him at 21:18 |
+| `l-victoria-together` "…from the moment the candles were lit until we heard the scream. Neither of us left." | `library-key`, `burned-letter` | `s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria` | Crane on the servants' telephone 21:15–21:20 (`ev-reginald-hears-phone`); Crane left at 21:13 (`ev-archibald-leaves-dining`); she was in the hall at 21:19 (`ev-gregory-sees-victoria`) |
+| `l-archibald-together` "I was with Victoria by the dining-room fire from the moment the candles were lit until the scream." | `library-key`, `burned-letter` | `s-reginald-theft` | Reginald heard Crane's voice on the telephone 21:15–21:20, and Crane answered him at 21:18 |
 | `l-reginald-heard-nothing` "In the kitchen polishing silver, heard nothing." | `burned-letter` | `s-archibald-false-alibi` | Crane's card says the butler called out to him from the pantry at 21:18 (`ev-pantry-exchange`) |
-| `l-victoria-never-in-hall` "I never went near the library after nine." | `muddy-footprint`, `library-key` | `s-gregory-saw-victoria` | Gregory saw her step out of the library at 21:19 |
+| `l-victoria-never-in-hall` "I never went near the library after nine." | none (see §11.4) | `s-gregory-saw-victoria` | Gregory saw her step out of the library at 21:19. No clue places her in the hall, so only the eyewitness breaks it. |
 | `l-victoria-locked-in` "Edmund must have locked himself in." | `library-key` | `s-gregory-saw-victoria` | Gregory saw her lock the door from outside |
-| `l-victoria-menu` "The Sunday menu, darling." | `burned-letter` | `s-reginald-overheard` | Reginald saw and heard the 20:54 quarrel: "…what the new will allows" |
+| `l-victoria-menu` "Our little chat? The Sunday menu. Nothing more." | `burned-letter` | `s-reginald-overheard` | Reginald saw and heard the 20:54 quarrel: "…what the new will allows" |
 | `l-victoria-letter`, `l-archibald-racehorse`, `l-gregory-shed`, `l-gregory-saw-nothing` | `burned-letter` / `library-key` / `muddy-footprint` / `library-key` | none (evidence only) | |
 
 **Testimony cards** (each states only what the owner knows, with the data's source; every clock time is one the owner knows, and a test checks this):
@@ -99,11 +99,11 @@ A revealed secret becomes a notebook card (`testimonySummary`, public) that the 
 |---|---|
 | `s-reginald-theft` | Reginald admits he hid in his pantry with money skimmed from the household accounts. Through the door he heard Mr Crane's voice on the servants' telephone from 21:15 to 21:20; at 21:18 Mr Crane told him to mind his own business. |
 | `s-reginald-overheard` | At 20:54, through the ajar library door, Reginald saw her ladyship clutch his lordship's sleeve crying 'You wouldn't dare, Edmund!' as he held up a letter: 'Ten o'clock tomorrow... what the new will allows.' |
-| `s-archibald-false-alibi` | Mr Crane admits he left the dining room at 21:13 and only came back at 21:22. He was on the servants' telephone, and at 21:18 the butler called out to him from the pantry. At 21:40 he agreed to Lady Victoria's story. |
-| `s-archibald-embezzlement` | Mr Crane admits he embezzled company money, and that during the blackout he telephoned his broker to move it before midnight. |
+| `s-archibald-false-alibi` | Mr Crane admits he left the dining room at 21:13, after the candles were lit, and was back at 21:22. He used the servants' telephone 21:15-21:20; the butler called through the pantry door at 21:18. At 21:40 he backed Lady Victoria's story. |
+| `s-archibald-embezzlement` | Mr Crane admits he embezzled company money, and that between 21:15 and 21:20 he telephoned his broker to move it before midnight. |
 | `s-gregory-in-hall` | Gregory admits that at 21:16 he slipped in by the garden door and stood in the dark hall alcove, six paces from the library door. At 21:17 he heard a heavy thud in the library and saw the light under the door dim. |
 | `s-gregory-saw-victoria` | Gregory says that at 21:19, in a lightning flash, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room. |
-| `s-victoria-left-dining` | Lady Victoria admits she sat alone in the dining room during the blackout while Mr Crane was away, and that at 21:40 she asked him to say they had been together the whole time. |
+| `s-victoria-left-dining` | Lady Victoria admits she left the dining room while Mr Crane was away, between 21:13 and 21:22, so they were not together all that time. At 21:40 she asked him to say they had been. |
 | `s-victoria-new-will` | Lady Victoria admits she knew before the murder that his lordship meant to sign a new will, and that she burned the solicitor's letter. |
 
 `s-victoria-locked-door` and `s-victoria-murder` have no summary on purpose: either card would name the killer by itself. If one is revealed, the engine's generic card ("Victoria Blackwood admitted something under questioning.") is used.
@@ -280,3 +280,70 @@ Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discove
 - `correct.recap`: narrator prose covering who, how, why and 21:17 in the library, and the proof. Lines cite `evidenceIds`.
 - `wrong.<suspectId>`: one ending for each of the four suspects. `wrong.victoria` is "right lady, no case" (wrong weapon, wrong motive or no key evidence).
 - `escapedLine`.
+
+## 11. Round 2 data fixes (Gremlins #26 and #27, Dexter's data notes)
+
+### 11.1 Archibald's order of events (#26)
+
+Canon, in the order every statement now uses: **21:10** lights fail (`ev-blackout`, back at 21:38) → **21:11** Reginald lights the candles (`ev-candlesticks-lit`) → **21:13** Archibald leaves, *two minutes after the candles were lit* (`ev-archibald-leaves-dining`) → **21:15–21:20** servants' telephone (`ev-archibald-phone`), with Reginald calling through the pantry door at **21:18** → **21:22** back in the dining room, nine minutes after he left (`ev-archibald-returns`) → **21:40** the pact (`ev-alibi-pact`).
+
+The old blur was "he left after the lights went out till Reginald lit the candles": the blackout began at 21:10 but the candles were lit at 21:11 and he left at 21:13, so he never left *before* the candles. Lies and beliefs now anchor to events, not to "the blackout" (the topic label stays "whereabouts during the blackout", which is true of the whole window). Beliefs `b-archibald-victoria-stayed`, `b-victoria-brandy-errand` and `b-reginald-lady-stayed` carry clock times. `b-archibald-gregory-did-it` no longer says "sacked": Archibald does not know `f-gregory-dismissed`.
+
+### 11.2 Retired lies (`supersededBySecretIds`)
+
+A lie is retired by its owner's own secret whose confession literally contradicts the claim:
+
+| Lie | Retired by |
+|---|---|
+| `l-victoria-together` | `s-victoria-left-dining` |
+| `l-victoria-letter`, `l-victoria-menu` | `s-victoria-new-will` |
+| `l-victoria-locked-in`, `l-victoria-never-in-hall` | `s-victoria-locked-door` |
+| `l-reginald-heard-nothing` | `s-reginald-theft` |
+| `l-reginald-few-words` | `s-reginald-overheard` |
+| `l-archibald-together` | `s-archibald-false-alibi` |
+| `l-archibald-racehorse` | `s-archibald-embezzlement` |
+| `l-gregory-shed` | `s-gregory-in-hall` |
+| `l-gregory-saw-nothing` | `s-gregory-saw-victoria` |
+
+Goals, relationship notes and beliefs have no supersession field. They are reworded so that they are true both before and after the confession (Victoria no longer "insists she spent the blackout by the fire"; Archibald's note on Lord Blackwood no longer says the quarrels were only business as a fact).
+
+### 11.3 Voice: no catchphrases
+
+`catchphrases` is empty for all four characters ("Darling, I simply couldn't." and "Must we dwell on unpleasantness?" were the hooks the model repeated). `speechStyle` now describes register and behaviour only. "Darling" is gone from the lie claims. `endings.json` keeps its authored "darling" lines as scripted flavour.
+
+### 11.4 Library key and `brokenByEvidenceIds`
+
+Before: showing `library-key` broke three of Victoria's lies at once, before she had said any of them. The engine rule stays (evidence breaks a lie whether or not it has been told). The key's list was trimmed to the lies it actually contradicts:
+
+| Lie | Key stays? | Why |
+|---|---|---|
+| `l-victoria-together` | yes | The library key in the dining-room scuttle contradicts "neither of us left". |
+| `l-victoria-locked-in` | yes | A key outside the room contradicts "he must have locked himself in" (`f-lord-key-habit`). |
+| `l-victoria-never-in-hall` | **removed**, and the footprint too | Neither the key nor the print puts Victoria in the hall or library. Only Gregory's eyewitness (`s-gregory-saw-victoria`) does, and the lie is retired by her own `s-victoria-locked-door`. |
+
+The proof does not use this lie: WHO, HOW, WHY and WHEN are derived in §5 without it.
+
+### 11.5 Pair material (#27)
+
+`relationships[].description` is the only per-pair free-text field. It is always in the character's prompt, so it carries tone and what the speaker would say, never a fact that needs gating. Each text uses only what the speaker knows, with no giveaway words (a test checks the same word list as §7.2 plus the specific facts below). Archibald's note on Gregory does not say "sacked". Victoria's notes use the dinner threat and the dismissal because she was present for both.
+
+| From → to | Resentment / what they throw / what they bring up defensively |
+|---|---|
+| Victoria → Archibald | Tiresome but handy. Needles his temper and the dinner threat; goes cool and reminds him whose house it is. |
+| Victoria → Reginald | Furniture that carries trays. Needles his hovering; reminds him his place depends on hers. |
+| Victoria → Gregory | Contempt. Throws the dismissal, the gin and the boots; "a sacked man with a grudge is who the police will want." |
+| Archibald → Victoria | Grieving ornament. Jabs that she bears up well for a new widow; laughs off the dinner row as business. |
+| Archibald → Reginald | Stiff busybody. "It was your candlestick, carried in by your own hands." |
+| Archibald → Gregory | Ignores him until there is a body; "soaked and shifty the moment the body was found"; talks over his mumbling. |
+| Reginald → Archibald | Quotes the dinner threat back word for word, straight-faced, and answers bluster with exaggerated politeness. |
+| Reginald → Victoria | Never accuses. Under pressure turns stiff and recalls exactly when her ladyship swept past him in the hall (20:57). |
+| Reginald → Gregory | Fatherly. Scolds the gin and the mud; steps between him and raised voices. |
+| Gregory → Victoria | Terrified of her tongue; cannot meet her eye; edges towards a door. |
+| Gregory → Archibald | Nervous of the loud gentleman who keeps pointing at him; stubborn mutters about the greenhouse. |
+| Gregory → Reginald | Trusts him most; turns to him like a lost lamb. |
+
+What the data cannot do: a description cannot be limited to confrontations and cannot be tied to a fact, so it cannot say "throw this only after you know X". The engine prompt and a new field would do that. See the report's ask for Dexter.
+
+### 11.6 End-screen location name
+
+`solution.json` holds only `locationId`. The "Where, when" row prints `locations[].name` ("The Library, 21:17"). `locations[].name` also titles the Investigate cards and appears in prompts, so it stays capitalised. Blackwood's authored `correct.recap` already reads "in the library". The capitalised "in The Library" appears only in the engine's fallback `engineRecapLine` (cases without an authored recap): that is an engine change, not data.

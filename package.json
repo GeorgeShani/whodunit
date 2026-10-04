@@ -17,6 +17,7 @@
     "check:overflow": "tsx scripts/check-overflow.ts"
   },
   "dependencies": {
+    "@vercel/functions": "^3.9.11",
     "framer-motion": "^13.4.4",
     "next": "16.3.6",
     "react": "19.2.8",

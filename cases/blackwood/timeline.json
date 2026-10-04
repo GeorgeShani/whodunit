@@ -477,7 +477,7 @@
   },
   {
     "id": "ev-blackout",
-    "statement": "Lightning strikes the power line and every electric light in the manor goes out.",
+    "statement": "At 21:10 lightning strikes the power line and every electric light in the manor goes out. They stay out until 21:38.",
     "category": "timeline",
     "time": "21:10",
     "involvesCharacterIds": []
@@ -504,7 +504,7 @@
   },
   {
     "id": "loc-reginald-2111",
-    "statement": "At 21:11 Reginald is in the dining room, lighting the silver candlesticks and taking one for Lord Blackwood.",
+    "statement": "At 21:11 Reginald is in the dining room, lighting the silver candlesticks with her ladyship and Mr Crane looking on, and taking one for Lord Blackwood.",
     "category": "location",
     "time": "21:11",
     "locationId": "dining-room",
@@ -524,7 +524,7 @@
   },
   {
     "id": "ev-candlesticks-lit",
-    "statement": "Reginald lights the pair of silver candlesticks on the dining table, then carries one off to the library for Lord Blackwood.",
+    "statement": "At 21:11, a minute after the lights fail, Reginald lights the pair of silver candlesticks on the dining table, then carries one off to the library for Lord Blackwood.",
     "category": "object",
     "time": "21:11",
     "locationId": "dining-room",
@@ -587,7 +587,7 @@
   },
   {
     "id": "loc-archibald-2113",
-    "statement": "At 21:13 Archibald is in the dining room, leaving, claiming he will find the brandy.",
+    "statement": "At 21:13 Archibald is in the dining room, leaving two minutes after the candles were lit and claiming he will find the brandy.",
     "category": "location",
     "time": "21:13",
     "locationId": "dining-room",
@@ -617,7 +617,7 @@
   },
   {
     "id": "loc-victoria-2113",
-    "statement": "At 21:13 Victoria is in the dining room, watching Archibald leave, saying he will find the brandy.",
+    "statement": "At 21:13 Victoria is in the dining room, two minutes after the candles were lit, watching Archibald leave, saying he will find the brandy.",
     "category": "location",
     "time": "21:13",
     "locationId": "dining-room",
@@ -627,7 +627,7 @@
   },
   {
     "id": "ev-archibald-leaves-dining",
-    "statement": "Archibald leaves the dining room, telling Victoria he is going to find the brandy.",
+    "statement": "At 21:13, two minutes after Reginald lit the candles, Archibald leaves the dining room, telling Victoria he is going to find the brandy.",
     "category": "alibi",
     "time": "21:13",
     "locationId": "dining-room",
@@ -762,7 +762,7 @@
   },
   {
     "id": "ev-archibald-phone",
-    "statement": "Archibald is on the servants' telephone, telling his broker to move the company money before midnight.",
+    "statement": "From 21:15 to 21:20 Archibald is on the servants' telephone, telling his broker to move the company money before midnight.",
     "category": "alibi",
     "from": "21:15",
     "to": "21:20",
@@ -1134,7 +1134,7 @@
   },
   {
     "id": "loc-archibald-2122",
-    "statement": "At 21:22 Archibald is in the dining room, rejoining Victoria without saying where he has been.",
+    "statement": "At 21:22 Archibald is in the dining room, rejoining Victoria nine minutes after he left, without saying where he has been.",
     "category": "location",
     "time": "21:22",
     "locationId": "dining-room",
@@ -1164,7 +1164,7 @@
   },
   {
     "id": "loc-victoria-2122",
-    "statement": "At 21:22 Victoria is in the dining room, with Archibald again after he comes back.",
+    "statement": "At 21:22 Victoria is in the dining room, with Archibald again nine minutes after he left.",
     "category": "location",
     "time": "21:22",
     "locationId": "dining-room",
@@ -1174,7 +1174,7 @@
   },
   {
     "id": "ev-archibald-returns",
-    "statement": "Archibald comes back to the dining room without the brandy, and neither says where they have been.",
+    "statement": "At 21:22, nine minutes after he left, Archibald comes back to the dining room without the brandy, and neither says where they have been.",
     "category": "alibi",
     "time": "21:22",
     "locationId": "dining-room",
@@ -1456,7 +1456,7 @@
   },
   {
     "id": "ev-lights-restored",
-    "statement": "The electric lights come back on.",
+    "statement": "At 21:38 the electric lights come back on.",
     "category": "timeline",
     "time": "21:38",
     "involvesCharacterIds": []
@@ -1503,7 +1503,7 @@
   },
   {
     "id": "ev-alibi-pact",
-    "statement": "In the hall Victoria murmurs to Archibald that they were together in the dining room the whole time, and he agrees.",
+    "statement": "At 21:40, in the hall, Victoria murmurs to Archibald that they were together in the dining room the whole time, and he agrees.",
     "category": "alibi",
     "time": "21:40",
     "locationId": "hall",

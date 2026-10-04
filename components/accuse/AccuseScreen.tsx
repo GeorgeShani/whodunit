@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Portrait } from "@/components/characters/Portrait";
 import { KIND_ICON } from "@/components/evidence/notebook-model";
 import { CartoonButton } from "@/components/game/CartoonButton";
+import { useModal } from "@/components/ui/use-modal";
 import { MAX_ACCUSE_EVIDENCE, validateAccusationDraft, type AccusationDraft } from "@/engine/accuse-schema";
 import type { MotiveOption } from "@/engine/case-schema";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
@@ -182,42 +183,46 @@ export function AccuseScreen({
 
       <AnimatePresence>
         {confirming && (
-          <motion.div
-            className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <div
-              role="alertdialog"
-              aria-modal="true"
-              aria-labelledby="confirm-accuse"
-              className="w-full max-w-md rounded-3xl border-4 border-black bg-[#fff8e7] p-6 text-center text-black shadow-[8px_8px_0_#000]"
-            >
-              <p id="confirm-accuse" className="font-display text-4xl tracking-wide text-red-600">
-                Are you sure?
-              </p>
-              <p className="mt-2 font-bold">This ends the case. There&apos;s no taking it back.</p>
-              <div className="mt-4 flex justify-center gap-3">
-                <CartoonButton tone="white" onClick={() => setConfirming(false)}>
-                  Not yet
-                </CartoonButton>
-                <CartoonButton
-                  tone="red"
-                  autoFocus
-                  onClick={() => {
-                    const r = check();
-                    setConfirming(false);
-                    if (r.ok) onSubmit(r.accusation);
-                  }}
-                >
-                  Yes, accuse!
-                </CartoonButton>
-              </div>
-            </div>
-          </motion.div>
+          <ConfirmDialog
+            onCancel={() => setConfirming(false)}
+            onConfirm={() => {
+              const r = check();
+              setConfirming(false);
+              if (r.ok) onSubmit(r.accusation);
+            }}
+          />
         )}
       </AnimatePresence>
     </main>
+  );
+}
+
+/** "Are you sure?" — a real modal (#25): focus trapped, Escape = "Not yet", focus returns to the button that opened it. */
+function ConfirmDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useModal(ref, { onClose: onCancel });
+  return (
+    <motion.div className="fixed inset-0 z-40 flex items-center justify-center bg-black/70 p-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+      <div
+        ref={ref}
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-accuse"
+        className="w-full max-w-md rounded-3xl border-4 border-black bg-[#fff8e7] p-6 text-center text-black shadow-[8px_8px_0_#000]"
+      >
+        <p id="confirm-accuse" className="font-display text-4xl tracking-wide text-red-600">
+          Are you sure?
+        </p>
+        <p className="mt-2 font-bold">This ends the case. There&apos;s no taking it back.</p>
+        <div className="mt-4 flex justify-center gap-3">
+          <CartoonButton tone="white" onClick={onCancel}>
+            Not yet
+          </CartoonButton>
+          <CartoonButton tone="red" autoFocus onClick={onConfirm}>
+            Yes, accuse!
+          </CartoonButton>
+        </div>
+      </div>
+    </motion.div>
   );
 }

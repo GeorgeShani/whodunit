@@ -471,6 +471,8 @@ export type Accusation = z.infer<typeof AccusationSchema>;
  */
 export const GameStateSchema = z.strictObject({
   caseId: CaseIdSchema,
+  /** Random per-game id (set when the game is created or first saved; legacy tokens derive one). Keys the one-accusation guard. */
+  gameId: z.string().regex(/^[A-Za-z0-9_-]{8,48}$/).optional(),
   phase: z.enum(["investigating", "interrogating", "confronting", "accusing", "resolved"]),
   /** Monotonic turn counter. */
   turn: z.number().int().nonnegative(),
@@ -485,6 +487,8 @@ export const GameStateSchema = z.strictObject({
   activeConfrontation: ConfrontationStateSchema.nullable().default(null),
   /** Pairs whose confrontation has run its course ("a|b", ids sorted): they won't face off again. */
   confrontedPairs: z.array(z.string()).default([]),
+  /** Exchanges spent per pair ("a|b" -> n <= MAX_CONFRONTATION_TURNS). Persists when the player switches pairs (#24). */
+  pairTurns: z.record(z.string(), z.number().int().min(0).max(MAX_CONFRONTATION_TURNS)).default({}),
   /** Contradiction assistance (engine/hints.ts): game turn of the last hint, and lies already hinted at (engine-private). */
   hintTurn: z.number().int().nonnegative().nullable().default(null),
   hintedLieIds: z.array(IdSchema).default([]),

@@ -12,6 +12,7 @@ import { isOutburst, stressBand, type StressReading } from "@/engine/stress";
 import { publicTestimonies } from "@/engine/testimony";
 import type { GameState } from "@/engine/types";
 import { cannedCharacterResponse } from "./canned-responses";
+import { fixArticles } from "./text-fixes";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { callGrok, type GrokResult } from "./grok";
 import type { Contradiction } from "./interrogate-schema";
@@ -82,7 +83,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
     if (directives.breakdown && !isOutburst(r.dialogue)) {
       return "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.";
     }
-    const modern = findModernWord(said);
+    const modern = findModernWord(said, heard);
     return modern
       ? `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`
       : null;
@@ -94,7 +95,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput> {
   if (grok.ok) {
     source = "model";
     // The model may only react to the clue shown THIS turn.
-    response = { ...grok.response, evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
+    response = { ...grok.response, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
   } else {
     source = "fallback";
     response = cannedCharacterResponse(ctx, question, presentedEvidenceId, game.turn);

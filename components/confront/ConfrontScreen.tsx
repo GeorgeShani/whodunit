@@ -69,7 +69,7 @@ export function ConfrontScreen({
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 data-autofocus tabIndex={-1} className="min-w-0 truncate font-display text-2xl tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl">
+        <h1 data-autofocus tabIndex={-1} className="min-w-0 text-balance font-display text-xl leading-[0.95] tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl sm:leading-tight">
           {first(a)} <span className="text-red-500">VS</span> {first(b)}
         </h1>
         <span
@@ -87,6 +87,7 @@ export function ConfrontScreen({
           <DialogueLog
             messages={messages}
             characterName={`${first(a)} and ${first(b)}`}
+            emptyLine={`${first(a)} and ${first(b)} eye you warily. Ask a question, detective.`}
             footer={pending ? <ThinkingIndicator name={first(addressed)} seed={messages.length} /> : null}
           />
           {over ? (

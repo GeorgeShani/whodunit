@@ -29,7 +29,7 @@ import type { Accusation } from "@/engine/types";
 import type { StressReading } from "@/engine/stress";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
-import { clearGame, loadGame, saveGame, SESSION_VERSION } from "@/lib/game-session";
+import { clearGame, loadGame, saveGame, SESSION_VERSION, withoutUnansweredQuestions } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
 
@@ -265,7 +265,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       screen,
       activeId,
       ...(stateToken.current ? { stateToken: stateToken.current } : {}),
-      conversations,
+      conversations: withoutUnansweredQuestions(conversations),
       emotions,
       evidence,
       testimonies,
@@ -387,8 +387,12 @@ export function Game({ view }: { view: PublicCaseView }) {
           push(logKey, { speaker: "narrator", text: r.notice });
         }
         if (r.testimonies) setTestimonies(r.testimonies);
-        if (r.confrontation) setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: r.confrontation!.turnsUsed, over: r.confrontation!.over } }));
-        if (r.error === "pair_finished") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: MAX_CONFRONTATION_TURNS, over: true } }));
+        if (r.confrontation) {
+          // The counter shows whichever runs out first: this pair's exchanges or the whole game's (#24).
+          const c = r.confrontation;
+          setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: Math.max(c.turnsUsed, MAX_CONFRONTATION_TURNS - c.totalLeft), over: c.over || c.totalLeft === 0 } }));
+        }
+        if (r.error === "pair_finished" || r.error === "limit_reached") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: MAX_CONFRONTATION_TURNS, over: true } }));
         if (!r.lines.length) push(logKey, { speaker: "narrator", text: r.line ?? "Nobody says a word. Try again, detective." });
         // Deliver the two lines one after the other, each in its speaker's pose.
         r.lines.forEach((l, i) => {
@@ -455,10 +459,25 @@ export function Game({ view }: { view: PublicCaseView }) {
     [screen, activeId, go, askAs, evidence, testimonies, onConfrontAsk],
   );
 
+  /** Room whose Search button gets focus back when the last clue sting closes (#25). */
+  const searchedFrom = useRef<string | null>(null);
+  const stingWasOpen = useRef(false);
+  useEffect(() => {
+    if (stingQueue.length > 0) {
+      stingWasOpen.current = true;
+      return;
+    }
+    if (!stingWasOpen.current) return;
+    stingWasOpen.current = false;
+    const t = setTimeout(() => document.querySelector<HTMLElement>(`button[data-location-id="${searchedFrom.current}"]:not(:disabled)`)?.focus({ preventScroll: true }), 0);
+    return () => clearTimeout(t);
+  }, [stingQueue.length]);
+
   const onSearch = useCallback(
     async (locationId: string) => {
       if (inFlight.current) return;
       inFlight.current = true;
+      searchedFrom.current = locationId;
       setSearchingId(locationId);
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
       if (r.stateToken) stateToken.current = r.stateToken;
@@ -495,7 +514,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       setAccusing(false);
       if (r.stateToken) stateToken.current = r.stateToken;
       // A replay after game over (409) still carries the original verdict and ending.
-      if (r.outcome && r.ending && r.verdict && r.accusation) {
+      if (r.outcome && r.ending && r.accusation) {
         setResult(r);
         setEndingPart("scene");
         go("ending");
@@ -656,7 +675,6 @@ export function Game({ view }: { view: PublicCaseView }) {
             suspects={view.suspects}
             evidence={[...(result.evidence ?? []), ...evidence.filter((e) => !result.evidence?.some((x) => x.id === e.id))]}
             stage={view.stage}
-            {...(result.outcome === "lost" && result.solution ? { escapedId: result.solution.murderer.id } : {})}
             onDone={showSummary}
           />
         )}

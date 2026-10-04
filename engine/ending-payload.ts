@@ -6,8 +6,8 @@
  * Won:  endings.correct.confession, then endings.correct.recap (Agatha's text
  *       as-is). Without authored endings: a generic confession plus the
  *       engine's time/place line.
- * Lost: endings.wrong[accusedId] (covers "right suspect, case not proven"),
- *       then endings.escapedLine.
+ * Lost: endings.wrong[accusedId] (minus anything that would give the solution
+ *       away, see lossBeats), then endings.escapedLine and "The case went unsolved."
  */
 import type { AccuseVerdict, EndingBeat, EndingPayload, SolutionReveal } from "./accuse-schema";
 import type { AccusationGrade } from "./accusation";
@@ -18,6 +18,7 @@ import type { Accusation } from "./types";
 
 export const DEFAULT_ESCAPED_LINE = "THE MURDERER ESCAPED!";
 export const WON_HEADLINE = "CASE CLOSED!";
+export const UNSOLVED_LINE = "The case went unsolved.";
 const DEFAULT_PAUSE_MS = 1200;
 
 function speakerName(c: LoadedCase, speaker: string): string {
@@ -57,17 +58,33 @@ export function buildEnding(c: LoadedCase, grade: Pick<AccusationGrade, "won">, 
       : [toBeat(c, { speaker: "narrator", text: engineRecapLine(c), evidenceIds: [c.solution.weaponId] }, "recap")];
     return { outcome: "won", headline: WON_HEADLINE, accusedId: accusation.murdererId, beats: [...confession, ...recap] };
   }
-  const accusedName = speakerName(c, accusation.murdererId);
-  const wrong = e?.wrong[accusation.murdererId]?.map((l) => toBeat(c, l, "wrong")) ?? [
-    toBeat(c, { speaker: accusation.murdererId, text: `Me? You've got it all wrong, detective!`, emotion: "shocked" }, "wrong"),
-    toBeat(c, { speaker: "narrator", text: `${accusedName} walks free, and so does the real killer.` }, "wrong"),
+  return { outcome: "lost", headline: escaped, accusedId: accusation.murdererId, beats: [...lossBeats(c, accusation), ...unsolvedBeats(escaped)] };
+}
+
+/** Closing beats of every loss: the escaped line, then the plain fact that the case is unsolved. */
+function unsolvedBeats(escaped: string): EndingBeat[] {
+  return [
+    { speaker: "narrator", speakerName: "Narrator", text: escaped, pauseMs: 1500, evidenceIds: [], section: "escaped" },
+    { speaker: "narrator", speakerName: "Narrator", text: UNSOLVED_LINE, pauseMs: 1800, evidenceIds: [], section: "escaped" },
   ];
-  return {
-    outcome: "lost",
-    headline: escaped,
-    accusedId: accusation.murdererId,
-    beats: [...wrong, { speaker: "narrator", speakerName: "Narrator", text: escaped, pauseMs: 1500, evidenceIds: [], section: "escaped" }],
-  };
+}
+
+/**
+ * The accused's reaction on a LOSS. It must say nothing about how close the
+ * guess was (#22): the authored ending for the real murderer ("right lady,
+ * wrong story") is never used, and cameos by the real murderer in somebody
+ * else's wrong ending are dropped, because them gloating would name the killer.
+ */
+function lossBeats(c: LoadedCase, accusation: Accusation): EndingBeat[] {
+  const accusedName = speakerName(c, accusation.murdererId);
+  const authored = accusation.murdererId === c.solution.murdererId ? undefined : c.endings?.wrong[accusation.murdererId];
+  const kept = authored?.filter((l) => l.speaker !== c.solution.murdererId);
+  const mine = new Set([accusation.weaponId, ...accusation.keyEvidenceIds]);
+  if (kept?.length) return kept.map((l) => ({ ...toBeat(c, l, "wrong"), evidenceIds: toBeat(c, l, "wrong").evidenceIds.filter((id) => mine.has(id)) }));
+  return [
+    toBeat(c, { speaker: accusation.murdererId, text: `Me? You've got it all wrong, detective!`, emotion: "shocked" }, "wrong"),
+    toBeat(c, { speaker: "narrator", text: `Without proof that holds up, ${accusedName} is sent home.` }, "wrong"),
+  ];
 }
 
 export function buildSolutionReveal(c: LoadedCase): SolutionReveal {
@@ -95,7 +112,12 @@ export function toVerdict(g: AccusationGrade): AccuseVerdict {
 }
 
 /** Public cards for every clue the ending flashes or the reveal names. */
-export function endingEvidence(c: LoadedCase, ending: EndingPayload, reveal: SolutionReveal, accusation: Accusation): PublicEvidence[] {
+export function endingEvidence(c: LoadedCase, ending: EndingPayload, reveal: SolutionReveal | undefined, accusation: Accusation): PublicEvidence[] {
+  // A loss names only what the player themselves cited plus clues its own beats flash: never the weapon or key evidence.
+  if (!reveal) {
+    const mine = new Set<string>([...ending.beats.flatMap((b) => b.evidenceIds), accusation.weaponId, ...accusation.keyEvidenceIds]);
+    return c.evidence.filter((e) => mine.has(e.id)).map(toPublicEvidence);
+  }
   const ids = new Set<string>([
     ...ending.beats.flatMap((b) => b.evidenceIds),
     reveal.weapon.id,

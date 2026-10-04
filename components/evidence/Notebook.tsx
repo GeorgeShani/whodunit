@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
+import { useModal } from "@/components/ui/use-modal";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Location } from "@/engine/types";
@@ -47,16 +48,9 @@ export function Notebook({
 }) {
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
-  useEffect(() => {
-    const opener = document.activeElement as HTMLElement | null;
-    closeRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    window.addEventListener("keydown", onKey);
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      opener?.focus?.();
-    };
-  }, [onClose]);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  // Focus trap, Escape, and focus back to the opener (#25).
+  useModal(dialogRef, { onClose, initialFocus: () => closeRef.current });
 
   const targets = (ownerId?: string) => {
     const list = presentTo ? [presentTo] : suspects;
@@ -101,6 +95,7 @@ export function Notebook({
 
   return (
     <motion.div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby={titleId}

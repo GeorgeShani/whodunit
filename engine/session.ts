@@ -5,7 +5,7 @@
  */
 import type { LoadedCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
-import { decodeStateToken, encodeStateToken, type DecodeOptions, type Env } from "./state-token";
+import { decodeStateToken, encodeStateToken, newGameId, type DecodeOptions, type Env } from "./state-token";
 import type { GameState } from "./types";
 
 /** In-character narrator line shown when a bad/stale token forces a reset. */
@@ -31,6 +31,7 @@ export function restoreSession(
   const decoded = decodeStateToken(token, caseData, env, options);
   if (decoded.ok) return { game: decoded.game };
   const game = createInitialGameState(caseData);
+  game.gameId = newGameId();
   return decoded.reason === "missing" ? { game } : { game, notice: RESET_NOTICE, resetReason: decoded.reason };
 }
 

@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { handleConfront } from "@/ai/confront-handler";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
-import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TURNS, openConfrontation, pairKey, spendExchange, testimonyToThrow } from "@/engine/confrontation";
+import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS, openConfrontation, pairKey, spendExchange, testimonyToThrow, totalExchanges } from "@/engine/confrontation";
 import { createInitialGameState } from "@/engine/game-state";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
@@ -34,15 +34,67 @@ describe("confrontation rules (MASTER_PLAN §32-33)", () => {
     expect(openConfrontation(g, "victoria", "victoria")).toEqual({ ok: false, reason: "same_character" });
   });
 
-  it("switching pairs starts a fresh count; the pair survives the signed token", () => {
+  it("each pair's count persists when the player switches pairs (#24), and survives the signed token", () => {
     const g = game();
     openConfrontation(g, "victoria", "reginald");
     spendExchange(g);
     openConfrontation(g, "gregory", "archibald");
     expect(g.activeConfrontation).toEqual({ characterIds: ["gregory", "archibald"], turnsUsed: 0 });
     spendExchange(g);
+    // Back to the first pair, in either order: it resumes at 1, not 0.
+    expect(openConfrontation(g, "reginald", "victoria")).toEqual({ ok: true, turnsUsed: 1 });
+    spendExchange(g);
     const back = decodeStateToken(tok(g), c, TEST_ENV);
-    expect(back.ok && back.game.activeConfrontation).toEqual({ characterIds: ["gregory", "archibald"], turnsUsed: 1 });
+    expect(back.ok && back.game.activeConfrontation).toEqual({ characterIds: ["reginald", "victoria"], turnsUsed: 2 });
+    expect(back.ok && back.game.pairTurns).toEqual({ "reginald|victoria": 2, "archibald|gregory": 1 });
+  });
+
+  it("alternating between two pairs can never beat the cap: each pair locks at 6, the game at 12", () => {
+    const g = game();
+    let spent = 0;
+    for (let i = 0; i < 30; i++) {
+      const [a, b] = i % 2 ? ["victoria", "gregory"] : ["victoria", "archibald"];
+      const gate = openConfrontation(g, a, b);
+      if (!gate.ok) continue;
+      spendExchange(g);
+      spent++;
+    }
+    expect(spent).toBe(12);
+    expect(g.pairTurns).toEqual({ "archibald|victoria": 6, "gregory|victoria": 6 });
+    expect(g.confrontedPairs.sort()).toEqual(["archibald|victoria", "gregory|victoria"]);
+  });
+
+  it("the whole game is capped at MAX_CONFRONTATION_TOTAL exchanges across pairs", () => {
+    expect(MAX_CONFRONTATION_TOTAL).toBe(12);
+    const g = game();
+    const pairs: [string, string][] = [["victoria", "gregory"], ["victoria", "archibald"], ["gregory", "archibald"]];
+    for (const [a, b] of pairs.slice(0, 2)) {
+      openConfrontation(g, a, b);
+      for (let i = 0; i < 6; i++) spendExchange(g);
+    }
+    expect(totalExchanges(g)).toBe(12);
+    expect(openConfrontation(g, "gregory", "archibald")).toEqual({ ok: false, reason: "limit_reached" });
+    const mid = game();
+    openConfrontation(mid, "victoria", "gregory");
+    for (let i = 0; i < 5; i++) spendExchange(mid);
+    openConfrontation(mid, "victoria", "archibald");
+    for (let i = 0; i < 5; i++) spendExchange(mid);
+    openConfrontation(mid, "gregory", "archibald");
+    expect(spendExchange(mid)).toMatchObject({ over: false, totalLeft: 1 });
+    expect(spendExchange(mid)).toMatchObject({ over: true, totalLeft: 0 });
+    expect(openConfrontation(mid, "victoria", "reginald")).toEqual({ ok: false, reason: "limit_reached" });
+  });
+
+  it("editing the pair-turn table breaks the signature, so counts can't be lowered by hand", () => {
+    const g = game();
+    openConfrontation(g, "victoria", "gregory");
+    spendExchange(g);
+    const token = tok(g);
+    const [v, body, sig] = token.split(".");
+    const p = JSON.parse(Buffer.from(body, "base64url").toString());
+    expect(p.pairTurns).toEqual({ "gregory|victoria": 1 });
+    p.pairTurns = {};
+    expect(decodeStateToken([v, Buffer.from(JSON.stringify(p)).toString("base64url"), sig].join("."), c, TEST_ENV)).toMatchObject({ ok: false, reason: "bad_signature" });
   });
 
   it("the addressed suspect throws their own admission at the partner only when it bears on the partner's lies", () => {
@@ -71,7 +123,7 @@ describe("POST /api/confront", () => {
       ["reginald", "With respect, madam, I heard otherwise."],
     ]);
     expect(r.body.lines.map((l) => l.stress.value)).toEqual([CONFRONTATION_PRESSURE, CONFRONTATION_PRESSURE]);
-    expect(r.body.confrontation).toEqual({ characterIds: ["victoria", "reginald"], turnsUsed: 1, max: 6, over: false });
+    expect(r.body.confrontation).toEqual({ characterIds: ["victoria", "reginald"], turnsUsed: 1, max: 6, over: false, totalLeft: 11 });
     // B's prompt carries A's line, delimited as in-world speech.
     expect(String(calls[1].body.messages[0].content)).toContain("<partner_says>I was by the fire, darling.</partner_says>");
   });
@@ -91,6 +143,22 @@ describe("POST /api/confront", () => {
     expect(again.body.error).toBe("pair_finished");
     expect(again.body.line).toMatch(/said all they are going to say/);
     expect(calls).toHaveLength(12);
+  });
+
+  it("alternating between pairs through the API keeps each pair's count (#24 reproduction)", async () => {
+    mockGrok({});
+    const ask = async (ids: [string, string], t?: string) => {
+      const r = await run({ characterIds: ids, question: "Well?", ...(t ? { stateToken: t } : {}) });
+      return r;
+    };
+    let r = await ask(["victoria", "gregory"]);
+    expect(r.body.confrontation?.turnsUsed).toBe(1);
+    r = await ask(["gregory", "victoria"], r.body.stateToken);
+    expect(r.body.confrontation?.turnsUsed).toBe(2);
+    r = await ask(["victoria", "archibald"], r.body.stateToken);
+    expect(r.body.confrontation?.turnsUsed).toBe(1);
+    r = await ask(["victoria", "gregory"], r.body.stateToken);
+    expect(r.body.confrontation).toMatchObject({ turnsUsed: 3, totalLeft: 8 });
   });
 
   it("Archibald's admission, said to Victoria's face, breaks her together-story (engine verdict + contradiction)", async () => {

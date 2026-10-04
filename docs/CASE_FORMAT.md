@@ -281,6 +281,8 @@ The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
 
 Endings spell out the solution, so they never reach the public view, the character context or the model.
 
+**A loss must not confirm anything (one accusation per game).** The loss response carries no solution and no per-field right/wrong, so the engine plays a `wrong` ending only when it gives nothing away: the entry for the real murderer is never used (a generic "sent home for lack of proof" ending plays instead, so Victoria's "right lady, wrong story" is kept in the file but not shown), and in everyone else's `wrong` entry, lines **spoken by the real murderer** are dropped (a gloating killer cameo would name them). Write each innocent's entry so it works with no cameo from the killer, and note the player then sees `escapedLine` followed by "The case went unsolved."
+
 ## What the AI and the player can see
 
 - **The player** (`getPublicCaseView`) sees:

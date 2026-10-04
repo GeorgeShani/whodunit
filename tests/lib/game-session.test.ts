@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clearGame, loadGame, parseSavedGame, saveGame, sessionKey, SESSION_VERSION, type SavedGame } from "@/lib/game-session";
+import { clearGame, loadGame, parseSavedGame, withoutUnansweredQuestions, saveGame, sessionKey, SESSION_VERSION, type SavedGame } from "@/lib/game-session";
 
 const memStore = () => {
   const m = new Map<string, string>();
@@ -12,7 +12,7 @@ const sample: SavedGame = {
   screen: "interrogation",
   activeId: "reginald",
   stateToken: "v1.abc.def",
-  conversations: { reginald: [{ id: "m0", speaker: "player", text: "Hello?" }] },
+  conversations: { reginald: [{ id: "m0", speaker: "player", text: "Hello?" }, { id: "m1", speaker: "character", text: "Good evening, sir." }] },
   emotions: { reginald: "nervous" },
   evidence: [],
   searched: ["hall"],
@@ -53,6 +53,15 @@ describe("game session persistence (#11)", () => {
     expect(g?.result?.verdict?.hasKeyEvidence).toBe(true);
     // A half-formed result is dropped (the game then falls back to the suspects screen).
     expect(parseSavedGame(JSON.stringify({ ...sample, screen: "ending", result: { outcome: "won" } }), "blackwood")?.result).toBeUndefined();
+  });
+
+  it("drops a question whose reply never arrived, on save and on load (#28)", () => {
+    const q = { id: "m1", speaker: "player" as const, text: "Who did it?" };
+    const a = { id: "m2", speaker: "character" as const, text: "Not I.", speakerName: "Gregory" };
+    const q2 = { id: "m3", speaker: "player" as const, text: "Are you sure?" };
+    expect(withoutUnansweredQuestions({ gregory: [q, a, q2], reginald: [q, a], archibald: [q] })).toEqual({ gregory: [q, a], reginald: [q, a], archibald: [] });
+    const g = parseSavedGame(JSON.stringify({ ...sample, conversations: { gregory: [q, a, q2] } }), "blackwood");
+    expect(g?.conversations.gregory).toEqual([q, a]);
   });
 
   it("restores the confrontation screen and pair, dropping a malformed pair", () => {

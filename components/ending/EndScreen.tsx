@@ -9,8 +9,9 @@ import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import { summaryRows } from "./summary";
 
 /**
- * Final screen: outcome headline, what the player got right or wrong per field,
- * the full solution (the case is over, so it's revealed win or lose), and Play again.
+ * Final screen: outcome headline, then on a WIN the per-field verdict and the
+ * full solution. A LOSS shows only what the player named and that the case went
+ * unsolved (the server never sends the answer on a loss: one guess per game).
  */
 export function EndScreen({
   result,
@@ -32,9 +33,17 @@ export function EndScreen({
   const heading = useRef<HTMLHeadingElement>(null);
   // Keyboard/screen-reader users land on the verdict when the cut-scene hands over.
   useEffect(() => heading.current?.focus({ preventScroll: true }), []);
-  if (!result.accusation || !result.verdict || !result.ending) return null;
+  if (!result.accusation || !result.ending) return null;
   const won = result.outcome === "won";
-  const rows = summaryRows({ accusation: result.accusation, verdict: result.verdict, solution: result.solution, evidence: result.evidence }, { suspects, evidence, motives }, true);
+  // A loss carries no verdict or solution (#22): the player only sees what they named.
+  const rows = result.verdict
+    ? summaryRows({ accusation: result.accusation, verdict: result.verdict, solution: result.solution, evidence: result.evidence }, { suspects, evidence, motives }, true)
+    : [];
+  const named = {
+    murderer: suspects.find((x) => x.id === result.accusation!.murdererId)?.name ?? result.accusation.murdererId,
+    weapon: [...(result.evidence ?? []), ...evidence].find((e) => e.id === result.accusation!.weaponId)?.name ?? result.accusation.weaponId,
+    motive: motives.find((m) => m.id === result.accusation!.motiveId)?.label ?? result.accusation.motiveId,
+  };
   const s = result.solution;
   return (
     <main
@@ -57,11 +66,21 @@ export function EndScreen({
         {result.ending.headline}
       </motion.h1>
       <p className="max-w-xl text-center text-lg font-bold text-yellow-100">
-        {won ? "Justice is served, detective. The whole house is talking about you." : "Your case didn't hold up. Here's what really happened."}
+        {won ? "Justice is served, detective. The whole house is talking about you." : "Your case didn't hold up. The case went unsolved."}
       </p>
 
       <section aria-label="Your accusation" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-black shadow-[6px_6px_0_#000]">
         <h2 className="mb-2 font-display text-3xl tracking-wide">Your accusation</h2>
+        {!result.verdict && (
+          <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-0.5 text-sm" data-named>
+            <dt className="font-black uppercase text-neutral-600">Murderer</dt>
+            <dd className="font-bold">{named.murderer}</dd>
+            <dt className="font-black uppercase text-neutral-600">Weapon</dt>
+            <dd className="font-bold">{named.weapon}</dd>
+            <dt className="font-black uppercase text-neutral-600">Motive</dt>
+            <dd className="font-bold">{named.motive}</dd>
+          </dl>
+        )}
         <ul className="flex flex-col gap-2">
           {rows.map((r) => (
             <li key={r.field} className="flex flex-col rounded-xl border-[3px] border-black bg-white px-3 py-2 sm:flex-row sm:items-baseline sm:gap-3" data-summary={r.field} data-correct={r.correct}>

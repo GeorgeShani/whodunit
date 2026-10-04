@@ -31,7 +31,7 @@ export interface ConfrontLine {
 export interface ConfrontResponseBody {
   /** Addressed character first, then the partner's reaction. Empty on a rejection. */
   lines: ConfrontLine[];
-  confrontation?: { characterIds: [string, string]; turnsUsed: number; max: number; over: boolean };
+  confrontation?: { characterIds: [string, string]; turnsUsed: number; max: number; over: boolean; /** Exchanges left in the whole game (all pairs). */ totalLeft: number };
   stateToken?: string;
   testimonies?: PublicTestimony[];
   /** In-character line for a rejection (pair finished, case closed...). */

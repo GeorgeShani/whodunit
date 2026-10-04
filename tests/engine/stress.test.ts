@@ -186,3 +186,22 @@ describe("supersededBySecretIds: a confession retires the owner's own lie (SOLUT
     expect(await run(["nope"])).toMatch(/unknown own secret "nope"/);
   });
 });
+
+describe("#29 a spent breakdown caps the gauge at panicking", () => {
+  it("after the breakdown, further pressure never reads BREAKDOWN again", () => {
+    const g = createInitialGameState(c);
+    const rt = g.characters.victoria;
+    rt.stress = 96;
+    const plan = planTurn(c, g, "victoria", { playerText: "Confess!" });
+    expect(plan.breakdown).toBe(true);
+    commitTurn(g, plan, { playerText: "Confess!", dialogue: "NO!", emotion: "panicked", intensity: 1, stressDelta: 0, trustDelta: 0, performed: true });
+    expect(rt.brokeDown).toBe(true);
+    expect(rt.stress).toBe(85);
+    rt.stress = 99;
+    const plan2 = planTurn(c, g, "victoria", { playerText: "Admit it!" });
+    expect(plan2.breakdown).toBe(false);
+    const out = commitTurn(g, plan2, { playerText: "Admit it!", dialogue: "No.", emotion: "panicked", intensity: 1, stressDelta: 10, trustDelta: 0, performed: true });
+    expect(out.stress).toBe(95);
+    expect(stressBand(out.stress)).toBe("panicking");
+  });
+});
