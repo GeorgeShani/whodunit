@@ -5,6 +5,8 @@
  * weapon access, window presence, knowledge boundaries, relationship/belief
  * consistency and secret-reveal ordering.
  */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadCase, validateCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
@@ -546,7 +548,196 @@ describe("Blackwood reveal paths: stress and evidence", () => {
       }
       const expected = ch.secrets.filter((s) => s.id !== "s-victoria-murder").map((s) => s.id);
       expect(revealed.sort(), ch.id).toEqual(expected.sort());
-      for (const l of ch.intendedLies) expect(isLieBroken(c, l, { evidenceShownIds: all }), l.id).toBe(true);
+      for (const l of ch.intendedLies) {
+        // Victoria's "never in the hall" is testimony-only: no clue puts her in the hall, only Gregory's eyewitness does.
+        const testimonyOnly = l.id === "l-victoria-never-in-hall";
+        expect(isLieBroken(c, l, { evidenceShownIds: all }), l.id).toBe(!testimonyOnly);
+        if (testimonyOnly) expect(isLieBroken(c, l, { evidenceShownIds: all, testimonyShownIds: ["s-gregory-saw-victoria"] }), l.id).toBe(true);
+      }
     }
+  });
+});
+
+/** Round 2 (Gremlins #26 and #27, Dexter's data notes). */
+describe("Blackwood round 2: Archibald's order of events (#26)", () => {
+  const entry = (id: string) => c.timeline.find((e) => e.id === id)!;
+  const lieOf = (cid: string, id: string) => byId(cid).intendedLies.find((l) => l.id === id)!;
+  const secretOf = (cid: string, id: string) => byId(cid).secrets.find((s) => s.id === id)!;
+
+  it("canon order is blackout 21:10, candles 21:11, he leaves 21:13, phone 21:15-21:20, back 21:22", () => {
+    expect(entry("ev-blackout").time).toBe("21:10");
+    expect(entry("ev-candlesticks-lit").time).toBe("21:11");
+    expect(entry("ev-archibald-leaves-dining").time).toBe("21:13");
+    expect([entry("ev-archibald-phone").from, entry("ev-archibald-phone").to]).toEqual(["21:15", "21:20"]);
+    expect(entry("ev-archibald-returns").time).toBe("21:22");
+  });
+
+  it("the statements carry the clock times and the relative order", () => {
+    expect(entry("ev-blackout").statement).toMatch(/21:10.*21:38/);
+    expect(entry("ev-candlesticks-lit").statement).toMatch(/21:11/);
+    expect(entry("ev-archibald-leaves-dining").statement).toMatch(/21:13.*two minutes after.*candles/i);
+    expect(entry("ev-archibald-phone").statement).toMatch(/21:15.*21:20/);
+    expect(entry("ev-archibald-returns").statement).toMatch(/21:22.*nine minutes after/i);
+    expect(entry("ev-alibi-pact").statement).toMatch(/21:40/);
+    for (const id of ["loc-archibald-2113", "loc-victoria-2113"]) expect(entry(id).statement, id).toMatch(/two minutes after the candles/i);
+    for (const id of ["loc-archibald-2122", "loc-victoria-2122"]) expect(entry(id).statement, id).toMatch(/nine minutes after he left/i);
+  });
+
+  it("nobody says he left 'after the lights went out' or 'until the candles': the lies anchor to the candles and the scream", () => {
+    for (const ch of c.characters) {
+      const texts = [
+        ...ch.intendedLies.flatMap((l) => [l.claim, l.topic ?? ""]),
+        ...ch.beliefs.map((b) => b.statement),
+        ...ch.secrets.flatMap((s) => [s.description, s.testimonySummary ?? ""]),
+      ];
+      for (const t of texts) expect(t, `${ch.id}: "${t}"`).not.toMatch(/after the lights went out|till .*lit the candles|until .*lit the candles/i);
+    }
+    expect(lieOf("victoria", "l-victoria-together").claim).toMatch(/from the moment the candles were lit until we heard the scream/);
+    expect(lieOf("archibald", "l-archibald-together").claim).toMatch(/from the moment the candles were lit until the scream/);
+  });
+
+  it("Archibald's secret, summary and beliefs state the same order with clock times", () => {
+    const s = secretOf("archibald", "s-archibald-false-alibi");
+    expect(s.description).toMatch(/21:13 to 21:22[\s\S]*two minutes after[\s\S]*candles[\s\S]*21:15 to 21:20/);
+    expect(s.testimonySummary).toMatch(/21:13[\s\S]*after the candles were lit[\s\S]*21:22[\s\S]*21:15-21:20[\s\S]*21:18[\s\S]*21:40/);
+    expect(secretOf("archibald", "s-archibald-embezzlement").testimonySummary).toMatch(/between 21:15 and 21:20/);
+    const stayed = byId("archibald").beliefs.find((b) => b.id === "b-archibald-victoria-stayed")!;
+    expect(stayed.statement).toMatch(/21:13.*21:22/);
+    expect(byId("victoria").beliefs.find((b) => b.id === "b-victoria-brandy-errand")!.statement).toMatch(/21:13.*21:22/);
+    expect(byId("reginald").beliefs.find((b) => b.id === "b-reginald-lady-stayed")!.statement).toMatch(/21:11/);
+  });
+
+  it("Archibald's beliefs do not mention the dismissal he never heard about", () => {
+    expect(byId("archibald").knownFactIds).not.toContain("f-gregory-dismissed");
+    for (const b of byId("archibald").beliefs) expect(b.statement, b.id).not.toMatch(/sack|dismiss/i);
+  });
+
+  it("the solution explanation gives the order with clock times", () => {
+    const sol = JSON.parse(readFileSync(resolve(__dirname, "../../cases/blackwood/solution.json"), "utf8"));
+    expect(sol.explanation).toMatch(/21:10[\s\S]*21:11[\s\S]*21:13[\s\S]*21:15 to 21:20[\s\S]*21:22/);
+  });
+});
+
+describe("Blackwood round 2: Dexter's data notes", () => {
+  const secretOf = (cid: string, id: string) => byId(cid).secrets.find((s) => s.id === id)!;
+
+  it("s-victoria-left-dining says she LEFT, not that she sat alone", () => {
+    const s = secretOf("victoria", "s-victoria-left-dining");
+    expect(s.testimonySummary).toMatch(/\bleft the dining room\b/);
+    expect(s.testimonySummary).not.toMatch(/sat alone|alone in the dining/i);
+    expect(s.description).toMatch(/\bleft the dining room\b/);
+    expect(s.description).not.toMatch(/library|key|candlestick|killed/i);
+  });
+
+  it("Victoria's goals, notes and beliefs do not assume the together-story", () => {
+    const v = byId("victoria");
+    const texts = [...v.goals, ...v.beliefs.map((b) => b.statement), ...v.relationships.map((r) => r.description ?? "")];
+    for (const t of texts) expect(t, t).not.toMatch(/whole blackout|stick to our story|together the whole|spent the blackout|by the fire with/i);
+    expect(v.beliefs.find((b) => b.id === "b-victoria-archibald-loyal")!.statement).not.toMatch(/story/i);
+  });
+
+  it("every supersededBySecretIds is an own secret and genuinely retires its claim", () => {
+    const expected: Record<string, string> = {
+      "l-victoria-together": "s-victoria-left-dining",
+      "l-victoria-letter": "s-victoria-new-will",
+      "l-victoria-menu": "s-victoria-new-will",
+      "l-victoria-locked-in": "s-victoria-locked-door",
+      "l-victoria-never-in-hall": "s-victoria-locked-door",
+      "l-reginald-heard-nothing": "s-reginald-theft",
+      "l-reginald-few-words": "s-reginald-overheard",
+      "l-archibald-together": "s-archibald-false-alibi",
+      "l-archibald-racehorse": "s-archibald-embezzlement",
+      "l-gregory-shed": "s-gregory-in-hall",
+      "l-gregory-saw-nothing": "s-gregory-saw-victoria",
+    };
+    const seen: Record<string, string[]> = {};
+    for (const ch of c.characters) {
+      const own = new Set(ch.secrets.map((s) => s.id));
+      for (const l of ch.intendedLies) {
+        for (const sid of l.supersededBySecretIds ?? []) expect(own.has(sid), `${l.id} <- ${sid}`).toBe(true);
+        if (l.supersededBySecretIds?.length) seen[l.id] = l.supersededBySecretIds;
+      }
+    }
+    expect(Object.fromEntries(Object.entries(seen).map(([k, v]) => [k, v[0]]))).toEqual(expected);
+    // a retired lie counts as broken, with nothing shown
+    const together = byId("victoria").intendedLies.find((l) => l.id === "l-victoria-together")!;
+    expect(isLieBroken(c, together, { evidenceShownIds: [] })).toBe(false);
+    expect(isLieBroken(c, together, { evidenceShownIds: [], revealedSecretIds: ["s-victoria-left-dining"] })).toBe(true);
+  });
+
+  it("no catchphrases and no 'darling' in persona text or lie claims", () => {
+    for (const ch of c.characters) {
+      expect(ch.personality.catchphrases, ch.id).toEqual([]);
+      const texts = [
+        ch.personality.speechStyle,
+        ...ch.personality.traits,
+        ...ch.personality.quirks,
+        ...ch.goals,
+        ...ch.intendedLies.map((l) => l.claim),
+        ...ch.relationships.map((r) => r.description ?? ""),
+        ...ch.beliefs.map((b) => b.statement),
+      ];
+      for (const t of texts) expect(t, `${ch.id}: "${t}"`).not.toMatch(/darling|dwell on unpleasantness|if I may be so bold|now see here/i);
+    }
+  });
+
+  it("the library key breaks only the lies it contradicts, and the engine rule is unchanged", () => {
+    const brokenByKey = c.characters.flatMap((ch) => ch.intendedLies.filter((l) => l.brokenByEvidenceIds.includes("library-key")).map((l) => l.id));
+    expect(brokenByKey.filter((id) => id.startsWith("l-victoria")).sort()).toEqual(["l-victoria-locked-in", "l-victoria-together"]);
+    const neverInHall = byId("victoria").intendedLies.find((l) => l.id === "l-victoria-never-in-hall")!;
+    expect(neverInHall.brokenByEvidenceIds).toEqual([]);
+    expect(neverInHall.breaksOnSecretIds).toEqual(["s-gregory-saw-victoria"]);
+    // evidence still breaks a lie whether or not she has told it
+    const together = byId("victoria").intendedLies.find((l) => l.id === "l-victoria-together")!;
+    expect(isLieBroken(c, together, { evidenceShownIds: ["library-key"] })).toBe(true);
+  });
+
+  it("the solution is still provable from the four clues alone", () => {
+    const all = c.evidence.map((e) => e.id);
+    expect(all.sort()).toEqual(["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"]);
+    for (const k of ["library-key", "burned-letter"]) expect(all).toContain(k);
+    const v = byId("victoria");
+    const together = v.intendedLies.find((l) => l.id === "l-victoria-together")!;
+    expect(isLieBroken(c, together, { evidenceShownIds: all })).toBe(true);
+  });
+});
+
+describe("Blackwood round 2: pair material for confrontations (#27)", () => {
+  const TELLTALE = /\b(alibi|secret|theft|steal|stole|embezzl|telephon|phone|hidden money|what he saw|overheard|new will|prison|never left|hated him)\b/i;
+  const ids = ["victoria", "archibald", "reginald", "gregory"];
+  const rel = (a: string, b: string) => byId(a).relationships.find((r) => r.targetCharacterId === b)!;
+
+  it("every ordered pair of suspects has a distinct, substantial note", () => {
+    const seen = new Set<string>();
+    for (const a of ids) for (const b of ids) {
+      if (a === b) continue;
+      const d = rel(a, b)?.description;
+      expect(d, `${a}->${b}`).toBeTruthy();
+      expect(d!.length, `${a}->${b}`).toBeGreaterThan(80);
+      expect(d, `${a}->${b}`).not.toMatch(TELLTALE);
+      expect(seen.has(d!), `${a}->${b} duplicates`).toBe(false);
+      seen.add(d!);
+    }
+    expect(seen.size).toBe(12);
+  });
+
+  it("a note only brings up things the speaker actually knows", () => {
+    // the dismissal: Victoria, Reginald and Gregory know it, Archibald does not
+    for (const a of ids) {
+      const knows = byId(a).knownFactIds.includes("f-gregory-dismissed");
+      for (const r of byId(a).relationships) if (!knows) expect(r.description ?? "", `${a}->${r.targetCharacterId}`).not.toMatch(/sack|dismiss/i);
+    }
+    // the dinner threat: Gregory was not at the table
+    expect(byId("gregory").knownFactIds).not.toContain("ev-archibald-threat");
+    for (const r of byId("gregory").relationships) expect(r.description ?? "").not.toMatch(/threat|dinner/i);
+    // the candlestick: Archibald watched it being lit
+    expect(byId("archibald").knownFactIds).toContain("ev-candlesticks-lit");
+    // Reginald's sighting of her ladyship at 20:57
+    expect(byId("reginald").knownFactIds).toContain("ev-victoria-passes-reginald");
+    expect(rel("reginald", "victoria").description).toMatch(/20:57|swept past/);
+  });
+
+  it("no note puts the murderer in the library or accuses anyone outright", () => {
+    for (const a of ids) for (const r of byId(a).relationships) expect(r.description ?? "", `${a}->${r.targetCharacterId}`).not.toMatch(/library|murder|killed|killer|key\b/i);
   });
 });

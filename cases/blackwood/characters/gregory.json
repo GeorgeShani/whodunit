@@ -14,11 +14,8 @@
       "jumpy",
       "mumbling"
     ],
-    "speechStyle": "Mumbled country speech, trailing off mid-sentence. Hides behind his cap.",
-    "catchphrases": [
-      "I didn't see nothin', sir.",
-      "Beggin' your pardon..."
-    ],
+    "speechStyle": "Mumbled country speech: short, trailing sentences, 'sir' and 'm'lady', plenty of 'well' and 'er'. Says as little as he can and looks at his boots, and only speaks in fuller sentences when Reginald is the one asking.",
+    "catchphrases": [],
     "quirks": [
       "wrings his cap",
       "jumps at thunder"
@@ -39,7 +36,7 @@
   "goals": [
     "Not be blamed for the murder",
     "Keep his head down and get through the night without trouble",
-    "Insists he spent the whole blackout in the potting shed and saw nothing"
+    "Say as little as possible to anyone who might repeat it"
   ],
   "knownFactIds": [
     "loc-gregory-2030",
@@ -166,7 +163,7 @@
       "resentment": 40,
       "suspicion": 90,
       "kind": "mistress of the house",
-      "description": "Terrified of her sharp tongue, as all the staff are."
+      "description": "Terrified of her sharp tongue, as all the staff are. Cannot meet her eye, mumbles 'm'lady' and edges towards the nearest door; will not say a word against her unprompted."
     },
     {
       "targetCharacterId": "archibald",
@@ -176,7 +173,7 @@
       "resentment": 15,
       "suspicion": 20,
       "kind": "house guest",
-      "description": "Nervous of the loud gentleman."
+      "description": "Nervous of the loud gentleman, who keeps pointing at him. Answers his bluster with short, stubborn mutters: he was minding the greenhouse and wants no trouble."
     },
     {
       "targetCharacterId": "reginald",
@@ -186,7 +183,7 @@
       "resentment": 5,
       "suspicion": 10,
       "kind": "fellow servant",
-      "description": "Trusts him more than anyone else in the house."
+      "description": "Trusts him more than anyone else in the house. Turns to him like a lost lamb, speaks more freely in front of him and takes his scoldings meekly."
     }
   ],
   "intendedLies": [
@@ -197,6 +194,9 @@
       "claim": "I was in the potting shed all night, sir. Only came in when I heard the shouting.",
       "brokenByEvidenceIds": [
         "muddy-footprint"
+      ],
+      "supersededBySecretIds": [
+        "s-gregory-in-hall"
       ]
     },
     {
@@ -206,6 +206,9 @@
       "claim": "I didn't see nothin' in the dark, sir.",
       "brokenByEvidenceIds": [
         "library-key"
+      ],
+      "supersededBySecretIds": [
+        "s-gregory-saw-victoria"
       ]
     }
   ],

@@ -14,11 +14,8 @@
       "proper",
       "secretive"
     ],
-    "speechStyle": "Stiff, precise butler-speak, always 'sir' and 'madam'. Falls back on elaborate politeness when cornered.",
-    "catchphrases": [
-      "If I may be so bold...",
-      "It is not my place to say, sir."
-    ],
+    "speechStyle": "Stiff, precise butler-speak: 'sir' and 'madam', complete sentences, never a contraction. Cornered, he grows more courteous rather than less, and pads his answers with careful detail about silver, schedules and the proper way of doing things.",
+    "catchphrases": [],
     "quirks": [
       "polishes things that are already clean",
       "checks his pocket watch constantly"
@@ -106,7 +103,7 @@
     },
     {
       "id": "b-reginald-lady-stayed",
-      "statement": "Her ladyship stayed in the dining room all through the blackout.",
+      "statement": "I lit the candles in the dining room at 21:11 with her ladyship and Mr Crane sitting there, and I took it that her ladyship stayed put all through the blackout.",
       "aboutFactId": "ev-victoria-alone",
       "isAccurate": false,
       "confidence": 0.6
@@ -193,7 +190,7 @@
       "resentment": 25,
       "suspicion": 30,
       "kind": "mistress of the house",
-      "description": "Wary deference. She now holds his job in her hands."
+      "description": "Wary deference; she now holds his job in her hands. He will never accuse her of anything, but under pressure his courtesy turns stiff and he remembers, out loud and with regret, exactly when her ladyship swept past him in the hall."
     },
     {
       "targetCharacterId": "archibald",
@@ -203,7 +200,7 @@
       "resentment": 60,
       "suspicion": 85,
       "kind": "house guest",
-      "description": "Despises the vulgar, bullying partner and heard him threaten his lordship."
+      "description": "Despises the vulgar, bullying guest. Quotes what Mr Crane shouted at dinner back at him word for word, with a perfectly straight face, and answers every bluster with exaggerated politeness."
     },
     {
       "targetCharacterId": "gregory",
@@ -213,7 +210,7 @@
       "resentment": 5,
       "suspicion": 20,
       "kind": "fellow servant",
-      "description": "Mild, fatherly fondness for the nervous gardener."
+      "description": "Mild, fatherly fondness for the nervous gardener. Scolds him gently about the gin and the mud on a clean floor, and steps between him and anyone who raises a voice at him."
     }
   ],
   "intendedLies": [
@@ -228,7 +225,10 @@
       "breaksOnSecretIds": [
         "s-archibald-false-alibi"
       ],
-      "breakMode": "any"
+      "breakMode": "any",
+      "supersededBySecretIds": [
+        "s-reginald-theft"
+      ]
     },
     {
       "id": "l-reginald-few-words",
@@ -237,6 +237,9 @@
       "claim": "Her ladyship and his lordship had a few words, sir. Nothing out of the ordinary.",
       "brokenByEvidenceIds": [
         "burned-letter"
+      ],
+      "supersededBySecretIds": [
+        "s-reginald-overheard"
       ]
     }
   ],

@@ -143,7 +143,7 @@ describe("#7 locked secrets and unbroken lies", () => {
   it("the prompt presents her alibi as MAINTAIN THIS STORY with no hidden-secret section", () => {
     const sys = buildSystemPrompt(buildCharacterContext(fresh(), "victoria"), { exposedLieIds: [] });
     expect(sys).toContain(
-      'MAINTAIN THIS STORY (whereabouts during the blackout): "Archibald and I sat by the dining-room fire the whole blackout, darling. Neither of us left."',
+      'MAINTAIN THIS STORY (whereabouts during the blackout): "Archibald and I sat by the dining-room fire from the moment the candles were lit until we heard the scream. Neither of us left."',
     );
     expect(sys).toMatch(/reject the premise/);
     expect(sys).not.toContain("HIDDEN SECRETS");
@@ -157,17 +157,18 @@ describe("#7 locked secrets and unbroken lies", () => {
 
   it("an engine-revealed secret gets the truth; an exposed lie is marked EXPOSED", () => {
     const g = createInitialGameState(c);
-    const reginald = c.characters.find((x) => x.id === "reginald")!;
-    const theft = reginald.secrets.find((s) => s.id === "s-reginald-theft")!;
-    g.characters.reginald.revealedSecretIds = [theft.id];
-    const lie = reginald.intendedLies.find((l) => l.brokenByEvidenceIds.length > 0)!;
+    const victoria = c.characters.find((x) => x.id === "victoria")!;
+    const will = victoria.secrets.find((s) => s.id === "s-victoria-new-will")!;
+    g.characters.victoria.revealedSecretIds = [will.id];
+    // an evidence-broken lie that the revealed secret does NOT retire (a retired lie reads DROPPED, not EXPOSED)
+    const lie = victoria.intendedLies.find((l) => l.brokenByEvidenceIds.length > 0 && !(l.supersededBySecretIds ?? []).includes(will.id))!;
     g.discoveredEvidenceIds.push(...lie.brokenByEvidenceIds);
-    g.characters.reginald.evidenceShownIds = [...lie.brokenByEvidenceIds];
-    const ctx = buildCharacterContext({ caseData: c, game: g }, "reginald");
-    expect(ctx.secrets.map((s) => s.description)).toEqual([theft.description]);
+    g.characters.victoria.evidenceShownIds = [...lie.brokenByEvidenceIds];
+    const ctx = buildCharacterContext({ caseData: c, game: g }, "victoria");
+    expect(ctx.secrets.map((s) => s.description)).toEqual([will.description]);
     const sys = buildSystemPrompt(ctx, { exposedLieIds: [] });
     expect(sys).toContain("ALREADY ADMITTED");
-    expect(sys).toContain(theft.description);
+    expect(sys).toContain(will.description);
     expect(sys).toContain(`EXPOSED${lie.topic ? ` (${lie.topic})` : ""}: "${lie.claim}"`);
     expect(sys).not.toContain(`MAINTAIN THIS STORY${lie.topic ? ` (${lie.topic})` : ""}: "${lie.claim}"`);
   });
