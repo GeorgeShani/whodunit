@@ -7,7 +7,9 @@
  * its TYPES.
  */
 import type { CaseBackdrops, LoadedCase, MotiveOption, Victim } from "./case-schema";
-import type { EmotionalState, Evidence, Location } from "./types";
+import { createInitialGameState } from "./game-state";
+import { publicProgress, type PublicProgress } from "./progress";
+import type { EmotionalState, Evidence, Location, PublicLocation } from "./types";
 
 export interface PublicSuspect {
   id: string;
@@ -50,13 +52,22 @@ export interface PublicCaseView {
   backdrops: CaseBackdrops;
   /** Interrogation stage art; absent until resolveCaseArt runs (screens fall back to a gradient). */
   stage?: StageArt;
-  locations: Location[];
+  /** Rooms without the private `requires` (only `lockedLine` is public). */
+  locations: PublicLocation[];
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
+  /** Starting progress (leads, locked rooms, accuse checklist). Routes return the live one with every token. */
+  progress: PublicProgress;
 }
 
 export function initialDiscoveredEvidenceIds(c: LoadedCase): string[] {
   return c.evidence.filter((e) => e.initiallyAvailable).map((e) => e.id);
+}
+
+export function toPublicLocation(l: Location): PublicLocation {
+  const rest: Partial<Location> = { ...l };
+  delete rest.requires;
+  return rest as PublicLocation;
 }
 
 export function toPublicEvidence(e: Evidence): PublicEvidence {
@@ -74,7 +85,7 @@ export function getPublicCaseView(
     motives: c.motives.map(({ id, label, description }) => ({ id, label, ...(description ? { description } : {}) })),
     victim: { ...c.victim },
     backdrops: { ...(c.backdrops ?? {}) },
-    locations: c.locations.map((l) => ({ ...l })),
+    locations: c.locations.map(toPublicLocation),
     suspects: c.characters.map((ch) => {
       const portrait = ch.portrait ?? ch.id;
       return {
@@ -88,5 +99,6 @@ export function getPublicCaseView(
       };
     }),
     evidence: c.evidence.filter((e) => discovered.has(e.id)).map(toPublicEvidence),
+    progress: publicProgress(c, createInitialGameState(c)),
   };
 }

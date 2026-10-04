@@ -190,7 +190,7 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
         },
       ]),
     ),
-    accusation: game.accusation ? { ...game.accusation, keyEvidenceIds: [...game.accusation.keyEvidenceIds] } : null,
+    accusation: game.accusation ? { ...game.accusation, keyEvidenceIds: [...game.accusation.keyEvidenceIds], ...(game.accusation.keyTestimonyIds ? { keyTestimonyIds: [...game.accusation.keyTestimonyIds] } : {}) } : null,
     outcome: game.outcome,
     confrontation: game.activeConfrontation ? { characterIds: [...game.activeConfrontation.characterIds], turnsUsed: game.activeConfrontation.turnsUsed } : null,
     confrontedPairs: [...game.confrontedPairs],
@@ -294,6 +294,9 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     if (!chars.has(a.murdererId) || !evidence.has(a.weaponId) || !caseData.motives.some((m) => m.id === a.motiveId) || !a.keyEvidenceIds.every((e) => evidence.has(e))) {
       return { ok: false, reason: "invalid_payload" };
     }
+    // Cited testimony must be real secrets of this case.
+    const secretIds = new Set(caseData.characters.flatMap((c) => c.secrets.map((s) => s.id)));
+    if (!(a.keyTestimonyIds ?? []).every((id) => secretIds.has(id))) return { ok: false, reason: "invalid_payload" };
   }
 
   if (p.confrontation && !p.confrontation.characterIds.every((id) => chars.has(id))) return { ok: false, reason: "invalid_payload" };
