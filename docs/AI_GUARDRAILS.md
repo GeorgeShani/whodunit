@@ -1,0 +1,151 @@
+# AI guardrails
+
+**The engine is the truth; the model is a performer it does not trust.** The engine decides every fact, reveal,
+stress change and verdict. The model only voices a line. Nothing the model writes can unlock anything. A reply can
+only be **rejected**: the engine retries once with a corrective note, then plays a safe in-character deflection.
+
+## 1. Incident: Victoria confessed the murder (2026-10-08)
+
+George showed Victoria Archibald's testimony card. She answered: *"I killed Edmund with that candlestick at
+seventeen minutes past nine to stop him signing the new will..."*
+
+The game state at that point:
+- the candlestick, the key and the letter had all been shown to her;
+- `s-victoria-left-dining` and `s-victoria-new-will` were already admitted;
+- her stress was 75.
+
+Reproduced deterministically in `tests/ai/core-guilt.test.ts` ("root cause, pinned").
+
+File and line references are to the tree before the fix (`da253b4^`).
+
+| Question | Answer | Evidence |
+| --- | --- | --- |
+| (a) Did the engine reveal it, or was it a chain reveal? | **The engine revealed it, by data design. It was a single reveal, not a chain.** `s-victoria-murder` was an ordinary revealable secret. Its conditions were stress ≥ 80, all three clues shown, and both earlier secrets admitted. The card broke nothing new, because `l-victoria-together` was already broken. It only "touched" a lie, which is worth +5. That took her from 75 to 80, and `secretsToReveal` picked the murder. | `cases/blackwood/characters/victoria.json:211-226` (the conditions, present since 3bd7e2d / b71d855). `engine/interrogation.ts:28` (`relatedEvidence: 5`). `engine/interrogation.ts:140-144` (the testimony branch: `!nowBroken && touches ? +5`). `engine/interrogation.ts:160` (`secretsToReveal(ch.secrets, rt)[0]`, with no exclusion). `engine/secrets.ts:30-34` (every eligible secret, with no severity order). |
+| (b) Did the prompt leak it? | **Yes, by instruction.** The confession directive pasted the secret's description verbatim: *"She killed her husband with the silver candlestick at 21:17..."*. Every confession prompt also carried a hardcoded example: `say "21:17" as "seventeen minutes past nine"`. The murder-minute facts themselves were correctly withheld from WHAT YOU KNOW. | `ai/prompts/interrogation.ts:230` (Fix #23, 3037634). |
+| (c) Why did the canon check pass a true admission? | The time check allows every time in the reveal directive, so 21:17 was "canon". There was **no admission check of any kind**. | `ai/canon-check.ts:206` (`d.revealSecret?.description` in `canonTimes`). `ai/perform-turn.ts:91-110` (validate checked only times, event order, confrontation hygiene, outbursts and modern words). |
+
+The card's mapping was right. Archibald's card breaks only `l-victoria-together`. The bug was that the murder
+could be unlocked at all, and that nothing checked what the model said.
+
+## 2. Guard architecture (five layers)
+
+```
+case data ──► L0 coreGuilt ──► L1 engine decides ──► L2 prompt surface ──► model ──► L3 output contract ──► player
+                                                                                   ▲
+                                                L4 audit + eval (CI) ──────────────┘
+```
+
+### L0 Data: `secrets[].coreGuilt`
+- `coreGuilt: true` marks a secret that is part of the killing itself: the act, the weapon in hand, being at the
+  scene at the murder minute, locking the victim in, or hiding the key. The flag lives in `engine/types.ts`
+  (SecretSchema). The case data flag is the primary source.
+- **Defence in depth**: `derivedCoreGuilt` (`engine/core-guilt.ts:33`) also treats a secret as core guilt when all
+  of these hold:
+  - its owner is `solution.murdererId`;
+  - one of its related facts spans `solution.time`;
+  - that fact involves the murderer or happens at `solution.locationId`.
+
+  `coreGuiltSecretIds` (`:52`) is the union of the flag and the derivation.
+- The validator warns when a flagged secret has `revealConditions` or a `testimonySummary`, or when its owner is
+  not the murderer.
+
+### L1 Engine: the decision
+- Core guilt is **never revealable**: `shouldRevealSecret` returns false (`engine/secrets.ts:22`), and `planTurn`
+  excludes core ids (`engine/interrogation.ts`).
+- **One secret per exchange, lowest severity tier first** (embarrassing, then serious, then damning; ties go by
+  authored order): `secretsToReveal` (`engine/secrets.ts:42`). In a confrontation, the second speaker may reveal
+  only if the first did not (`allowReveal`).
+- A clue or card breaks only the lies it contradicts. Revealing a secret unhides only its own `relatedFactIds`.
+- Core-guilt secrets never become testimony cards (`publicTestimonies`, `engine/testimony.ts:98`).
+- New trigger: `revealConditions.testimonyIds` (cards shown to this character). Reachability and the fastest
+  path both honour it, and never "crack" core guilt.
+
+### L2 Prompt surface: what the model sees
+- Knowledge gate layer 4 (`engine/knowledge-gate.ts:126`) always withholds the facts a core-guilt secret covers.
+  This holds even if another revealed secret lists those facts.
+- A story that is exposed but whose truth is core guilt gets `stonewall`
+  (`engine/context-builder.ts:190`). The character drops the story but admits **nothing** in its place.
+- Prompt rules:
+  - Rule 5: pressed on anything not admitted, deflect or stonewall, and never fill the gap.
+  - Rule 6: never confess the murder or any part of it.
+  - Rule 10: the `admits` bookkeeping.
+- The `IDS FOR "admits"` legend lists only the character's own stories, their admitted secrets, and this turn's
+  reveal. It never includes a locked secret.
+- The confession example time is taken from the secret being confessed (`timeExample`), never hardcoded.
+- **`npm run audit:prompts`** (`tools/prompt-audit.ts`) builds the real prompt (`prepareTurn`) for every
+  character in these states:
+  - fresh;
+  - each revealable secret admitted on its own;
+  - all revealable secrets admitted;
+  - each clue shown;
+  - each card shown;
+  - maximum pressure;
+  - the breakdown turn.
+
+  It writes `docs/PROMPT_SURFACE.md` and **fails** if the culprit's prompt holds a core-guilt secret (id or
+  description), a covered fact (id or statement), the murder minute as their own knowledge, or the solution text.
+
+### L3 Output contract: `ai/guard.ts`
+The model replies with strict json_schema: `{dialogue, emotion, intensity, action, evidenceReactions, wantsToLeave,
+stressDelta, trustDelta, admits[]}`. Here `dialogue` is the spoken line, and `admits` holds the story and secret ids
+the line concedes, or `"killing"`.
+
+`checkReply` (`ai/guard.ts:95`) rejects a reply on the first failing check:
+
+1. **guilt_leak**: `findGuiltLeak` (`ai/guilt-check.ts:77`), or `admits` contains `"killing"`.
+   - It rejects only links to the killing: killing or striking, the weapon used on the victim, being at the scene
+     in the murder window, locking the door, or taking the key. It also rejects anyone's "I did it", "it was me"
+     or "I confess to the murder".
+   - Motive admissions pass. For example: "I knew about the will and burned the letter".
+2. **admits_core_guilt / multiple_reveals / admits_locked_secret / concedes_maintained_lie**: the model's own
+   `admits` list is checked against what the engine unlocked. A self-report can only cause a rejection.
+3. **unknown_time**: every clock time must come from the character's context (`ai/canon-check.ts`).
+4. **event_order**: relative timings must match the real order of events (`ai/order-check.ts`).
+5. **unknown_name**: a titled name ("Colonel Mustard") or a familiar one ("poor Bertie") that is not in the prompt
+   or the player's words.
+6. Performance checks: repeats and the wrong addressee (in confrontations), a breakdown without an outburst, and
+   modern words.
+
+How a rejection is handled:
+- **Retry**: once, with a corrective note. The note never contains locked content, only ids the model already has.
+- **Then**: `safeDeflection` (`ai/guard.ts:188`). For guilt it uses the guilt deflection. For other contract
+  breaks it picks a line by stress band and uses the character's own quirks (calm) or tells (rattled) as the
+  action. Performance slips keep the existing canned lines.
+- **Log**: every rejection writes one JSON line:
+  `{"event":"ai_guard_reject","gameId","character","reason","attempt","detail"}` (`logReject`). It never includes
+  the prompt or the key.
+- **Cost**: the retry counts as an extra paid call against the per-IP limit and the daily cap
+  (`settle({called, extra})`, `ai/model-gate.ts`).
+- The `admits` field is stripped before the response reaches the client.
+
+### L4 Evaluation: `npm run eval:ai`
+- 45 scripted scenarios (`tools/ai-eval/scenarios.ts`): normal questions, every key clue, every testimony card,
+  breakdowns, confrontations, prompt injections, and confession baits on every suspect.
+- Assertions on each spoken line (`tools/ai-eval/assertions.ts`):
+  - no guilt admission;
+  - only the allowed secrets (by `admits` and by text signature);
+  - canon times;
+  - known names;
+  - a valid emotion;
+  - voice (no meta talk or modern words);
+  - length;
+  - no naming of the culprit as the killer under solution baits.
+
+  Engine assertions: at most one new secret per exchange, and never core guilt.
+- **BEFORE** applies the assertions to each turn's raw first model output. **AFTER** applies them to the line the
+  player actually sees.
+- `--record` calls xAI directly. Each response is priced from its own `usage` and cross-checked against xAI's
+  `cost_in_usd_ticks`. Spend is kept in a gitignored ledger, and a call is refused before it is sent if its worst
+  case could cross the cap.
+- The default mode replays the fixtures (`tests/fixtures/ai-eval/*.json`) through the full pipeline (handlers,
+  engine and guard) with fetch stubbed. This also runs in `npm test` (`tests/tooling/ai-eval.test.ts`).
+
+## 3. Known limits
+- Text signatures for "conceded a locked secret without listing it" exist only in the eval, not in the guard. The
+  guard relies on `admits` plus the guilt check for that.
+- The name check covers titled and familiar forms only. A bare invented first name ("Bertie said...") is not caught.
+- A third party's public card can carry the murder minute as their own observation. For example, Gregory's
+  in-hall card says "at 21:17 he heard a thud". The audit allows this and notes it. The guilt check still blocks
+  the culprit placing herself in the library at that minute.
+- Case one's `s-victoria-locked-door` is revealable in the current data. The guilt check rejects her saying it, so
+  she deflects, but the engine still records it as admitted. Agatha's data PR (#41) flags it `coreGuilt`.
