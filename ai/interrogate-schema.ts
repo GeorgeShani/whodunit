@@ -10,6 +10,7 @@ import { CaseIdSchema, IdSchema } from "@/engine/types";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { CharacterResponse } from "./schemas";
 import type { Unavailable } from "./model-down";
+import type { PublicReply } from "./public-reply";
 
 export const MAX_QUESTION_CHARS = 500;
 
@@ -51,6 +52,11 @@ export interface InterrogateResponseBody {
    * changed: `stateToken` is the one the request carried, and `response` is an inert placeholder to ignore.
    */
   unavailable?: Unavailable;
+  /**
+   * #49: on 409 "already_answered", the answer the player missed (public fields only: dialogue, action, emotion).
+   * Show it instead of the narration; `stateToken` is the token that answer produced.
+   */
+  answered?: PublicReply;
   /** New signed state to send with the next request (absent only if the request itself was unusable). */
   stateToken?: string;
   /** Leads, locked rooms and the accuse checklist after this action (engine/route-progress.ts). */

@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useId, useState } from "react";
 import { MAX_QUESTION_CHARS } from "@/ai/interrogate-schema";
+import { formatRetryWait } from "@/ai/model-down";
 import { EmotionBadge } from "@/components/characters/EmotionBadge";
 import { usePreloadPoses } from "@/components/characters/Portrait";
 import { CartoonButton } from "@/components/game/CartoonButton";
@@ -34,6 +35,7 @@ export function InterrogationScreen({
   onConfront,
   onBack,
   onRetry,
+  retryWait = 0,
 }: {
   suspect: PublicSuspect;
   emotion: Emotion;
@@ -59,6 +61,8 @@ export function InterrogationScreen({
   onBack: () => void;
   /** The model could not answer the last question (nothing was spent): ask it again. */
   onRetry?: () => void;
+  /** #49: seconds before AGAIN can succeed (a breather): AGAIN stays disabled with this countdown. */
+  retryWait?: number;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
   const [text, setText] = useState("");
@@ -187,7 +191,7 @@ export function InterrogationScreen({
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                placeholder={onRetry && !text ? "Tap AGAIN, or type another…" : `Ask ${firstName} anything…`}
+                placeholder={onRetry && !text ? (retryWait > 0 ? `AGAIN in ${formatRetryWait(retryWait)}…` : "Tap AGAIN, or type another…") : `Ask ${firstName} anything…`}
                 aria-label={`Ask ${suspect.name} a question`}
                 aria-describedby={hintId}
                 aria-invalid={over > 0 || undefined}
@@ -195,8 +199,8 @@ export function InterrogationScreen({
                 className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
               />
               {onRetry && !text.trim() ? (
-                <CartoonButton type="button" tone="yellow" data-model-retry className="min-h-12 short:min-h-11 px-4 text-base" disabled={locked} onClick={onRetry}>
-                  ↻ AGAIN
+                <CartoonButton type="button" tone="yellow" data-model-retry data-retry-wait={retryWait > 0 ? retryWait : undefined} aria-label={retryWait > 0 ? `Ask again in ${formatRetryWait(retryWait)}` : "Ask again"} className="min-h-12 short:min-h-11 px-4 text-base tabular-nums" disabled={locked || retryWait > 0} onClick={onRetry}>
+                  ↻ AGAIN{retryWait > 0 ? ` ${formatRetryWait(retryWait)}` : ""}
                 </CartoonButton>
               ) : (
                 <CartoonButton type="submit" tone="red" className="min-h-12 short:min-h-11 px-5 text-base" disabled={locked || !text.trim() || over > 0}>

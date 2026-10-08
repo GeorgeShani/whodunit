@@ -18,7 +18,8 @@
  * Exits 1 on any overflow sample. Interrogation talks to /api/interrogate, so
  * against a server with a model key it makes a couple of live calls.
  * --model-down answers /api/interrogate and /api/confront in the browser with the "model unavailable" reply
- * (no request reaches the server, no live call is made) so the walk-through also covers the Ask again state.
+ * (no request reaches the server, no live call is made) so the walk-through also covers the Ask again state; the first
+ * answer on each screen is a breather (429, retryAfter 65 s), covering the disabled AGAIN with its countdown (#49).
  */
 import { chromium, type Page } from "playwright-core";
 
@@ -158,8 +159,22 @@ async function run(): Promise<number> {
     if (modelDown) {
       const line = "The telephone line is down for the night, and they won't be drawn just now. Search the rooms, check your notebook, or make your accusation; talk resumes when the line is mended.";
       const down = { source: "unavailable", error: "quota", unavailable: { kind: "quiet", line }, response: { dialogue: "…", emotion: "calm", intensity: 0.3, evidenceReactions: [], wantsToLeave: false, stressDelta: 0, trustDelta: 0 } };
-      await ctx.route("**/api/interrogate", (r) => r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify(down) }));
-      await ctx.route("**/api/confront", (r) => r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ lines: [], line, error: "quota", unavailable: { kind: "quiet", line } }) }));
+      // #49: the FIRST answer on each screen is a breather (429) so the disabled AGAIN with its countdown is measured
+      // too (65 s: the widest "1:05" label); later ones are the "quiet" line with a live AGAIN.
+      const breather = "They need a breather, detective. Give them 2 minutes, then ask again.";
+      const rateLimited = { unavailable: { kind: "breather", line: breather, retryAfter: 65 }, error: "rate_limited" };
+      let asked = 0;
+      let confronted = 0;
+      await ctx.route("**/api/interrogate", (r) =>
+        asked++ === 0
+          ? r.fulfill({ status: 429, contentType: "application/json", headers: { "retry-after": "65" }, body: JSON.stringify({ ...down, ...rateLimited, source: "unavailable" }) })
+          : r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify(down) }),
+      );
+      await ctx.route("**/api/confront", (r) =>
+        confronted++ === 0
+          ? r.fulfill({ status: 429, contentType: "application/json", headers: { "retry-after": "65" }, body: JSON.stringify({ lines: [], line: breather, ...rateLimited }) })
+          : r.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ lines: [], line, error: "quota", unavailable: { kind: "quiet", line } }) }),
+      );
     }
     const p = await ctx.newPage();
     const errors: string[] = [];
@@ -185,7 +200,7 @@ async function run(): Promise<number> {
     await clickButton(p, /The victim/);
     await waitReply(p);
     await wait(2500); // emotion overlay intro + loop, speaking pose
-    if (modelDown) await label(p, "model down: Ask again");
+    if (modelDown) await label(p, "model down: AGAIN countdown (breather)");
     await label(p, "present evidence menu");
     await clickButton(p, /Present evidence/);
     await wait(800);

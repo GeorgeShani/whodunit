@@ -8,6 +8,7 @@ import { MAX_QUESTION_CHARS } from "./interrogate-schema";
 import type { Contradiction } from "./interrogate-schema";
 import type { CharacterResponse } from "./schemas";
 import type { Unavailable } from "./model-down";
+import type { PublicConfrontLine } from "./public-reply";
 
 export const ConfrontRequestSchema = z.strictObject({
   caseId: CaseIdSchema.optional(),
@@ -40,6 +41,8 @@ export interface ConfrontResponseBody {
   testimonies?: PublicTestimony[];
   /** The model could not answer: nothing was spent (no exchange, no stress); `line` is the narration, the token is unchanged. */
   unavailable?: Unavailable;
+  /** #49: on 409 "already_answered", the two lines the player missed (public fields only); `stateToken` is the newest. */
+  answered?: PublicConfrontLine[];
   /** In-character line for a rejection (pair finished, case closed...). */
   line?: string;
   notice?: string;

@@ -241,3 +241,17 @@ included. This is a guard-only fix (no prompt change): when the event's time is 
 reveal turn has no 20:54 line), any clock time on it is rejected and the retry tells him not to put one on it. The
 order-check ABSENCE/MOVEMENT lists are untouched (deferred). Known limit: a sentence that names two events and one time
 is accepted if the time fits either ("after dinner I burned it at half past eight").
+
+### #49 Breather countdown and already-answered replay (client + turn lock)
+
+- **429 breather:** the client reads `unavailable.retryAfter` (else the `Retry-After` header, seconds or HTTP date)
+  and keeps AGAIN disabled with a live countdown ("↻ AGAIN 45s", "1:05" from a minute up) until it runs out
+  (`retryWaitSeconds`, `formatRetryWait`, `retryOffer` in `ai/model-down.ts`).
+- **409 already_answered:** when a turn is answered, the turn lock keeps the newest token AND the minimal public reply
+  the player was shown (`ai/public-reply.ts`: dialogue, action, emotion, intensity; for a confrontation, the two lines
+  with speaker id and name). Nothing else is cached: no secret ids, reveal, stress, trust, testimony or engine state;
+  the stored and received shapes are strict schemas, so an extra field drops the whole reply. A duplicate gets 409
+  with `answered` (the stored reply, only if it was the same suspect or pair) plus the newest token; the client shows
+  that answer and offers no AGAIN. `in_flight` duplicates carry no answer and keep AGAIN.
+- `check:overflow --model-down` answers the first request on each screen with a breather (retryAfter 65 s), so the
+  disabled AGAIN with its widest countdown label is measured at every viewport.

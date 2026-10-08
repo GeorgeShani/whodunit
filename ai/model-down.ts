@@ -96,3 +96,33 @@ export function confrontDownLine(kind: ModelDownKind, a: string, b: string): str
     ? `The telephone line is down for the night and ${names} will say nothing more just now. Search the rooms, check your notebook, or make your accusation; they will talk when the line is mended.`
     : `Thunder rolls through the hall and ${names} both lose the thread. Nobody caught a word. Put it to them again, detective.`;
 }
+
+/**
+ * #49: seconds to wait before AGAIN can succeed, from a "breather" (429) reply: the body's `retryAfter`, else the
+ * `Retry-After` header (delta seconds or an HTTP date). Other kinds have no wait.
+ */
+export function retryWaitSeconds(u: Unavailable, header?: string | null, now = Date.now()): number | undefined {
+  if (u.kind !== "breather") return undefined;
+  if (u.retryAfter && u.retryAfter > 0) return Math.ceil(u.retryAfter);
+  if (!header) return undefined;
+  const n = Number(header);
+  if (Number.isFinite(n) && n > 0) return Math.ceil(n);
+  const at = Date.parse(header);
+  return Number.isFinite(at) && at > now ? Math.ceil((at - now) / 1000) : undefined;
+}
+
+/** The countdown on a disabled AGAIN button: "45s", or "1:05" from a minute up. */
+export function formatRetryWait(seconds: number): string {
+  const s = Math.max(0, Math.ceil(seconds));
+  return s < 60 ? `${s}s` : `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+}
+
+/**
+ * #49: what the client offers after an `unavailable` reply. "again": the AGAIN button; "wait": AGAIN disabled with a
+ * countdown (a breather with a known wait); "none": the turn was already answered, so there is nothing to ask again
+ * (the stored answer is shown when the server sent it).
+ */
+export function retryOffer(u: Unavailable, error?: unknown, waitSeconds?: number): "again" | "wait" | "none" {
+  if (u.kind === "answered" && error === "already_answered") return "none";
+  return waitSeconds && waitSeconds > 0 ? "wait" : "again";
+}

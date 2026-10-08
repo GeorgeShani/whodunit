@@ -26,6 +26,7 @@ import type { KvStore } from "@/lib/runtime-kv";
 import { ensureGameId } from "@/engine/state-token";
 import type { ModelGate } from "./model-gate";
 import { buildUserMessage } from "./prompts/interrogation";
+import { parseStoredReply, toPublicReply, type StoredReply } from "./public-reply";
 
 type Env = Record<string, string | undefined>;
 
@@ -197,11 +198,17 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
   const held = deps.claims && stateToken && !notice ? await claimTurn(deps.claims, ensureGameId(game), game.turn) : null;
   if (held && !held.ok) {
     const line = held.state === "answered" ? confrontAnsweredLine(a.name, b.name) : confrontInFlightLine(a.name, b.name);
-    return { status: 409, body: { lines: [], line, unavailable: { kind: "answered", line }, error: held.state === "answered" ? "already_answered" : "in_flight", stateToken: held.latestToken ?? heldToken } };
+    // #49: an answered duplicate is handed the two lines the player missed (public fields only) with the newest token.
+    const stored = held.state === "answered" ? parseStoredReply(held.latestReply) : null;
+    const replay = stored?.kind === "confront" && stored.lines.every((l) => l.characterId === aId || l.characterId === bId) ? stored.lines : null;
+    return { status: 409, body: { lines: [], line, unavailable: { kind: "answered", line }, ...(replay ? { answered: replay } : {}), error: held.state === "answered" ? "already_answered" : "in_flight", stateToken: held.latestToken ?? heldToken } };
   }
   try {
     const r = await gatedExchange();
-    if (r.status === 200 && r.body.stateToken && held?.ok) await held.answered(r.body.stateToken);
+    if (r.status === 200 && r.body.stateToken && held?.ok) {
+      const stored: StoredReply = { kind: "confront", lines: r.body.lines.map((l) => ({ characterId: l.characterId, characterName: l.characterName, response: toPublicReply(l.response) })) };
+      await held.answered(r.body.stateToken, stored);
+    }
     return r;
   } finally {
     if (held?.ok) await held.release(); // no-op once answered

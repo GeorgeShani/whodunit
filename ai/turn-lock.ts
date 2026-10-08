@@ -6,8 +6,9 @@
  * claims "game G at turn N" (gameId + the token's turn counter, so two different tokens of the same game and turn,
  * e.g. one that also searched a room, share it) before the model is called:
  *  - in flight: a second request for the same state gets 409 ("still answering") with no model call;
- *  - answered: the claim is kept for ANSWERED_TTL_SECONDS together with the token that answer produced, so a
- *    duplicate gets 409 ("already answered") plus that newest token, again with no model call;
+ *  - answered: the claim is kept for ANSWERED_TTL_SECONDS together with the token that answer produced and the
+ *    minimal public reply the player saw (#49), so a duplicate gets 409 ("already answered") plus that newest token
+ *    and that reply, again with no model call;
  *  - not answered (the model was unavailable, the gate refused, anything threw): the claim is released at once, so
  *    the player's AGAIN retry with the same token works.
  * Best effort, like everything on the Runtime Cache (lib/runtime-kv.ts): concurrent requests on one instance are
@@ -25,16 +26,23 @@ export const ANSWERED_TTL_SECONDS = 24 * 3600;
 /** Tokens above this size are not stored with the claim (the duplicate then gets the 409 without a newer token). */
 const MAX_STORED_TOKEN = 32_000;
 
-type Claim = { s: "pending"; o: string } | { s: "done"; t?: string };
+/** Stored public replies above this JSON size are dropped (the duplicate then gets the 409 without the answer). */
+const MAX_STORED_REPLY = 4_000;
+
+type Claim = { s: "pending"; o: string } | { s: "done"; t?: string; r?: unknown };
 
 export interface HeldTurn {
   ok: true;
-  /** The turn was answered and committed: keep the claim, remembering the token it produced. */
-  answered(newToken: string): Promise<void>;
+  /**
+   * The turn was answered and committed: keep the claim, remembering the token it produced and (#49) the minimal
+   * PUBLIC reply the player was shown (dialogue, action, emotion; never secrets or engine state), so a duplicate can
+   * show it again instead of re-asking.
+   */
+  answered(newToken: string, publicReply?: unknown): Promise<void>;
   /** Nothing was committed (unavailable, refused, error): free the state for a retry. Idempotent. */
   release(): Promise<void>;
 }
-export type TurnClaim = HeldTurn | { ok: false; state: "in_flight" | "answered"; latestToken?: string };
+export type TurnClaim = HeldTurn | { ok: false; state: "in_flight" | "answered"; latestToken?: string; latestReply?: unknown };
 
 const local = new Set<string>();
 const isClaim = (v: unknown): v is Claim => !!v && typeof v === "object" && ((v as Claim).s === "pending" || (v as Claim).s === "done");
@@ -59,7 +67,14 @@ export async function claimTurn(kv: KvStore, gameId: string, turn: number, log: 
   };
   const held: HeldTurn = {
     ok: true,
-    answered: (t) => finish(() => kv.set(key, { s: "done", ...(t.length <= MAX_STORED_TOKEN ? { t } : {}) } satisfies Claim, ANSWERED_TTL_SECONDS)),
+    answered: (t, r) =>
+      finish(() =>
+        kv.set(
+          key,
+          { s: "done", ...(t.length <= MAX_STORED_TOKEN ? { t } : {}), ...(r !== undefined && JSON.stringify(r).length <= MAX_STORED_REPLY ? { r } : {}) } satisfies Claim,
+          ANSWERED_TTL_SECONDS,
+        ),
+      ),
     release: () => finish(() => kv.delete(key)),
   };
 
@@ -68,7 +83,7 @@ export async function claimTurn(kv: KvStore, gameId: string, turn: number, log: 
     if (isClaim(existing)) {
       local.delete(key);
       done = true;
-      return existing.s === "done" ? { ok: false, state: "answered", ...(existing.t ? { latestToken: existing.t } : {}) } : { ok: false, state: "in_flight" };
+      return existing.s === "done" ? { ok: false, state: "answered", ...(existing.t ? { latestToken: existing.t } : {}), ...(existing.r !== undefined ? { latestReply: existing.r } : {}) } : { ok: false, state: "in_flight" };
     }
     await kv.set(key, { s: "pending", o: owner } satisfies Claim, IN_FLIGHT_TTL_SECONDS);
     // Another instance may have claimed it in the same instant: the last writer wins, the other backs off.
@@ -76,7 +91,7 @@ export async function claimTurn(kv: KvStore, gameId: string, turn: number, log: 
     if (isClaim(back) && !(back.s === "pending" && back.o === owner)) {
       local.delete(key);
       done = true;
-      return back.s === "done" ? { ok: false, state: "answered", ...(back.t ? { latestToken: back.t } : {}) } : { ok: false, state: "in_flight" };
+      return back.s === "done" ? { ok: false, state: "answered", ...(back.t ? { latestToken: back.t } : {}), ...(back.r !== undefined ? { latestReply: back.r } : {}) } : { ok: false, state: "in_flight" };
     }
   } catch (e) {
     log(`[turn-lock] claim unreadable (${(e as Error)?.name ?? "error"}); fail open`);

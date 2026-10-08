@@ -15,7 +15,8 @@ import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
-import { confrontDownLine, downLineFor, parseUnavailable, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
+import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
+import { parsePublicConfrontLines, parsePublicReply, type PublicConfrontLine, type PublicReply } from "@/ai/public-reply";
 import { getAudio } from "@/components/effects/audio";
 import { bedForScreen, bedFadeMs, heartbeatFor } from "@/components/effects/audio-scenes";
 import { replySfx } from "@/components/effects/emotion-map";
@@ -58,6 +59,12 @@ async function timedFetch(url: string, init: RequestInit): Promise<Response> {
 interface InterrogateResult {
   /** The model could not answer: show this narration + a retry; nothing was spent and `response` is a placeholder. */
   unavailable?: Unavailable;
+  /** #49: what to offer after `unavailable`: AGAIN, AGAIN after a countdown, or nothing (already answered). */
+  offer?: "again" | "wait" | "none";
+  /** #49: seconds before AGAIN can succeed (a breather). */
+  waitSeconds?: number;
+  /** #49: an already-answered duplicate: the answer the player missed (public fields only). */
+  replay?: PublicReply;
   response: CharacterResponse;
   stress?: StressReading;
   contradiction?: Contradiction;
@@ -76,13 +83,18 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req),
     });
-    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown };
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown; answered?: unknown; error?: unknown };
     const down = parseUnavailable(json?.unavailable);
     if (down) {
       // No reply (model out of reach, rate limit, duplicate): nothing was spent. Keep the token the server handed back.
+      const waitSeconds = retryWaitSeconds(down, res.headers?.get?.("retry-after"));
+      const replay = parsePublicReply(json?.answered);
       return {
         response: createFallbackCharacterResponse({ seed }),
         unavailable: down,
+        offer: retryOffer(down, json?.error, waitSeconds),
+        ...(waitSeconds ? { waitSeconds } : {}),
+        ...(replay ? { replay } : {}),
         ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
         ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
         ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
@@ -128,8 +140,10 @@ async function accuse(req: AccuseRequest): Promise<AccuseResponseBody> {
 }
 
 /** POST /api/confront. Failures come back as an in-character line. */
-async function confront(req: ConfrontRequest, names: [string, string]): Promise<ConfrontResponseBody> {
-  const busy = (): ConfrontResponseBody => {
+type ConfrontResult = ConfrontResponseBody & { offer?: "again" | "wait" | "none"; waitSeconds?: number; replay?: PublicConfrontLine[] };
+
+async function confront(req: ConfrontRequest, names: [string, string]): Promise<ConfrontResult> {
+  const busy = (): ConfrontResult => {
     const line = confrontDownLine("busy", names[0], names[1]);
     return { lines: [], line, unavailable: { kind: "busy", line } };
   };
@@ -139,9 +153,13 @@ async function confront(req: ConfrontRequest, names: [string, string]): Promise<
     const lines = Array.isArray(j.lines) ? j.lines.filter((l) => CharacterResponseSchema.safeParse(l.response).success) : [];
     const down = parseUnavailable(j.unavailable);
     if (res.status >= 500 && !down && !lines.length) return busy();
-    const { unavailable: _u, ...rest } = j;
+    const { unavailable: _u, answered: _a, ...rest } = j;
     void _u;
-    return { ...rest, lines, ...(down ? { unavailable: down } : {}) };
+    void _a;
+    if (!down) return { ...rest, lines };
+    const waitSeconds = retryWaitSeconds(down, res.headers?.get?.("retry-after"));
+    const replay = parsePublicConfrontLines(j.answered);
+    return { ...rest, lines, unavailable: down, offer: retryOffer(down, j.error, waitSeconds), ...(waitSeconds ? { waitSeconds } : {}), ...(replay ? { replay } : {}) };
   } catch {
     return busy();
   }
@@ -201,7 +219,19 @@ export function Game({ view }: { view: PublicCaseView }) {
   /** The detective's notebook: evidence discovered so far (server-confirmed). Present evidence offers only these. */
   const [evidence, setEvidence] = useState<PublicEvidence[]>(view.evidence);
   /** The last question the model could not answer, to ask again (cleared by any new ask). */
-  const [retry, setRetry] = useState<{ logKey: string; run: () => void } | null>(null);
+  const [retry, setRetry] = useState<{ logKey: string; run: () => void; until?: number } | null>(null);
+  /** #49: a ticking clock while AGAIN waits out a breather, so the button shows a live countdown. */
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!retry?.until) return;
+    const id = setInterval(() => {
+      const t = Date.now();
+      setNow(t);
+      if (t >= (retry.until ?? 0)) clearInterval(id);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [retry]);
+  const retryWait = retry?.until ? Math.max(0, Math.ceil((retry.until - now) / 1000)) : 0;
   /** Latest ask handlers, so a stored retry always runs the current closure. */
   const askAsRef = useRef<(characterId: string, input: AskInput, isRetry?: boolean) => boolean>(() => false);
   const onConfrontAskRef = useRef<(addressedId: string, question: string, item?: NotebookItem, isRetry?: boolean) => boolean>(() => false);
@@ -389,7 +419,7 @@ export function Game({ view }: { view: PublicCaseView }) {
       if (!isRetry) push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down } = await interrogate(
+        const { response, stateToken: next, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
           {
             characterId,
             question,
@@ -411,8 +441,19 @@ export function Game({ view }: { view: PublicCaseView }) {
             push(characterId, { speaker: "narrator", text: notice });
           }
           applyProgress(prog);
-          push(characterId, { speaker: "narrator", text: downLineFor(down, isRetry) });
-          setRetry({ logKey: characterId, run: () => askAsRef.current(characterId, { question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) }, true) });
+          if (replay) {
+            // #49: this question was already answered (a double tap, a lost reply): show that answer, nothing to ask again.
+            push(characterId, { speaker: "character", text: replay.dialogue, ...(replay.action ? { action: replay.action } : {}) });
+            setEmotions((e) => ({ ...e, [characterId]: replay.emotion }));
+          } else push(characterId, { speaker: "narrator", text: downLineFor(down, isRetry) });
+          if (offer !== "none") {
+            setRetry({
+              logKey: characterId,
+              run: () => askAsRef.current(characterId, { question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) }, true),
+              ...(offer === "wait" && waitSeconds ? { until: Date.now() + waitSeconds * 1000 } : {}),
+            });
+            setNow(Date.now());
+          }
           inFlight.current = false;
           setPendingId(null);
           return;
@@ -491,8 +532,17 @@ export function Game({ view }: { view: PublicCaseView }) {
             push(logKey, { speaker: "narrator", text: r.notice });
           }
           applyProgress(r.progress);
-          push(logKey, { speaker: "narrator", text: downLineFor(r.unavailable, isRetry) });
-          setRetry({ logKey, run: () => onConfrontAskRef.current(addressedId, question, item, true) });
+          if (r.replay) {
+            // #49: this exchange was already answered: show the two lines the player missed, nothing to ask again.
+            for (const l of r.replay) {
+              push(logKey, { speaker: "character", speakerName: l.characterName, text: l.response.dialogue, ...(l.response.action ? { action: l.response.action } : {}) });
+              setEmotions((e) => ({ ...e, [l.characterId]: l.response.emotion }));
+            }
+          } else push(logKey, { speaker: "narrator", text: downLineFor(r.unavailable, isRetry) });
+          if (r.offer !== "none") {
+            setRetry({ logKey, run: () => onConfrontAskRef.current(addressedId, question, item, true), ...(r.offer === "wait" && r.waitSeconds ? { until: Date.now() + r.waitSeconds * 1000 } : {}) });
+            setNow(Date.now());
+          }
           inFlight.current = false;
           setPendingId(null);
           return;
@@ -767,7 +817,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             speaking={speakingId === active.id}
             stress={stress[active.id] ?? 0}
             onAsk={onAsk}
-            {...(retry && retry.logKey === active.id ? { onRetry: retry.run } : {})}
+            {...(retry && retry.logKey === active.id ? { onRetry: retry.run, retryWait } : {})}
             onOpenNotebook={openNotebook}
             onConfront={(otherId) => {
               setConfrontPair([active.id, otherId]);
@@ -796,7 +846,7 @@ export function Game({ view }: { view: PublicCaseView }) {
               max={MAX_CONFRONTATION_TURNS}
               over={st.over}
               onAsk={onConfrontAsk}
-              {...(retry && retry.logKey === `vs:${key}` ? { onRetry: retry.run } : {})}
+              {...(retry && retry.logKey === `vs:${key}` ? { onRetry: retry.run, retryWait } : {})}
               target={confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0]}
               onTarget={setConfrontTarget}
               onOpenNotebook={openNotebook}

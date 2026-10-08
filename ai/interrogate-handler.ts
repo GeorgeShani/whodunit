@@ -23,6 +23,7 @@ import type { KvStore } from "@/lib/runtime-kv";
 import { ensureGameId } from "@/engine/state-token";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { createFallbackCharacterResponse } from "./schemas";
+import { parseStoredReply, toPublicReply, type StoredReply } from "./public-reply";
 
 type Env = Record<string, string | undefined>;
 
@@ -125,12 +126,16 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
   // #40: this exact state may be spent on the model once. A duplicate (parallel or replayed) costs nothing.
   const held = deps.claims && stateToken && !notice ? await claimTurn(deps.claims, ensureGameId(game), game.turn) : null;
   if (held && !held.ok) {
+    // #49: an answered duplicate is handed the answer the player missed (public fields only) with the newest token.
+    const stored = held.state === "answered" ? parseStoredReply(held.latestReply) : null;
+    const replay = stored?.kind === "interrogate" && stored.characterId === characterId ? stored.response : null;
     return {
       status: 409,
       body: {
         response: createFallbackCharacterResponse({ seed: game.turn }),
         source: "unavailable",
         unavailable: { kind: "answered", line: held.state === "answered" ? answeredLine(name) : stillAnsweringLine(name) },
+        ...(replay ? { answered: replay } : {}),
         stateToken: held.latestToken ?? heldToken,
         error: held.state === "answered" ? "already_answered" : "in_flight",
       },
@@ -207,7 +212,10 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
   };
   try {
     const r = await runTurn();
-    if (r.status === 200 && r.body.stateToken && held?.ok) await held.answered(r.body.stateToken);
+    if (r.status === 200 && r.body.stateToken && held?.ok) {
+      const stored: StoredReply = { kind: "interrogate", characterId, response: toPublicReply(r.body.response) };
+      await held.answered(r.body.stateToken, stored);
+    }
     return r;
   } finally {
     if (held?.ok) await held.release(); // no-op once answered
