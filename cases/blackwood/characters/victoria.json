@@ -105,7 +105,7 @@
   "beliefs": [
     {
       "id": "b-victoria-unseen",
-      "statement": "Nobody saw me in the hall. It was pitch black.",
+      "statement": "Nobody could have seen a thing in that hall. It was pitch black.",
       "aboutFactId": "ev-victoria-locks-door",
       "isAccurate": false,
       "confidence": 0.8
@@ -149,6 +149,10 @@
         "evidenceIds": [
           "library-key"
         ],
+        "testimonyIds": [
+          "s-archibald-false-alibi",
+          "s-reginald-theft"
+        ],
         "mode": "any"
       },
       "relatedFactIds": [
@@ -184,12 +188,14 @@
         "evidenceIds": [
           "burned-letter"
         ],
+        "testimonyIds": [
+          "s-reginald-overheard"
+        ],
         "mode": "any"
       },
       "relatedFactIds": [
         "f-new-will",
         "ev-victoria-argument",
-        "ev-letter-burned",
         "f-inheritance-motive",
         "f-letter-accuses-butler",
         "loc-victoria-2050",
@@ -211,7 +217,8 @@
         "loc-victoria-2116",
         "loc-victoria-2117",
         "loc-victoria-2118",
-        "loc-victoria-2119"
+        "loc-victoria-2119",
+        "ev-letter-burned"
       ],
       "coreGuilt": true
     }

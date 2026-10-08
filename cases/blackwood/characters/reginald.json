@@ -268,9 +268,7 @@
       "topic": "the blackout below stairs",
       "aboutFactId": "ev-reginald-hears-phone",
       "claim": "I was in the kitchen polishing silver, sir, and heard nothing at all.",
-      "brokenByEvidenceIds": [
-        "burned-letter"
-      ],
+      "brokenByEvidenceIds": [],
       "breaksOnSecretIds": [
         "s-archibald-false-alibi"
       ],

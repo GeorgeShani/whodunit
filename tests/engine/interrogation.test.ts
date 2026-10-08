@@ -46,9 +46,11 @@ describe("planTurn", () => {
 
   it("lie-breaking, secret-pressuring evidence raises stress (capped), exposes lies and reveals ONE secret at a time in order", () => {
     const g = createInitialGameState(c);
+    // The cap itself: the letter breaks three of Victoria's lies and pressures her will secret (45 + 10 > 30).
+    expect(planTurn(c, createInitialGameState(c), "victoria", "burned-letter").engineStressDelta).toBe(STRESS_RULES.maxPerPresentation);
     const plan = planTurn(c, g, "reginald", "burned-letter");
-    expect(plan.engineStressDelta).toBe(STRESS_RULES.maxPerPresentation);
-    expect(plan.newlyExposedLieIds.sort()).toEqual(["l-reginald-few-words", "l-reginald-heard-nothing"]);
+    expect(plan.engineStressDelta).toBe(STRESS_RULES.lieBroken + STRESS_RULES.secretEvidence);
+    expect(plan.newlyExposedLieIds.sort()).toEqual(["l-reginald-few-words"]); // "heard nothing" is retired by the theft confession, not broken by the letter
     expect(plan.revealSecretId).toBe("s-reginald-theft"); // overheard waits for theft (afterSecretIds)
     commitTurn(g, plan, perf());
     expect(g.characters.reginald.revealedSecretIds).toEqual(["s-reginald-theft"]);

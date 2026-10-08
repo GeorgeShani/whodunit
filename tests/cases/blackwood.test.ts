@@ -523,14 +523,20 @@ describe("Blackwood testimony", () => {
     expect(factById("ev-reginald-overhears")!.statement).toContain("new will");
   });
 
-  it("the dinner-row and Gregory lies stay evidence-only", () => {
-    const lies = c.characters.flatMap((ch) => ch.intendedLies);
-    for (const id of ["l-archibald-racehorse", "l-gregory-shed", "l-gregory-saw-nothing"]) {
-      const l = lies.find((x) => x.id === id)!;
+  it("the shed lie is evidence-only; the dinner-row, 'heard nothing' and 'saw nothing' lies break only on a real contradiction (leak audit)", () => {
+    const lie = (id: string) => c.characters.flatMap((ch) => ch.intendedLies).find((x) => x.id === id)!;
+    expect(lie("l-gregory-shed").brokenByEvidenceIds).toEqual(["muddy-footprint"]);
+    // No clue or card contradicts "a racehorse" or "saw nothing in the dark": they retire only when the owner confesses.
+    for (const id of ["l-archibald-racehorse", "l-gregory-saw-nothing"]) {
+      const l = lie(id);
+      expect(l.brokenByEvidenceIds, id).toEqual([]);
       expect(l.breaksOnSecretIds, id).toEqual([]);
       expect(l.breaksOnFactIds, id).toEqual([]);
-      expect(l.brokenByEvidenceIds.length, id).toBeGreaterThan(0);
+      expect(l.supersededBySecretIds.length, id).toBe(1);
     }
+    // The letter blames the butler for the accounts; it says nothing about where he was. Crane's card does.
+    expect(lie("l-reginald-heard-nothing").brokenByEvidenceIds).toEqual([]);
+    expect(lie("l-reginald-heard-nothing").breaksOnSecretIds).toEqual(["s-archibald-false-alibi"]);
   });
 });
 
@@ -560,8 +566,9 @@ describe("Blackwood reveal paths: stress and evidence", () => {
       for (const l of ch.intendedLies) {
         // Victoria's "never in the hall" is testimony-only: no clue puts her in the hall, only Gregory's eyewitness does.
         const testimonyOnly = l.id === "l-victoria-never-in-hall";
-        expect(isLieBroken(c, l, { evidenceShownIds: all }), l.id).toBe(!testimonyOnly);
-        if (testimonyOnly) expect(isLieBroken(c, l, { evidenceShownIds: all, testimonyShownIds: ["s-gregory-saw-victoria"] }), l.id).toBe(true);
+        // A lie with no contradicting clue retires when its owner confesses (supersededBySecretIds counts as broken).
+        expect(isLieBroken(c, l, { evidenceShownIds: all, revealedSecretIds: revealed }), l.id).toBe(!testimonyOnly);
+        if (testimonyOnly) expect(isLieBroken(c, l, { evidenceShownIds: all, revealedSecretIds: revealed, testimonyShownIds: ["s-gregory-saw-victoria"] }), l.id).toBe(true);
       }
     }
   });

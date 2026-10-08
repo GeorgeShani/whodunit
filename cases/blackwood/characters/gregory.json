@@ -22,7 +22,7 @@
     ],
     "tells": [
       "looks at his boots",
-      "glances towards Lady Victoria",
+      "glances towards the hall door",
       "stammers on the word 'library'"
     ],
     "confidence": 0.15,
@@ -242,9 +242,7 @@
       "topic": "who came out of the library",
       "aboutFactId": "ev-gregory-sees-victoria",
       "claim": "I didn't see nothin' in the dark, sir.",
-      "brokenByEvidenceIds": [
-        "library-key"
-      ],
+      "brokenByEvidenceIds": [],
       "supersededBySecretIds": [
         "s-gregory-saw-victoria"
       ]
