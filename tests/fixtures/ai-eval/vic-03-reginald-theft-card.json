@@ -1,37 +1,37 @@
 {
   "scenarioId": "vic-03-reginald-theft-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:13.901Z",
+  "recordedAt": "2026-10-08T11:43:41.956Z",
   "calls": [
     {
-      "promptHash": "0e93032968134121",
+      "promptHash": "81ebd266f58fac49",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "393f5c0d-9ea8-9470-a707-d706f1586ee5",
+        "id": "73bdbe0e-e140-97df-8622-5e8bc450fe55",
         "object": "chat.completion",
-        "created": 1791455110,
+        "created": 1791459820,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh dear, Reginald does love to tattle, doesn't he? Between thirteen minutes past nine and twenty-two minutes past nine, when dear Archibald stepped away, I did slip out for a breath of air. We later agreed it simpler to say we stayed together the whole time by the fire. Where I went is my own affair.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her dry eyes with a lace handkerchief and sighs theatrically\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"Oh, dear detective, Reginald must be mistaken about the telephone. I must confess that between thirteen minutes past nine, when Mr Crane went to fetch the brandy, and twenty-two minutes past nine when he returned, I did slip away from the dining room for a short while. We were never together the whole time as we claimed, and at twenty minutes to ten I persuaded him to say otherwise. Where I went is my own affair.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her dry eyes with a lace handkerchief and swoons gracefully onto the chaise\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4019,
-          "completion_tokens": 129,
-          "total_tokens": 4148,
+          "prompt_tokens": 4373,
+          "completion_tokens": 152,
+          "total_tokens": 4525,
           "prompt_tokens_details": {
-            "text_tokens": 4019,
+            "text_tokens": 4373,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 52118500
+          "cost_in_usd_ticks": 56446500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4019,
-        "completion_tokens": 129,
-        "total_tokens": 4148,
+        "prompt_tokens": 4373,
+        "completion_tokens": 152,
+        "total_tokens": 4525,
         "prompt_tokens_details": {
-          "text_tokens": 4019,
+          "text_tokens": 4373,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 52118500
+        "cost_in_usd_ticks": 56446500
       },
-      "costUsd": 0.0052118500000000005
+      "costUsd": 0.00564465
     }
   ]
 }

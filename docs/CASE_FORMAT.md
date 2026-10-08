@@ -228,6 +228,7 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
       "defensiveOn": [ { "topic": "what touches a nerve", "text": "how they bristle" } ] }                                                                                            // optional
   ],
   "initialEmotion": { "emotion": "calm", "intensity": 0.3, "composure": 0.9 },
+  "voice": { "openers": ["Very good, sir."], "actions": ["polishes a spoon"], "deflections": ["I couldn't say, sir."] }, // optional (#52); 6-8 of each
   "portrait": "reginald"                               // optional; defaults to id
 }
 ```
@@ -244,6 +245,17 @@ in the current exchange (so the turn that confesses it is not deflected). It mus
 error otherwise); a core-guilt id is a warning, since core guilt is never revealed. `note` is for authors and never
 reaches the model. Typical uses: an innocent over-claiming what they perceived ("I saw her strike him"), and a locked
 secret's tell-tale wording before it is revealed.
+
+**Voice variety (`voice`, #52).** Optional on every character; every list defaults to `[]`:
+`{ "openers": ["My dear detective,", ...], "actions": ["twists her rings", ...], "deflections": ["I shan't dignify that.", ...] }`.
+Give 6-8 entries per list (at most 16, each 1-160 characters, trimmed). `openers` are the first few words of a reply
+(up to 6 words); `actions` are short stage directions in the character's style; `deflections` are complete in-character
+refusals that admit nothing. They are delivery only, never facts: the engine rotates them so a suspect does not open
+every reply the same way, repeat the same action, or reuse the same deflection sentence (see docs/AI_GUARDRAILS.md,
+#52). When a list is empty the generic variety rules apply (quirks and tells for actions, the built-in deflection pool).
+The validator warns on duplicate entries (ignoring case and punctuation), a list with a single entry (nothing to rotate),
+and an opener longer than 6 words. Voice lines can reach the prompt, so an innocent's voice lines are covered by the
+"always-visible text names the culprit" warning like the rest of their profile.
 
 **Core guilt (`coreGuilt: true`).** The culprit's own guilt (the killing, the weapon used on the victim, being at the scene at the murder minute, locking the door or taking the key) is never confessed before the accusation; a win needs evidence and testimony, and the confession lives only in `endings.json`. Mark those secrets `coreGuilt: true` and give them no `revealConditions` and no `testimonySummary` (the validator warns about either). The engine (`engine/core-guilt.ts`) also treats as core guilt, as defence in depth, any secret of the solution's murderer whose `relatedFactIds` include a fact covering the murder minute (`solution.time`) that involves the murderer or is at the murder scene. Core guilt is never in the revealable set (interrogation, evidence, testimony, confrontation, breakdown), never becomes a testimony card, and its `relatedFactIds` stay out of the owner's prompt even if another revealed secret lists them. A lie can still be broken by a clue or a card when its truth is core guilt: it shows as a contradiction, nothing is revealed, and the character stonewalls. Every reply is also checked after generation (`ai/guilt-check.ts`): a first-person admission of the killing (anyone), or from the culprit the weapon, the door/key or the scene at the murder minute, is rejected, retried once, then replaced by an in-character deflection. A bare motive admission ("I knew about the will and burned the letter") is not core guilt.
 

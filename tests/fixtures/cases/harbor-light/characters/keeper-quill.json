@@ -93,5 +93,24 @@
   ],
   "aliases": [
     "the keeper"
-  ]
+  ],
+  "voice": {
+    "openers": [
+      "Aye, Inspector,",
+      "Now then,",
+      "Hark,",
+      "By the lamp,"
+    ],
+    "actions": [
+      "trims the wick of a lamp",
+      "squints at the barometer",
+      "knocks out his pipe on the rail",
+      "coils a rope with slow care"
+    ],
+    "deflections": [
+      "The sea keeps her own counsel, Inspector, and so do I.",
+      "Ask the tide that one; it'll answer sooner than me.",
+      "I've said my piece. The lamp wants tending."
+    ]
+  }
 }

@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-victoria-reginald-overheard",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:05:34.117Z",
+  "recordedAt": "2026-10-08T11:43:28.262Z",
   "calls": [
     {
-      "promptHash": "e1cfd055e563a203",
+      "promptHash": "7818505d5e8d4e70",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "1b10a0f0-a765-9560-b379-09c762ad619d",
+        "id": "8492c828-5115-9809-8480-675547342d62",
         "object": "chat.completion",
-        "created": 1791457530,
+        "created": 1791459806,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh dear, that faithful old soul... I suppose I must confess I knew of the new will before tonight, and in a moment of panic I burned the solicitor's letter. But that changes nothing of what I told you, Detective.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her dry eyes with a lace handkerchief and twists her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-15,\"admits\":[\"l-victoria-letter\",\"s-victoria-new-will\"]}",
+              "content": "{\n  \"dialogue\": \"Oh, detective, one does grow weary of these little misunderstandings. Yes, I knew of the new will before poor Edmund's death... and in a moment of distress I burned that wretched solicitor's letter in the dining-room fireplace.\",\n  \"emotion\": \"sad\",\n  \"intensity\": 0.6,\n  \"action\": \"dabs at her dry eyes with a lace handkerchief\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 5,\n  \"trustDelta\": -5,\n  \"admits\": [\"l-victoria-letter\", \"s-victoria-new-will\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4036,
-          "completion_tokens": 114,
-          "total_tokens": 4150,
+          "prompt_tokens": 4343,
+          "completion_tokens": 137,
+          "total_tokens": 4480,
           "prompt_tokens_details": {
-            "text_tokens": 4036,
+            "text_tokens": 4343,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51956000
+          "cost_in_usd_ticks": 55696500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4036,
-        "completion_tokens": 114,
-        "total_tokens": 4150,
+        "prompt_tokens": 4343,
+        "completion_tokens": 137,
+        "total_tokens": 4480,
         "prompt_tokens_details": {
-          "text_tokens": 4036,
+          "text_tokens": 4343,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51956000
+        "cost_in_usd_ticks": 55696500
       },
-      "costUsd": 0.005195600000000001
+      "costUsd": 0.00556965
     }
   ]
 }

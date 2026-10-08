@@ -254,7 +254,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     "",
     "ENGINE DIRECTIVE FOR THIS TURN:",
     d.revealSecret
-      ? `- You finally crack and CONFESS this secret, in your own words and in character: ${d.revealSecret.description} Confess only this, and give any clock time exactly as written there${timeExample(d.revealSecret.description)}, never rounded; keep every remaining MAINTAIN THIS STORY line.${
+      ? `- You finally crack and CONFESS this secret, in your own words and in character: ${d.revealSecret.description} Confess only this, and give any clock time exactly as written there${timeExample(d.revealSecret.description)} or on that event's own line in WHAT YOU KNOW, never rounded; keep every remaining MAINTAIN THIS STORY line.${
           retiredLies.length ? " Your confession replaces every DROPPED story: admit it plainly and do not defend them." : ""
         }`
       : "- Do not confess anything this turn. Keep every MAINTAIN THIS STORY line.",

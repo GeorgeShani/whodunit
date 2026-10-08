@@ -445,6 +445,26 @@ export const ForbiddenPhraseSchema = z
   });
 export type ForbiddenPhrase = z.infer<typeof ForbiddenPhraseSchema>;
 
+/** One authored voice variant: a short line or stage direction (never empty, at most 160 characters). */
+const VoiceLineSchema = z.string().trim().min(1).max(160);
+
+/**
+ * Optional per-character delivery variety (#52), all lists default to empty:
+ *  - `openers`: ways this character starts a reply ("My dear detective,", "Darling,", "Oh, really,"); the prompt offers
+ *    ones not used in the last few replies, and a reply that reuses the same opener too often in a row is trimmed;
+ *  - `actions`: stage directions in their style ("twists her rings"); rotated so no action repeats back to back, and
+ *    used to replace a repeated one;
+ *  - `deflections`: in-character refusals used by the safe fallback (instead of the generic pool) when present,
+ *    rotated without repeats within a window. A deflection must admit nothing: it is checked like any reply.
+ * When a list is empty, the generic variety rules apply (quirks/tells for actions, the built-in deflection pool).
+ */
+export const VoiceSchema = z.strictObject({
+  openers: z.array(VoiceLineSchema).max(16).default([]),
+  actions: z.array(VoiceLineSchema).max(16).default([]),
+  deflections: z.array(VoiceLineSchema).max(16).default([]),
+});
+export type Voice = z.infer<typeof VoiceSchema>;
+
 /** An authored suspect/witness. Everything they know is scoped to them. */
 export const CharacterSchema = z.strictObject({
   id: IdSchema,
@@ -467,6 +487,8 @@ export const CharacterSchema = z.strictObject({
   intendedLies: z.array(IntendedLieSchema).default([]),
   /** Phrases the guard rejects in this character's replies (#46); see ForbiddenPhraseSchema. */
   forbiddenPhrases: z.array(ForbiddenPhraseSchema).default([]),
+  /** Optional delivery variety (#52): openers, actions, deflections; see VoiceSchema. Default: all empty. */
+  voice: VoiceSchema.default({ openers: [], actions: [], deflections: [] }),
   /** Emotional state at the start of the case. */
   initialEmotion: EmotionalStateSchema,
   /** Asset key for their portrait set (resolved under assets/characters). */

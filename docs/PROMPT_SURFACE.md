@@ -27,15 +27,15 @@ Fresh facts (29): `f-lord-key-habit`, `f-weapon-origin`, `loc-archibald-2030`, `
 | shown silver-candlestick | 29 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 29 | none | none | none |  |  | none |  |
 | shown burned-letter | 29 | none | none | none |  | l-archibald-together | none |  |
-| shown library-key | 29 | none | none | s-archibald-false-alibi |  | l-archibald-together | none |  |
+| shown library-key | 44 | loc-archibald-2113, ev-archibald-leaves-dining, loc-archibald-2114, loc-archibald-2115, ev-archibald-notices-pantry, loc-archibald-2116, loc-archibald-2117, loc-archibald-2118, ev-pantry-exchange, loc-archibald-2119, loc-archibald-2120, loc-archibald-2121, loc-archibald-2122, ev-archibald-returns, ev-alibi-pact | none | s-archibald-false-alibi |  | l-archibald-together | none |  |
 | card s-gregory-in-hall | 29 | none | none | none |  |  | none |  |
 | card s-gregory-saw-victoria | 29 | none | none | none |  |  | none |  |
-| card s-reginald-theft | 29 | none | none | s-archibald-false-alibi |  | l-archibald-together | none |  |
+| card s-reginald-theft | 44 | loc-archibald-2113, ev-archibald-leaves-dining, loc-archibald-2114, loc-archibald-2115, ev-archibald-notices-pantry, loc-archibald-2116, loc-archibald-2117, loc-archibald-2118, ev-pantry-exchange, loc-archibald-2119, loc-archibald-2120, loc-archibald-2121, loc-archibald-2122, ev-archibald-returns, ev-alibi-pact | none | s-archibald-false-alibi |  | l-archibald-together | none |  |
 | card s-reginald-overheard | 29 | none | none | none |  |  | none |  |
 | card s-victoria-left-dining | 29 | none | none | none |  |  | none |  |
 | card s-victoria-new-will | 29 | none | none | none |  |  | none |  |
 | max pressure, everything shown | 48 | f-archibald-embezzlement, loc-archibald-2040, ev-archibald-threat, loc-archibald-2113, ev-archibald-leaves-dining, loc-archibald-2114, loc-archibald-2115, ev-archibald-notices-pantry, ev-archibald-phone, loc-archibald-2116, loc-archibald-2117, loc-archibald-2118, ev-pantry-exchange, loc-archibald-2119, loc-archibald-2120, loc-archibald-2121, loc-archibald-2122, ev-archibald-returns, ev-alibi-pact | s-archibald-embezzlement, s-archibald-false-alibi | none | yes | l-archibald-together, l-archibald-racehorse | none |  |
-| breakdown turn | 29 | none | none | s-archibald-false-alibi | yes | l-archibald-together | none |  |
+| breakdown turn | 44 | loc-archibald-2113, ev-archibald-leaves-dining, loc-archibald-2114, loc-archibald-2115, ev-archibald-notices-pantry, loc-archibald-2116, loc-archibald-2117, loc-archibald-2118, ev-pantry-exchange, loc-archibald-2119, loc-archibald-2120, loc-archibald-2121, loc-archibald-2122, ev-archibald-returns, ev-alibi-pact | none | s-archibald-false-alibi | yes | l-archibald-together | none |  |
 
 ### gregory
 
@@ -50,7 +50,7 @@ Fresh facts (26): `f-lord-key-habit`, `f-gregory-dismissed`, `loc-gregory-2030`,
 | admitted s-gregory-saw-victoria | 28 | ev-gregory-sees-victoria, ev-victoria-locks-door | s-gregory-saw-victoria | none |  | l-gregory-saw-nothing | none |  |
 | all revealable admitted | 41 | f-footprint-gregory, f-no-mud-beyond-alcove, loc-gregory-2114, loc-gregory-2115, loc-gregory-2116, ev-gregory-enters-hall, loc-gregory-2117, ev-gregory-hears-thud, loc-gregory-2118, loc-gregory-2119, ev-gregory-sees-victoria, ev-victoria-locks-door, loc-gregory-2120, loc-gregory-2121, loc-gregory-2122 | s-gregory-in-hall, s-gregory-saw-victoria | none |  | l-gregory-shed, l-gregory-saw-nothing | none |  |
 | shown silver-candlestick | 26 | none | none | none |  |  | none |  |
-| shown muddy-footprint | 26 | none | none | s-gregory-in-hall |  | l-gregory-shed | none |  |
+| shown muddy-footprint | 39 | f-footprint-gregory, f-no-mud-beyond-alcove, loc-gregory-2114, loc-gregory-2115, loc-gregory-2116, ev-gregory-enters-hall, loc-gregory-2117, ev-gregory-hears-thud, loc-gregory-2118, loc-gregory-2119, loc-gregory-2120, loc-gregory-2121, loc-gregory-2122 | none | s-gregory-in-hall |  | l-gregory-shed | none |  |
 | shown burned-letter | 26 | none | none | none |  |  | none |  |
 | shown library-key | 26 | none | none | none |  |  | none |  |
 | card s-archibald-embezzlement | 26 | none | none | none |  |  | none |  |
@@ -76,7 +76,7 @@ Fresh facts (40): `f-library-single-key`, `f-lord-key-habit`, `f-library-windows
 | all revealable admitted | 54 | f-reginald-theft, loc-reginald-2054, ev-reginald-overhears, loc-reginald-2114, loc-reginald-2115, ev-reginald-hears-phone, loc-reginald-2116, loc-reginald-2117, loc-reginald-2118, ev-pantry-exchange, loc-reginald-2119, loc-reginald-2120, loc-reginald-2121, loc-reginald-2122 | s-reginald-theft, s-reginald-overheard | none |  | l-reginald-heard-nothing, l-reginald-few-words | none |  |
 | shown silver-candlestick | 40 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 40 | none | none | none |  |  | none |  |
-| shown burned-letter | 40 | none | none | s-reginald-theft |  | l-reginald-few-words, l-reginald-heard-nothing | none |  |
+| shown burned-letter | 52 | f-reginald-theft, loc-reginald-2114, loc-reginald-2115, ev-reginald-hears-phone, loc-reginald-2116, loc-reginald-2117, loc-reginald-2118, ev-pantry-exchange, loc-reginald-2119, loc-reginald-2120, loc-reginald-2121, loc-reginald-2122 | none | s-reginald-theft |  | l-reginald-few-words, l-reginald-heard-nothing | none |  |
 | shown library-key | 40 | none | none | none |  |  | none |  |
 | card s-archibald-embezzlement | 40 | none | none | none |  |  | none |  |
 | card s-archibald-false-alibi | 40 | none | none | none |  | l-reginald-heard-nothing | none |  |
@@ -101,14 +101,14 @@ Fresh facts (32): `f-library-single-key`, `f-lord-key-habit`, `f-weapon-origin`,
 | all revealable admitted | 46 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining, s-victoria-new-will | none |  | l-victoria-together, l-victoria-menu, l-victoria-letter | none |  |
 | shown silver-candlestick | 32 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 32 | none | none | none |  |  | none |  |
-| shown burned-letter | 32 | none | none | s-victoria-new-will |  | l-victoria-together, l-victoria-menu, l-victoria-letter | none |  |
-| shown library-key | 32 | none | none | s-victoria-left-dining |  | l-victoria-together, l-victoria-locked-in | none |  |
+| shown burned-letter | 39 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald | none | s-victoria-new-will |  | l-victoria-together, l-victoria-menu, l-victoria-letter | none |  |
+| shown library-key | 39 | loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | none | s-victoria-left-dining |  | l-victoria-together, l-victoria-locked-in | none |  |
 | card s-archibald-embezzlement | 32 | none | none | none |  |  | none |  |
-| card s-archibald-false-alibi | 32 | none | none | s-victoria-left-dining |  | l-victoria-together | none |  |
+| card s-archibald-false-alibi | 39 | loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | none | s-victoria-left-dining |  | l-victoria-together | none |  |
 | card s-gregory-in-hall | 32 | none | none | none |  |  | none | murder minute 21:17 only via public cards/clues |
 | card s-gregory-saw-victoria | 32 | none | none | none |  | l-victoria-together, l-victoria-locked-in, l-victoria-never-in-hall | none |  |
-| card s-reginald-theft | 32 | none | none | s-victoria-left-dining |  | l-victoria-together | none |  |
-| card s-reginald-overheard | 32 | none | none | s-victoria-new-will |  | l-victoria-menu, l-victoria-letter | none |  |
+| card s-reginald-theft | 39 | loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | none | s-victoria-left-dining |  | l-victoria-together | none |  |
+| card s-reginald-overheard | 39 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald | none | s-victoria-new-will |  | l-victoria-menu, l-victoria-letter | none |  |
 | max pressure, everything shown | 46 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining, s-victoria-new-will | none | yes | l-victoria-together, l-victoria-locked-in, l-victoria-menu, l-victoria-letter | none |  |
-| breakdown turn | 32 | none | none | s-victoria-left-dining | yes | l-victoria-together, l-victoria-locked-in | none |  |
+| breakdown turn | 39 | loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | none | s-victoria-left-dining | yes | l-victoria-together, l-victoria-locked-in | none |  |
 
