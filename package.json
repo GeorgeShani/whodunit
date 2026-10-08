@@ -14,7 +14,8 @@
     "sync:assets": "tsx scripts/sync-assets.ts",
     "predev": "npm run sync:assets",
     "prebuild": "npm run sync:assets",
-    "check:overflow": "tsx scripts/check-overflow.ts"
+    "check:overflow": "tsx scripts/check-overflow.ts",
+    "audit:prompts": "tsx --tsconfig tsconfig.json scripts/audit-prompts.mts"
   },
   "dependencies": {
     "@vercel/functions": "^3.9.11",
