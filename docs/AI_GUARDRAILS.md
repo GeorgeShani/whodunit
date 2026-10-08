@@ -212,3 +212,11 @@ their lies but never makes them confess something unrelated.
 revealed in the current exchange counts as revealed for `unlessRevealed`. The retry note quotes only the model's own
 matched words, never the entry's `note`. Case one's lists are Agatha's data PR; the fixture case
 (`tests/fixtures/cases/harbor-light`) carries three samples.
+- Agatha's culprit phrases, folded into `findGuiltLeak` (culprit only): "I never meant to hurt him" (a negated
+  intention to harm the victim is still an admission), self-defence / "he came at me", "I watched him fall", blood on
+  my gown/sleeves/hands, the weapon "in my hand", "I wiped it clean" / "wiped the blood", "already dead when I came
+  out", leaving the scene in the dark or by the lightning, "the gardener saw me" and "I stopped him signing". The last
+  two are data-derived: `guiltProfile().witnessNames` are the other characters whose secrets cover one of the
+  culprit's core-guilt facts (name, first name, aliases, role), and `motiveActs` are the gerunds after "stop/prevent
+  him" in her core-guilt secrets. Each has positive and innocent-speaker negative tests
+  (`tests/ai/guilt-agatha-phrases.test.ts`).

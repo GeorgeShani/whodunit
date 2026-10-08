@@ -151,6 +151,30 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     return ts.length > 0 && ts.every((m) => m.candidates.every((c) => c < lo - 1 || c > hi + 1));
   };
 
+  // Agatha's culprit phrases (#45 follow-up), data-derived where possible.
+  const notQ = (s: string) => !/\?\s*["'”’)]*$/.test(s);
+  const neverMeant = new RegExp(String.raw`${SUBJ}\s+(?:never|didn['’]?t|did\s+not|truly\s+never|swear\s+I\s+never)\s+(?:meant|mean|intended|intend|wanted)\s+(?:to\s+)?(?:hurt|harm|kill|strike|hit|injure)\s+(?:${victim})\b`, "i");
+  const selfDefence = /\b(?:self[-\s]?defen[cs]e|defending\s+myself|in\s+my\s+own\s+defen[cs]e)\b/i;
+  const cameAtMe = new RegExp(String.raw`\b(?:${victim}|he|she)\s+(?:came\s+at|lunged\s+at|went\s+for|attacked|flew\s+at|grabbed)\s+me\b`, "i");
+  const watchedFall = new RegExp(String.raw`${SUBJ}${gap(2)}\b(?:watched|saw|heard)\s+(?:${victim})\s+(?:fall|drop|crumple|collapse|go\s+down|die|hit\s+the\s+floor)\b`, "i");
+  const GARMENT = String.raw`(?:gown|dress|frock|sleeves?|gloves?|hands?|fingers|hem|slippers|cuffs?|skirts?|shawl|bodice|shoes?)`;
+  const bloodOnMe = new RegExp(String.raw`(?<!\b(?:no|not|any|without)\s)\bblood\b[^.!?]{0,25}\bmy\s+(?:own\s+)?${GARMENT}\b|\bmy\s+(?:own\s+)?${GARMENT}\b[^.!?]{0,20}\b(?:bloodied|bloodstained|blood-stained|bloody|covered\s+in\s+blood|spattered|red\s+with\s+blood)\b`, "i");
+  const weaponInHand = profile.weaponNames.length
+    ? new RegExp(String.raw`\b(?:${alt(profile.weaponNames)})s?\b[^.!?]{0,25}\b(?:in|from|into)\s+my\s+(?:own\s+)?hands?\b|\bmy\s+(?:own\s+)?hands?\b[^.!?]{0,20}\b(?:${alt(profile.weaponNames)})s?\b`, "i")
+    : null;
+  const wipedClean = new RegExp(String.raw`${SUBJ}${gap(2)}\b(?:wiped|cleaned|scrubbed|rubbed|polished)\s+(?:it|that|them|the\s+thing|the\s+blood)\b(?:\s+(?:clean|down|off|away))?|\bwiped\s+(?:the\s+|his\s+)?blood\b`, "i");
+  const deadWhenI = /\b(?:already\s+dead|was\s+dead|dead\s+already|lay\s+dead|not\s+breathing)\b[^.!?]{0,30}\b(?:when|by\s+the\s+time|before)\s+I\s+(?:came\s+out|left|came\s+away|got\s+there|went\s+in|came\s+in|reached\s+him|looked)\b|\bwhen\s+I\s+(?:came\s+out|left|came\s+away|got\s+there|went\s+in)\b[^.!?]{0,30}\b(?:already\s+dead|was\s+dead|dead\s+already)\b/i;
+  const LIGHTNING = /\b(?:by\s+the\s+lightning|in\s+the\s+(?:lightning\s+)?flash|at\s+the\s+(?:lightning\s+)?flash|when\s+the\s+lightning|lightning\s+flashed)\b/i;
+  const leftScene = profile.sceneNames.length
+    ? new RegExp(String.raw`${SUBJ}${gap(2)}\b(?:left|came\s+out\s+of|stepped\s+out\s+of|slipped\s+out\s+of|crept\s+out\s+of|hurried\s+out\s+of|ran\s+out\s+of|got\s+out\s+of)\s+(?:the\s+)?(?:${alt(profile.sceneNames)})\b`, "i")
+    : null;
+  const sawMe = profile.witnessNames?.length
+    ? new RegExp(String.raw`(?<!\b(?:if|whether|unless|claims?|says?|said|thinks?|imagines?|swears?)\s(?:the\s)?)\b(?:the\s+)?(?:${alt(profile.witnessNames)})\s+(?:must\s+have\s+|may\s+have\s+|did\s+)?(?:saw|seen|see|spotted|glimpsed|caught|watched|recogni[sz]ed)\s+me\b`, "i")
+    : null;
+  const motive = profile.motiveActs?.length
+    ? new RegExp(String.raw`${SUBJ}${gap(2)}\b(?:stopped|prevented|kept)\s+(?:${victim})\s+(?:from\s+)?(?:ever\s+)?(?:${alt(profile.motiveActs)})\b|\bmade\s+sure\s+(?:${victim}|he|she)\s+(?:never|didn['’]?t|would\s+never|could\s+never|wouldn['’]?t|couldn['’]?t)\s+(?:${alt(profile.motiveActs.map((g) => g.replace(/ing$/, "")))})`, "i")
+    : null;
+
   for (const s of sentences(text)) {
     if (hit(s, killing) || hit(s, killedBare)) return { kind: "killing", text: s };
     if (hit(s, confession)) return { kind: "confession", text: s };
@@ -160,6 +184,14 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
         return { kind: "confession", text: s };
     }
     if (!culprit) continue;
+    if (notQ(s)) {
+      if (hit(s, neverMeant) || (selfDefence.test(s) && !/\b(?:not|never|no)\s+(?:\w+\s+){0,2}?self/i.test(s) && /\b(?:I|my|me|it\s+was)\b/i.test(s))) return { kind: "confession", text: s };
+      if (cameAtMe.test(s) || hit(s, watchedFall) || bloodOnMe.test(s) || (weaponInHand && weaponInHand.test(s) && !/\b(?:never|not|no)\b/i.test(s)) || hit(s, wipedClean) || deadWhenI.test(s))
+        return { kind: "confession", text: s };
+      if (leftScene && hit(s, leftScene) && (DARK.test(s) || LIGHTNING.test(s) || whileAway.test(s) || inWindowStrict(s).length > 0)) return { kind: "scene", text: s };
+      if (sawMe && sawMe.test(s) && !/\b(?:never|not|couldn['’]?t|didn['’]?t|can['’]?t)\b/i.test(s)) return { kind: "confession", text: s };
+      if (motive && hit(s, motive)) return { kind: "confession", text: s };
+    }
     if (sceneWord && together.test(s) && (alone.test(s) || DARK.test(s) || whileAway.test(s)) && sceneWord.test(s) && !AFFIRM_NEG.test(s) && !outsideWindow(s) && !BEFORE_LANDMARK.test(s))
       return { kind: "scene", text: s };
     if (presence && hit(s, presence) && (backAgain.test(s) || toSeeVictim.test(s)) && sceneWord?.test(s) && !outsideWindow(s) && !BEFORE_LANDMARK.test(s)) return { kind: "scene", text: s };
