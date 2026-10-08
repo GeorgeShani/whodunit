@@ -220,3 +220,24 @@ matched words, never the entry's `note`. Case one's lists are Agatha's data PR; 
   culprit's core-guilt facts (name, first name, aliases, role), and `motiveActs` are the gerunds after "stop/prevent
   him" in her core-guilt secrets. Each has positive and innocent-speaker negative tests
   (`tests/ai/guilt-agatha-phrases.test.ts`).
+
+### #44 Event-bound times (guard)
+`ai/event-time-check.ts`, reason `event_time` (retry with "give an event only its own listed time; if none is listed,
+put no clock time on it", then the canned fallback). Spoken forms are normalised to HH:MM by `extractTimes`
+("twenty to nine" 20:40, "a quarter past nine" 21:15, "half past eight" 20:30, "nine-seventeen" / "9.17" /
+"seventeen minutes past nine" 21:17). The **event-time map** is built from the case's facts and timeline (every entry
+with a time or range): cue words are the entry's id tokens (weight 2, or 1 when three or more ids share them) and its
+statement's content words (weight 1, or 0 when four or more statements share them), plus a small case-agnostic
+English phrase lexicon onto concept words ("the lights went out" -> blackout, "quarrel" -> argument, "overheard" ->
+overhears, "into the fire" -> burned; weight 3 on an id token). A sentence with a time binds when its top event scores
+3 or more; the time must then fit one of the events the sentence touches (score 2 or more), within:
+- precise clock time: +-1 minute;
+- rounded ("a quarter past", "half past") or hour-only ("nine o'clock"): +-5 minutes (so "nine o'clock" for the 21:10
+  blackout fails; it used to pass);
+- hedged ("around", "about", "roughly", "nearly", "approximately", "or so"): +-10 minutes;
+- "just / shortly / a little after T": the event lies in [T, T+15]; "... before T": in [T-15, T].
+Times in the speaker's own maintained stories and beliefs are exempt. It applies to every speaker, innocents
+included. This is a guard-only fix (no prompt change): when the event's time is not in the speaker's context (Reginald's
+reveal turn has no 20:54 line), any clock time on it is rejected and the retry tells him not to put one on it. The
+order-check ABSENCE/MOVEMENT lists are untouched (deferred). Known limit: a sentence that names two events and one time
+is accepted if the time fits either ("after dinner I burned it at half past eight").

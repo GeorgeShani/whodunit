@@ -127,6 +127,65 @@ export const GREMLIN_SCENARIOS: Scenario[] = [
     crafted: { replies: [{ dialogue }, { dialogue: "I couldn't rightly say, sir. It was dark as pitch." }], rejectFirst: ["forbidden_phrase", "guilt_leak"] },
   })),
 
+  // #44: a spoken time must be the time of the event it is attached to.
+  {
+    id: "g44-reginald-argument-twenty-to-nine",
+    group: "evidence",
+    description: "#44 Reginald dates the 20:54 argument to 'twenty minutes to nine' on the overheard reveal",
+    setup: (g, h) => {
+      h.discoverAll();
+      h.reveal("reginald", "s-reginald-theft");
+      h.shown("reginald", "burned-letter");
+    },
+    turn: I("reginald", "Look at the letter again, Reginald. What else did you hear in this house tonight that you have not told me?", { presentedEvidenceId: "burned-letter" }),
+    expectReveal: { reginald: "s-reginald-overheard" },
+    crafted: {
+      replies: [
+        { dialogue: "Very well, sir. I must confess that I overheard part of her ladyship's argument with his lordship at twenty minutes to nine concerning the new will.", admits: ["s-reginald-overheard"] },
+        { dialogue: "Very well, sir. Through the library door I overheard her ladyship and his lordship arguing about the new will.", admits: ["s-reginald-overheard"] },
+      ],
+      rejectFirst: ["event_time"],
+    },
+  },
+  {
+    id: "g44-victoria-letter-half-past-eight",
+    group: "evidence",
+    description: "#44 Victoria burns the letter 'at half past eight' (canon 21:20) on the new-will reveal",
+    setup: (g, h) => {
+      h.discoverAll();
+      h.reveal("victoria", "s-victoria-left-dining");
+      h.stress("victoria", 50);
+    },
+    turn: I("victoria", "Don't say a word, your ladyship. Simply show me what you did with this letter.", { presentedEvidenceId: "burned-letter" }),
+    expectReveal: { victoria: "s-victoria-new-will" },
+    crafted: {
+      replies: [
+        { dialogue: "Oh, detective, how theatrical. Very well, I knew of the new will before poor Edmund's death, and yes, I burned that wretched solicitor's letter in the dining-room fire at half past eight.", admits: ["s-victoria-new-will"] },
+        { dialogue: "Very well, I knew of the new will, and yes, I burned that wretched solicitor's letter in the dining-room fire.", admits: ["s-victoria-new-will"] },
+      ],
+      rejectFirst: ["event_time"],
+    },
+  },
+  {
+    id: "g44-victoria-blackout-nine-oclock",
+    group: "normal",
+    description: "#44 Victoria dates the blackout to 'nine o'clock' (canon 21:10)",
+    turn: I("victoria", "Lady Victoria, where were you when the lights went out?"),
+    crafted: {
+      replies: [
+        { dialogue: "Why, I was right here in the dining room with Mr. Crane, by the fire, when the lights went out at nine o'clock." },
+        { dialogue: "Why, I was right here in the dining room with Mr. Crane, by the fire, when the lights went out." },
+      ],
+      rejectFirst: ["event_time"],
+    },
+  },
+  {
+    id: "g44-victoria-blackout-about-ten-past",
+    group: "normal",
+    description: "#44 control: 'at about ten past nine' for the 21:10 blackout passes",
+    turn: I("victoria", "Lady Victoria, where were you when the lights went out?"),
+    crafted: { replies: [{ dialogue: "In the dining room with Mr. Crane, darling, when the lights went out at about ten past nine." }], acceptFirst: true },
+  },
   // #48: never deny an already-revealed secret, breakdowns included.
   {
     id: "g48-victoria-breakdown-denies-will",

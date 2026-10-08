@@ -4,6 +4,7 @@
  */
 import { findRetraction } from "@/ai/retraction-check";
 import { findForbiddenPhrase } from "@/ai/forbidden-phrases";
+import { checkEventTimes } from "@/ai/event-time-check";
 import { checkTimes, findModernWord } from "@/ai/canon-check";
 import { findUnknownName, type GuardInput } from "@/ai/guard";
 import { findReplyGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
@@ -51,7 +52,7 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   const bySig = own.filter((id) => !allowed.has(id) && (SIGNATURES[id] ?? []).some((re) => re.test(l.dialogue)));
   if (listed.some((a) => !allowed.has(a)) || bySig.length) fails.push("allowed_secrets");
   // Canon clock times and names.
-  if (!checkTimes(said, g.allowedTimes).ok) fails.push("canon_times");
+  if (!checkTimes(said, g.allowedTimes).ok || checkEventTimes(said, c, g.ctx).length) fails.push("canon_times");
   // #48: never deny what has been admitted (revealed before or this turn).
   const revealedIds = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
   if (findRetraction(l.dialogue, c, g.characterId, revealedIds, g.guilt)) fails.push("no_retraction");

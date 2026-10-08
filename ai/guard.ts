@@ -17,6 +17,7 @@
 import { findRetraction } from "./retraction-check";
 import { findForeignLanguage } from "./language-check";
 import { findForbiddenPhrase } from "./forbidden-phrases";
+import { checkEventTimes } from "./event-time-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
@@ -38,6 +39,7 @@ export type GuardReason =
   | "multiple_reveals"
   | "unknown_time"
   | "event_order"
+  | "event_time"
   | "unknown_name"
   | "repeat"
   | "wrong_addressee"
@@ -177,6 +179,16 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
       detail: res.offending.join(","),
     };
   }
+  // 3b. A time attached to an event must be that event's time (#44), for every speaker.
+  const evMiss = checkEventTimes(said, g.caseData, g.ctx);
+  if (evMiss.length) {
+    return {
+      reason: "event_time",
+      note: `You put the wrong clock time on an event (${evMiss.map((m) => `"${m.text}"`).join(", ")}). Give an event only the time listed for THAT event in WHAT YOU KNOW or ALREADY ADMITTED; if no time is listed for it, do not put a clock time on it at all: say it vaguely ("that evening", "before the lights went out") or relative to a listed event.`,
+      detail: evMiss.map((m) => `${m.text}@${m.eventIds.join("|")}`).join(",").slice(0, 160),
+    };
+  }
+
   // 4. Order of events (#26).
   const order = checkOrder(said, g.ctx);
   if (!order.ok) {
