@@ -31,8 +31,8 @@ describe("schema", () => {
   it("validator: unlessRevealed must be the speaker's own secret", () => {
     const bad = structuredClone(hl);
     bad.characters.find((c) => c.id === "finch")!.forbiddenPhrases.push({ text: "rum", regex: false, unlessRevealed: "marlow-secret" });
-    expect(validateCase(bad).some((i) => /forbiddenPhrases\.\d+\.unlessRevealed/.test(i.path) && /unknown own secret/.test(i.message))).toBe(true);
-    expect(validateCase(hl).filter((i) => i.path.includes("forbiddenPhrases"))).toEqual([]);
+    expect(validateCase(bad).some((i) => /forbiddenPhrases\.\d+\.unlessRevealed/.test(i.path ?? "") && /unknown own secret/.test(i.message))).toBe(true);
+    expect(validateCase(hl).filter((i) => (i.path ?? "").includes("forbiddenPhrases"))).toEqual([]);
   });
 });
 
