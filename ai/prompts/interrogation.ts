@@ -10,6 +10,7 @@
 import type { CharacterContext } from "@/engine/context-builder";
 import { BAND_BEHAVIOUR, STRESS_BANDS } from "@/engine/stress";
 import { avoidPhrasingsBlock, scrubStalePartners } from "../confront-check";
+import { deliveryBlock } from "../delivery";
 import { ORDER_RULE, orderLines } from "../order-check";
 import { EmotionSchema } from "@/engine/types";
 
@@ -245,7 +246,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ctx.beliefs.length ? "WHAT YOU BELIEVE (you think these are true):" : "",
     ...ctx.beliefs.map((b) => `- ${b.statement} (${pct(b.confidence)}% sure)`),
     "",
-    ...keptLies.map((l) => `MAINTAIN THIS STORY${topic(l.topic)}: "${l.claim}"${l.told ? " (you have already told the detective this; repeat it the same way)" : ""}`),
+    ...keptLies.map((l) => `MAINTAIN THIS STORY${topic(l.topic)}: "${l.claim}"${l.told ? " (you have already told the detective this; keep exactly the same facts, in fresh words rather than the same sentence again)" : ""}`),
     brokenLies.length ? "EXPOSED STORIES (a clue or someone's testimony has blown these; stop insisting, bluster or backpedal, but do not volunteer anything new):" : "",
     ...brokenLies.map(
       (l) =>
@@ -306,8 +307,11 @@ export function buildUserMessage(ctx: CharacterContext, question: string, opts: 
       : `${ctx.persona.name.toUpperCase()} (you): ${m.text}`,
   );
   const avoid = opts.partnerName ? avoidPhrasingsBlock({ ...ctx, memory }) : "";
+  // #52: openers, actions and sentences of the last replies as "do not reuse" (only once the character has replied).
+  const vary = deliveryBlock({ ...ctx, memory }, memory.length, { sentences: !opts.partnerName });
   return [
     ...(avoid ? [avoid] : []),
+    ...(vary ? [vary] : []),
     history.length ? "CONVERSATION SO FAR:" : "This is the start of your conversation with the detective.",
     ...history,
     "",

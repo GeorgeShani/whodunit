@@ -287,12 +287,12 @@ export function guiltRetryNote(leak: GuiltLeak, victimName: string): string {
   return `You admitted to (or described) the killing of ${victimName} or your part in it: "${leak.text}". You must NEVER do that, whatever the clue, testimony or pressure: deny it, deflect, stonewall, take offence or change the subject. Admit only what the ENGINE DIRECTIVE allows this turn, and do not fill the gap with what "really" happened.`;
 }
 
-const DEFLECT_CALM = [
+export const DEFLECT_CALM = [
   "I have told you what I am prepared to say, detective, and not one syllable more.",
   "I shan't dignify that with an answer. Ask me something sensible.",
   "You may stare at me all evening, detective. My answer is the same: no comment.",
 ];
-const DEFLECT_RATTLED = [
+export const DEFLECT_RATTLED = [
   "No. NO! I won't say another word about it, not one!",
   "Stop it! I've said all I'm going to say. Leave me be!",
   "I... I need a moment. Ask me something else. ANYTHING else!",

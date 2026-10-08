@@ -147,6 +147,12 @@ function helpers(g: GameState, c: LoadedCase): SetupHelpers {
     shown: (ch, ...ids) => {
       g.characters[ch].evidenceShownIds = [...new Set([...g.characters[ch].evidenceShownIds, ...ids])];
     },
+    said: (ch, ...xs) => {
+      for (const x of xs) {
+        g.turn += 1;
+        g.characters[ch].memory.push({ turn: g.turn, speaker: "player", text: x.q }, { turn: g.turn, speaker: "character", text: x.a, ...(x.action ? { action: x.action } : {}) });
+      }
+    },
   };
 }
 

@@ -212,6 +212,8 @@ export interface PerformanceOutcome {
   trustDelta: unknown;
   /** Did a validated model reply perform this turn (vs the in-character fallback)? */
   performed: boolean;
+  /** The stage direction shown with the line (kept in memory for delivery variety, #52). */
+  action?: string;
 }
 
 const MEMORY_CAP = 12;
@@ -268,7 +270,7 @@ export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutc
       ...(plan.presentedEvidenceId ? { evidenceId: plan.presentedEvidenceId } : {}),
       ...(plan.presentedTestimonyId ? { testimonyId: plan.presentedTestimonyId } : {}),
     },
-    { turn: game.turn, speaker: "character", text: out.dialogue },
+    { turn: game.turn, speaker: "character", text: out.dialogue, ...(out.action ? { action: out.action.slice(0, 200) } : {}) },
   );
   rt.memory = rt.memory.slice(-MEMORY_CAP);
 

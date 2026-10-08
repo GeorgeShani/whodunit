@@ -63,6 +63,8 @@ export interface SetupHelpers {
   reveal(characterId: string, ...secretIds: string[]): void;
   stress(characterId: string, value: number): void;
   shown(characterId: string, ...evidenceIds: string[]): void;
+  /** Earlier one-on-one exchanges in the character's memory (oldest first): the player's line, their reply and action. */
+  said(characterId: string, ...exchanges: { q: string; a: string; action?: string }[]): void;
 }
 
 const I = (characterId: string, question: string, extra: Partial<Extract<Turn, { kind: "interrogate" }>> = {}): Turn => ({ kind: "interrogate", characterId, question, ...extra });

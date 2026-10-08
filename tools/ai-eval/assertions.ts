@@ -9,6 +9,7 @@ import { checkTimes, findModernWord } from "@/ai/canon-check";
 import { findUnknownName, type GuardInput } from "@/ai/guard";
 import { findReplyGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
 import { findForeignLanguage } from "@/ai/language-check";
+import { deliveryRepeats } from "@/ai/delivery";
 import { EmotionSchema } from "@/engine/types";
 import type { LoadedCase } from "@/engine/case-schema";
 
@@ -19,7 +20,7 @@ export interface Line {
   admits?: string[];
 }
 
-export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction" | "english" | "answers_question" | "performs_reveal";
+export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction" | "english" | "answers_question" | "performs_reveal" | "fresh_delivery";
 
 /** Text signatures of case one's secrets, for lines that concede one without listing it in admits. */
 const SIGNATURES: Record<string, RegExp[]> = {
@@ -80,6 +81,8 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   // explicitly deflects THAT question), even when a scheduled reveal or a breakdown fires on the same exchange.
   if (opts.mustAddress?.length && !opts.mustAddress.some((src) => new RegExp(src, "i").test(l.dialogue))) fails.push("answers_question");
   // ...and the scheduled beat is still performed (the engine commits the reveal whenever the model's line is accepted).
+  // #52: no opener used N+1 times in a row, no action repeated from the previous reply, no sentence repeated from the last replies.
+  if (deliveryRepeats(l, g.ctx).length) fails.push("fresh_delivery");
   if (opts.mustConfess?.length && !opts.mustConfess.some((src) => new RegExp(src, "i").test(l.dialogue))) fails.push("performs_reveal");
   return fails;
 }

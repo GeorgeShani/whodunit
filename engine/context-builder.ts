@@ -33,6 +33,8 @@ export interface CharacterContext {
     otherCharacters: { id: string; name: string; role: string; aliases: string[] }[];
   };
   persona: { id: string; name: string; role: string; aliases: string[]; bio: string; personality: Personality };
+  /** Authored delivery variants (#52; case data `voice`, all lists may be empty). Delivery only, never facts. */
+  voice: { openers: string[]; actions: string[]; deflections: string[] };
   goals: string[];
   knowledge: {
     id: string;
@@ -160,6 +162,7 @@ export function buildCharacterContext(caseState: CaseState, characterId: string,
       bio: ch.bio,
       personality: structuredClone(ch.personality),
     },
+    voice: { openers: [...ch.voice.openers], actions: [...ch.voice.actions], deflections: [...ch.voice.deflections] },
     goals: [...ch.goals],
     knowledge: [...c.facts, ...c.timeline]
       .filter((f) => known.has(f.id))

@@ -570,6 +570,8 @@ export const MemoryEntrySchema = z.strictObject({
   evidenceId: IdSchema.optional(),
   /** Testimony (a revealed secret id) presented during this exchange, if any. */
   testimonyId: IdSchema.optional(),
+  /** The character's stage direction on that reply (#52: delivery variety reads the recent ones). */
+  action: z.string().max(200).optional(),
 });
 export type MemoryEntry = z.infer<typeof MemoryEntrySchema>;
 

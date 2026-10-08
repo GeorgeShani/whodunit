@@ -14,8 +14,10 @@ import { publicTestimonies } from "@/engine/testimony";
 import type { GameState } from "@/engine/types";
 import { cannedCharacterResponse } from "./canned-responses";
 import { fixArticles } from "./text-fixes";
-import { canonTimes } from "./canon-check";
-import { findGuiltLeak } from "./guilt-check";
+import { canonTimes, findModernWord } from "./canon-check";
+import { varyDelivery } from "./delivery";
+import { findForbiddenPhrase } from "./forbidden-phrases";
+import { findGuiltLeak, findReplyGuiltLeak } from "./guilt-check";
 import { checkReply, CONTRACT_REASONS, logReject, safeDeflection, type GuardInput, type GuardVerdict } from "./guard";
 import { variedConfrontationFallback } from "./confront-check";
 import { callGrok, isModelDown, isQuotaFailure, type GrokFailure, type GrokResult } from "./grok";
@@ -156,6 +158,14 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     const { admits: _admits, ...reply } = grok.response;
     void _admits;
     response = { ...reply, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
+    // #52: delivery variety, deterministic and free: trim an opener used N times in a row, swap a repeated action,
+    // drop a sentence repeated from the last replies. Only removes or swaps delivery; never adds a fact.
+    const varied = varyDelivery(response, ctx, game.turn, (a) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a));
+    if (varied.changes.length) {
+      const { action: _a, ...rest } = response;
+      void _a;
+      response = { ...rest, dialogue: varied.dialogue, ...(varied.action ? { action: varied.action } : {}) };
+    }
   } else if (isModelDown(grok.reason) && !(plan.newlyExposedLieIds.length > 0 && (presentedEvidenceId || presentedTestimonyId))) {
     // Model out of reach: no improvised line, nothing committed (stress, trust, turn count, reveals all stay as they were).
     console.warn(`[turn] unavailable reason=${grok.reason}${grok.status ? ` status=${grok.status}` : ""}${grok.skipped ? " (breaker)" : ""} model=${grok.model} attempts=${grok.attempts} ms=${grok.latencyMs}`);
@@ -169,7 +179,10 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     if (!grok.ok && grok.reason === "canon_check_failed" && rejected && CONTRACT_REASONS.has(rejected.reason)) {
       // The model broke the output contract twice (a guilt leak, an unlocked secret, an invented person): a safe
       // deflection keyed to the character and their stress, no third call.
-      const d = safeDeflection(ctx, rejected.reason, game.turn);
+      // Authored voice.deflections are used only if they pass the same checks a model line would (#52).
+      const isSafe = (line: string) =>
+        !findReplyGuiltLeak({ dialogue: line }, "", guard.guilt, characterId) && !findForbiddenPhrase(line, ch.forbiddenPhrases, ctx.secrets.map((s) => s.id)) && !findModernWord(line);
+      const d = safeDeflection(ctx, rejected.reason, game.turn, isSafe);
       response = { ...response, dialogue: d.dialogue, action: d.action, emotion: d.emotion, intensity: 0.6 };
     } else if (t.confrontation && !presentedEvidenceId) {
       // Face to face the generic one-on-one lines read oddly and repeat: pick a varied line aimed at the partner (#27).
@@ -190,6 +203,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
       stressDelta: response.stressDelta,
       trustDelta: response.trustDelta,
       performed: source === "model",
+      ...(response.action ? { action: response.action } : {}),
     },
     t.confrontation ? "confrontation" : "interrogation",
   );

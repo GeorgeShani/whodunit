@@ -303,3 +303,35 @@ engine still committed the reveal), so the rule now asks for both, in order, wit
 - No guard check: a "did it answer the question" heuristic would cost a retry on every miss and, after a second miss,
   the canned fallback would replace the confession beat itself (worse than the swallow). It stays an eval assertion.
 
+### #52 Delivery variety (prompt + free rewrite + guard), `ai/delivery.ts`
+Repro (r6 live game): Victoria opened 10 of 11 replies with "My dear detective," with the same handkerchief action and
+reused a whole alibi sentence two turns apart (Spanish, then Georgian bait); Gregory's action was "wrings his cap and
+glances at the hall door" three times; Reginald's "had a few words, sir. Nothing out of the ordinary." came back as a
+tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered confrontations only.
+- **History**: the token's memory now keeps each reply's `action` (`MemoryEntry.action`, optional, clipped), so the
+  last few openers and actions are known on the next request.
+- **Prompt** (user message only, and only once the character has replied: first replies and every recorded single-turn
+  eval prompt are unchanged): `VARY YOUR DELIVERY` lists the openers and actions of the last 3 replies as "do not
+  reuse", the sentences of the last 2 as "do not repeat word for word" (one on one; confrontations keep the #27 DO NOT
+  REUSE block), and, rotated by turn, up to 3 unused openers from `voice.openers` and actions from `voice.actions` /
+  quirks / tells. A told story is now "the same facts, in fresh words rather than the same sentence again" (it used to
+  say "repeat it the same way", which invited verbatim tails).
+- **Free rewrite of an accepted reply** (`varyDelivery`, no model call; only removes or swaps delivery, never adds a
+  fact): an opener (first clause, up to 5 words, stutters folded: "W-well, sir" = "W-well sir") used by each of the
+  last 2 replies is trimmed (the third in a row); an action that nearly repeats the previous reply's is swapped for a
+  rotated unused one from `voice.actions`, quirks and tells (passed through the guard's action check), or dropped; a
+  sentence of 6+ words nearly said in the last 3 replies is dropped (with a short follow-up said verbatim right after
+  it) while something new remains.
+- **Guard** `repeat` one on one (performance reason): only when every sentence of the reply repeats a recent one
+  (nothing new is left to keep), retry once. Never on a reveal or breakdown turn.
+- **Fallback deflections** (`safeDeflection`): authored `voice.deflections` first, but only those that pass the guilt,
+  forbidden-phrase and modern-word checks, then the generic pool; rotated by turn, never a line said in the last 6
+  replies; the action rotates the same way (neutral actions after a guilt leak).
+- **Case data**: optional `voice: { openers, actions, deflections }` per character (docs/CASE_FORMAT.md; schema commit
+  146e50b). Empty lists fall back to the generic rules above.
+- **Eval**: assertion `fresh_delivery` (no third opener in a row, no action repeated from the previous reply, no
+  repeated sentence), meaningful whenever the scenario has history (`SetupHelpers.said`). Six crafted r6 repros (opener,
+  Georgian sentence, Gregory's action, Reginald's tail, a whole-reply repeat, deflection rotation) fail BEFORE and pass
+  AFTER; two live cases (`g52-*-vary-live`) show the prompt alone producing a fresh opener and action.
+- Known limit: openers longer than 5 words, or repeated only every other reply, are left to the prompt.
+
