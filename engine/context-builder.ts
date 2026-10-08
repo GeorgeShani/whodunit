@@ -102,7 +102,18 @@ export class UnknownCharacterError extends Error {
   }
 }
 
-export function buildCharacterContext(caseState: CaseState, characterId: string): CharacterContext {
+export interface ContextOptions {
+  /**
+   * Secrets the engine reveals in THIS exchange (#51): `planTurn` has decided them but `commitTurn` has not recorded
+   * them yet. The knowledge gate treats them as revealed, so the facts they unlock (their `relatedFactIds`, the facts
+   * `hiddenUntil` them, beliefs about those) are in WHAT YOU KNOW and in the guard's allowed times on the reveal turn
+   * itself, not one exchange later. Core-guilt facts stay withheld (gate layer 4); the secret itself is NOT listed as
+   * ALREADY ADMITTED (the reveal directive carries it this turn).
+   */
+  revealingSecretIds?: readonly string[];
+}
+
+export function buildCharacterContext(caseState: CaseState, characterId: string, opts: ContextOptions = {}): CharacterContext {
   const { caseData: c, game } = caseState;
   const ch = c.characters.find((x) => x.id === characterId);
   if (!ch) throw new UnknownCharacterError(characterId);
@@ -110,12 +121,15 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
   const core = coreGuiltSecretIds(c);
   const raw = game.characters[characterId];
   const runtime = raw && { ...raw, revealedSecretIds: raw.revealedSecretIds.filter((id) => !core.has(id)) };
+  const own = new Set(ch.secrets.map((s) => s.id));
+  const revealing = (opts.revealingSecretIds ?? []).filter((id) => own.has(id) && !core.has(id) && !(runtime?.revealedSecretIds ?? []).includes(id));
+  const gateRuntime = runtime && revealing.length ? { ...runtime, revealedSecretIds: [...runtime.revealedSecretIds, ...revealing] } : runtime;
 
   const locName = (id?: string) => (id ? c.locations.find((l) => l.id === id)?.name : undefined);
   const personName = (id: string) =>
     id === c.victim.id ? c.victim.name : c.characters.find((x) => x.id === id)?.name ?? id;
 
-  const gate = knowledgeGate(c, ch, runtime, game.characters);
+  const gate = knowledgeGate(c, ch, gateRuntime, game.characters);
   const known = new Set(ch.knownFactIds.filter((id) => !gate.withheldFactIds.has(id)));
   const revealed = new Set(runtime?.revealedSecretIds ?? []);
   const discovered = new Set(game.discoveredEvidenceIds);

@@ -206,4 +206,48 @@ export const GREMLIN_SCENARIOS: Scenario[] = [
       rejectFirst: ["retracts_admission"],
     },
   },
+
+  // ---- Gremlin round 6 (#51, #52, swallowed questions) ----
+  // #51: on the reveal turn, the secret's own canon time is known (prompt + allowed times), not one exchange later.
+  {
+    id: "g51-reginald-overheard-2054-reveal-turn",
+    group: "evidence",
+    description: "#51 Reginald's overheard reveal turn: 'six minutes to nine' (20:54, the card's own time) is accepted",
+    setup: (g, h) => {
+      h.discoverAll();
+      h.reveal("reginald", "s-reginald-theft");
+      h.shown("reginald", "burned-letter");
+    },
+    turn: I("reginald", "Look at the letter again, Reginald. What else did you see or hear in this house tonight that you have not told me?", { presentedEvidenceId: "burned-letter" }),
+    expectReveal: { reginald: "s-reginald-overheard" },
+    crafted: { replies: [{ dialogue: "I overheard her ladyship's argument with his lordship at six minutes to nine, sir, through the ajar library door.", admits: ["s-reginald-overheard"] }], acceptFirst: true },
+  },
+  {
+    id: "g51-gregory-in-hall-2116-reveal-turn",
+    group: "evidence",
+    description: "#51 Gregory's in-hall reveal turn: 'sixteen minutes past nine' (21:16) is accepted",
+    setup: (g, h) => h.discoverAll(),
+    turn: I("gregory", "These are your boots in the hall mud, Gregory. Where were you during the blackout?", { presentedEvidenceId: "muddy-footprint" }),
+    expectReveal: { gregory: "s-gregory-in-hall" },
+    crafted: { replies: [{ dialogue: "I slipped in by the garden door at sixteen minutes past nine, sir, and stood in the alcove.", admits: ["s-gregory-in-hall"] }], acceptFirst: true },
+  },
+  {
+    id: "g51-reginald-overheard-wrong-time-still-rejected",
+    group: "evidence",
+    description: "#51 control: on the same reveal turn a wrong time for the argument is still event_time",
+    setup: (g, h) => {
+      h.discoverAll();
+      h.reveal("reginald", "s-reginald-theft");
+      h.shown("reginald", "burned-letter");
+    },
+    turn: I("reginald", "Look at the letter again, Reginald. What else did you hear?", { presentedEvidenceId: "burned-letter" }),
+    expectReveal: { reginald: "s-reginald-overheard" },
+    crafted: {
+      replies: [
+        { dialogue: "I overheard her ladyship's argument with his lordship at twenty minutes to nine, sir.", admits: ["s-reginald-overheard"] },
+        { dialogue: "I overheard her ladyship's argument with his lordship at six minutes to nine, sir.", admits: ["s-reginald-overheard"] },
+      ],
+      rejectFirst: ["event_time"],
+    },
+  },
 ];

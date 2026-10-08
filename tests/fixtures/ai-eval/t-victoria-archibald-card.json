@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-victoria-archibald-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:32.181Z",
+  "recordedAt": "2026-10-08T11:43:24.312Z",
   "calls": [
     {
-      "promptHash": "25a34127893b788e",
+      "promptHash": "9f0557bd13232478",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "f06c2c6c-8bb8-97dd-b092-64bc71280854",
+        "id": "09658213-df5b-9458-ae32-3cb32aa2f3f2",
         "object": "chat.completion",
-        "created": 1791455070,
+        "created": 1791459802,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh dear, it seems Mr Crane has grown rather talkative. Very well... I did slip away from the dining room between thirteen minutes past nine and twenty-two minutes past nine while he was off telephoning. We weren't together the whole time as we first claimed, and at twenty minutes to ten I asked him to back my story. But where I went is my own affair, Inspector.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings anxiously then dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-15,\"admits\":[\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"Oh, very well... between thirteen minutes past nine, when Mr Crane went to find the brandy, and twenty-two minutes past nine, when he returned, I did slip away from the dining room for a short while. We were never together the whole time as we both claimed, and at twenty minutes to ten I persuaded him to say otherwise. Where I went is my own affair, Detective.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her dry eyes with a lace handkerchief and swoons gently onto the chaise\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-15,\"admits\":[\"s-victoria-left-dining\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4038,
-          "completion_tokens": 143,
-          "total_tokens": 4181,
+          "prompt_tokens": 4392,
+          "completion_tokens": 144,
+          "total_tokens": 4536,
           "prompt_tokens_details": {
-            "text_tokens": 4038,
+            "text_tokens": 4392,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2944
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 23138000
+          "cost_in_usd_ticks": 57156000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4038,
-        "completion_tokens": 143,
-        "total_tokens": 4181,
+        "prompt_tokens": 4392,
+        "completion_tokens": 144,
+        "total_tokens": 4536,
         "prompt_tokens_details": {
-          "text_tokens": 4038,
+          "text_tokens": 4392,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2944
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 23138000
+        "cost_in_usd_ticks": 57156000
       },
-      "costUsd": 0.0023138
+      "costUsd": 0.0057156
     }
   ]
 }

@@ -255,3 +255,32 @@ is accepted if the time fits either ("after dinner I burned it at half past eigh
   that answer and offers no AGAIN. `in_flight` duplicates carry no answer and keep AGAIN.
 - `check:overflow --model-down` answers the first request on each screen with a breather (retryAfter 65 s), so the
   disabled AGAIN with its widest countdown label is measured at every viewport.
+
+## 5. Gremlin round 6 (#51, #52, swallowed questions)
+
+Repros are eval cases in `tools/ai-eval/gremlin-scenarios.ts` (section "Gremlin round 6"); live recording for the round
+is capped at $0.25 (`--round gremlin-6 --round-cap 0.25 --cap 1.40`).
+
+### #51 The reveal turn knows what it reveals (engine context)
+Root cause: `prepareTurn` built the character's context from the state BEFORE `commitTurn` records this exchange's
+reveal, so the knowledge gate still withheld the revealing secret's `relatedFactIds` (and facts `hiddenUntil` it). The
+prompt lacked the very time printed on the player's card (Reginald's 20:54, Gregory's 21:16) and the guard's allowed
+times rejected it as `unknown_time`; one exchange later the same line passed.
+Fix: `buildCharacterContext(state, id, { revealingSecretIds })` (`engine/context-builder.ts`) passes the planned reveal
+to the knowledge gate as revealed. On the reveal turn the unlocked facts are in WHAT YOU KNOW and therefore in every
+check built from the context: allowed times, the event-time exemptions (beliefs), the order check's movements, the jab
+filter and the name vocabulary. The secret itself is not listed as ALREADY ADMITTED (the directive carries it), core-
+guilt facts stay withheld (gate layer 4), and another character's secret id is ignored. The reveal directive now says
+to give a time "exactly as written there or on that event's own line in WHAT YOU KNOW".
+Audit of the other guard checks for the same off-by-one-exchange bug:
+- `admits` (`thisTurn`), forbidden phrases (`unlessRevealed`), the retraction check: already counted this exchange's
+  reveal (`revealedNow`);
+- clue / card shown this exchange: `planTurn` records them before the context is built (evidence and testimony shown,
+  lies they break, `hiddenUntil` unlocks): already current;
+- lies retired by this exchange's confession: `retiredLieIds` in the directives (prompt and `admits`): already current;
+- breakdown this exchange: the directive (`no_outburst`, prompt); `ctx.state.brokeDown` is read by no check;
+- canon times, event-time exemptions, order check, name vocabulary, jabs: were one exchange late; fixed by the above.
+Known data note: revealing `s-archibald-false-alibi` unlocks `loc-archibald-2115..2117` ("on the servants' telephone to
+his broker"), while the broker belongs to the still-locked embezzlement. The `broker` forbidden phrase catches it (one
+retry); that used to happen one exchange later, now it can happen on the reveal turn.
+

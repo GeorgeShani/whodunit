@@ -101,7 +101,8 @@ export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel" 
     ...(t.confrontation ? { confrontation: t.confrontation } : {}),
   };
 
-  const ctx = buildCharacterContext({ caseData, game }, characterId);
+  // #51: the facts this exchange's reveal unlocks are known on the reveal turn itself (prompt + allowed times).
+  const ctx = buildCharacterContext({ caseData, game }, characterId, plan.revealSecretId ? { revealingSecretIds: [plan.revealSecretId] } : {});
   // Guilt-leak check (ai/guilt-check.ts): nobody confesses the murder before the accusation. A token from before this
   // rule may still hold such a line in the conversation; it is not replayed to the model.
   const guilt = guiltProfile(caseData);

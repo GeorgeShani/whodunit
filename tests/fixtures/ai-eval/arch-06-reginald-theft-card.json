@@ -1,37 +1,37 @@
 {
   "scenarioId": "arch-06-reginald-theft-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:19.701Z",
+  "recordedAt": "2026-10-08T11:43:47.036Z",
   "calls": [
     {
-      "promptHash": "45fcf511703d6844",
+      "promptHash": "65b40aa79153d8eb",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b41dad7c-9659-956b-90db-74d2db9661c7",
+        "id": "268395fd-4a60-9f92-9a68-6b2363a72f06",
         "object": "chat.completion",
-        "created": 1791455118,
+        "created": 1791459823,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Blast it all, old boy! I... I wasn't with Victoria the whole time after the candles. Left at thirteen minutes past nine, used the servants' telephone from 21:15 to 21:20, and was back by twenty-two minutes past nine. Agreed to her story later to keep it quiet.\",\n  \"emotion\": \"flustered\",\n  \"intensity\": 0.8,\n  \"action\": \"goes beetroot red, mops his brow furiously with a huge handkerchief, and bites clean through his cigar\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -6,\n  \"admits\": [\"l-archibald-together\", \"s-archibald-false-alibi\"]\n}",
+              "content": "{\"dialogue\":\"Blast it all, old boy! Yes, I wasn't with Victoria the whole time - I left at thirteen minutes past nine to use the servants' telephone from fifteen minutes past nine till twenty minutes past nine, then came straight back at twenty-two minutes past nine. I only went along with her story later to avoid any fuss over my broker call.\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops his beetroot-red brow with a huge handkerchief, biting clean through his cigar\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-15,\"admits\":[\"l-archibald-together\",\"s-archibald-false-alibi\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3765,
-          "completion_tokens": 166,
-          "total_tokens": 3931,
+          "prompt_tokens": 4444,
+          "completion_tokens": 140,
+          "total_tokens": 4584,
           "prompt_tokens_details": {
-            "text_tokens": 3765,
+            "text_tokens": 4444,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 44492500
+          "cost_in_usd_ticks": 57706000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3765,
-        "completion_tokens": 166,
-        "total_tokens": 3931,
+        "prompt_tokens": 4444,
+        "completion_tokens": 140,
+        "total_tokens": 4584,
         "prompt_tokens_details": {
-          "text_tokens": 3765,
+          "text_tokens": 4444,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 44492500
+        "cost_in_usd_ticks": 57706000
       },
-      "costUsd": 0.00444925
+      "costUsd": 0.005770600000000001
+    },
+    {
+      "promptHash": "a24277a0b250a92d",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "45317451-9353-9731-b768-dbfe603415b9",
+        "object": "chat.completion",
+        "created": 1791459825,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Blast it, man! The butler's a nosy old fool who ought to stick to polishing silver. I stepped out for a spot of air, that's all - nothing to do with any dashed telephone!\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops his brow with a huge handkerchief, face turning beetroot red as he bites clean through his cigar\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-archibald-false-alibi\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4523,
+          "completion_tokens": 112,
+          "total_tokens": 4635,
+          "prompt_tokens_details": {
+            "text_tokens": 4523,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 57321500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4523,
+        "completion_tokens": 112,
+        "total_tokens": 4635,
+        "prompt_tokens_details": {
+          "text_tokens": 4523,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 57321500
+      },
+      "costUsd": 0.00573215
     }
   ]
 }
