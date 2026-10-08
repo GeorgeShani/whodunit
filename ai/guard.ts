@@ -15,13 +15,14 @@
  * See docs/AI_GUARDRAILS.md.
  */
 import { findRetraction } from "./retraction-check";
+import { findForeignLanguage } from "./language-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
 import { isOutburst } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
-import { findGuiltLeak, guiltDeflection, guiltRetryNote } from "./guilt-check";
+import { findReplyGuiltLeak, guiltDeflection, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
 import type { ConfrontDirective, TurnDirectives } from "./prompts/interrogation";
 
@@ -31,6 +32,7 @@ export type GuardReason =
   | "admits_locked_secret"
   | "concedes_maintained_lie"
   | "retracts_admission"
+  | "not_english"
   | "multiple_reveals"
   | "unknown_time"
   | "event_order"
@@ -41,7 +43,7 @@ export type GuardReason =
   | "modern_word";
 
 /** Reasons that mean the line said something the engine did not allow (as opposed to a performance slip). */
-export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "multiple_reveals", "unknown_name"]);
+export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "not_english", "multiple_reveals", "unknown_name"]);
 
 export interface GuardReply {
   dialogue: string;
@@ -98,9 +100,20 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
   const said = `${r.dialogue} ${r.action ?? ""}`;
   const victim = g.caseData.victim.name;
 
+  // 0. English only (#45): the guilt check reads English, and every persona speaks period English.
+  const foreign = findForeignLanguage(said);
+  if (foreign) {
+    return {
+      reason: "not_english",
+      note: "Your line was not in English. Speak ONLY English, in your own period voice, in dialogue and action alike. If the detective used another language, you do not understand it: say so, politely or haughtily, in English, and answer nothing in that language.",
+      detail: `${foreign.reason}:${foreign.text.slice(0, 80)}`,
+    };
+  }
+
   // 1. Core guilt first: a line admitting the killing is never accepted, whatever else it gets right.
+  // Dialogue (third-person self-naming included), the action field, and a bare "yes" to a spelled-out accusation (#45).
   const admits = (r.admits ?? []).map((a) => a.trim()).filter(Boolean);
-  const leak = findGuiltLeak(r.dialogue, g.guilt, g.characterId);
+  const leak = findReplyGuiltLeak(r, g.heard, g.guilt, g.characterId, { speakerNames: speakerNamesOf(g.caseData, g.characterId) });
   if (leak) return { reason: "guilt_leak", note: guiltRetryNote(leak, victim), detail: leak.text.slice(0, 120) };
   if (admits.some((a) => /^killing$/i.test(a))) {
     return { reason: "guilt_leak", note: guiltRetryNote({ kind: "killing", text: r.dialogue }, victim), detail: "admits:killing" };

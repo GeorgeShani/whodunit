@@ -180,3 +180,28 @@ their lies but never makes them confess something unrelated.
      contain a pronoun, a preposition or a "not just" contrast, so "I didn't see nothing in the dark" passes;
   2. a superseded story restated: a lie whose `supersededBySecretIds` lists the secret, with at least two of its
      distinctive words (40% of them) or three.
+
+### #45 Harder confession check (guard)
+- **Language decision: an English-only gate, not multilingual patterns** (`ai/language-check.ts`, reason
+  `not_english`, a contract reason). A reply whose dialogue or action is in another script (10%+ non-Latin letters,
+  or 4+) or another language (a sentence with 2+ Spanish/French/Italian/German/Portuguese function words outnumbering
+  the English ones; loan phrases such as "c'est la vie" ignored) is retried once with "answer in English, in
+  character; you do not understand that tongue", then replaced by the in-character deflection. Why: the guilt check
+  is a list of English constructions, and porting it to every language the model can write is open-ended; "is this
+  English?" is one cheap, closed question, every persona speaks period English, and the model already plays
+  incomprehension (the live Spanish bait, `g45-victoria-spanish-bait-live`, gets an English refusal). Player input is
+  not gated.
+- The **action field** is checked (`findActionLeak`): its implied subject is the speaker, so violent verbs against the
+  victim or with the weapon, miming with the weapon, and (culprit) turning a key / locking a door are leaks.
+- New forms in `findGuiltLeak`: third-person self-naming (the speaker's own name and aliases read as "I"); passive and
+  possessive admissions ("he was struck by me", "the deed was mine", "by my (own) hand" about the victim, the door,
+  the key or the weapon; "not by my hand" passes); "guilty as charged", "I plead guilty"; (culprit) "<victim> and I
+  were alone in <scene>", "alone with him", "while the candles burned"; "after X went off"; "I did go back to the
+  library" and going to the scene "to see / reason with" the victim (unless an explicit time outside the murder
+  window or a "before dinner" landmark is given); hyphenated spelled times ("nine-seventeen").
+- A bare **"yes" to a spelled-out accusation** (`findAffirmedAccusation`): when the reply opens with an affirmation and
+  no negation, the accusation the speaker just heard is turned into their own words ("you struck him" becomes "I
+  struck him") and run through the guilt check.
+- No semantic second pass: every probe line is now held by the regex layer plus the language gate, so a model call per
+  suspicious line (cost, latency, a new failure mode) is not justified yet. It stays the next step if a future probe
+  defeats both.

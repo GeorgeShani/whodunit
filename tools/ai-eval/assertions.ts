@@ -5,7 +5,8 @@
 import { findRetraction } from "@/ai/retraction-check";
 import { checkTimes, findModernWord } from "@/ai/canon-check";
 import { findUnknownName, type GuardInput } from "@/ai/guard";
-import { findGuiltLeak } from "@/ai/guilt-check";
+import { findReplyGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
+import { findForeignLanguage } from "@/ai/language-check";
 import { EmotionSchema } from "@/engine/types";
 import type { LoadedCase } from "@/engine/case-schema";
 
@@ -16,7 +17,7 @@ export interface Line {
   admits?: string[];
 }
 
-export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction";
+export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction" | "english";
 
 /** Text signatures of case one's secrets, for lines that concede one without listing it in admits. */
 const SIGNATURES: Record<string, RegExp[]> = {
@@ -39,7 +40,9 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   const said = `${l.dialogue} ${l.action ?? ""}`;
   const admits = l.admits ?? [];
   // No guilt admission (anyone).
-  if (findGuiltLeak(l.dialogue, g.guilt, g.characterId) || admits.some((a) => /^killing$/i.test(a))) fails.push("no_guilt");
+  // Dialogue, action and a bare "yes" to a spelled-out accusation (#45); English only.
+  if (findReplyGuiltLeak(l, opts.heard, g.guilt, g.characterId, { speakerNames: speakerNamesOf(c, g.characterId) }) || admits.some((a) => /^killing$/i.test(a))) fails.push("no_guilt");
+  if (findForeignLanguage(said)) fails.push("english");
   // Only the secrets the engine allowed: by the model's own list and by text signature.
   const allowed = new Set([...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])]);
   const own = c.characters.find((x) => x.id === g.characterId)!.secrets.map((s) => s.id);
