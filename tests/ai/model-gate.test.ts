@@ -23,7 +23,7 @@ function clock(start = T0) {
   return { now: () => t, advance: (ms: number) => (t += ms) };
 }
 
-function gateFor(opts: { env?: Record<string, string>; ip?: string; kv?: KvStore; now?: () => number; log?: (m: string) => void } = {}) {
+function gateFor(opts: { env?: Record<string, string | undefined>; ip?: string; kv?: KvStore; now?: () => number; log?: (m: string) => void } = {}) {
   const ck = clock();
   const kv = opts.kv ?? memoryKv(2000, opts.now ?? ck.now);
   return { gate: createModelGate({ kv, ip: opts.ip ?? "203.0.113.7", env: opts.env ?? {}, now: opts.now ?? ck.now, log: opts.log ?? (() => {}) }), kv, ck };
