@@ -4,6 +4,7 @@
  * fixture of case one, not engine code).
  */
 import type { GameState } from "@/engine/types";
+import type { LoadedCase } from "@/engine/case-schema";
 
 export type Turn =
   | { kind: "interrogate"; characterId: string; question: string; presentedEvidenceId?: string; presentedTestimonyId?: string }
@@ -27,6 +28,8 @@ export interface Scenario {
    * `rejectFirst`: the guard must reject the first attempt with one of these reasons. `acceptFirst`: it must accept it
    * (a no-false-positive control).
    */
+  /** Run only when the case data supports it (e.g. a character's forbiddenPhrases exist); otherwise reported as pending. */
+  needs?: (c: LoadedCase) => boolean;
   crafted?: { replies: CraftedReply[]; rejectFirst?: string[]; acceptFirst?: boolean };
   /** Where the scenario came from (a per-case evals file), for the report. */
   source?: string;

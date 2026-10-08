@@ -79,6 +79,44 @@ describe("#47 a presented card reveals only the secret mapped to it", () => {
     expect(plan.revealSecretId).toBe("s-victoria-new-will");
   });
 
+  it("Agatha (1): a deferred stress reveal fires on the next ORDINARY question, never on the next card or clue", () => {
+    const g = cardsOut();
+    g.characters.victoria.stress = 60;
+    commitTurn(g, planTurn(c, g, "victoria", { presentedTestimonyId: "s-gregory-saw-victoria" }), performed());
+    expect(g.characters.victoria.stress).toBeGreaterThanOrEqual(70);
+    // An unmapped clue next: still nothing.
+    const foot = planTurn(c, g, "victoria", { presentedEvidenceId: "muddy-footprint" });
+    expect(foot.revealSecretId).toBeNull();
+    commitTurn(g, foot, performed());
+    // A clue mapped to a DIFFERENT secret: that secret, not the deferred one.
+    const letter = planTurn(c, g, "victoria", { presentedEvidenceId: "burned-letter" });
+    expect(letter.revealSecretId).toBe("s-victoria-new-will");
+    commitTurn(g, letter, performed());
+    // The next ordinary question: the deferred stress reveal.
+    expect(planTurn(c, g, "victoria", { playerText: "Where did you go?" }).revealSecretId).toBe("s-victoria-left-dining");
+  });
+
+  it("Agatha (2): a card whose mapped secret is already revealed reveals nothing new, even past a stress threshold", () => {
+    const g = cardsOut();
+    g.characters.victoria.revealedSecretIds = ["s-victoria-new-will"];
+    g.revealedSecretIds.push("s-victoria-new-will");
+    g.characters.victoria.stress = 75; // already past left-dining's threshold
+    const plan = planTurn(c, g, "victoria", { presentedTestimonyId: "s-reginald-overheard" });
+    expect(plan.revealSecretId).toBeNull();
+    const again = planTurn(c, g, "victoria", { presentedEvidenceId: "burned-letter" });
+    expect(again.revealSecretId).toBeNull();
+    expect(planTurn(c, g, "victoria", { playerText: "Well?" }).revealSecretId).toBe("s-victoria-left-dining");
+  });
+
+  it("a card mapped to several secrets still walks its own chain (Reginald's letter: theft, then overheard)", () => {
+    const g = createInitialGameState(c);
+    g.discoveredEvidenceIds = c.evidence.map((e) => e.id);
+    const first = planTurn(c, g, "reginald", { presentedEvidenceId: "burned-letter" });
+    expect(first.revealSecretId).toBe("s-reginald-theft");
+    commitTurn(g, first, performed());
+    expect(planTurn(c, g, "reginald", { presentedEvidenceId: "burned-letter" }).revealSecretId).toBe("s-reginald-overheard");
+  });
+
   it("isMappedToPresentation reads evidenceIds and testimonyIds (fixture case too)", () => {
     for (const ch of [...c.characters, ...hl.characters])
       for (const s of ch.secrets) {

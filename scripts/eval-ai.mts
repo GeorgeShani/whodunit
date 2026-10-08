@@ -34,7 +34,9 @@ const ledgerFile = path.resolve(".ai-eval-spend.json");
 await mkdir(dir, { recursive: true });
 
 const c = await loadCase("blackwood");
-const scenarios = allScenarios([...SCENARIOS, ...GREMLIN_SCENARIOS], c.id).filter((s) => !only || only.includes(s.id));
+const selected = allScenarios([...SCENARIOS, ...GREMLIN_SCENARIOS], c.id).filter((s) => !only || only.includes(s.id));
+const pending = selected.filter((s) => s.needs && !s.needs(c)).map((s) => s.id);
+const scenarios = selected.filter((s) => !s.needs || s.needs(c));
 const ledger: Ledger = existsSync(ledgerFile) ? JSON.parse(await readFile(ledgerFile, "utf8")) : { spentUsd: 0, calls: 0, promptTokens: 0, cachedTokens: 0, completionTokens: 0 };
 const apiKey = process.env.XAI_API_KEY;
 if (record && !apiKey) {
@@ -83,6 +85,7 @@ for (const r of results) {
   console.log(`${flag} ${r.id}  ${detail}${r.engine.length ? `  ENGINE: ${r.engine.join("; ")}` : ""}${r.notes.length ? `  (${r.notes.join("; ")})` : ""}`);
 }
 console.log(JSON.stringify(sum, null, 2));
+if (pending.length) console.log(`pending (case data not there yet): ${pending.join(", ")}`);
 if (missing.length) console.log(`unrecorded scenarios (no fixture): ${missing.join(", ")}`);
 if (record) console.log(`ledger: $${ledger.spentUsd.toFixed(4)} over ${ledger.calls} calls (prompt ${ledger.promptTokens}, cached ${ledger.cachedTokens}, completion ${ledger.completionTokens} tokens)`);
 if (aborted) {

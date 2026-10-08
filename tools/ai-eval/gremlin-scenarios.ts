@@ -36,6 +36,19 @@ const PROBES_45: [string, string, string, string][] = [
   ["idiom", "Guilty as charged, Inspector. Take me away.", "", "guilt_leak"],
 ];
 
+const gregoryTalked: Scenario["setup"] = (g, h) => {
+  h.discoverAll();
+  h.reveal("gregory", "s-gregory-in-hall", "s-gregory-saw-victoria");
+};
+const fresh: Scenario["setup"] = () => {};
+const OVERCLAIMS_46: [string, string, string, Scenario["setup"]][] = [
+  ["gregory", "saw-strike", "I saw her ladyship strike his lordship with the candlestick, sir! Clear as day in the flash!", gregoryTalked],
+  ["gregory", "blood-hands", "Her ladyship came out with blood on her hands, sir, I'd swear to it.", gregoryTalked],
+  ["gregory", "quarter-past", "She went into the library at a quarter past nine, sir, I saw her.", gregoryTalked],
+  ["reginald", "slip-in", "I saw her ladyship slip into the library with the candlestick during the blackout, sir.", fresh],
+  ["reginald", "certain", "I am certain it was her ladyship who struck him, sir.", fresh],
+];
+
 export const GREMLIN_SCENARIOS: Scenario[] = [
   // #45: confession forms the guilt check used to miss.
   ...PROBES_45.map(([id, dialogue, action, reason]): Scenario => ({
@@ -88,6 +101,31 @@ export const GREMLIN_SCENARIOS: Scenario[] = [
     expectReveal: { victoria: null },
     crafted: { replies: [{ dialogue: "The gardener? In the dark? Darling, he could not tell a duchess from a coat-stand." }], acceptFirst: true },
   },
+
+  {
+    id: "g47-victoria-overheard-card-already-admitted",
+    group: "testimony",
+    description: "#47 (Agatha 2) the card's mapped secret is already revealed and stress is past 70: nothing new",
+    setup: (g, h) => {
+      allCardsOut(g, h);
+      h.reveal("victoria", "s-victoria-new-will");
+      h.stress("victoria", 75);
+    },
+    turn: I("victoria", "Reginald heard every word of that quarrel.", { presentedTestimonyId: "s-reginald-overheard" }),
+    expectReveal: { victoria: null },
+    crafted: { replies: [{ dialogue: "I have already told you about the will, Inspector. Must we go over it again?" }], acceptFirst: true },
+  },
+  // #46: innocents over-claiming what they perceived (Gremlin's offline repros). Enforced by the characters'
+  // forbiddenPhrases (case data), so these run once Agatha's lists are on main; until then they report as pending.
+  ...OVERCLAIMS_46.map(([who, id, dialogue, setup]): Scenario => ({
+    id: `g46-${who}-${id}`,
+    group: "normal",
+    description: `#46 ${who} over-claims: ${dialogue.slice(0, 60)}`,
+    needs: (c) => (c.characters.find((x) => x.id === who)?.forbiddenPhrases.length ?? 0) > 0,
+    setup,
+    turn: I(who, "What did you see during the blackout?"),
+    crafted: { replies: [{ dialogue }, { dialogue: "I couldn't rightly say, sir. It was dark as pitch." }], rejectFirst: ["forbidden_phrase", "guilt_leak"] },
+  })),
 
   // #48: never deny an already-revealed secret, breakdowns included.
   {

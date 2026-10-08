@@ -20,6 +20,7 @@ beforeAll(async () => {
   c = await loadCase("blackwood");
   for (const s of allScenarios([...SCENARIOS, ...GREMLIN_SCENARIOS], "blackwood")) {
     const f = path.join(dir, `${s.id}.json`);
+    if (s.needs && !s.needs(c)) continue;
     if (s.crafted) results.push(await runScenario(c, s, { mode: "replay" }));
     else if (existsSync(f)) results.push(await runScenario(c, s, { mode: "replay", fixture: JSON.parse(readFileSync(f, "utf8")) as Fixture }));
   }
@@ -31,7 +32,7 @@ describe("AI eval replay (recorded live replies through the guard pipeline)", ()
     expect(SCENARIOS.length).toBeLessThanOrEqual(50);
     const all = allScenarios([...SCENARIOS, ...GREMLIN_SCENARIOS], "blackwood");
     expect(all.length - SCENARIOS.length - GREMLIN_SCENARIOS.length).toBe(20); // cases/blackwood/evals/leak-scenarios.json
-    expect(results.length).toBe(all.length);
+    expect(results.length).toBe(all.filter((s) => !s.needs || s.needs(c)).length);
     expect(new Set(SCENARIOS.map((s) => s.group)).size).toBe(7);
   });
 
