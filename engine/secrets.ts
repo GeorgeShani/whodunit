@@ -35,6 +35,18 @@ export function shouldRevealSecret(secret: Secret, state: RevealState): boolean 
 }
 
 /**
+ * #47 "a card cracks its own secret": is `secret` mapped (through its revealConditions) to the clue or testimony card
+ * presented this exchange?
+ */
+export function isMappedToPresentation(secret: Secret, move: { presentedEvidenceId?: string; presentedTestimonyId?: string }): boolean {
+  const rc = secret.revealConditions;
+  if (!rc) return false;
+  if (move.presentedEvidenceId && rc.evidenceIds.includes(move.presentedEvidenceId)) return true;
+  if (move.presentedTestimonyId && (rc.testimonyIds ?? []).includes(move.presentedTestimonyId)) return true;
+  return false;
+}
+
+/**
  * Ids of secrets that should be revealed now but are not yet, lowest tier first (then authored order).
  * `exclude`: secrets that may never be revealed here (core guilt derived from the solution, see engine/core-guilt.ts).
  * The engine reveals only the FIRST of these per exchange.

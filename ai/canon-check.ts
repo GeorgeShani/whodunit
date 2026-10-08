@@ -102,6 +102,15 @@ export function extractTimes(text: string): TimeMention[] {
   });
   // "nine fifteen", "twenty-one ten", "nine oh five": hour word then minute word.
   const WORD_NUM = NUM.replace("|\\d{1,2})", ")");
+  // "nine-seventeen", "nine-oh-five" (#45): a 12-hour hour word, a hyphen, a minute word (never "twenty-one").
+  const HOUR12 = "one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve";
+  add(new RegExp(`\\b(${HOUR12})-(oh-(?:${UNIT_RE})|${WORD_NUM})\\b`, "gi"), (m) => {
+    const h = num(m[1]);
+    const oh = m[2].toLowerCase().startsWith("oh-");
+    const mm = oh ? num(m[2].slice(3)) : num(m[2]);
+    if (h === null || mm === null || mm > 59 || (!oh && mm < 10)) return null;
+    return { c: readings(h, mm) };
+  });
   add(new RegExp(`\\b(${WORD_NUM})\\s+(oh\\s+(?:${UNIT_RE})|${WORD_NUM})\\b`, "gi"), (m) => {
     const h = num(m[1]);
     const mm = m[2].toLowerCase().startsWith("oh") ? num(m[2].slice(2)) : num(m[2]);

@@ -237,7 +237,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ),
     retiredLies.length ? "DROPPED STORIES (your own confession replaces these; never repeat, defend or half-claim them again; any goal, note or belief above that assumes them is out of date):" : "",
     ...retiredLies.map((l) => `- DROPPED${topic(l.topic)}: "${l.claim}"`),
-    admitted.length ? "ALREADY ADMITTED (you have confessed these; you may talk about them truthfully):" : "",
+    admitted.length ? "ALREADY ADMITTED (you have confessed these; you may talk about them truthfully; you have admitted them, so never deny, retract or take them back, not even in a breakdown or in anger):" : "",
     ...admitted.map((s) => `- ${s.description}`),
     "",
     ctx.evidenceShown.length ? "CLUES THE DETECTIVE HAS SHOWN YOU:" : "",
@@ -264,7 +264,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ),
     ...confrontLines(d.confrontation, ctx),
     d.breakdown
-      ? "- You BREAK DOWN this turn: a big cartoon outburst (shouting, sobbing, wailing; capitals allowed), emotion panicked, angry or sad. A breakdown is NOT a confession, and never a confession to the murder: you still admit only what this directive or ALREADY ADMITTED allows; the outburst adds no new facts."
+      ? "- You BREAK DOWN this turn: a big cartoon outburst (shouting, sobbing, wailing; capitals allowed), emotion panicked, angry or sad. A breakdown is NOT a confession, and never a confession to the murder: you still admit only what this directive or ALREADY ADMITTED allows; the outburst adds no new facts, and it never denies or takes back anything under ALREADY ADMITTED."
       : "",
     d.presentedEvidence
       ? `- The detective is showing you: ${d.presentedEvidence.name}. React to it (include one evidenceReactions entry with evidenceId "${d.presentedEvidence.id}").`

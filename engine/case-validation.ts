@@ -155,6 +155,10 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       });
       s.relatedFactIds.forEach((id, k) => ref(factIds, "fact", id, f, `${p}.relatedFactIds.${k}`));
     });
+    // #46: a forbidden phrase lifts only on the speaker's OWN secret being revealed.
+    ch.forbiddenPhrases.forEach((fp, j) => {
+      if (fp.unlessRevealed) ref(ownSecretIds, "own secret", fp.unlessRevealed, f, `forbiddenPhrases.${j}.unlessRevealed`);
+    });
     ch.intendedLies.forEach((l, j) => {
       const p = `intendedLies.${j}(${l.id})`;
       ref(factIds, "fact", l.aboutFactId, f, `${p}.aboutFactId`);
@@ -254,6 +258,12 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   // Reachable secrets: fixpoint over reveal conditions (stress alone is always reachable) + afterSecretIds.
   // Core guilt (engine/core-guilt.ts) is never revealed before the accusation, so it is never reachable here.
   const core = coreGuiltSecretIds(c);
+  // #46: a forbidden phrase gated on a core-guilt secret never lifts (core guilt is never revealed): say so.
+  for (const ch of c.characters)
+    ch.forbiddenPhrases.forEach((fp, j) => {
+      if (fp.unlessRevealed && core.has(fp.unlessRevealed))
+        warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
+    });
   const reachable = new Set<string>();
   for (let changed = true; changed; ) {
     changed = false;
@@ -398,8 +408,10 @@ export function checkGuiltLeakPaths(c: LoadedCase): CaseIssue[] {
   const strings = (v: unknown): string[] => (typeof v === "string" ? [v] : Array.isArray(v) ? v.flatMap(strings) : v && typeof v === "object" ? Object.values(v).flatMap(strings) : []);
   for (const ch of c.characters) {
     if (ch.id === murderer.id) continue;
-    const { secrets: _s, ...visible } = ch;
+    // forbiddenPhrases are guard data, never in the prompt.
+    const { secrets: _s, forbiddenPhrases: _f, ...visible } = ch;
     void _s;
+    void _f;
     for (const text of strings(visible)) {
       for (const sentence of text.split(/(?<=[.!?])\s+/)) {
         if (!names.some((n) => new RegExp(`\\b${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(sentence))) continue;

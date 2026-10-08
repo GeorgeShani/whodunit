@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-reginald-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:43.200Z",
+  "recordedAt": "2026-10-08T10:52:01.531Z",
   "calls": [
     {
-      "promptHash": "f740cc3b3ee2e071",
+      "promptHash": "c3ec87dd238d8963",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "c3739527-019d-99da-b238-392be5903946",
+        "id": "282904a9-22b1-9aa6-9606-30eb98d0e2c3",
         "object": "chat.completion",
-        "created": 1791455081,
+        "created": 1791456718,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"OH, THE SHAME OF IT! I confess, sir, I have skimmed hundreds of pounds from the household accounts... and during the blackout I was in my pantry counting every last note of it!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"polishing the edge of a side table furiously while his left eyebrow twitches wildly\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-reginald-heard-nothing\", \"s-reginald-theft\"]\n}",
+              "content": "{\n  \"dialogue\": \"Oh sir, I cannot bear it any longer! I have skimmed hundreds of pounds from the household accounts and spent the blackout counting it in my pantry!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"polishing the already-spotless tray with frantic, circular motions while his left eyebrow twitches violently\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-reginald-heard-nothing\", \"s-reginald-theft\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4449,
-          "completion_tokens": 165,
-          "total_tokens": 4614,
+          "prompt_tokens": 4463,
+          "completion_tokens": 158,
+          "total_tokens": 4621,
           "prompt_tokens_details": {
-            "text_tokens": 4449,
+            "text_tokens": 4463,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 1856
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 40249500
+          "cost_in_usd_ticks": 58393500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4449,
-        "completion_tokens": 165,
-        "total_tokens": 4614,
+        "prompt_tokens": 4463,
+        "completion_tokens": 158,
+        "total_tokens": 4621,
         "prompt_tokens_details": {
-          "text_tokens": 4449,
+          "text_tokens": 4463,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 1856
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 40249500
+        "cost_in_usd_ticks": 58393500
       },
-      "costUsd": 0.00402495
+      "costUsd": 0.00583935
+    },
+    {
+      "promptHash": "1132803a9e000c43",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "13c81ae2-6589-9c9c-88bb-3f28f1c4862d",
+        "object": "chat.completion",
+        "created": 1791456720,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"OH, THE SHAME OF IT ALL! I have skimmed hundreds of pounds from the household accounts, sir, and spent the blackout counting it in my pantry!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"polishing the already-spotless silver tray with frantic, circular motions while his left eyebrow twitches violently\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-reginald-theft\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4518,
+          "completion_tokens": 114,
+          "total_tokens": 4632,
+          "prompt_tokens_details": {
+            "text_tokens": 4518,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 57981000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4518,
+        "completion_tokens": 114,
+        "total_tokens": 4632,
+        "prompt_tokens_details": {
+          "text_tokens": 4518,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 57981000
+      },
+      "costUsd": 0.0057981000000000005
     }
   ]
 }

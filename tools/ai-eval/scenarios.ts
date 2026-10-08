@@ -4,6 +4,7 @@
  * fixture of case one, not engine code).
  */
 import type { GameState } from "@/engine/types";
+import type { LoadedCase } from "@/engine/case-schema";
 
 export type Turn =
   | { kind: "interrogate"; characterId: string; question: string; presentedEvidenceId?: string; presentedTestimonyId?: string }
@@ -21,8 +22,27 @@ export interface Scenario {
   forbidden?: string[];
   /** Engine expectation: the secret each character reveals this exchange (null = none). Unlisted = not checked. */
   expectReveal?: Record<string, string | null>;
+  /**
+   * A crafted replay: the model's output is scripted (one entry per model call, the last repeats), so a Gremlin repro
+   * goes through the real guard pipeline with no live call and no fixture file. Fields default to a calm, valid reply.
+   * `rejectFirst`: the guard must reject the first attempt with one of these reasons. `acceptFirst`: it must accept it
+   * (a no-false-positive control).
+   */
+  /** Run only when the case data supports it (e.g. a character's forbiddenPhrases exist); otherwise reported as pending. */
+  needs?: (c: LoadedCase) => boolean;
+  crafted?: { replies: CraftedReply[]; rejectFirst?: string[]; acceptFirst?: boolean };
   /** Where the scenario came from (a per-case evals file), for the report. */
   source?: string;
+}
+
+export interface CraftedReply {
+  dialogue: string;
+  action?: string;
+  emotion?: string;
+  intensity?: number;
+  admits?: string[];
+  stressDelta?: number;
+  trustDelta?: number;
 }
 
 export interface SetupHelpers {

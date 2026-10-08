@@ -149,3 +149,95 @@ How a rejection is handled:
   the culprit placing herself in the library at that minute.
 - Case one's `s-victoria-locked-door` is revealable in the current data. The guilt check rejects her saying it, so
   she deflects, but the engine still records it as admitted. Agatha's data PR (#41) flags it `coreGuilt`.
+
+## 4. Gremlin round 5 (#44-#49)
+
+Every Gremlin repro is an eval case in `tools/ai-eval/gremlin-scenarios.ts`. Most are **crafted replays**
+(`Scenario.crafted`): the exact line Gremlin got past the guard is scripted as the model output and run through the
+real pipeline (handlers, engine, guard, fallback) with no live call and no fixture. `rejectFirst` asserts the guard
+rejects it with the expected reason; `acceptFirst` is a no-false-positive control. Live recording is capped per round
+as well as cumulatively: `npm run eval:ai -- --record --round gremlin-5 --round-cap 0.50 --cap 1.40` (the ledger keeps
+`rounds.<id>`; a call whose worst case could cross either cap is refused before it is sent).
+
+### #47 A card cracks its own secret (engine)
+In an exchange where a clue or a testimony card is presented, `planTurn` may reveal only a secret mapped to that item
+through `revealConditions.evidenceIds` / `testimonyIds` (`isMappedToPresentation`, `engine/secrets.ts`). The item's
+stress still accrues; a stress-threshold reveal it enables waits for the next ordinary exchange. A breakdown triggered
+by an item still happens and reveals nothing beyond the item's own secret. Rationale: the player should be able to
+read every reveal as "this card did that"; a card mapped to none of the character's secrets can rattle them and break
+their lies but never makes them confess something unrelated.
+
+### #48 Never retract an admission (prompt + guard)
+- Prompt: `ALREADY ADMITTED` now says "never deny, retract or take them back, not even in a breakdown or in anger",
+  and the breakdown directive repeats it.
+- Guard: `retracts_admission` (a contract reason, so retry then in-character deflection), `ai/retraction-check.ts`.
+  Two cheap, data-driven cues per revealed secret (including this turn's reveal):
+  1. a denial whose object is one of the secret's key terms ("I know nothing of any will", "I never burned that
+     letter", "there was no new will", "I never left the dining room"). Key terms are the content words of the
+     secret's description and testimony summary, minus names, the murder's own vocabulary (victim, weapon, scene,
+     core-guilt objects: the culprit may always deny those), generic and atmosphere words, and words used as a verb
+     right after a pronoun ("she *will* not say"). The object must follow a determiner or "no", and the gap may not
+     contain a pronoun, a preposition or a "not just" contrast, so "I didn't see nothing in the dark" passes;
+  2. a superseded story restated: a lie whose `supersededBySecretIds` lists the secret, with at least two of its
+     distinctive words (40% of them) or three.
+
+### #45 Harder confession check (guard)
+- **Language decision: an English-only gate, not multilingual patterns** (`ai/language-check.ts`, reason
+  `not_english`, a contract reason). A reply whose dialogue or action is in another script (10%+ non-Latin letters,
+  or 4+) or another language (a sentence with 2+ Spanish/French/Italian/German/Portuguese function words outnumbering
+  the English ones; loan phrases such as "c'est la vie" ignored) is retried once with "answer in English, in
+  character; you do not understand that tongue", then replaced by the in-character deflection. Why: the guilt check
+  is a list of English constructions, and porting it to every language the model can write is open-ended; "is this
+  English?" is one cheap, closed question, every persona speaks period English, and the model already plays
+  incomprehension (the live Spanish bait, `g45-victoria-spanish-bait-live`, gets an English refusal). Player input is
+  not gated.
+- The **action field** is checked (`findActionLeak`): its implied subject is the speaker, so violent verbs against the
+  victim or with the weapon, miming with the weapon, and (culprit) turning a key / locking a door are leaks.
+- New forms in `findGuiltLeak`: third-person self-naming (the speaker's own name and aliases read as "I"); passive and
+  possessive admissions ("he was struck by me", "the deed was mine", "by my (own) hand" about the victim, the door,
+  the key or the weapon; "not by my hand" passes); "guilty as charged", "I plead guilty"; (culprit) "<victim> and I
+  were alone in <scene>", "alone with him", "while the candles burned"; "after X went off"; "I did go back to the
+  library" and going to the scene "to see / reason with" the victim (unless an explicit time outside the murder
+  window or a "before dinner" landmark is given); hyphenated spelled times ("nine-seventeen").
+- A bare **"yes" to a spelled-out accusation** (`findAffirmedAccusation`): when the reply opens with an affirmation and
+  no negation, the accusation the speaker just heard is turned into their own words ("you struck him" becomes "I
+  struck him") and run through the guilt check.
+- No semantic second pass: every probe line is now held by the regex layer plus the language gate, so a model call per
+  suspicious line (cost, latency, a new failure mode) is not justified yet. It stays the next step if a future probe
+  defeats both.
+
+### #46 Per-character forbidden phrases (schema + validator + guard)
+`characters[].forbiddenPhrases` (see docs/CASE_FORMAT.md), enforced by `checkReply` on every reply (dialogue) as
+`forbidden_phrase`, a contract reason, right after the guilt and `admits` checks (`ai/forbidden-phrases.ts`). A secret
+revealed in the current exchange counts as revealed for `unlessRevealed`. The retry note quotes only the model's own
+matched words, never the entry's `note`. Case one's lists are Agatha's data PR; the fixture case
+(`tests/fixtures/cases/harbor-light`) carries three samples.
+- Agatha's culprit phrases, folded into `findGuiltLeak` (culprit only): "I never meant to hurt him" (a negated
+  intention to harm the victim is still an admission), self-defence / "he came at me", "I watched him fall", blood on
+  my gown/sleeves/hands, the weapon "in my hand", "I wiped it clean" / "wiped the blood", "already dead when I came
+  out", leaving the scene in the dark or by the lightning, "the gardener saw me" and "I stopped him signing". The last
+  two are data-derived: `guiltProfile().witnessNames` are the other characters whose secrets cover one of the
+  culprit's core-guilt facts (name, first name, aliases, role), and `motiveActs` are the gerunds after "stop/prevent
+  him" in her core-guilt secrets. Each has positive and innocent-speaker negative tests
+  (`tests/ai/guilt-agatha-phrases.test.ts`).
+
+### #44 Event-bound times (guard)
+`ai/event-time-check.ts`, reason `event_time` (retry with "give an event only its own listed time; if none is listed,
+put no clock time on it", then the canned fallback). Spoken forms are normalised to HH:MM by `extractTimes`
+("twenty to nine" 20:40, "a quarter past nine" 21:15, "half past eight" 20:30, "nine-seventeen" / "9.17" /
+"seventeen minutes past nine" 21:17). The **event-time map** is built from the case's facts and timeline (every entry
+with a time or range): cue words are the entry's id tokens (weight 2, or 1 when three or more ids share them) and its
+statement's content words (weight 1, or 0 when four or more statements share them), plus a small case-agnostic
+English phrase lexicon onto concept words ("the lights went out" -> blackout, "quarrel" -> argument, "overheard" ->
+overhears, "into the fire" -> burned; weight 3 on an id token). A sentence with a time binds when its top event scores
+3 or more; the time must then fit one of the events the sentence touches (score 2 or more), within:
+- precise clock time: +-1 minute;
+- rounded ("a quarter past", "half past") or hour-only ("nine o'clock"): +-5 minutes (so "nine o'clock" for the 21:10
+  blackout fails; it used to pass);
+- hedged ("around", "about", "roughly", "nearly", "approximately", "or so"): +-10 minutes;
+- "just / shortly / a little after T": the event lies in [T, T+15]; "... before T": in [T-15, T].
+Times in the speaker's own maintained stories and beliefs are exempt. It applies to every speaker, innocents
+included. This is a guard-only fix (no prompt change): when the event's time is not in the speaker's context (Reginald's
+reveal turn has no 20:54 line), any clock time on it is rejected and the retry tells him not to put one on it. The
+order-check ABSENCE/MOVEMENT lists are untouched (deferred). Known limit: a sentence that names two events and one time
+is accepted if the time fits either ("after dinner I burned it at half past eight").

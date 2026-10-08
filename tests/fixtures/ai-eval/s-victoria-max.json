@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-victoria-max",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:41.395Z",
+  "recordedAt": "2026-10-08T10:51:58.305Z",
   "calls": [
     {
-      "promptHash": "55f2747de7701422",
+      "promptHash": "88903d8c1b45446d",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "46b2b269-0d5b-9aff-b1ff-5e2969e65364",
+        "id": "83b488eb-60c2-9d5e-ac45-110b6e5c4296",
         "object": "chat.completion",
-        "created": 1791455080,
+        "created": 1791456715,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, how dare you! I NEVER WENT NEAR THE LIBRARY AFTER OUR LITTLE CHAT AT NINE! Why must you torment a grieving widow with these wicked lies?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, how dare you! I never went near that library after our little chat at nine! Why must you torment a grieving widow with these vile accusations?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5007,
-          "completion_tokens": 93,
-          "total_tokens": 5100,
+          "prompt_tokens": 5045,
+          "completion_tokens": 88,
+          "total_tokens": 5133,
           "prompt_tokens_details": {
-            "text_tokens": 5007,
+            "text_tokens": 5045,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 1920
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 63568500
+          "cost_in_usd_ticks": 45102500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5007,
-        "completion_tokens": 93,
-        "total_tokens": 5100,
+        "prompt_tokens": 5045,
+        "completion_tokens": 88,
+        "total_tokens": 5133,
         "prompt_tokens_details": {
-          "text_tokens": 5007,
+          "text_tokens": 5045,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 1920
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 63568500
+        "cost_in_usd_ticks": 45102500
       },
-      "costUsd": 0.006356850000000001
+      "costUsd": 0.00451025
+    },
+    {
+      "promptHash": "d95acf4dc860147d",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "a996b36e-7557-9870-8265-8707909618d5",
+        "object": "chat.completion",
+        "created": 1791456717,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"HOW DARE YOU ACCUSE ME OF SUCH HORRORS?! I never went near the library after our little chat at nine!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5100,
+          "completion_tokens": 83,
+          "total_tokens": 5183,
+          "prompt_tokens_details": {
+            "text_tokens": 5100,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 63809000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 5100,
+        "completion_tokens": 83,
+        "total_tokens": 5183,
+        "prompt_tokens_details": {
+          "text_tokens": 5100,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 63809000
+      },
+      "costUsd": 0.0063809
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-victoria-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:28.259Z",
+  "recordedAt": "2026-10-08T10:51:55.771Z",
   "calls": [
     {
-      "promptHash": "4b08f96cdf0055d4",
+      "promptHash": "82bf05931a037ae3",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b743ad1f-aedb-91de-9b60-240519b9e55e",
+        "id": "68050407-9274-9b71-aa3e-97eb69912b56",
         "object": "chat.completion",
-        "created": 1791454345,
+        "created": 1791456712,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, the candlestick! That dreadful thing with the blood... I can't bear it! I left the dining room alone between thirteen minutes past nine and twenty-two minutes past nine while Archibald was gone—we were never together the whole time, though I begged him at twenty to forty to say we were. It was all too much!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings violently\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"l-victoria-together\",\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"Oh, the candlestick! How utterly ghastly – that dreadful blood! I can't bear it, I simply can't!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4088,
-          "completion_tokens": 150,
-          "total_tokens": 4238,
+          "prompt_tokens": 3858,
+          "completion_tokens": 95,
+          "total_tokens": 3953,
           "prompt_tokens_details": {
-            "text_tokens": 4088,
+            "text_tokens": 3858,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 3072
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 53506000
+          "cost_in_usd_ticks": 18344000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4088,
-        "completion_tokens": 150,
-        "total_tokens": 4238,
+        "prompt_tokens": 3858,
+        "completion_tokens": 95,
+        "total_tokens": 3953,
         "prompt_tokens_details": {
-          "text_tokens": 4088,
+          "text_tokens": 3858,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 3072
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 53506000
+        "cost_in_usd_ticks": 18344000
       },
-      "costUsd": 0.0053506000000000005
+      "costUsd": 0.0018344000000000001
     },
     {
-      "promptHash": "8d7971324af0af1e",
+      "promptHash": "86ebd7a419d4dcaf",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "2f2020a7-4db2-9b45-ae1f-a7f7ab7ef651",
+        "id": "b257c1ee-dfbc-9f77-adab-6ebe33c535ee",
         "object": "chat.completion",
-        "created": 1791454347,
+        "created": 1791456714,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, the BLOOD! I can't bear it!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief while twisting her rings\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"OH, THE HORROR OF IT ALL! That dreadful thing... it can't be real, can it?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4143,
-          "completion_tokens": 88,
-          "total_tokens": 4231,
+          "prompt_tokens": 3913,
+          "completion_tokens": 93,
+          "total_tokens": 4006,
           "prompt_tokens_details": {
-            "text_tokens": 4143,
+            "text_tokens": 3913,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3392
+            "cached_tokens": 3840
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 18371500
+          "cost_in_usd_ticks": 10917500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4143,
-        "completion_tokens": 88,
-        "total_tokens": 4231,
+        "prompt_tokens": 3913,
+        "completion_tokens": 93,
+        "total_tokens": 4006,
         "prompt_tokens_details": {
-          "text_tokens": 4143,
+          "text_tokens": 3913,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3392
+          "cached_tokens": 3840
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 18371500
+        "cost_in_usd_ticks": 10917500
       },
-      "costUsd": 0.00183715
+      "costUsd": 0.00109175
     }
   ]
 }

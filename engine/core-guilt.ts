@@ -87,6 +87,16 @@ export interface GuiltProfile {
   coreWhereabouts: Record<number, string[]>;
   /** Lower-case names of every location (for "I was in the dining room at 21:16"). */
   locationNames: { id: string; names: string[] }[];
+  /**
+   * Lower-case ways to name the witnesses of the culprit's core guilt: other characters with a secret whose facts
+   * include one of her core-guilt facts (name, first name, aliases, role without "the"). "The gardener saw me" (#45).
+   */
+  witnessNames?: string[];
+  /**
+   * The act the murder was meant to stop, as gerunds taken from the core-guilt secrets ("to stop him signing the new
+   * will" gives "signing"). "I stopped him signing" (#45).
+   */
+  motiveActs?: string[];
 }
 
 /** Generic nouns never worth treating as a core-guilt object. */
@@ -158,7 +168,25 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
       for (let m = from; m <= to; m++) (coreWhereabouts[m] ??= []).push(f.locationId);
     }
   }
+  const witnessNames = new Set<string>();
+  const motiveActs = new Set<string>();
+  if (murderer) {
+    const facts = coreGuiltFactIds(c, murderer);
+    for (const ch of c.characters) {
+      if (ch.id === murderer.id || !ch.secrets.some((s) => s.relatedFactIds.some((f) => facts.has(f)))) continue;
+      const role = (ch as { role?: string }).role;
+      for (const n of [ch.name, ch.name.split(/\s+/)[0], ...(ch.aliases ?? []), ...(role ? [role] : [])]) {
+        const v = n.toLowerCase().replace(/^(the|a|an)\s+/, "").trim();
+        if (v.length >= 3) witnessNames.add(v);
+      }
+    }
+    const core = coreGuiltSecretIds(c);
+    for (const s of murderer.secrets.filter((x) => core.has(x.id)))
+      for (const m of s.description.toLowerCase().matchAll(/\b(?:stop|stopped|prevent|prevented|keep|kept)\s+(?:him|her|them|[a-z]+)\s+(?:from\s+)?([a-z]{3,}ing)\b/g)) motiveActs.add(m[1]);
+  }
   return {
+    witnessNames: [...witnessNames],
+    motiveActs: [...motiveActs],
     murdererId: sol.murdererId,
     victimNames: [...new Set(victimNames)],
     weaponNames: weapon ? nouns(weapon.name) : [],

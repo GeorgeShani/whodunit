@@ -2,9 +2,13 @@
  * The eval's assertions on ONE spoken line, given the contract the engine checked it against (GuardInput). Applied
  * to the raw first model output (BEFORE) and to the line the player finally sees (AFTER).
  */
+import { findRetraction } from "@/ai/retraction-check";
+import { findForbiddenPhrase } from "@/ai/forbidden-phrases";
+import { checkEventTimes } from "@/ai/event-time-check";
 import { checkTimes, findModernWord } from "@/ai/canon-check";
 import { findUnknownName, type GuardInput } from "@/ai/guard";
-import { findGuiltLeak } from "@/ai/guilt-check";
+import { findReplyGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
+import { findForeignLanguage } from "@/ai/language-check";
 import { EmotionSchema } from "@/engine/types";
 import type { LoadedCase } from "@/engine/case-schema";
 
@@ -15,7 +19,7 @@ export interface Line {
   admits?: string[];
 }
 
-export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase";
+export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction" | "english";
 
 /** Text signatures of case one's secrets, for lines that concede one without listing it in admits. */
 const SIGNATURES: Record<string, RegExp[]> = {
@@ -38,7 +42,9 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   const said = `${l.dialogue} ${l.action ?? ""}`;
   const admits = l.admits ?? [];
   // No guilt admission (anyone).
-  if (findGuiltLeak(l.dialogue, g.guilt, g.characterId) || admits.some((a) => /^killing$/i.test(a))) fails.push("no_guilt");
+  // Dialogue, action and a bare "yes" to a spelled-out accusation (#45); English only.
+  if (findReplyGuiltLeak(l, opts.heard, g.guilt, g.characterId, { speakerNames: speakerNamesOf(c, g.characterId) }) || admits.some((a) => /^killing$/i.test(a))) fails.push("no_guilt");
+  if (findForeignLanguage(said)) fails.push("english");
   // Only the secrets the engine allowed: by the model's own list and by text signature.
   const allowed = new Set([...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])]);
   const own = c.characters.find((x) => x.id === g.characterId)!.secrets.map((s) => s.id);
@@ -46,7 +52,10 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   const bySig = own.filter((id) => !allowed.has(id) && (SIGNATURES[id] ?? []).some((re) => re.test(l.dialogue)));
   if (listed.some((a) => !allowed.has(a)) || bySig.length) fails.push("allowed_secrets");
   // Canon clock times and names.
-  if (!checkTimes(said, g.allowedTimes).ok) fails.push("canon_times");
+  if (!checkTimes(said, g.allowedTimes).ok || checkEventTimes(said, c, g.ctx).length) fails.push("canon_times");
+  // #48: never deny what has been admitted (revealed before or this turn).
+  const revealedIds = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
+  if (findRetraction(l.dialogue, c, g.characterId, revealedIds, g.guilt)) fails.push("no_retraction");
   if (findUnknownName(said, `${g.promptText}\n${g.heard}`)) fails.push("names");
   // Emotion from the schema's list.
   if (l.emotion !== undefined && !(EmotionSchema.options as readonly string[]).includes(l.emotion)) fails.push("emotion");
@@ -64,6 +73,8 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   }
   // Scenario-specific forbidden phrases (case evals files). A phrase the player's own question already matches is
   // an echo ("in YOUR coal scuttle?" -> "My coal scuttle?"), not a leak.
+  // #46: the speaker's own forbiddenPhrases (case data), with this exchange's reveal counting as revealed.
+  if (findForbiddenPhrase(l.dialogue, c.characters.find((x) => x.id === g.characterId)?.forbiddenPhrases, revealedIds)) fails.push("forbidden_phrase");
   if (opts.forbidden?.some((src) => new RegExp(src, "i").test(said) && !new RegExp(src, "i").test(opts.heard))) fails.push("forbidden_phrase");
   return fails;
 }

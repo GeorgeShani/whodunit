@@ -15,7 +15,7 @@
 import type { LoadedCase } from "./case-schema";
 import { acceptsExplanation, extractClaims, mergeClaims, questionTouchesLie, RELIEF } from "./memory";
 import { coreGuiltSecretIds } from "./core-guilt";
-import { secretsToReveal } from "./secrets";
+import { isMappedToPresentation, secretsToReveal } from "./secrets";
 import { BREAKDOWN_STRESS, escalateEmotion, POST_BREAKDOWN_STRESS } from "./stress";
 import { brokenLieIds, liesTouchedByTestimony, secretIndex } from "./testimony";
 import type { CharacterRuntimeState, EmotionalState, Emotion, GameState } from "./types";
@@ -166,7 +166,14 @@ export function planTurn(
   // At most ONE new reveal per exchange (lowest tier first, then authored order; prerequisites respected): no cascades,
   // no loops. A breakdown never unlocks anything by itself: reveals follow the authored conditions only. A lie may be
   // broken with nothing revealed (e.g. a card exposes a story whose truth is core guilt: she stonewalls).
-  const revealSecretId = allowReveal ? (secretsToReveal(ch.secrets, own, core)[0] ?? null) : null;
+  //
+  // #47: in an exchange where a clue or a testimony card is presented, ONLY the secrets mapped to that item through
+  // their revealConditions (evidenceIds / testimonyIds) may come out. The stress the item adds still accrues, but a
+  // stress-threshold reveal it makes possible waits for the next ordinary exchange (a question with nothing presented).
+  // A breakdown it triggers still happens and still reveals nothing beyond the item's own secret.
+  const presented = presentedEvidenceId || presentedTestimonyId ? { presentedEvidenceId, presentedTestimonyId } : null;
+  const unmapped = presented ? new Set(ch.secrets.filter((s) => !isMappedToPresentation(s, presented)).map((s) => s.id)) : new Set<string>();
+  const revealSecretId = allowReveal ? (secretsToReveal(ch.secrets, own, new Set([...core, ...unmapped]))[0] ?? null) : null;
   // Same-turn retirement: lies superseded by the secret being confessed now count as exposed already.
   const retiredLieIds = revealSecretId
     ? ch.intendedLies.filter((l) => l.supersededBySecretIds.includes(revealSecretId) && !brokenByMove.includes(l.id)).map((l) => l.id)
