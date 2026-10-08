@@ -16,7 +16,8 @@ import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSessi
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
 import { isTurnUnavailable, performTurn } from "./perform-turn";
-import { unavailable } from "./model-down";
+import { breatherLine, unavailable, type Unavailable } from "./model-down";
+import type { ModelGate } from "./model-gate";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { createFallbackCharacterResponse } from "./schemas";
 
@@ -38,8 +39,14 @@ export interface HandlerDeps {
   legacyCaseId?: string;
   /** Test hook: observe the exact prompt sent to the model. */
   onPrompt?: (p: { system: string; user: string }) => void;
+  /** Cost protection (ai/model-gate.ts): kill switch, per-IP limit, daily cap. Absent = unlimited (tests, scripts). */
+  gate?: ModelGate;
 }
 
+/** The per-IP limit refused the turn: HTTP 429, nothing spent, the token is unchanged. */
+export function breather(refusal: { retryAfterSec: number }, name: string): Unavailable {
+  return { kind: "breather", line: breatherLine(name, refusal.retryAfterSec), retryAfter: refusal.retryAfterSec };
+}
 const fallbackBody = (error: string, stateToken?: string, seed = 0): InterrogateResponseBody => ({
   response: createFallbackCharacterResponse({ seed }),
   source: "fallback",
@@ -106,19 +113,40 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
 
   // 3-5. Engine effects + reveal decision, prompt, model (or fallback), engine commit (ai/perform-turn.ts).
   const heldToken = notice ? unchangedToken() : (stateToken ?? unchangedToken());
-  const turn = await performTurn({
-    caseData,
-    game,
-    characterId,
-    question,
-    move: { presentedEvidenceId, presentedTestimonyId },
-    env,
-    ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
-  });
+  const name = caseData.characters.find((c) => c.id === characterId)?.name ?? "They";
+
+  // Cost protection, before anything is spent: one model turn (ai/model-gate.ts).
+  const pass = deps.gate ? await deps.gate.open(1) : null;
+  if (pass && !pass.ok && pass.reason === "rate_limited") {
+    return {
+      status: 429,
+      body: withNotice({ response: createFallbackCharacterResponse({ seed: game.turn }), source: "unavailable", unavailable: breather(pass, name), stateToken: heldToken, error: pass.reason }),
+      diag: { reason: pass.reason },
+    };
+  }
+  // Daily cap or kill switch: the turn runs WITHOUT the model, exactly as if credits were out (the "quiet" line,
+  // nothing spent), so the engine's deterministic contradiction beat still lands.
+  const offline = pass && !pass.ok ? pass.reason : null;
+  let called = true;
+  let turn: Awaited<ReturnType<typeof performTurn>>;
+  try {
+    turn = await performTurn({
+      caseData,
+      game,
+      characterId,
+      question,
+      move: { presentedEvidenceId, presentedTestimonyId },
+      env,
+      ...(offline ? { skipModel: "quota" as const } : {}),
+      ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
+    });
+    called = turn.grok.attempts > 0;
+  } finally {
+    if (pass?.ok) await pass.settle({ called });
+  }
 
   if (isTurnUnavailable(turn)) {
     // The model is out of reach: say so in character, spend nothing, hand back the state the client already holds.
-    const name = caseData.characters.find((c) => c.id === characterId)?.name ?? "They";
     const { response: _r, ...down } = turn.grok as GrokResult & { response?: unknown };
     void _r;
     return {
@@ -128,9 +156,9 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
         source: "unavailable",
         unavailable: unavailable(turn.kind, name, game.turn),
         stateToken: heldToken,
-        error: turn.reason,
+        error: offline ?? turn.reason,
       }),
-      diag: { grok: down as Omit<GrokResult, "response">, reason: "model_unavailable" },
+      diag: { grok: down as Omit<GrokResult, "response">, reason: offline ?? "model_unavailable" },
     };
   }
   const { response, source, grok, revealed, stress, contradiction } = turn;

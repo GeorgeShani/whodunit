@@ -39,6 +39,8 @@ export interface TurnInput {
   userMessage?: (ctx: CharacterContext) => string;
   env?: Env;
   onPrompt?: (p: { system: string; user: string }) => void;
+  /** Do not call the model; treat it as this failure (the cost gate's daily cap or kill switch). */
+  skipModel?: GrokFailure;
 }
 
 export interface TurnOutput {
@@ -82,7 +84,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
   const ctx = buildCharacterContext({ caseData, game }, characterId);
   const system = buildSystemPrompt(ctx, directives);
   const user = t.userMessage ? t.userMessage(ctx) : buildUserMessage(ctx, question, t.confrontation ? { partnerName: t.confrontation.partnerName } : {});
-  t.onPrompt?.({ system, user });
+  if (!t.skipModel) t.onPrompt?.({ system, user });
   // Canon post-check (#6): every clock time must come from this character's context (or what was just said to them).
   const heard = [question, t.confrontation?.partnerLine ?? ""].join(" ");
   const allowed = canonTimes(ctx, directives, heard);
@@ -113,7 +115,10 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
       ? `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`
       : null;
   };
-  const grok = await callGrok({ system, user, env, validate });
+  // skipModel: the cost gate (ai/model-gate.ts) has the model switched off; behave exactly as if the call had failed.
+  const grok: GrokResult = t.skipModel
+    ? { ok: false, reason: t.skipModel, model: "none", attempts: 0, latencyMs: 0, skipped: true }
+    : await callGrok({ system, user, env, validate });
 
   let response: CharacterResponse;
   let source: "model" | "fallback";

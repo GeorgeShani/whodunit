@@ -33,6 +33,7 @@ Next.js (App Router) · React · strict TypeScript · Tailwind · Framer Motion 
 
 ## Environment
 Copy `.env.example` to `.env.local` and set `XAI_API_KEY`. Never commit real keys.
+Model cost limits (per-IP rate limit, daily cap, kill switch) are in [docs/OPERATIONS.md](docs/OPERATIONS.md#cost-protection-and-limits).
 
 ## Layout
 - `engine/` – deterministic game engine, Zod schemas (`types.ts`), server-only `solution.ts`, constants

@@ -6,7 +6,9 @@
 import { NextResponse } from "next/server";
 import { handleConfront } from "@/ai/confront-handler";
 import type { ConfrontResponseBody } from "@/ai/confront-schema";
+import { clientIp, createModelGate } from "@/ai/model-gate";
 import { resolveRequestCase } from "@/lib/request-case";
+import { runtimeKv } from "@/lib/runtime-kv";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -23,8 +25,13 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error);
-    const { status, body } = await handleConfront(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
-    return NextResponse.json<ConfrontResponseBody>(body, { status });
+    const { status, body } = await handleConfront(json, {
+      caseData: rc.caseData,
+      legacyCaseId: rc.legacyCaseId,
+      gate: createModelGate({ kv: runtimeKv, ip: clientIp(request.headers) }),
+    });
+    const retryAfter = body.unavailable?.retryAfter;
+    return NextResponse.json<ConfrontResponseBody>(body, { status, ...(retryAfter ? { headers: { "retry-after": String(retryAfter) } } : {}) });
   } catch (e) {
     console.error("[confront] failed:", (e as Error).name);
     return fail(500, "internal_error");

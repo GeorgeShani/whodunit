@@ -8,11 +8,18 @@
  * and never an accusation that anything is broken. "busy" is a moment's hesitation; "quiet" is a longer lull.
  */
 export type ModelDownKind = "busy" | "quiet";
+/**
+ * Why no reply came: the model hesitated ("busy") or is out for a while ("quiet"), the per-player rate limit
+ * ("breather", see ai/model-gate.ts), or this exact state was already answered ("answered", a duplicate request).
+ */
+export type UnavailableKind = ModelDownKind | "breather" | "answered";
 
 export interface Unavailable {
-  kind: ModelDownKind;
+  kind: UnavailableKind;
   /** Narrator line for the log. */
   line: string;
+  /** Seconds before asking again can succeed ("breather" only). */
+  retryAfter?: number;
 }
 
 const first = (name: string) => name.trim().split(/\s+/)[0] || "They";
@@ -36,6 +43,38 @@ export function modelDownLine(kind: ModelDownKind, characterName: string, seed =
 
 export function unavailable(kind: ModelDownKind, characterName: string, seed = 0): Unavailable {
   return { kind, line: modelDownLine(kind, characterName, seed) };
+}
+
+const minutes = (seconds: number) => {
+  const m = Math.max(1, Math.ceil(seconds / 60));
+  return m === 1 ? "a minute" : `${m} minutes`;
+};
+
+/** The per-player rate limit (HTTP 429): nothing was spent; ask again after `retryAfter` seconds. */
+export function breatherLine(characterName: string, retryAfterSec: number): string {
+  return `${first(characterName)} needs a breather, detective. Give them ${minutes(retryAfterSec)}, then ask again.`;
+}
+
+export function confrontBreatherLine(a: string, b: string, retryAfterSec: number): string {
+  return `${first(a)} and ${first(b)} need a breather, detective. Give them ${minutes(retryAfterSec)}, then put it to them again.`;
+}
+
+/** A duplicate of a request already answered (HTTP 409): the client is handed the newest state. */
+export function answeredLine(characterName: string): string {
+  return `${first(characterName)} gives you an odd look: "I've only just answered that, detective." Your notes are up to date now; ask again if you wish.`;
+}
+
+/** Read an `unavailable` object from a response body (unknown kinds read as "busy"). */
+export function parseUnavailable(u: unknown): Unavailable | null {
+  const o = u as { kind?: unknown; line?: unknown; retryAfter?: unknown } | null;
+  if (!o || typeof o.line !== "string") return null;
+  const kind: UnavailableKind = o.kind === "quiet" || o.kind === "breather" || o.kind === "answered" ? o.kind : "busy";
+  return { kind, line: o.line, ...(typeof o.retryAfter === "number" && o.retryAfter > 0 ? { retryAfter: o.retryAfter } : {}) };
+}
+
+/** The narrator line to show for an `unavailable` reply; a repeated "busy"/"quiet" gets the shorter follow-up. */
+export function downLineFor(u: Unavailable, isRetry: boolean): string {
+  return isRetry && (u.kind === "busy" || u.kind === "quiet") ? stillDownLine(u.kind) : u.line;
 }
 
 /** Shown instead of repeating the first line when the player has asked again and it still did not go through. */
