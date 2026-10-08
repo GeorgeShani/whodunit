@@ -9,15 +9,15 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext, type CharacterContext } from "@/engine/context-builder";
 import { guiltProfile } from "@/engine/core-guilt";
 import { commitTurn, planTurn, type PresentMove, type TurnPlan } from "@/engine/interrogation";
-import { isOutburst, stressBand, type StressReading } from "@/engine/stress";
+import { stressBand, type StressReading } from "@/engine/stress";
 import { publicTestimonies } from "@/engine/testimony";
 import type { GameState } from "@/engine/types";
 import { cannedCharacterResponse } from "./canned-responses";
 import { fixArticles } from "./text-fixes";
-import { canonTimes, checkTimes, findModernWord } from "./canon-check";
-import { checkOrder } from "./order-check";
-import { findGuiltLeak, guiltDeflection, guiltRetryNote } from "./guilt-check";
-import { addressesWrongPerson, repeatsEarlier, variedConfrontationFallback } from "./confront-check";
+import { canonTimes } from "./canon-check";
+import { findGuiltLeak } from "./guilt-check";
+import { checkReply, CONTRACT_REASONS, logReject, safeDeflection, type GuardInput, type GuardVerdict } from "./guard";
+import { variedConfrontationFallback } from "./confront-check";
 import { callGrok, isModelDown, isQuotaFailure, type GrokFailure, type GrokResult } from "./grok";
 import type { ModelDownKind } from "./model-down";
 import type { Contradiction } from "./interrogate-schema";
@@ -65,8 +65,22 @@ export interface TurnUnavailable {
 
 export const isTurnUnavailable = (o: TurnOutput | TurnUnavailable): o is TurnUnavailable => "unavailable" in o;
 
-export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavailable> {
-  const { caseData, game, characterId, question, move = {}, env } = t;
+/** Everything the model sees for one turn, and the contract its reply is checked against. Mutates `game` (planTurn). */
+export interface PreparedTurn {
+  plan: TurnPlan;
+  ctx: CharacterContext;
+  directives: TurnDirectives;
+  system: string;
+  user: string;
+  guard: GuardInput;
+}
+
+/**
+ * Plan the turn and build the exact prompt (shared by performTurn, scripts/audit-prompts and scripts/eval-ai, so the
+ * audit and the eval see the real thing). Mutates `game` the way planTurn does.
+ */
+export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel">): PreparedTurn {
+  const { caseData, game, characterId, question, move = {} } = t;
   const { presentedEvidenceId, presentedTestimonyId } = move;
   const plan = planTurn(caseData, game, characterId, { ...move, playerText: question, addressed: t.confrontation?.role !== "reacting" });
   const ch = caseData.characters.find((c) => c.id === characterId)!;
@@ -92,41 +106,36 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
   ctx.statements = ctx.statements.map(scrub);
   const system = buildSystemPrompt(ctx, directives);
   const user = t.userMessage ? t.userMessage(ctx) : buildUserMessage(ctx, question, t.confrontation ? { partnerName: t.confrontation.partnerName } : {});
-  if (!t.skipModel) t.onPrompt?.({ system, user });
   // Canon post-check (#6): every clock time must come from this character's context (or what was just said to them).
   const heard = [question, t.confrontation?.partnerLine ?? ""].join(" ");
-  const allowed = canonTimes(ctx, directives, heard);
-  let guiltRejected = false;
-  const validate = (r: { dialogue: string; action?: string; admitsKilling?: boolean }) => {
-    const said = `${r.dialogue} ${r.action ?? ""}`;
-    // Core guilt first (Agatha's rule): a line admitting the killing is never accepted, whatever else it gets right.
-    const leak = findGuiltLeak(r.dialogue, guilt, characterId) ?? (r.admitsKilling === true ? { kind: "killing" as const, text: r.dialogue } : null);
-    guiltRejected = leak !== null;
-    if (leak) return guiltRetryNote(leak, caseData.victim.name);
-    const res = checkTimes(said, allowed);
-    if (!res.ok) {
-      return `You stated a time you do not know (${res.offending.map((x) => `"${x}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir"). Do not work out a clock time yourself: if it is not listed, say it relative to a listed event ("a couple of minutes after the candles").`;
-    }
-    // Order of events (#26): "from after the lights went out till the candles" must fit when this person really moved.
-    const order = checkOrder(said, ctx);
-    if (!order.ok) {
-      return `You described when something happened in a way that contradicts the order of events (${order.offending.map((x) => `"${x}"`).join(", ")}). ${order.hint ?? ""} Use the clock times from WHAT YOU KNOW, or one landmark from THE EVENING IN ORDER exactly as listed.`;
-    }
-    // Confrontation hygiene (#27): no repeated sentences, and nobody but the partner is addressed.
-    if (t.confrontation) {
-      const again = repeatsEarlier(r.dialogue, ctx);
-      if (again) return `You already said almost exactly this earlier in the conversation: "${again}". Do NOT repeat it or reword it lightly. Answer ${t.confrontation.partnerName}'s last point first, then say something NEW (a different fact, angle or reaction).`;
-      const wrong = addressesWrongPerson(r.dialogue, ctx, t.confrontation.partnerName);
-      if (wrong) return `You addressed "${wrong}" but you are face to face with ${t.confrontation.partnerName}. Speak only to ${t.confrontation.partnerName} (and the detective).`;
-    }
-    // Breakdown turns must actually read as an outburst (performance only; the engine already decided it).
-    if (directives.breakdown && !isOutburst(r.dialogue)) {
-      return "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.";
-    }
-    const modern = findModernWord(said, heard);
-    return modern
-      ? `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`
-      : null;
+  const guard: GuardInput = {
+    caseData,
+    characterId,
+    ctx,
+    directives,
+    guilt,
+    allowedTimes: canonTimes(ctx, directives, heard),
+    heard,
+    promptText: `${system}\n${user}`,
+    ...(t.confrontation ? { confrontation: t.confrontation } : {}),
+  };
+  return { plan, ctx, directives, system, user, guard };
+}
+
+export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavailable> {
+  const { caseData, game, characterId, question, move = {}, env } = t;
+  const { presentedEvidenceId, presentedTestimonyId } = move;
+  const { plan, ctx, system, user, guard } = prepareTurn(t);
+  const ch = caseData.characters.find((c) => c.id === characterId)!;
+  if (!t.skipModel) t.onPrompt?.({ system, user });
+  // The output contract (ai/guard.ts): every attempt is checked; each rejection is logged as one JSON line.
+  let attempt = 0;
+  let lastReject: GuardVerdict | null = null;
+  const validate = (r: { dialogue: string; action?: string; admits?: string[] }) => {
+    attempt += 1;
+    lastReject = checkReply(r, guard);
+    if (lastReject) logReject({ gameId: game.gameId, characterId, reason: lastReject.reason, attempt, detail: lastReject.detail });
+    return lastReject?.note ?? null;
   };
   // skipModel: the cost gate (ai/model-gate.ts) has the model switched off; behave exactly as if the call had failed.
   const grok: GrokResult = t.skipModel
@@ -138,8 +147,8 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
   if (grok.ok) {
     source = "model";
     // The model may only react to the clue shown THIS turn.
-    const { admitsKilling: _flag, ...reply } = grok.response;
-    void _flag;
+    const { admits: _admits, ...reply } = grok.response;
+    void _admits;
     response = { ...reply, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
   } else if (isModelDown(grok.reason) && !(plan.newlyExposedLieIds.length > 0 && (presentedEvidenceId || presentedTestimonyId))) {
     // Model out of reach: no improvised line, nothing committed (stress, trust, turn count, reveals all stay as they were).
@@ -150,11 +159,12 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     // a clue/testimony that the ENGINE has just proved a lie: that contradiction beat does not need the model, so it is shown.
     source = "fallback";
     response = cannedCharacterResponse(ctx, question, presentedEvidenceId, game.turn);
-    if (!grok.ok && grok.reason === "canon_check_failed" && guiltRejected) {
-      // The model leaked the murder twice: a stonewall in character, no third call.
-      const d = guiltDeflection(ctx.state.stress, game.turn);
+    const rejected = lastReject as GuardVerdict | null;
+    if (!grok.ok && grok.reason === "canon_check_failed" && rejected && CONTRACT_REASONS.has(rejected.reason)) {
+      // The model broke the output contract twice (a guilt leak, an unlocked secret, an invented person): a safe
+      // deflection keyed to the character and their stress, no third call.
+      const d = safeDeflection(ctx, rejected.reason, game.turn);
       response = { ...response, dialogue: d.dialogue, action: d.action, emotion: d.emotion, intensity: 0.6 };
-      console.warn(`[turn] guilt leak rejected twice character=${characterId}`);
     } else if (t.confrontation && !presentedEvidenceId) {
       // Face to face the generic one-on-one lines read oddly and repeat: pick a varied line aimed at the partner (#27).
       const v = variedConfrontationFallback(ctx, t.confrontation.partnerName, game.turn);

@@ -132,13 +132,13 @@ describe("George's live-play bug: Archibald's card made Victoria confess the mur
     expect(gameOf(c, r.body.stateToken).characters.victoria.revealedSecretIds).toEqual(["s-victoria-new-will"]);
   });
 
-  it("the model's own admitsKilling flag also rejects a line; it is in the json_schema and never reaches the client", async () => {
-    expect(CHARACTER_RESPONSE_JSON_SCHEMA.required).toContain("admitsKilling");
-    const { calls } = mockGrok({ content: goodReply({ dialogue: "You'll never understand what that night cost me.", admitsKilling: true }) }, { content: goodReply({ dialogue: "I have nothing to add.", admitsKilling: false }) });
+  it('the model\'s own admits: ["killing"] also rejects a line; admits is in the json_schema and never reaches the client', async () => {
+    expect(CHARACTER_RESPONSE_JSON_SCHEMA.required).toContain("admits");
+    const { calls } = mockGrok({ content: goodReply({ dialogue: "You'll never understand what that night cost me.", admits: ["killing"] }) }, { content: goodReply({ dialogue: "I have nothing to add.", admits: [] }) });
     const r = await handleInterrogate({ characterId: "victoria", question: "Did you do it?" }, { caseData: c, env: TEST_ENV });
     expect(calls).toHaveLength(2);
     expect(r.body.source).toBe("model");
-    expect(r.body.response).not.toHaveProperty("admitsKilling");
+    expect(r.body.response).not.toHaveProperty("admits");
   });
 
   it("an innocent's false confession is rejected too", async () => {

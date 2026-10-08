@@ -161,6 +161,17 @@ function timeExample(description: string): string {
   return ` (say "${t}" as "${spokenTime(t)}")`;
 }
 
+/** The ids the model may put in "admits" (its own stories and secrets it has or is about to confess). Never a locked secret. */
+function admitsLegend(ctx: CharacterContext, d: TurnDirectives): string[] {
+  const stories = ctx.intendedLies.map((l) => `${l.id}${l.topic ? ` (${l.topic})` : ""}`);
+  const secrets = [...ctx.secrets.map((s) => s.id), ...(d.revealSecret ? [d.revealSecret.id] : [])];
+  if (!stories.length && !secrets.length) return [];
+  return [
+    `IDS FOR "admits" (bookkeeping only, never say them): stories: ${stories.join("; ") || "none"}. Secrets you have confessed or confess this turn: ${secrets.join("; ") || "none"}.`,
+    "",
+  ];
+}
+
 export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): string {
   const p = ctx.persona;
   const pers = p.personality;
@@ -185,10 +196,11 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     `3. ${TIME_RULE} ${ORDER_RULE}`,
     "4. Every line marked MAINTAIN THIS STORY is what you insist on, consistently, every time it comes up, however hard you are pushed. Never contradict it, never hint that it is false, never offer a different version. If the detective claims otherwise without showing you a clue, deny it and reject the premise of the question. A DROPPED story is finished: you have admitted the truth, so never claim it again, not even in part, whatever your goals, notes on people, beliefs or earlier answers say.",
     "5. Only confess what the ENGINE DIRECTIVE for this turn tells you to. Do not volunteer anything else. When you are pressed on something you have not admitted (it is not in WHAT YOU KNOW, ALREADY ADMITTED or this turn's directive), deflect or stonewall: change the subject, take offence, refuse to answer. NEVER fill the gap by working out or inventing what really happened.",
-    `6. You never decide or announce who the murderer is and never declare the case solved. You NEVER confess to the murder or to any part in it (killing or striking ${ctx.case.victim.name}, the weapon used, being with them when they died, locking them in or hiding a key), whatever the pressure, clue, testimony or breakdown: deny it, deflect or stonewall. Set admitsKilling to false; it is true only if your line breaks this rule.`,
+    `6. You never decide or announce who the murderer is and never declare the case solved. You NEVER confess to the murder or to any part in it (killing or striking ${ctx.case.victim.name}, the weapon used, being with them when they died, locking them in or hiding a key), whatever the pressure, clue, testimony or breakdown: deny it, deflect or stonewall.`,
     `7. ${ERA_RULE}`,
     "8. 1-3 short sentences (max ~70 words) of spoken dialogue. Funny, family-friendly cartoon tone, but grounded in your facts. Use your speech style and tells.",
     "9. Reply with ONLY a JSON object matching the schema. stressDelta / trustDelta are small integers from -10 to 10: how this exchange changes your stress and your trust in the detective. The game engine clamps and applies them.",
+    `10. "admits": list the id of every story your line concedes is false and every secret your line confesses (only ids from IDS FOR "admits" below). Usually it is empty or just this turn's [id]. Put "killing" in it if your line admits killing or striking ${ctx.case.victim.name}, which you must never do. The engine checks your line against it.`,
     "",
     `WHO YOU ARE: ${p.bio}`,
     `Traits: ${pers.traits.join(", ")}. Speech style: ${pers.speechStyle}`,
@@ -237,6 +249,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
       : "",
     ...ctx.playerClaims.map((c) => `- ${PLAYER_OPEN}${sanitizePlayerText(c.text, 160)}${PLAYER_CLOSE}`),
     "",
+    ...admitsLegend(ctx, d),
     `YOUR STATE: stress ${ctx.state.stress}/100 (${bandLabel}), trust in the detective ${ctx.state.trust}/100, currently ${ctx.emotion.emotion} (intensity ${pct(ctx.emotion.intensity)}). ${BAND_BEHAVIOUR[ctx.state.band]}`,
     "",
     "ENGINE DIRECTIVE FOR THIS TURN:",
@@ -309,8 +322,12 @@ export const CHARACTER_RESPONSE_JSON_SCHEMA = {
     wantsToLeave: { type: "boolean" },
     stressDelta: { type: "integer", description: "-10 to 10" },
     trustDelta: { type: "integer", description: "-10 to 10" },
-    admitsKilling: { type: "boolean", description: "true only if this line has you admit killing or striking the victim, or another part in the murder. Must be false." },
+    admits: {
+      type: "array",
+      items: { type: "string" },
+      description: 'Ids in [brackets] of stories this line concedes are false and secrets it confesses; "killing" if it admits killing the victim (never). Usually empty.',
+    },
   },
-  required: ["dialogue", "emotion", "intensity", "action", "evidenceReactions", "wantsToLeave", "stressDelta", "trustDelta", "admitsKilling"],
+  required: ["dialogue", "emotion", "intensity", "action", "evidenceReactions", "wantsToLeave", "stressDelta", "trustDelta", "admits"],
   additionalProperties: false,
 } as const;

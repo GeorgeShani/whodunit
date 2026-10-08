@@ -43,10 +43,11 @@ export const CharacterResponseSchema = z.strictObject({
   stressDelta: z.number().finite().default(0),
   trustDelta: z.number().finite().default(0),
   /**
-   * The model's own flag that the line admits the killing (ai/guilt-check.ts). Never trusted to decide anything:
-   * true only makes the engine REJECT the line (retry once, then a canned deflection).
+   * OUTPUT CONTRACT (ai/guard.ts): the model's own list of what the line concedes (lie / secret ids from its prompt,
+   * or "killing"). Never trusted to decide anything: it can only make the engine REJECT a line (retry once, then a
+   * safe deflection). A dishonest list is still caught by the deterministic post-checks. Never sent to the client.
    */
-  admitsKilling: z.boolean().optional(),
+  admits: z.array(z.string().max(80)).max(12).optional(),
 });
 export type CharacterResponse = z.infer<typeof CharacterResponseSchema>;
 
