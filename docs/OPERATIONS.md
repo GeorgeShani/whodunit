@@ -24,3 +24,18 @@ Where it is stored, and how it fails:
 - The counters live in the **Vercel Runtime Cache** (`lib/runtime-kv.ts`) plus an in-process copy. The cache is **per region and best effort**: it has no atomic increment, entries can be evicted, and exactly simultaneous requests can slip a few turns past a limit.
 - **Both limits fail OPEN** if the cache cannot be read (logged as `[model-gate] ... fail open`). The per-IP limit is a courtesy, and failing closed on the daily cap would silence every suspect for every player whenever the cache hiccups. The in-process copy still counts on a warm instance.
 - The real money backstop is the **spending limit on the xAI team** (console.x.ai). Keep one set; the in-app limits keep normal abuse well below it.
+
+### One model turn per game state (#40)
+
+The state token is stateless, so the same token sent twice (in parallel or replayed) would buy two model turns and step past
+the confrontation caps. `ai/turn-lock.ts` claims "game id + the token's turn counter" before the gate and the model:
+
+| Situation | Response | Model call |
+| --- | --- | --- |
+| Same state already in flight | HTTP 409 `in_flight`, "*X is still answering your last question, detective.*", the token the client sent | none |
+| Same state already answered (within **24 h**) | HTTP 409 `already_answered`, "*I've only just answered that, detective.*", plus the **newest** token that answer produced | none |
+| The turn was not answered (model unavailable, rate limited, an exception) | the claim is released at once, so AGAIN with the same token works | — |
+
+An in-flight claim left by a crashed function expires after **90 s**. A brand-new game (no token) is not claimed. Same caveats as
+above: concurrent requests on one instance are caught exactly (a synchronous in-process check); across instances a
+write-then-read-back check narrows the race; a region change or cache eviction forgets a claim. A cache error fails open.

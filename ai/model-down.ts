@@ -64,6 +64,11 @@ export function answeredLine(characterName: string): string {
   return `${first(characterName)} gives you an odd look: "I've only just answered that, detective." Your notes are up to date now; ask again if you wish.`;
 }
 
+/** A duplicate of a request that is still being answered (HTTP 409). */
+export function stillAnsweringLine(characterName: string): string {
+  return `${first(characterName)} is still answering your last question, detective. One thing at a time.`;
+}
+
 /** Read an `unavailable` object from a response body (unknown kinds read as "busy"). */
 export function parseUnavailable(u: unknown): Unavailable | null {
   const o = u as { kind?: unknown; line?: unknown; retryAfter?: unknown } | null;

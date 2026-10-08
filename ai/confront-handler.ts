@@ -21,6 +21,9 @@ import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { ConfrontRequestSchema, type ConfrontLine, type ConfrontResponseBody } from "./confront-schema";
 import { isTurnUnavailable, performTurn } from "./perform-turn";
 import { confrontBreatherLine, confrontDownLine } from "./model-down";
+import { claimTurn } from "./turn-lock";
+import type { KvStore } from "@/lib/runtime-kv";
+import { ensureGameId } from "@/engine/state-token";
 import type { ModelGate } from "./model-gate";
 import { buildUserMessage } from "./prompts/interrogation";
 
@@ -33,7 +36,14 @@ export interface ConfrontDeps {
   onPrompt?: (p: { system: string; user: string; characterId: string }) => void;
   /** Cost protection (ai/model-gate.ts). Absent = unlimited (tests, scripts). */
   gate?: ModelGate;
+  /** One model turn per pre-turn state (#40, ai/turn-lock.ts). Absent = no duplicate check. */
+  claims?: KvStore;
 }
+
+const pairNames = (a: string, b: string) => `${a.trim().split(/\s+/)[0]} and ${b.trim().split(/\s+/)[0]}`;
+export const confrontAnsweredLine = (a: string, b: string) =>
+  `${pairNames(a, b)} exchange a look: they have only just answered that, detective. Your notes are up to date now; put it to them again if you wish.`;
+export const confrontInFlightLine = (a: string, b: string) => `${pairNames(a, b)} are still at it over your last question, detective. One thing at a time.`;
 
 /** Model turns per confrontation exchange (A answers, B reacts). */
 export const CONFRONT_MODEL_TURNS = 2;
@@ -84,91 +94,107 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
   const gate = openConfrontation(game, aId, bId);
   if (!gate.ok) return { status: gate.reason === "same_character" ? 400 : 409, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
 
-  // Cost protection, before anything is spent: an exchange is two model turns (ai/model-gate.ts).
-  const pass = deps.gate ? await deps.gate.open(CONFRONT_MODEL_TURNS) : null;
-  if (pass && !pass.ok && pass.reason === "rate_limited") {
-    const line = confrontBreatherLine(a.name, b.name, pass.retryAfterSec);
-    return { status: 429, body: base({ lines: [], line, unavailable: { kind: "breather", line, retryAfter: pass.retryAfterSec }, error: pass.reason, stateToken: heldToken }) };
-  }
-  // Daily cap or kill switch: both turns run without the model (the "quiet" line; nothing is spent).
-  const offline = pass && !pass.ok ? pass.reason : null;
-  const skip = offline ? { skipModel: "quota" as const } : {};
-  let called = false;
-  const exchange = async (): Promise<{ status: number; body: ConfrontResponseBody }> => {
-    // Face-to-face pressure (engine rule), before either side's reveal is decided.
-    for (const id of [aId, bId]) game.characters[id].stress = clampStress(game.characters[id].stress + CONFRONTATION_PRESSURE);
-    relieveBystanders(game, [aId, bId]);
-    const thrown = testimonyToThrow(caseData, game, aId, bId);
-    const thrownCard = thrown ? publicTestimonies(caseData, game).find((t) => t.id === thrown) : undefined;
-    const onPrompt = (id: string) => (deps.onPrompt ? (p: { system: string; user: string }) => deps.onPrompt!({ ...p, characterId: id }) : undefined);
+  const gatedExchange = async (): Promise<{ status: number; body: ConfrontResponseBody }> => {
+    // Cost protection, before anything is spent: an exchange is two model turns (ai/model-gate.ts).
+    const pass = deps.gate ? await deps.gate.open(CONFRONT_MODEL_TURNS) : null;
+    if (pass && !pass.ok && pass.reason === "rate_limited") {
+      const line = confrontBreatherLine(a.name, b.name, pass.retryAfterSec);
+      return { status: 429, body: base({ lines: [], line, unavailable: { kind: "breather", line, retryAfter: pass.retryAfterSec }, error: pass.reason, stateToken: heldToken }) };
+    }
+    // Daily cap or kill switch: both turns run without the model (the "quiet" line; nothing is spent).
+    const offline = pass && !pass.ok ? pass.reason : null;
+    const skip = offline ? { skipModel: "quota" as const } : {};
+    let called = false;
+    const exchange = async (): Promise<{ status: number; body: ConfrontResponseBody }> => {
+      // Face-to-face pressure (engine rule), before either side's reveal is decided.
+      for (const id of [aId, bId]) game.characters[id].stress = clampStress(game.characters[id].stress + CONFRONTATION_PRESSURE);
+      relieveBystanders(game, [aId, bId]);
+      const thrown = testimonyToThrow(caseData, game, aId, bId);
+      const thrownCard = thrown ? publicTestimonies(caseData, game).find((t) => t.id === thrown) : undefined;
+      const onPrompt = (id: string) => (deps.onPrompt ? (p: { system: string; user: string }) => deps.onPrompt!({ ...p, characterId: id }) : undefined);
 
-    // Face-to-face pressure was applied to the in-memory game above; if the model cannot answer it is all thrown away.
-    const down = (kind: "busy" | "quiet", reason: string): { status: number; body: ConfrontResponseBody } => ({
-      status: 503,
-      body: base({ lines: [], line: confrontDownLine(kind, a.name, b.name), unavailable: { kind, line: confrontDownLine(kind, a.name, b.name) }, error: offline ?? reason, stateToken: heldToken }),
-    });
+      // Face-to-face pressure was applied to the in-memory game above; if the model cannot answer it is all thrown away.
+      const down = (kind: "busy" | "quiet", reason: string): { status: number; body: ConfrontResponseBody } => ({
+        status: 503,
+        body: base({ lines: [], line: confrontDownLine(kind, a.name, b.name), unavailable: { kind, line: confrontDownLine(kind, a.name, b.name) }, error: offline ?? reason, stateToken: heldToken }),
+      });
 
-    // 1. A answers the detective, in front of B.
-    const first = await performTurn({
-      caseData,
-      game,
-      characterId: aId,
-      question,
-      move: { ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) },
-      confrontation: { partnerName: b.name, role: "addressed", ...(thrownCard ? { throwTestimony: { summary: thrownCard.summary } } : {}) },
-      memoryText: `(Face to face with ${b.name}) ${question}`,
-      env,
-      ...skip,
-      ...(onPrompt(aId) ? { onPrompt: onPrompt(aId) } : {}),
-    });
-    called ||= first.grok.attempts > 0;
+      // 1. A answers the detective, in front of B.
+      const first = await performTurn({
+        caseData,
+        game,
+        characterId: aId,
+        question,
+        move: { ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) },
+        confrontation: { partnerName: b.name, role: "addressed", ...(thrownCard ? { throwTestimony: { summary: thrownCard.summary } } : {}) },
+        memoryText: `(Face to face with ${b.name}) ${question}`,
+        env,
+        ...skip,
+        ...(onPrompt(aId) ? { onPrompt: onPrompt(aId) } : {}),
+      });
+      called ||= first.grok.attempts > 0;
 
-    if (isTurnUnavailable(first)) return down(first.kind, first.reason);
+      if (isTurnUnavailable(first)) return down(first.kind, first.reason);
 
-    // 2. B reacts to A. If A threw an admission, the engine counts it as presented to B.
-    const aLine = first.response.dialogue;
-    const second = await performTurn({
-      caseData,
-      game,
-      characterId: bId,
-      question,
-      ...(thrown ? { move: { presentedTestimonyId: thrown } } : {}),
-      confrontation: { partnerName: a.name, role: "reacting", partnerLine: aLine },
-      memoryText: `(Face to face with ${a.name}) The detective asked ${a.name}: "${question}" ${a.name} said: "${aLine}"`,
-      userMessage: (ctx) =>
-        buildUserMessage(ctx, question, { partnerName: a.name })
-          .replace("THE DETECTIVE NOW SAYS:", `THE DETECTIVE, questioning ${a.name} in front of you, says:`)
-          .replace(`Respond as ${ctx.persona.name}`, `${a.name} answered (see the directive). Now react to ${a.name} as ${ctx.persona.name}`),
-      env,
-      ...skip,
-      ...(onPrompt(bId) ? { onPrompt: onPrompt(bId) } : {}),
-    });
-    called ||= second.grok.attempts > 0;
+      // 2. B reacts to A. If A threw an admission, the engine counts it as presented to B.
+      const aLine = first.response.dialogue;
+      const second = await performTurn({
+        caseData,
+        game,
+        characterId: bId,
+        question,
+        ...(thrown ? { move: { presentedTestimonyId: thrown } } : {}),
+        confrontation: { partnerName: a.name, role: "reacting", partnerLine: aLine },
+        memoryText: `(Face to face with ${a.name}) The detective asked ${a.name}: "${question}" ${a.name} said: "${aLine}"`,
+        userMessage: (ctx) =>
+          buildUserMessage(ctx, question, { partnerName: a.name })
+            .replace("THE DETECTIVE NOW SAYS:", `THE DETECTIVE, questioning ${a.name} in front of you, says:`)
+            .replace(`Respond as ${ctx.persona.name}`, `${a.name} answered (see the directive). Now react to ${a.name} as ${ctx.persona.name}`),
+        env,
+        ...skip,
+        ...(onPrompt(bId) ? { onPrompt: onPrompt(bId) } : {}),
+      });
+      called ||= second.grok.attempts > 0;
 
-    if (isTurnUnavailable(second)) return down(second.kind, second.reason);
+      if (isTurnUnavailable(second)) return down(second.kind, second.reason);
 
-    const spent = spendExchange(game);
-    const line = (id: string, name: string, t: typeof first): ConfrontLine => ({
-      characterId: id,
-      characterName: name,
-      response: t.response,
-      source: t.source,
-      stress: t.stress,
-      ...(t.contradiction ? { contradiction: t.contradiction } : {}),
-    });
-    return {
-      status: 200,
-      body: base({
-        lines: [line(aId, a.name, first), line(bId, b.name, second)],
-        confrontation: { characterIds: [aId, bId], turnsUsed: spent.turnsUsed, max: MAX_CONFRONTATION_TURNS, over: spent.over, totalLeft: spent.totalLeft },
-        stateToken: saveSession(game, env),
-        testimonies: publicTestimonies(caseData, game),
-      }),
+      const spent = spendExchange(game);
+      const line = (id: string, name: string, t: typeof first): ConfrontLine => ({
+        characterId: id,
+        characterName: name,
+        response: t.response,
+        source: t.source,
+        stress: t.stress,
+        ...(t.contradiction ? { contradiction: t.contradiction } : {}),
+      });
+      return {
+        status: 200,
+        body: base({
+          lines: [line(aId, a.name, first), line(bId, b.name, second)],
+          confrontation: { characterIds: [aId, bId], turnsUsed: spent.turnsUsed, max: MAX_CONFRONTATION_TURNS, over: spent.over, totalLeft: spent.totalLeft },
+          stateToken: saveSession(game, env),
+          testimonies: publicTestimonies(caseData, game),
+        }),
+      };
     };
+    try {
+      return await exchange();
+    } finally {
+      if (pass?.ok) await pass.settle({ called });
+    }
   };
+
+  // #40: this exact state may be spent on the model once (claimed before the gate, so a duplicate costs nothing).
+  const held = deps.claims && stateToken && !notice ? await claimTurn(deps.claims, ensureGameId(game), game.turn) : null;
+  if (held && !held.ok) {
+    const line = held.state === "answered" ? confrontAnsweredLine(a.name, b.name) : confrontInFlightLine(a.name, b.name);
+    return { status: 409, body: { lines: [], line, unavailable: { kind: "answered", line }, error: held.state === "answered" ? "already_answered" : "in_flight", stateToken: held.latestToken ?? heldToken } };
+  }
   try {
-    return await exchange();
+    const r = await gatedExchange();
+    if (r.status === 200 && r.body.stateToken && held?.ok) await held.answered(r.body.stateToken);
+    return r;
   } finally {
-    if (pass?.ok) await pass.settle({ called });
+    if (held?.ok) await held.release(); // no-op once answered
   }
 }

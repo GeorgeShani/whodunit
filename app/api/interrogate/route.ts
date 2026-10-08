@@ -36,6 +36,7 @@ export async function POST(request: Request) {
       caseData: rc.caseData,
       legacyCaseId: rc.legacyCaseId,
       gate: createModelGate({ kv: runtimeKv, ip: clientIp(request.headers) }),
+      claims: runtimeKv,
     });
     const retryAfter = body.unavailable?.retryAfter;
     return NextResponse.json<InterrogateResponseBody>(body, { status, ...(retryAfter ? { headers: { "retry-after": String(retryAfter) } } : {}) });

@@ -16,8 +16,11 @@ import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSessi
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
 import { isTurnUnavailable, performTurn } from "./perform-turn";
-import { breatherLine, unavailable, type Unavailable } from "./model-down";
+import { answeredLine, breatherLine, stillAnsweringLine, unavailable, type Unavailable } from "./model-down";
 import type { ModelGate } from "./model-gate";
+import { claimTurn } from "./turn-lock";
+import type { KvStore } from "@/lib/runtime-kv";
+import { ensureGameId } from "@/engine/state-token";
 import { InterrogateRequestSchema, type InterrogateResponseBody } from "./interrogate-schema";
 import { createFallbackCharacterResponse } from "./schemas";
 
@@ -41,6 +44,8 @@ export interface HandlerDeps {
   onPrompt?: (p: { system: string; user: string }) => void;
   /** Cost protection (ai/model-gate.ts): kill switch, per-IP limit, daily cap. Absent = unlimited (tests, scripts). */
   gate?: ModelGate;
+  /** One model turn per pre-turn state (#40, ai/turn-lock.ts). Absent = no duplicate check (tests, scripts). */
+  claims?: KvStore;
 }
 
 /** The per-IP limit refused the turn: HTTP 429, nothing spent, the token is unchanged. */
@@ -115,66 +120,90 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
   const heldToken = notice ? unchangedToken() : (stateToken ?? unchangedToken());
   const name = caseData.characters.find((c) => c.id === characterId)?.name ?? "They";
 
-  // Cost protection, before anything is spent: one model turn (ai/model-gate.ts).
-  const pass = deps.gate ? await deps.gate.open(1) : null;
-  if (pass && !pass.ok && pass.reason === "rate_limited") {
+  // #40: this exact state may be spent on the model once. A duplicate (parallel or replayed) costs nothing.
+  const held = deps.claims && stateToken && !notice ? await claimTurn(deps.claims, ensureGameId(game), game.turn) : null;
+  if (held && !held.ok) {
     return {
-      status: 429,
-      body: withNotice({ response: createFallbackCharacterResponse({ seed: game.turn }), source: "unavailable", unavailable: breather(pass, name), stateToken: heldToken, error: pass.reason }),
-      diag: { reason: pass.reason },
-    };
-  }
-  // Daily cap or kill switch: the turn runs WITHOUT the model, exactly as if credits were out (the "quiet" line,
-  // nothing spent), so the engine's deterministic contradiction beat still lands.
-  const offline = pass && !pass.ok ? pass.reason : null;
-  let called = true;
-  let turn: Awaited<ReturnType<typeof performTurn>>;
-  try {
-    turn = await performTurn({
-      caseData,
-      game,
-      characterId,
-      question,
-      move: { presentedEvidenceId, presentedTestimonyId },
-      env,
-      ...(offline ? { skipModel: "quota" as const } : {}),
-      ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
-    });
-    called = turn.grok.attempts > 0;
-  } finally {
-    if (pass?.ok) await pass.settle({ called });
-  }
-
-  if (isTurnUnavailable(turn)) {
-    // The model is out of reach: say so in character, spend nothing, hand back the state the client already holds.
-    const { response: _r, ...down } = turn.grok as GrokResult & { response?: unknown };
-    void _r;
-    return {
-      status: 503,
-      body: withNotice({
+      status: 409,
+      body: {
         response: createFallbackCharacterResponse({ seed: game.turn }),
         source: "unavailable",
-        unavailable: unavailable(turn.kind, name, game.turn),
-        stateToken: heldToken,
-        error: offline ?? turn.reason,
-      }),
-      diag: { grok: down as Omit<GrokResult, "response">, reason: offline ?? "model_unavailable" },
+        unavailable: { kind: "answered", line: held.state === "answered" ? answeredLine(name) : stillAnsweringLine(name) },
+        stateToken: held.latestToken ?? heldToken,
+        error: held.state === "answered" ? "already_answered" : "in_flight",
+      },
+      diag: { reason: "duplicate_turn" },
     };
   }
-  const { response, source, grok, revealed, stress, contradiction } = turn;
-  const { response: _drop, ...grokDiag } = grok as GrokResult & { response?: unknown };
-  void _drop;
-  return {
-    status: 200,
-    body: withNotice({
-      response,
-      source,
-      stateToken: saveSession(game, env),
-      testimonies: publicTestimonies(caseData, game),
-      stress,
-      ...(contradiction ? { contradiction } : {}),
-      ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
-    }),
-    diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed },
+  const runTurn = async (): Promise<HandlerResult> => {
+    // Cost protection, before anything is spent: one model turn (ai/model-gate.ts).
+    const pass = deps.gate ? await deps.gate.open(1) : null;
+    if (pass && !pass.ok && pass.reason === "rate_limited") {
+      return {
+        status: 429,
+        body: withNotice({ response: createFallbackCharacterResponse({ seed: game.turn }), source: "unavailable", unavailable: breather(pass, name), stateToken: heldToken, error: pass.reason }),
+        diag: { reason: pass.reason },
+      };
+    }
+    // Daily cap or kill switch: the turn runs WITHOUT the model, exactly as if credits were out (the "quiet" line,
+    // nothing spent), so the engine's deterministic contradiction beat still lands.
+    const offline = pass && !pass.ok ? pass.reason : null;
+    let called = true;
+    let turn: Awaited<ReturnType<typeof performTurn>>;
+    try {
+      turn = await performTurn({
+        caseData,
+        game,
+        characterId,
+        question,
+        move: { presentedEvidenceId, presentedTestimonyId },
+        env,
+        ...(offline ? { skipModel: "quota" as const } : {}),
+        ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
+      });
+      called = turn.grok.attempts > 0;
+    } finally {
+      if (pass?.ok) await pass.settle({ called });
+    }
+
+    if (isTurnUnavailable(turn)) {
+      // The model is out of reach: say so in character, spend nothing, hand back the state the client already holds.
+      const { response: _r, ...down } = turn.grok as GrokResult & { response?: unknown };
+      void _r;
+      return {
+        status: 503,
+        body: withNotice({
+          response: createFallbackCharacterResponse({ seed: game.turn }),
+          source: "unavailable",
+          unavailable: unavailable(turn.kind, name, game.turn),
+          stateToken: heldToken,
+          error: offline ?? turn.reason,
+        }),
+        diag: { grok: down as Omit<GrokResult, "response">, reason: offline ?? "model_unavailable" },
+      };
+    }
+    const { response, source, grok, revealed, stress, contradiction } = turn;
+    const { response: _drop, ...grokDiag } = grok as GrokResult & { response?: unknown };
+    void _drop;
+    return {
+      status: 200,
+      body: withNotice({
+        response,
+        source,
+        stateToken: saveSession(game, env),
+        testimonies: publicTestimonies(caseData, game),
+        stress,
+        ...(contradiction ? { contradiction } : {}),
+        ...(source === "fallback" ? { error: grok.ok ? undefined : grok.reason } : {}),
+      }),
+      diag: { grok: grokDiag as Omit<GrokResult, "response">, revealed },
+    };
   };
+  try {
+    const r = await runTurn();
+    if (r.status === 200 && r.body.stateToken && held?.ok) await held.answered(r.body.stateToken);
+    return r;
+  } finally {
+    if (held?.ok) await held.release(); // no-op once answered
+  }
 }
