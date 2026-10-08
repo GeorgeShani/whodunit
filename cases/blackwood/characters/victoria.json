@@ -36,6 +36,37 @@
     "empathy": 0.15,
     "aggression": 0.45
   },
+  "voice": {
+    "openers": [
+      "How perfectly tiresome.",
+      "Heavens, the things you think to ask.",
+      "And here I thought we were getting on so nicely.",
+      "Well, really.",
+      "Ah. That again.",
+      "Detective, please,",
+      "One does so hate to be dull, but",
+      "Such a curious little mind you have."
+    ],
+    "actions": [
+      "swoons onto the chaise, peeks to see whether anyone noticed, then swoons again with more feeling",
+      "adjusts her pearls one by one, as if counting them for thieves",
+      "fans herself so briskly with a gloved hand that her earrings jingle like sleigh bells",
+      "laughs a half-beat too long, then stops dead as though someone has pulled a cord",
+      "sinks into an armchair and arranges her gown into a perfect tragic heap",
+      "presses the back of her wrist to her brow and waits for sympathy that never arrives",
+      "inspects her reflection in a teaspoon and tidies a curl that was already perfect",
+      "sighs so deeply that the curtains stir"
+    ],
+    "deflections": [
+      "What a peculiar thing to ask a widow on the worst night of her life.",
+      "You must forgive me; my nerves are in tatters and I cannot think in straight lines tonight.",
+      "I shall answer that when you have learned to ask it more kindly.",
+      "Do you know, I believe I shall leave that question exactly where you found it.",
+      "How very modern of you to ask, and how very old-fashioned of me to decline.",
+      "I fear I have quite lost the thread, and I am not inclined to go looking for it.",
+      "I cannot imagine what earthly use my answer would be to anyone."
+    ]
+  },
   "goals": [
     "Keep the Blackwood fortune and her place as lady of the manor",
     "Come out of tonight with her good name untouched",

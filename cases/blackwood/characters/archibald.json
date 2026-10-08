@@ -33,6 +33,37 @@
     "empathy": 0.2,
     "aggression": 0.75
   },
+  "voice": {
+    "openers": [
+      "Poppycock!",
+      "Of all the blasted cheek—",
+      "Hah! Let me tell you something,",
+      "Confound it, man,",
+      "Bless my soul, not this again.",
+      "Steady on, steady on.",
+      "You want it straight? Here it is:",
+      "Listen to me, young fellow,"
+    ],
+    "actions": [
+      "goes beetroot red from the collar up, like a thermometer on a hot day",
+      "bites clean through his cigar and stares at the stub as though it has betrayed him",
+      "mops his brow with a handkerchief the size of a tablecloth",
+      "checks his pocket watch, shakes it, and holds it to his ear as if it has been telling him fibs",
+      "puffs out his chest until a waistcoat button pings off and ricochets round the room",
+      "jabs the air with his unlit cigar like a bandmaster at a brass band",
+      "slaps the arm of his chair so hard that he startles himself",
+      "harrumphs loudly enough to rattle the teacups"
+    ],
+    "deflections": [
+      "That's a damned impertinent question, and you'll get no answer to it from me.",
+      "I'm a busy man, and I don't intend to waste good breath on that.",
+      "Put it in writing and I'll have my clerk lose it for you.",
+      "I don't care for your tone, and I care even less for your question.",
+      "You can take that question, fold it up small and put it back in your pocket.",
+      "I've been asked more questions tonight than a man in the dock, and that one can wait.",
+      "Ha! Next question, and make it a better one."
+    ]
+  },
   "goals": [
     "Protect his name and his seat on the board",
     "Wriggle out of any blame for his outburst at dinner",
