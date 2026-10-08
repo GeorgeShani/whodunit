@@ -27,7 +27,8 @@ let c: LoadedCase;
 beforeAll(async () => {
   c = structuredClone(await loadCase("blackwood"));
   for (const ch of c.characters) for (const l of ch.intendedLies) if (SUGGESTED_BREAKS[l.id]) l.breaksOnSecretIds = SUGGESTED_BREAKS[l.id];
-  for (const ch of c.characters) for (const s of ch.secrets) s.testimonySummary = `summary of ${s.id}`;
+  // Core-guilt secrets never become cards, so they get no summary (the validator warns on one).
+  for (const ch of c.characters) for (const s of ch.secrets) if (!s.coreGuilt) s.testimonySummary = `summary of ${s.id}`;
 });
 
 function turn(g: GameState, who: string, move: { presentedEvidenceId?: string; presentedTestimonyId?: string }) {

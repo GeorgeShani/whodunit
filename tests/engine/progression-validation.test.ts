@@ -30,7 +30,8 @@ describe("the progress-light fixture", () => {
   it("simulation reaches everything", () => {
     const s = simulate(base);
     expect(s.game.discoveredEvidenceIds.sort()).toEqual(["brass-spyglass", "oil-can", "wet-logbook"]);
-    expect(s.game.revealedSecretIds).toEqual(expect.arrayContaining(["marlow-secret", "marlow-saw-quill", "quill-secret"]));
+    expect(s.game.revealedSecretIds).toEqual(expect.arrayContaining(["marlow-secret", "marlow-saw-quill"]));
+    expect(s.game.revealedSecretIds).not.toContain("quill-secret"); // the murderer's core guilt (derived) never reveals
     expect(s.unlockedLocationIds.sort()).toEqual(["dock", "galley", "lamp-room"]);
   });
   it("the other shipped cases do not use progression (no behaviour change); Blackwood does, with a 10-action fastest path", async () => {

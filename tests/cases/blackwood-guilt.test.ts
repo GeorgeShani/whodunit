@@ -136,7 +136,11 @@ describe("Victoria never confesses the murder in interrogation", () => {
   it("the core-guilt secrets can never reveal, and no secret the engine can reveal lists a murder-window fact", () => {
     const v = c.characters.find((x) => x.id === "victoria")!;
     for (const s of v.secrets) {
-      if (s.id === "s-victoria-murder" || s.id === "s-victoria-locked-door") expect(s.revealConditions, s.id).toBeUndefined();
+      if (s.id === "s-victoria-murder" || s.id === "s-victoria-locked-door") {
+        expect(s.coreGuilt, s.id).toBe(true);
+        expect(s.revealConditions, s.id).toBeUndefined();
+        expect(s.testimonySummary, s.id).toBeUndefined();
+      }
       else for (const id of s.relatedFactIds) expect(MURDER_WINDOW, `${s.id}: ${id}`).not.toContain(id);
     }
     for (const id of MURDER_WINDOW) {

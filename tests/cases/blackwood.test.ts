@@ -10,6 +10,7 @@ import { resolve } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadCase, validateCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
+import { coreGuiltFactIds } from "@/engine/core-guilt";
 import { knowledgeGate } from "@/engine/knowledge-gate";
 import { shouldRevealSecret } from "@/engine/secrets";
 import { isLieBroken } from "@/engine/testimony";
@@ -413,14 +414,17 @@ describe("Blackwood knowledge gating (QA #6, #7)", () => {
     }
   });
 
-  it("revealing the secrets releases the facts again (each is gated by a real, reachable secret)", () => {
+  it("revealing the secrets releases the facts again (each is gated by a real, reachable secret), except core guilt", () => {
     for (const ch of c.characters) {
       const gate = knowledgeGate(c, ch, {
         evidenceShownIds: c.evidence.map((e) => e.id),
         revealedSecretIds: ch.secrets.map((s) => s.id),
         testimonyShownIds: c.characters.flatMap((x) => x.secrets.filter((s) => s.testimonySummary).map((s) => s.id)),
       });
-      expect(ch.knownFactIds.filter((id) => gate.withheldFactIds.has(id)), ch.id).toEqual([]);
+      // The culprit's core-guilt facts (engine/core-guilt.ts) stay withheld whatever the token says.
+      const core = coreGuiltFactIds(c, ch);
+      expect(ch.knownFactIds.filter((id) => gate.withheldFactIds.has(id) && !core.has(id)), ch.id).toEqual([]);
+      if (ch.id === "victoria") expect([...core].filter((id) => ch.knownFactIds.includes(id)).every((id) => gate.withheldFactIds.has(id))).toBe(true);
     }
   });
 

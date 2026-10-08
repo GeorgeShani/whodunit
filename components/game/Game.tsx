@@ -15,7 +15,7 @@ import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
-import { confrontDownLine, stillDownLine, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
+import { confrontDownLine, downLineFor, parseUnavailable, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
 import { getAudio } from "@/components/effects/audio";
 import { bedForScreen, bedFadeMs, heartbeatFor } from "@/components/effects/audio-scenes";
 import { replySfx } from "@/components/effects/emotion-map";
@@ -77,11 +77,12 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
       body: JSON.stringify(req),
     });
     const json = (await res.json()) as { response?: unknown; stateToken?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown };
-    if (json?.unavailable && typeof json.unavailable.line === "string") {
-      // Model out of reach: nothing was spent. Keep the token the server handed back (it is the one we sent).
+    const down = parseUnavailable(json?.unavailable);
+    if (down) {
+      // No reply (model out of reach, rate limit, duplicate): nothing was spent. Keep the token the server handed back.
       return {
         response: createFallbackCharacterResponse({ seed }),
-        unavailable: { kind: json.unavailable.kind === "quiet" ? "quiet" : "busy", line: json.unavailable.line },
+        unavailable: down,
         ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
         ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
         ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
@@ -136,8 +137,11 @@ async function confront(req: ConfrontRequest, names: [string, string]): Promise<
     const res = await timedFetch("/api/confront", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
     const j = (await res.json()) as ConfrontResponseBody;
     const lines = Array.isArray(j.lines) ? j.lines.filter((l) => CharacterResponseSchema.safeParse(l.response).success) : [];
-    if (res.status >= 500 && !j.unavailable && !lines.length) return busy();
-    return { ...j, lines };
+    const down = parseUnavailable(j.unavailable);
+    if (res.status >= 500 && !down && !lines.length) return busy();
+    const { unavailable: _u, ...rest } = j;
+    void _u;
+    return { ...rest, lines, ...(down ? { unavailable: down } : {}) };
   } catch {
     return busy();
   }
@@ -407,7 +411,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             push(characterId, { speaker: "narrator", text: notice });
           }
           applyProgress(prog);
-          push(characterId, { speaker: "narrator", text: isRetry ? stillDownLine(down.kind) : down.line });
+          push(characterId, { speaker: "narrator", text: downLineFor(down, isRetry) });
           setRetry({ logKey: characterId, run: () => askAsRef.current(characterId, { question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}), ...(presentedTestimonyId ? { presentedTestimonyId } : {}) }, true) });
           inFlight.current = false;
           setPendingId(null);
@@ -487,7 +491,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             push(logKey, { speaker: "narrator", text: r.notice });
           }
           applyProgress(r.progress);
-          push(logKey, { speaker: "narrator", text: isRetry ? stillDownLine(r.unavailable.kind) : r.unavailable.line });
+          push(logKey, { speaker: "narrator", text: downLineFor(r.unavailable, isRetry) });
           setRetry({ logKey, run: () => onConfrontAskRef.current(addressedId, question, item, true) });
           inFlight.current = false;
           setPendingId(null);

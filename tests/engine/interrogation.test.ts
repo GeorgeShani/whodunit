@@ -56,11 +56,12 @@ describe("planTurn", () => {
     expect(next.revealSecretId).toBe("s-reginald-overheard");
   });
 
-  it("the murderer never confesses in interrogation: every clue, stress 100 and the prior cracks still reveal no core-guilt secret", () => {
+  it("the murderer's confession is core guilt: never revealed, even with all three clues, stress 100 and its prerequisites", () => {
     const g = createInitialGameState(c);
     const v = g.characters.victoria;
     v.stress = 100;
-    v.evidenceShownIds = ["silver-candlestick", "library-key", "burned-letter", "muddy-footprint"];
+    v.evidenceShownIds = ["silver-candlestick", "library-key", "burned-letter"];
+    expect(planTurn(c, g, "victoria").revealSecretId).not.toBe("s-victoria-murder");
     v.revealedSecretIds = ["s-victoria-left-dining", "s-victoria-new-will"];
     expect(planTurn(c, g, "victoria").revealSecretId).toBeNull();
   });

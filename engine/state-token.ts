@@ -15,6 +15,10 @@
  * Without either env var a fixed dev-only key is used (fine locally, NOT
  * tamper-proof). The key material is never logged or returned.
  *
+ * Age (#39): every token carries `iat` (issued-at, seconds) and is refused as "expired" once it is older than
+ * STATE_TOKEN_MAX_AGE_MS (7 days), so a saved token can only be replayed for a week. Tokens issued before `iat`
+ * existed are accepted until LEGACY_TOKEN_GRACE_UNTIL, then expire too.
+ *
  * Known limit: tokens are not bound to a session, so a player can replay an
  * OLDER token of their own (e.g. to undo stress). That is harmless for a
  * single-player game: they can only reach states the server itself issued.
@@ -69,7 +73,14 @@ const TokenCharacterSchema = z.strictObject({
   playerClaims: z.array(PlayerClaimSchema).max(STATE_LIMITS.claimsPerCharacter).default([]),
 });
 
+/** A token older than this is refused ("this case file has gone cold"). Every save re-stamps it. */
+export const STATE_TOKEN_MAX_AGE_MS = 7 * 24 * 3600 * 1000;
+/** Tokens without `iat` (issued before 2026-10-08) are accepted until this instant (UTC). */
+export const LEGACY_TOKEN_GRACE_UNTIL = Date.UTC(2026, 9, 15);
+
 const TokenPayloadSchema = z.strictObject({
+  /** Issued at, seconds since the epoch (absent in older tokens). */
+  iat: z.number().int().nonnegative().optional(),
   /** Optional only for legacy tokens; decode maps a missing id to options.legacyCaseId. */
   caseId: CaseIdSchema.optional(),
   /** Random id of this game (absent in older tokens: derived from the token). */
@@ -162,6 +173,7 @@ const clip = (s: string) => (s.length > STATE_LIMITS.textChars ? s.slice(0, STAT
 function toPayload(game: GameState, env?: Env): TokenPayload {
   const liesTold = Object.fromEntries(Object.entries(game.characters).filter(([, r]) => r.liesToldIds.length).map(([id, r]) => [id, [...r.liesToldIds]]));
   return {
+    iat: Math.floor(Date.now() / 1000),
     caseId: game.caseId,
     gameId: ensureGameId(game),
     turn: game.turn,
@@ -209,7 +221,7 @@ export function encodeStateToken(game: GameState, env?: Env): string {
 
 export type DecodeResult =
   | { ok: true; game: GameState }
-  | { ok: false; reason: "missing" | "malformed" | "bad_signature" | "invalid_payload" | "wrong_case" };
+  | { ok: false; reason: "missing" | "malformed" | "bad_signature" | "invalid_payload" | "wrong_case" | "expired" };
 
 /**
  * Verify + decode a token against the loaded case. On any failure the caller
@@ -218,6 +230,11 @@ export type DecodeResult =
 export interface DecodeOptions {
   /** Case assumed for legacy tokens signed before caseId was part of the payload. */
   legacyCaseId?: string;
+}
+
+/** Too old to play on: older than the max age, or a pre-`iat` token after the grace period. */
+export function isExpired(iatSeconds: number | undefined, nowMs: number): boolean {
+  return iatSeconds === undefined ? nowMs >= LEGACY_TOKEN_GRACE_UNTIL : nowMs - iatSeconds * 1000 > STATE_TOKEN_MAX_AGE_MS;
 }
 
 /** Verify the signature and parse the payload (no case checks). */
@@ -256,6 +273,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   if (!v.ok) return v;
   const p = v.p;
   if ((p.caseId ?? options.legacyCaseId) !== caseData.id) return { ok: false, reason: "wrong_case" };
+  if (isExpired(p.iat, Date.now())) return { ok: false, reason: "expired" };
 
   // Defence in depth: every id must still exist in the case (case edits between deploys).
   const evidence = new Set(caseData.evidence.map((e) => e.id));

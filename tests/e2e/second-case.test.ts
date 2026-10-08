@@ -75,7 +75,7 @@ describe("second case: harbor-light", () => {
     expect(g.searchedLocationIds).toEqual(["galley"]);
   });
 
-  it("the murderer's story holds until the weapon is found, then the lie breaks and the secret is revealed", async () => {
+  it("the murderer's story holds until the weapon is found, then the lie breaks, but her core-guilt secret is never revealed", async () => {
     // Before: the truth is gated; the prompt only has the story.
     const locked = buildCharacterContext({ caseData: hl, game: createInitialGameState(hl) }, "keeper-quill");
     expect(JSON.stringify(locked)).not.toContain("HL_GUILTY");
@@ -90,10 +90,13 @@ describe("second case: harbor-light", () => {
     mockGrok({ content: goodReply({ dialogue: "Fine! I took it down to the dock to throw it in.", emotion: "panicked" }) });
     const r = await interrogate(hl, { characterId: "keeper-quill", question: "Explain the spyglass.", presentedEvidenceId: "brass-spyglass", stateToken: dock.body.stateToken });
     const g = stateOf(hl, r.body.stateToken);
-    expect(g.characters["keeper-quill"].revealedSecretIds).toEqual(["quill-secret"]);
+    // quill-secret covers the murder minute (quill-strikes), so it is core guilt by derivation (engine/core-guilt.ts):
+    // the lie is exposed, nothing is confessed, and the guilty facts stay out of the prompt.
+    expect(g.characters["keeper-quill"].revealedSecretIds).toEqual([]);
     const after = buildCharacterContext({ caseData: hl, game: g }, "keeper-quill");
     expect(after.intendedLies[0].status).toBe("exposed");
-    expect(after.secrets.map((s) => s.id)).toEqual(["quill-secret"]);
+    expect(after.secrets).toEqual([]);
+    expect(JSON.stringify(after)).not.toContain("HL_GUILTY");
   });
 
   it("a token from one case never carries into another: it resets in character", async () => {

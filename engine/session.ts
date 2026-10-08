@@ -12,6 +12,10 @@ import type { GameState } from "./types";
 export const RESET_NOTICE =
   "A gust of wind blows the detective's notebook out of the window! The pages are gone. Best start the questioning afresh.";
 
+/** Narrator line when a token is older than the max age (#39): a fresh start, in character. */
+export const COLD_CASE_NOTICE =
+  "This case file has gone cold, detective. The household has scattered and the trail with it, so it's a fresh start: the same night, the same house, a clean notebook.";
+
 export interface RestoredSession {
   game: GameState;
   /** Set when a token was supplied but rejected (tampered, stale, other case). */
@@ -32,7 +36,8 @@ export function restoreSession(
   if (decoded.ok) return { game: decoded.game };
   const game = createInitialGameState(caseData);
   game.gameId = newGameId();
-  return decoded.reason === "missing" ? { game } : { game, notice: RESET_NOTICE, resetReason: decoded.reason };
+  if (decoded.reason === "missing") return { game };
+  return { game, notice: decoded.reason === "expired" ? COLD_CASE_NOTICE : RESET_NOTICE, resetReason: decoded.reason };
 }
 
 export function saveSession(game: GameState, env?: Env): string {

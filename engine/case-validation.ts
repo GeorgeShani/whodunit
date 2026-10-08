@@ -6,6 +6,7 @@ import type { LoadedCase } from "./case-schema";
 import { gameMinutes } from "./time";
 import type { TimelineEntry } from "./types";
 import { checkProgression, progressionWarnings } from "./progression-validation";
+import { coreGuiltSecretIds } from "./core-guilt";
 
 /**
  * Opportunity rule: some timeline entry with `locationId` = solution.locationId
@@ -144,6 +145,10 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     ch.secrets.forEach((s, j) => {
       const p = `secrets.${j}(${s.id})`;
       s.revealConditions?.evidenceIds.forEach((id, k) => ref(evidenceIds, "evidence", id, f, `${p}.revealConditions.evidenceIds.${k}`));
+      (s.revealConditions?.testimonyIds ?? []).forEach((id, k) => {
+        ref(allSecretIds, "secret", id, f, `${p}.revealConditions.testimonyIds.${k}`);
+        if (ownSecretIds.has(id)) issues.push({ file: f, path: `${p}.revealConditions.testimonyIds.${k}`, message: `"${id}" is ${ch.id}'s own secret; testimony comes from someone else (use afterSecretIds for ordering)` });
+      });
       s.revealConditions?.afterSecretIds.forEach((id, k) => {
         ref(ownSecretIds, "own secret", id, f, `${p}.revealConditions.afterSecretIds.${k}`);
         if (id === s.id) issues.push({ file: f, path: `${p}.revealConditions.afterSecretIds.${k}`, message: "a secret cannot depend on itself" });
@@ -247,13 +252,19 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   const secrets = new Map(c.characters.flatMap((ch) => ch.secrets.map((s) => [s.id, { s, owner: ch.id }] as const)));
 
   // Reachable secrets: fixpoint over reveal conditions (stress alone is always reachable) + afterSecretIds.
+  // Core guilt (engine/core-guilt.ts) is never revealed before the accusation, so it is never reachable here.
+  const core = coreGuiltSecretIds(c);
   const reachable = new Set<string>();
   for (let changed = true; changed; ) {
     changed = false;
     for (const [id, { s }] of secrets) {
-      if (reachable.has(id) || !s.revealConditions) continue;
+      if (reachable.has(id) || !s.revealConditions || core.has(id)) continue;
       const rc = s.revealConditions;
-      const conds = [...(rc.stressThreshold !== undefined ? [true] : []), ...rc.evidenceIds.map((e) => findable.has(e))];
+      const conds = [
+        ...(rc.stressThreshold !== undefined ? [true] : []),
+        ...rc.evidenceIds.map((e) => findable.has(e)),
+        ...(rc.testimonyIds ?? []).map((t) => reachable.has(t)),
+      ];
       const ok = (rc.mode === "all" ? conds.every(Boolean) : conds.some(Boolean)) && rc.afterSecretIds.every((a) => reachable.has(a));
       if (ok) {
         reachable.add(id);
@@ -274,6 +285,17 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
       if (seen.has(x)) continue;
       seen.add(x);
       stack.push(...(secrets.get(x)?.s.revealConditions?.afterSecretIds ?? []));
+    }
+  }
+
+  // Core guilt flagged in data: never revealable, so reveal rules, a testimony card or a win rule built on it are dead.
+  for (const ch of c.characters) {
+    for (const sec of ch.secrets) {
+      if (sec.coreGuilt !== true) continue;
+      const p = `secrets(${sec.id})`;
+      if (sec.revealConditions) warnings.push({ file: charFile(ch.id), path: `${p}.revealConditions`, message: "is coreGuilt, so it is never revealed in interrogation: these reveal conditions are ignored (remove them)" });
+      if (sec.testimonySummary) warnings.push({ file: charFile(ch.id), path: `${p}.testimonySummary`, message: "is coreGuilt, so it never becomes a testimony card: this summary is never shown" });
+      if (ch.id !== c.solution.murdererId) warnings.push({ file: charFile(ch.id), path: p, message: `is coreGuilt but ${ch.id} is not the solution's murderer (fine for an accomplice; check it is intended)` });
     }
   }
 

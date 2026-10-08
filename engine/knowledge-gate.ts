@@ -19,12 +19,16 @@
  *    withheld too (covers per-minute whereabouts entries not linked by id).
  *    `knowledgeGate: "explicit"` turns this layer off.
  *
+ * 4. Core guilt: the facts covered by the character's own core-guilt secrets
+ *    (engine/core-guilt.ts) are withheld always, overriding every rule above.
+ *
  * Beliefs about a withheld fact (or, in proximity mode, about a time-bound fact
  * inside a protected window) are withheld as well. The character keeps its
  * authored stories (intendedLies) to tell instead.
  */
 import type { LoadedCase } from "./case-schema";
 import { factRange } from "./case-validation";
+import { coreGuiltFactIds, coreGuiltSecretIds } from "./core-guilt";
 import { brokenLieIds, isLieBroken, type LieState } from "./testimony";
 import type { Character, CharacterRuntimeState, Fact } from "./types";
 
@@ -44,7 +48,7 @@ export interface KnowledgeGate {
 
 type GateState = Pick<CharacterRuntimeState, "evidenceShownIds" | "revealedSecretIds"> & Partial<Pick<CharacterRuntimeState, "testimonyShownIds">>;
 
-type GateCase = Pick<LoadedCase, "characters" | "facts" | "timeline" | "dayStartsAt"> & Partial<Pick<LoadedCase, "knowledgeGate">>;
+type GateCase = Pick<LoadedCase, "characters" | "facts" | "timeline" | "dayStartsAt"> & Partial<Pick<LoadedCase, "knowledgeGate" | "solution">>;
 
 /**
  * @param others runtime state of every character (to judge `hiddenUntil.lieIds` owned by someone else).
@@ -55,9 +59,11 @@ export function knowledgeGate(
   rt: GateState | undefined,
   others: Record<string, LieState | undefined> = {},
 ): KnowledgeGate {
-  const revealed = new Set(rt?.revealedSecretIds ?? []);
+  // Core guilt is never "revealed" for its owner before the accusation (legacy tokens may still list it).
+  const core = coreGuiltSecretIds(c);
+  const revealed = new Set((rt?.revealedSecretIds ?? []).filter((id) => !core.has(id)));
   const heard = new Set(rt?.testimonyShownIds ?? []);
-  const exposedLieIds = new Set(brokenLieIds(c, ch, rt));
+  const exposedLieIds = new Set(brokenLieIds(c, ch, rt && { ...rt, revealedSecretIds: [...revealed] }));
   const proximity = (c.knowledgeGate ?? "proximity") === "proximity";
 
   const allFacts: Fact[] = [...c.facts, ...c.timeline];
@@ -114,6 +120,10 @@ export function knowledgeGate(
     return r !== null && windows.some(([a, b]) => r[0] <= b && r[1] >= a);
   };
   for (const f of allFacts) if (f.involvesCharacterIds.includes(ch.id) && overlaps(f)) withheldFactIds.add(f.id);
+
+  // 4. Core guilt (engine/core-guilt.ts): what the owner's core-guilt secrets cover is withheld, full stop, even if an
+  //    explicit hiddenUntil unlocked it or another revealed secret lists it. A broken lie never unhides it either.
+  for (const id of coreGuiltFactIds(c, ch)) withheldFactIds.add(id);
 
   const withheldBeliefIds = new Set(
     ch.beliefs

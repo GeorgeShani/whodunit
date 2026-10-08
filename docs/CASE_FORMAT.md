@@ -201,13 +201,15 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
       "id": "s-reginald-theft", "description": "…", "severity": "embarrassing | serious | damning",
       "revealConditions": {                            // optional; omit = never auto-revealed
         "stressThreshold": 70,                         // 0–100, and/or…
-        "evidenceIds": ["burned-letter"],              // …evidence shown to this character
+        "evidenceIds": ["burned-letter"],              // …evidence shown to this character, and/or…
+        "testimonyIds": ["s-archibald-false-alibi"],   // …testimony cards (another character's secrets) presented to this character
         "mode": "any",                                 // "any" (default) or "all" of the listed conditions
         "afterSecretIds": []                           // own secrets that must be revealed first (ordering)
       },
       "relatedFactIds": [],
-      "testimonySummary": "Reginald heard Mr Crane on the servants' telephone during the blackout."
+      "testimonySummary": "Reginald heard Mr Crane on the servants' telephone during the blackout.",
                                                        // optional, PUBLIC once revealed: the notebook's testimony card
+      "coreGuilt": false                               // optional: true = the culprit's own guilt, NEVER revealed in interrogation (below)
     }
   ],
   "intendedLies": [                                    // optional authored cover stories
@@ -231,6 +233,10 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
 ```
 
 **Retiring a lie by confession (`supersededBySecretIds`).** A character who confesses a secret can't keep telling the story it contradicts (e.g. admitting "I was alone in the dining room" retires "Archibald and I were together"). List those secrets, which must be the lie owner's own (the validator rejects anyone else's), in `supersededBySecretIds`. When any of them is revealed, the lie counts as broken in that same turn, whatever the `breakMode`. The prompt then lists it under DROPPED STORIES and never as MAINTAIN THIS STORY, so the model is never told both to confess and to keep the lie. Retiring a lie adds no stress and doesn't trigger the contradiction beat, because no clue broke it.
+
+**Core guilt (`coreGuilt: true`).** The culprit's own guilt (the killing, the weapon used on the victim, being at the scene at the murder minute, locking the door or taking the key) is never confessed before the accusation; a win needs evidence and testimony, and the confession lives only in `endings.json`. Mark those secrets `coreGuilt: true` and give them no `revealConditions` and no `testimonySummary` (the validator warns about either). The engine (`engine/core-guilt.ts`) also treats as core guilt, as defence in depth, any secret of the solution's murderer whose `relatedFactIds` include a fact covering the murder minute (`solution.time`) that involves the murderer or is at the murder scene. Core guilt is never in the revealable set (interrogation, evidence, testimony, confrontation, breakdown), never becomes a testimony card, and its `relatedFactIds` stay out of the owner's prompt even if another revealed secret lists them. A lie can still be broken by a clue or a card when its truth is core guilt: it shows as a contradiction, nothing is revealed, and the character stonewalls. Every reply is also checked after generation (`ai/guilt-check.ts`): a first-person admission of the killing (anyone), or from the culprit the weapon, the door/key or the scene at the murder minute, is rejected, retried once, then replaced by an in-character deflection. A bare motive admission ("I knew about the will and burned the letter") is not core guilt.
+
+**One secret per exchange.** However many secrets are eligible, an exchange (a question, a presented clue or card, a breakdown, or both sides of a confrontation) reveals at most one: the lowest `severity` tier first (embarrassing, serious, damning), then authored order. The rest wait for later exchanges.
 
 ### Stress bands and breakdowns
 
@@ -325,7 +331,7 @@ Every field below is optional and strict; a case that uses none of them plays ex
 
 Engine behaviour: a locked room answers with its `lockedLine` and is not marked searched; `/api/accuse` recomputes the gate from the signed token and answers **403 `accuse_locked`** with the line of the first unmet item (clues, suspects, secrets, leads; the token is unchanged, the one accusation is not spent); cited `keyTestimonyIds` must be revealed (`testimony_not_revealed`); a win needs the right murderer, weapon and motive plus `minKeyEvidence` key clues and `minKeyTestimony` key testimony. Every route that returns a `stateToken` also returns `progress` (`leads` that are open/closed, `newLeadIds` = changed in this action, `lockedLocationIds`, `accuse: {unlocked, checklist {clues,suspects,secrets: {have,need}}, line?, citeTestimony}`); counts only, never which clue, who or why. A lead whose `closesWhen` holds before its `opensWhen` ever did (e.g. a hall search finds the clue first) still counts as closed for the gate and for `leadIds` atoms, but is never shown or announced: it stays out of `progress.leads` until its `opensWhen` holds (then it appears already solved, without a toast), and `newLeadIds` only carries hidden→open and open→closed. `requires`, `opensWhen`, `closesWhen` and `accuseGate` never leave the server.
 
-`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues and `afterSecretIds` only, stress-only counts as unreachable): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`. It prints the fastest legal path in actions (exact, breadth-first).
+`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues, testimony cards held and `afterSecretIds` only, stress-only counts as unreachable, core guilt never reveals): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`. It prints the fastest legal path in actions (exact, breadth-first).
 
 ## What the AI and the player can see
 

@@ -173,7 +173,8 @@
         "loc-victoria-2119",
         "loc-victoria-2120",
         "loc-victoria-2121"
-      ]
+      ],
+      "coreGuilt": true
     },
     {
       "id": "s-victoria-new-will",
@@ -211,7 +212,8 @@
         "loc-victoria-2117",
         "loc-victoria-2118",
         "loc-victoria-2119"
-      ]
+      ],
+      "coreGuilt": true
     }
   ],
   "relationships": [

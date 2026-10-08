@@ -304,7 +304,9 @@ export type Belief = z.infer<typeof BeliefSchema>;
 
 /**
  * When the ENGINE reveals a secret (never the model). Conditions are:
- * stress >= stressThreshold, and/or each evidence id having been shown.
+ * stress >= stressThreshold, each evidence id having been shown, and/or each
+ * testimony id (another character's revealed secret) having been presented to
+ * this character as testimony.
  * mode "any" = one condition suffices; "all" = every listed condition.
  * afterSecretIds are prerequisites that must already be revealed (ordering).
  */
@@ -312,11 +314,13 @@ export const RevealConditionsSchema = z
   .strictObject({
     stressThreshold: PercentSchema.optional(),
     evidenceIds: z.array(IdSchema).default([]),
+    /** Testimony cards (secret ids) that, once presented to this character, count as a condition. */
+    testimonyIds: z.array(IdSchema).optional(),
     mode: z.enum(["any", "all"]).default("any"),
     afterSecretIds: z.array(IdSchema).default([]),
   })
-  .refine((c) => c.stressThreshold !== undefined || c.evidenceIds.length > 0, {
-    message: "revealConditions needs a stressThreshold and/or evidenceIds",
+  .refine((c) => c.stressThreshold !== undefined || c.evidenceIds.length > 0 || (c.testimonyIds?.length ?? 0) > 0, {
+    message: "revealConditions needs a stressThreshold, evidenceIds and/or testimonyIds",
   });
 export type RevealConditions = z.infer<typeof RevealConditionsSchema>;
 
@@ -337,6 +341,17 @@ export const SecretSchema = z.strictObject({
    * the lamp went out."). Omitted: a generic "<Name> admitted something" card.
    */
   testimonySummary: NonEmptyText.max(240).optional(),
+  /**
+   * CORE GUILT: the culprit's own guilt (the killing, the weapon used, being at
+   * the scene at the murder minute, locking the door / taking the key, and the
+   * like). The engine NEVER reveals it during interrogation or confrontation,
+   * whatever the stress, breakdown, evidence or testimony; the confession lives
+   * only in endings.json after a correct accusation. Its relatedFactIds stay out
+   * of the owner's prompt even if another revealed secret lists them. The
+   * engine also derives core guilt from the solution (engine/core-guilt.ts) as
+   * defence in depth; this flag is the primary source.
+   */
+  coreGuilt: z.boolean().optional(),
 });
 export type Secret = z.infer<typeof SecretSchema>;
 

@@ -9,7 +9,9 @@ import { NextResponse } from "next/server";
 import { handleInterrogate } from "@/ai/interrogate-handler";
 import type { InterrogateResponseBody } from "@/ai/interrogate-schema";
 import { createFallbackCharacterResponse } from "@/ai/schemas";
+import { clientIp, createModelGate } from "@/ai/model-gate";
 import { resolveRequestCase } from "@/lib/request-case";
+import { runtimeKv } from "@/lib/runtime-kv";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -30,8 +32,14 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fallback(404, rc.error);
-    const { status, body } = await handleInterrogate(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
-    return NextResponse.json<InterrogateResponseBody>(body, { status });
+    const { status, body } = await handleInterrogate(json, {
+      caseData: rc.caseData,
+      legacyCaseId: rc.legacyCaseId,
+      gate: createModelGate({ kv: runtimeKv, ip: clientIp(request.headers) }),
+      claims: runtimeKv,
+    });
+    const retryAfter = body.unavailable?.retryAfter;
+    return NextResponse.json<InterrogateResponseBody>(body, { status, ...(retryAfter ? { headers: { "retry-after": String(retryAfter) } } : {}) });
   } catch (e) {
     console.error("[interrogate] failed:", (e as Error).name);
     return fallback(500, "internal_error");

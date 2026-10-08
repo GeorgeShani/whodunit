@@ -14,6 +14,7 @@
  */
 import type { LoadedCase } from "./case-schema";
 import { acceptsExplanation, extractClaims, mergeClaims, questionTouchesLie, RELIEF } from "./memory";
+import { coreGuiltSecretIds } from "./core-guilt";
 import { secretsToReveal } from "./secrets";
 import { BREAKDOWN_STRESS, escalateEmotion, POST_BREAKDOWN_STRESS } from "./stress";
 import { brokenLieIds, liesTouchedByTestimony, secretIndex } from "./testimony";
@@ -82,6 +83,8 @@ export interface PresentMove {
   playerText?: string;
   /** false for a confrontation partner who only overheard the line: no claims or acceptance relief for them. */
   addressed?: boolean;
+  /** false when another turn of the SAME exchange (the other side of a confrontation) already planned a reveal. */
+  allowReveal?: boolean;
 }
 
 /**
@@ -96,14 +99,18 @@ export function planTurn(
   characterId: string,
   move?: string | PresentMove,
 ): TurnPlan {
-  const { presentedEvidenceId, presentedTestimonyId, playerText = "", addressed = true }: PresentMove =
+  const { presentedEvidenceId, presentedTestimonyId, playerText = "", addressed = true, allowReveal = true }: PresentMove =
     typeof move === "string" ? { presentedEvidenceId: move } : (move ?? {});
   const ch = caseData.characters.find((c) => c.id === characterId);
   const rt = game.characters[characterId];
   if (!ch || !rt) throw new Error(`planTurn: unknown character "${characterId}"`);
   if (presentedEvidenceId && presentedTestimonyId) throw new Error("planTurn: present evidence OR testimony, not both");
 
-  const before = brokenLieIds(caseData, ch, rt);
+  // Core guilt (engine/core-guilt.ts) is never revealed before the accusation; a legacy token that already lists one
+  // counts it as unrevealed, so it can neither retire a lie nor be talked about.
+  const core = coreGuiltSecretIds(caseData);
+  const ownState = () => ({ ...rt, revealedSecretIds: rt.revealedSecretIds.filter((id) => !core.has(id)) });
+  const before = brokenLieIds(caseData, ch, ownState());
   let engineStressDelta = 0;
   let relief = 0;
   let reliefReason: TurnPlan["reliefReason"];
@@ -137,7 +144,7 @@ export function planTurn(
       engineStressDelta = STRESS_RULES.repeatEvidence;
     } else {
       rt.testimonyShownIds.push(presentedTestimonyId);
-      const nowBroken = brokenLieIds(caseData, ch, rt).filter((id) => !before.includes(id)).length;
+      const nowBroken = brokenLieIds(caseData, ch, ownState()).filter((id) => !before.includes(id)).length;
       const touches = liesTouchedByTestimony(caseData, ch, presentedTestimonyId).length > 0;
       // Same bump as evidence: per lie it breaks; a smaller nudge if it bears on a lie without breaking it yet.
       engineStressDelta = nowBroken * STRESS_RULES.lieBroken + (!nowBroken && touches ? STRESS_RULES.relatedEvidence : 0);
@@ -154,10 +161,12 @@ export function planTurn(
   relief = Math.min(relief, rt.stress);
   rt.stress = clamp(rt.stress - relief, 0, 100);
 
-  const brokenByMove = brokenLieIds(caseData, ch, rt);
-  // At most ONE new reveal per exchange (authored order, prerequisites respected): no cascades, no loops.
-  // A breakdown never unlocks anything by itself: reveals follow the authored conditions only.
-  const revealSecretId = secretsToReveal(ch.secrets, rt)[0] ?? null;
+  const own = ownState();
+  const brokenByMove = brokenLieIds(caseData, ch, own);
+  // At most ONE new reveal per exchange (lowest tier first, then authored order; prerequisites respected): no cascades,
+  // no loops. A breakdown never unlocks anything by itself: reveals follow the authored conditions only. A lie may be
+  // broken with nothing revealed (e.g. a card exposes a story whose truth is core guilt: she stonewalls).
+  const revealSecretId = allowReveal ? (secretsToReveal(ch.secrets, own, core)[0] ?? null) : null;
   // Same-turn retirement: lies superseded by the secret being confessed now count as exposed already.
   const retiredLieIds = revealSecretId
     ? ch.intendedLies.filter((l) => l.supersededBySecretIds.includes(revealSecretId) && !brokenByMove.includes(l.id)).map((l) => l.id)

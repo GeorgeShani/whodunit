@@ -98,18 +98,31 @@ describe("buildCharacterContext", () => {
     expect(ctx.intendedLies).toEqual([{ id: "alpha-lie", claim: "ALPHA_LIE: I never left the hall all evening.", status: "maintain", told: false }]);
   });
 
-  it("gives the murderer their guilty knowledge only once the engine has revealed the secret", () => {
+  it("never gives the murderer their core-guilt knowledge, even if a token lists the secret as revealed; the broken lie is stonewalled", () => {
     const state = makeState();
     state.game.characters.alpha.revealedSecretIds = ["alpha-secret"];
-    // The lie about the same fact must be broken too, or its truth stays withheld.
+    state.game.discoveredEvidenceIds.push("heavy-wrench");
+    state.game.characters.alpha.evidenceShownIds = ["heavy-wrench"];
+    const ctx = buildCharacterContext(state, "alpha");
+    // alpha-secret covers the murder minute (21:00) and alpha is the murderer: core guilt by derivation (engine/core-guilt.ts).
+    expect(JSON.stringify(ctx)).not.toContain("ALPHA_GUILTY_FACT");
+    expect(ctx.secrets).toEqual([]);
+    expect(ctx.intendedLies[0]).toMatchObject({ status: "exposed", stonewall: true });
+    // Knowledge from timeline carries provenance.
+    expect(ctx.knowledge.find((k) => k.id === "dinner-served")).toMatchObject({ time: "20:00", location: "Hall", source: "canonical", confidence: 1 });
+  });
+
+  it("a revealed NON-core secret does give its owner the facts behind it (secret shape stays engine-free)", () => {
+    const state = makeState();
+    // Same fixture, but the solution names someone else, so alpha-secret is no longer core guilt.
+    state.caseData = { ...state.caseData, solution: { ...state.caseData.solution, murdererId: "bravo" } };
+    state.game.characters.alpha.revealedSecretIds = ["alpha-secret"];
     state.game.discoveredEvidenceIds.push("heavy-wrench");
     state.game.characters.alpha.evidenceShownIds = ["heavy-wrench"];
     const ctx = buildCharacterContext(state, "alpha");
     expect(JSON.stringify(ctx)).toContain("ALPHA_GUILTY_FACT");
     expect(ctx.secrets[0].description).toContain("ALPHA_SECRET");
-    // Secret conditions are engine-only.
     expect(Object.keys(ctx.secrets[0]).sort()).toEqual(["description", "id", "revealed", "severity"]);
-    // Knowledge from timeline carries provenance.
     expect(ctx.knowledge.find((k) => k.id === "alpha-struck-victim")).toMatchObject({ time: "21:00", location: "Study", source: "canonical", confidence: 1 });
     expect(ctx.intendedLies[0].status).toBe("exposed");
     expect(buildCharacterContext(makeState(), "alpha").secrets).toEqual([]);
