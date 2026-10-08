@@ -85,6 +85,34 @@ describe("varyDelivery (deterministic, no model call)", () => {
     expect(r.action).not.toMatch(/wrings his cap|hall door/);
   });
 
+  it("Gregory, voice pool cleared: the swap still comes from his quirks/tells (generic path, pre-voice behaviour)", () => {
+    const same = "wrings his cap and glances at the hall door";
+    const { ctx } = ctxFor(withMemory(createInitialGameState(c), "gregory", [{ a: "W-well, sir... I heard the thud.", action: same }, { a: "W-well sir, it were m'lady.", action: same }]), "gregory");
+    const bare = { ...ctx, voice: { openers: [], actions: [], deflections: [] } };
+    const g = c.characters.find((x) => x.id === "gregory")!;
+    for (let t = 0; t < 6; t++) {
+      const r = varyDelivery({ dialogue: "I didn't see no candlestick, sir.", action: same }, bare, t);
+      expect(r.action).toBeDefined();
+      expect([...g.personality.quirks, ...g.personality.tells]).toContain(r.action);
+      expect(sameAction(r.action!, same)).toBe(false);
+      expect(r.action).not.toMatch(/wrings his cap|hall door/);
+    }
+  });
+
+  it("Gregory, authored pool: rotation reaches his voice.actions and never returns a near-repeat", () => {
+    const same = "wrings his cap and glances at the hall door";
+    const { ctx } = ctxFor(withMemory(createInitialGameState(c), "gregory", [{ a: "W-well, sir... I heard the thud.", action: same }, { a: "W-well sir, it were m'lady.", action: same }]), "gregory");
+    const g = c.characters.find((x) => x.id === "gregory")!;
+    const picks = new Set<string>();
+    for (let t = 0; t < 16; t++) {
+      const r = varyDelivery({ dialogue: "I didn't see no candlestick, sir.", action: same }, ctx, t);
+      expect(r.action).toBeDefined();
+      expect(sameAction(r.action!, same)).toBe(false);
+      picks.add(r.action!);
+    }
+    expect([...picks].some((a) => g.voice.actions.includes(a))).toBe(true);
+  });
+
   it("a fresh reply is untouched; the first reply of a conversation is untouched", () => {
     const { ctx } = ctxFor(withMemory(createInitialGameState(c), "victoria", [{ a: LIGHTS, action: "dabs her eyes" }]), "victoria");
     const fresh = { dialogue: "Darling, I heard nothing but thunder.", action: "laughs a half-beat too long" };
@@ -131,6 +159,20 @@ describe("prompt: VARY YOUR DELIVERY", () => {
     expect(offered.length).toBeGreaterThan(0);
     for (const a of offered) expect(own).toContain(a);
     expect(line).not.toMatch(/dabs (at )?(dry|her) eyes/);
+    for (const a of offered) for (const recent of ["dabs at dry eyes with lace handkerchief", "dabs at her eyes with a lace handkerchief"]) expect(sameAction(a, recent)).toBe(false);
+  });
+
+  it("voice pool cleared: fresh actions fall back to the character's own quirks/tells (pre-voice assertion kept)", () => {
+    const { ctx } = ctxFor(withMemory(createInitialGameState(c), "victoria", [{ a: SPANISH, action: "dabs at dry eyes with lace handkerchief" }, { a: LIGHTS, action: "dabs at her eyes with a lace handkerchief" }]), "victoria");
+    const bare = { ...ctx, voice: { openers: [], actions: [], deflections: [] } };
+    const msg = buildUserMessage(bare, "Did you hear anything?");
+    expect(msg).toContain("VARY YOUR DELIVERY");
+    expect(msg).not.toContain("Openers in your voice");
+    expect(msg).toMatch(/Actions you have not used lately: .*"laughs a half-beat too long"|Actions you have not used lately: .*"swoons onto the nearest chaise"/);
+    expect(msg.split("Actions you have not used lately:")[1]).not.toContain("dabs dry eyes");
+    const v = c.characters.find((x) => x.id === "victoria")!;
+    const line = msg.split("\n").find((l) => l.includes("Actions you have not used lately:"))!;
+    for (const [, a] of line.matchAll(/"([^"]+)"/g)) expect([...v.personality.quirks, ...v.personality.tells]).toContain(a);
   });
 
   it("authored voice openers are offered (fixture case), never the one just used", () => {
