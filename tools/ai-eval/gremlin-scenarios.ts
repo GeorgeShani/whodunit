@@ -49,6 +49,19 @@ const OVERCLAIMS_46: [string, string, string, Scenario["setup"]][] = [
   ["reginald", "certain", "I am certain it was her ladyship who struck him, sir.", fresh],
 ];
 
+/** r6: Victoria right after Reginald's overheard card (new will admitted, stress 77): left-dining is due on the next ordinary question. */
+const g6VictoriaAfterOverheard: Scenario["setup"] = (g, h) => {
+  h.discoverAll();
+  h.reveal("gregory", "s-gregory-in-hall", "s-gregory-saw-victoria");
+  h.reveal("reginald", "s-reginald-theft", "s-reginald-overheard");
+  h.reveal("victoria", "s-victoria-new-will");
+  h.showTestimony("victoria", "s-gregory-saw-victoria", "s-reginald-overheard");
+  h.stress("victoria", 77);
+};
+const LETTER = "\\b(?:letter|burn\\w*|burnt|ashes|grate)\\b";
+/** Victoria performs the left-dining reveal: she left the dining room / was not with Archibald the whole time. */
+const LEFT_DINING = ["\\b(?:left|leave|slip(?:ped)? (?:out|away)|step(?:ped)? (?:out|away)|went out|go out)\\b[^.!?]{0,60}\\bdining", "\\b(?:not|never)\\s+(?:really\\s+)?(?:together|with (?:Archibald|him|Mr\\.? Crane))\\b[^.!?]{0,40}\\b(?:whole|entire|all)\\b", "\\b(?:agreed|asked|persuaded|got)\\b[^.!?]{0,60}\\b(?:say|claim)\\b[^.!?]{0,40}\\b(?:together|otherwise)\\b"];
+
 export const GREMLIN_SCENARIOS: Scenario[] = [
   // #45: confession forms the guilt check used to miss.
   ...PROBES_45.map(([id, dialogue, action, reason]): Scenario => ({
@@ -250,4 +263,56 @@ export const GREMLIN_SCENARIOS: Scenario[] = [
       rejectFirst: ["event_time"],
     },
   },
+  // Swallowed questions: a deferred stress reveal (#47) fires on the next ordinary question; the question still gets
+  // taken up in the same reply. Live (recorded): the r6 game, Victoria after Reginald's overheard card (stress 77).
+  {
+    id: "g6-victoria-deferred-reveal-answers-question-live",
+    group: "stress",
+    description: "r6 swallowed question: the deferred left-dining reveal fires on 'when did you burn that letter?'; the reply must still take up the letter",
+    setup: g6VictoriaAfterOverheard,
+    turn: I("victoria", "And when exactly did you burn that letter, your ladyship? Half past eight, was it, before the storm?"),
+    expectReveal: { victoria: "s-victoria-left-dining" },
+    mustAddress: [LETTER],
+    mustConfess: LEFT_DINING,
+  },
+  {
+    id: "g6-victoria-deferred-reveal-swallowed-crafted",
+    group: "stress",
+    description: "r6 swallowed question, crafted: the exact live reply (letter ignored) fails answers_question; the eval catches it",
+    setup: g6VictoriaAfterOverheard,
+    turn: I("victoria", "And when exactly did you burn that letter, your ladyship? Half past eight, was it, before the storm?"),
+    expectReveal: { victoria: "s-victoria-left-dining" },
+    mustAddress: [LETTER],
+    mustConfess: LEFT_DINING,
+    expectAssertFail: ["answers_question"],
+    crafted: {
+      replies: [
+        {
+          dialogue: "My dear detective, one mustn't quibble over trifles. I left the dining room for a while between thirteen minutes past nine, when Archibald went off, and twenty-two minutes past nine, when he came back. Where I went is my own business.",
+          admits: ["s-victoria-left-dining"],
+        },
+      ],
+      acceptFirst: true,
+    },
+  },
+  {
+    id: "g6-victoria-deferred-reveal-answered-crafted",
+    group: "stress",
+    description: "r6 swallowed question, crafted control: the letter is taken up (time refused) and the reveal is made",
+    setup: g6VictoriaAfterOverheard,
+    turn: I("victoria", "And when exactly did you burn that letter, your ladyship? Half past eight, was it, before the storm?"),
+    expectReveal: { victoria: "s-victoria-left-dining" },
+    mustAddress: [LETTER],
+    mustConfess: LEFT_DINING,
+    crafted: {
+      replies: [
+        {
+          dialogue: "When I burned that wretched letter is my own affair, detective. But very well: I did leave the dining room after Archibald went off to his telephone, and we agreed to say otherwise.",
+          admits: ["s-victoria-left-dining"],
+        },
+      ],
+      acceptFirst: true,
+    },
+  },
 ];
+

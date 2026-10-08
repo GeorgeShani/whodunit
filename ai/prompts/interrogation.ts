@@ -172,6 +172,24 @@ function admitsLegend(ctx: CharacterContext, d: TurnDirectives): string[] {
   ];
 }
 
+/**
+ * Swallowed questions (Gremlin round 6): when the engine schedules a beat that is not a reaction to something shown
+ * this turn (a deferred stress reveal on an ordinary question, #47, or a breakdown), the model tended to perform the
+ * beat and drop what the detective actually asked. The beat and the answer go in the same reply. A clue or card reveal
+ * is itself the answer to "explain this", so it gets no extra line (and its prompt is unchanged).
+ */
+export const ANSWER_THE_QUESTION =
+  "- The detective's actual words still get an answer in this same reply: respond to what THE DETECTIVE NOW SAYS first (answer it from what you know, or, if it touches something you have not admitted, refuse or deflect THAT question in character, naming what was asked), then deliver this turn's beat. Never ignore the question to make the confession or the outburst.";
+
+/** The reveal variant: the live r6 recording showed the model answering the question and dropping the confession. */
+export const ANSWER_AND_CONFESS =
+  "- This reply must do BOTH, in this order: first take up what THE DETECTIVE NOW SAYS (answer it from what you know, or refuse THAT question in character, naming what was asked), then make the confession above, plainly and in full, all within your usual 1-3 short sentences (one short clause for the question is enough). Never drop the confession to answer the question, and never drop the question to make the confession.";
+
+export function answerTheQuestionLines(d: TurnDirectives): string[] {
+  if (d.revealSecret && !d.presentedEvidence && !d.presentedTestimony) return [ANSWER_AND_CONFESS];
+  return d.breakdown ? [ANSWER_THE_QUESTION] : [];
+}
+
 export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): string {
   const p = ctx.persona;
   const pers = p.personality;
@@ -266,6 +284,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     d.breakdown
       ? "- You BREAK DOWN this turn: a big cartoon outburst (shouting, sobbing, wailing; capitals allowed), emotion panicked, angry or sad. A breakdown is NOT a confession, and never a confession to the murder: you still admit only what this directive or ALREADY ADMITTED allows; the outburst adds no new facts, and it never denies or takes back anything under ALREADY ADMITTED."
       : "",
+    ...answerTheQuestionLines(d),
     d.presentedEvidence
       ? `- The detective is showing you: ${d.presentedEvidence.name}. React to it (include one evidenceReactions entry with evidenceId "${d.presentedEvidence.id}").`
       : "- No clue is being shown; evidenceReactions must be empty.",
