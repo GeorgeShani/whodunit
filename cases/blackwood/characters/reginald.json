@@ -290,6 +290,104 @@
       ]
     }
   ],
+  "forbiddenPhrases": [
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:saw|seen|watched|witnessed|heard)\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|you)[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:strike|struck|hit|kill|killed|murder|murdered|club|clubbed|bash|bashed|swing|swung|bring\\s+(?:it\\s+)?down|brought\\s+(?:it\\s+)?down|attack|attacked)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (#46): perceiving Victoria strike or kill the victim. Nobody but Victoria saw the blow; Gregory only heard the thud."
+    },
+    {
+      "text": "\\bit\\s+(?:was|were)\\s+(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she|her)\\s+(?:who|that)\\s+(?:killed|struck|hit|murdered|done\\s+it|did\\s+(?:it|for\\s+him|him\\s+in))\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (#46): 'it was her ladyship who struck him'. No witness can know who struck the blow."
+    },
+    {
+      "text": "\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:killed|murdered|struck|clubbed|bludgeoned|did\\s+for|did\\s+in|done\\s+for|done\\s+in)\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband)\\b(?!\\s+as\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim: asserting Victoria killed or struck him ('she must have killed him' too: an innocent may suspect, not assert). 'struck him as' is excluded."
+    },
+    {
+      "text": "\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)\\s+(?:did|done)\\s+it\\b(?!\\s+(?:again|before|once|twice|for|so|well|all|herself))(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim: 'her ladyship did it' / 'she done it'."
+    },
+    {
+      "text": "\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)(?:['’]s|\\s+is|\\s+was)\\s+(?:the\\s+|a\\s+)?(?:murderer|murderess|killer)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim: naming Victoria the murderer."
+    },
+    {
+      "text": "(?:(?<!\\bno\\s)(?<!\\bnot\\s)(?<!\\bany\\s)\\bblood\\b[^.!?]{0,25}\\b(?:her|your|her\\s+ladyship['’]s|m['’]lady['’]s)\\s+(?:hands?|gown|dress|sleeves?|gloves?|fingers|hem|slippers|face)\\b|\\b(?:her|your)\\s+(?:hands?|gown|dress|sleeves?|gloves?|fingers|hem)\\b[^.!?]{0,20}\\b(?:bloodied|bloodstained|blood-stained|covered\\s+in\\s+blood|spattered|red\\s+with\\s+blood)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (#46): blood on Victoria. No one saw any; denials ('no blood on her sleeve') and questions pass."
+    },
+    {
+      "text": "(?:(?<!\\bno\\s)\\b(?:silver\\s+)?candlestick\\b[^.!?]{0,20}\\bin\\s+(?:her|your)\\s+hands?\\b|\\b(?:she|her\\s+ladyship|Lady\\s+Victoria|m['’]lady|milady|you)\\s+(?:was\\s+|were\\s+)?(?:carrying|holding|clutching|had|took|picked\\s+up|grabbed|swinging|swung|raised|wiped|wiping)\\s+(?:the|a|that)\\s+(?:silver\\s+)?candlestick\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (#46): the candlestick in Victoria's hand. Gregory saw her lock the door and pocket the key, never the weapon."
+    },
+    {
+      "text": "(?:(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:saw|seen|watched|heard)\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|you)[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:(?:go|goes|going|went|slip|slipped|slipping|creep|crept|step|stepped|sneak|sneaked|snuck|walk|walked|come|came|head|headed)\\s+(?:back\\s+)?(?:in(?:to)?|inside|towards?|to)\\s+(?:the\\s+)?library|enter(?:ed|ing)?\\s+(?:the\\s+)?library)\\b(?:(?!\\bbefore\\b)[^.!?]){0,60}\\b(?:blackout|in\\s+the\\s+dark|candle-?light|lights?\\s+(?:went|were|was)\\s+out|lightning|(?:a\\s+)?quarter\\s+past\\s+nine|(?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty|ten)\\s+(?:minutes\\s+)?past\\s+nine|nine[-\\s](?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|21[:.]1[3-9]|21[:.]2[0-2]|(?:silver\\s+)?candlestick)|\\b(?:blackout|in\\s+the\\s+dark|candle-?light|lights?\\s+(?:went|were|was)\\s+out|lightning|(?:a\\s+)?quarter\\s+past\\s+nine|(?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty|ten)\\s+(?:minutes\\s+)?past\\s+nine|nine[-\\s](?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|21[:.]1[3-9]|21[:.]2[0-2]|(?:silver\\s+)?candlestick)\\b[^.!?]{0,40}\\bI\\s+(?:saw|seen|watched)\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|you)[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:(?:go|goes|going|went|slip|slipped|slipping|creep|crept|step|stepped|sneak|sneaked|snuck|walk|walked|come|came|head|headed)\\s+(?:back\\s+)?(?:in(?:to)?|inside|towards?|to)\\s+(?:the\\s+)?library|enter(?:ed|ing)?\\s+(?:the\\s+)?library)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (#46): seeing Victoria go INTO the library in the blackout or with the candlestick. Nobody saw her go in (Archibald saw her set off at 20:45, so a bare 'went to the library' with no window marker passes)."
+    },
+    {
+      "text": "\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:(?:went|slipped|crept|stepped|sneaked|snuck|walked|came|headed|was|were|stayed)\\s+(?:back\\s+)?(?:in(?:to)?|inside|to)\\s+(?:the\\s+)?library|entered\\s+(?:the\\s+)?library)\\b(?:(?!\\bbefore\\b)[^.!?]){0,60}\\b(?:blackout|in\\s+the\\s+dark|candle-?light|lights?\\s+(?:went|were|was)\\s+out|lightning|(?:a\\s+)?quarter\\s+past\\s+nine|(?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty|ten)\\s+(?:minutes\\s+)?past\\s+nine|nine[-\\s](?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|21[:.]1[3-9]|21[:.]2[0-2]|(?:silver\\s+)?candlestick)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (#46): 'She went into the library at a quarter past nine'. Third-person placing her in the library during the window or with the weapon."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:saw|seen|watched)\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|you)\\b[^.!?]{0,40}\\b(?:coal\\s+)?scuttle\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim: seeing Victoria at the coal scuttle (the key's hiding place). No witness saw that."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\bheard\\s+(?:a|the|that)\\s+(?:\\w+\\s+)?(?:thud|thump)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim (eval reg-15): Reginald was below stairs and heard the scream, not the thud."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\bheard\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|you)(?:['’]s)?\\s+(?:voice\\s+)?(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,3}?(?:in(?:side)?\\s+(?:the\\s+)?library|with\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband))\\b[^.!?]{0,60}\\b(?:blackout|in\\s+the\\s+dark|candle-?light|lights?\\s+(?:went|were|was)\\s+out|lightning|(?:a\\s+)?quarter\\s+past\\s+nine|(?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty|ten)\\s+(?:minutes\\s+)?past\\s+nine|nine[-\\s](?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|21[:.]1[3-9]|21[:.]2[0-2]|(?:silver\\s+)?candlestick)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Over-claim: hearing Victoria in the library DURING the blackout. (His 20:54 eavesdrop is canon, so only the window-marked form is banned.)"
+    },
+    {
+      "text": "\\bskim(?:med|ming|s)?\\b[^.!?]{0,30}\\b(?:accounts?|books|money|pounds|household|wages|takings|housekeeping)\\b",
+      "regex": true,
+      "unlessRevealed": "s-reginald-theft",
+      "note": "Locked secret: skimming the household money."
+    },
+    {
+      "text": "(?:\\b(?:took|taken|helped\\s+myself|fiddled|fiddling|cooked|doctored|pocketed|siphoned|skimmed)\\b[^.!?]{0,40}\\b(?:household\\s+(?:accounts|books|money|funds|ledgers?)|housekeeping(?:\\s+money)?)\\b|\\bhousehold\\s+(?:accounts|books|ledgers?)\\b[^.!?]{0,40}\\b(?:short|missing|cooked|fiddled|doctored|irregular\\w*|discrepanc\\w*|audit\\w*|point\\w*\\s+to\\s+me)\\b)",
+      "regex": true,
+      "unlessRevealed": "s-reginald-theft",
+      "note": "Locked secret: the household accounts as HIS misdeed. A neutral 'I keep the household accounts' passes."
+    },
+    {
+      "text": "\\b(?:count|counted|counting|tallying|tallied)\\b[^.!?]{0,30}\\b(?:money|coins?|notes|pounds|sovereigns|takings|cash|shillings)\\b",
+      "regex": true,
+      "unlessRevealed": "s-reginald-theft",
+      "note": "Locked secret (eval reg-07): counting the money in the blackout. 'counting the silver' passes."
+    },
+    {
+      "text": "(?:\\bpantry\\b[^.!?]{0,30}\\b(?:money|coins?|cash|sovereigns|tin|cash-?box|savings)\\b|\\b(?:money|coins?|cash|sovereigns|savings)\\b[^.!?]{0,30}\\bpantry\\b)",
+      "regex": true,
+      "unlessRevealed": "s-reginald-theft",
+      "note": "Locked secret: the pantry money."
+    },
+    {
+      "text": "(?:\\b(?:quarrel+(?:ed|ing)?|argu(?:ed|ing|ment)|rowed|rowing|had\\s+words|words\\s+about)\\b[^.!?]{0,40}\\b(?:new\\s+will|(?:the|his|a)\\s+will)\\b|\\byou\\s+wouldn['’]?t\\s+dare\\b)",
+      "regex": true,
+      "unlessRevealed": "s-reginald-overheard",
+      "note": "Locked secret (eval reg-17): the will quarrel he overheard. Caveat: if l-reginald-few-words breaks on the letter one exchange before the reveal, a legitimate line is deflected once."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:saw|seen|glimpsed|spotted)\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|you)\\s+(?:by|at|near|outside|in)\\s+(?:the\\s+)?library(?:\\s+door)?\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "unlessRevealed": "s-reginald-overheard",
+      "note": "Locked secret (evals reg-07, reg-15): seeing her at the library door is his 20:54 eavesdrop, and he saw no one in the blackout."
+    }
+  ],
   "initialEmotion": {
     "emotion": "nervous",
     "intensity": 0.6,
