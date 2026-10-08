@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-victoria-archibald-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:06:45.227Z",
+  "recordedAt": "2026-10-08T10:12:17.329Z",
   "calls": [
     {
-      "promptHash": "213ec06aa5abdc7f",
+      "promptHash": "084a3bd624cd5dd6",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "cb065cec-ccab-90d5-9392-3259d9ab7d50",
+        "id": "2a2b8174-dff6-9125-af97-392794e19a97",
         "object": "chat.completion",
-        "created": 1791454002,
+        "created": 1791454335,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, dear detective, it seems our stories have unravelled a touch. I did slip away briefly while he was off hunting for brandy; one does need a moment to compose oneself after such a trying evening.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief, twisting her rings absent-mindedly\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"Oh dear, has Archibald been telling tales? I did step away briefly while he was off hunting for brandy, but a lady must have her moments of privacy, Inspector.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief, twisting her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5174,
-          "completion_tokens": 108,
-          "total_tokens": 5282,
+          "prompt_tokens": 5188,
+          "completion_tokens": 97,
+          "total_tokens": 5285,
           "prompt_tokens_details": {
-            "text_tokens": 5174,
+            "text_tokens": 5188,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 65359000
+          "cost_in_usd_ticks": 65931000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5174,
-        "completion_tokens": 108,
-        "total_tokens": 5282,
+        "prompt_tokens": 5188,
+        "completion_tokens": 97,
+        "total_tokens": 5285,
         "prompt_tokens_details": {
-          "text_tokens": 5174,
+          "text_tokens": 5188,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 65359000
+        "cost_in_usd_ticks": 65931000
       },
-      "costUsd": 0.0065359
+      "costUsd": 0.0065931
     }
   ]
 }

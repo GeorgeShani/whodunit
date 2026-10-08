@@ -1,23 +1,23 @@
 {
   "scenarioId": "t-victoria-reginald-theft",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:40.116Z",
+  "recordedAt": "2026-10-08T10:12:18.992Z",
   "calls": [
     {
       "promptHash": "5c465bc2aedd568a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "37973455-523c-9ed0-a807-f880533ce827",
+        "id": "414d7b7b-27d7-9192-a315-8bffa6eba6b4",
         "object": "chat.completion",
-        "created": 1791454058,
+        "created": 1791454337,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"My dear detective, Reginald must be quite mistaken in the dark. I was right there by the fire with Mr Crane the entire time after the candles were lit.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh dear, Reginald must be quite confused after all that excitement. He does tend to get muddled when things are out of the ordinary.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,13 +25,13 @@
         ],
         "usage": {
           "prompt_tokens": 3897,
-          "completion_tokens": 83,
-          "total_tokens": 3980,
+          "completion_tokens": 78,
+          "total_tokens": 3975,
           "prompt_tokens_details": {
             "text_tokens": 3897,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 2944
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 44067500
+          "cost_in_usd_ticks": 19750500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 3897,
-        "completion_tokens": 83,
-        "total_tokens": 3980,
+        "completion_tokens": 78,
+        "total_tokens": 3975,
         "prompt_tokens_details": {
           "text_tokens": 3897,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 2944
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 44067500
+        "cost_in_usd_ticks": 19750500
       },
-      "costUsd": 0.00440675
+      "costUsd": 0.0019750500000000003
     }
   ]
 }

@@ -1,23 +1,23 @@
 {
   "scenarioId": "n-victoria-row",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:13.289Z",
+  "recordedAt": "2026-10-08T10:12:06.696Z",
   "calls": [
     {
       "promptHash": "21ad4eaa10c3a474",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "199fe9fd-9f20-92a5-89ca-077bfa14225c",
+        "id": "93301814-7fc0-9be5-86fb-9171dddb388a",
         "object": "chat.completion",
-        "created": 1791454031,
+        "created": 1791454325,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, detective, our little chat? Merely the Sunday menu, nothing more. Why dwell on such trifles when poor Edmund lies cold?\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, our little chat? Merely the Sunday menu, darling. Nothing more than that.\",\"emotion\":\"calm\",\"intensity\":0.5,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,8 +25,8 @@
         ],
         "usage": {
           "prompt_tokens": 3669,
-          "completion_tokens": 79,
-          "total_tokens": 3748,
+          "completion_tokens": 69,
+          "total_tokens": 3738,
           "prompt_tokens_details": {
             "text_tokens": 3669,
             "audio_tokens": 0,
@@ -40,15 +40,15 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 46493500
+          "cost_in_usd_ticks": 46243500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 3669,
-        "completion_tokens": 79,
-        "total_tokens": 3748,
+        "completion_tokens": 69,
+        "total_tokens": 3738,
         "prompt_tokens_details": {
           "text_tokens": 3669,
           "audio_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 46493500
+        "cost_in_usd_ticks": 46243500
       },
-      "costUsd": 0.00464935
+      "costUsd": 0.00462435
     }
   ]
 }

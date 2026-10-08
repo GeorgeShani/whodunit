@@ -1,23 +1,23 @@
 {
   "scenarioId": "b-victoria-library-minute",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:08:54.100Z",
+  "recordedAt": "2026-10-08T10:12:50.443Z",
   "calls": [
     {
       "promptHash": "d0b1918308c5520a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "89ba8d52-157d-9209-a236-ea731e86da2b",
+        "id": "5f70a7fe-1391-9bf2-8dae-e0f0439ae6f0",
         "object": "chat.completion",
-        "created": 1791454132,
+        "created": 1791454369,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Gregory, that wretched man? I was merely discussing the Sunday menu with my husband earlier, nothing more. How dare he suggest otherwise with such a wild tale?\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while dabbing at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Gregory? That soggy old soak? Darling detective, one really mustn't put too much faith in what a sacked gardener claims to have seen in a lightning flash.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while dabbing at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -31,7 +31,7 @@
             "text_tokens": 3964,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2944
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,7 +40,7 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 20863000
+          "cost_in_usd_ticks": 50431000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
@@ -53,7 +53,7 @@
           "text_tokens": 3964,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2944
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 20863000
+        "cost_in_usd_ticks": 50431000
       },
-      "costUsd": 0.0020863
+      "costUsd": 0.0050431
     }
   ]
 }

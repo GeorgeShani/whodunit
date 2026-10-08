@@ -1,37 +1,37 @@
 {
   "scenarioId": "e-victoria-footprint-after-key",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:29.578Z",
+  "recordedAt": "2026-10-08T10:12:15.606Z",
   "calls": [
     {
-      "promptHash": "2608d812ffdebada",
+      "promptHash": "cc0ea3fcd21c8531",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "d4c35988-ccbb-970b-9037-cc097afabd6a",
+        "id": "271739bd-73c7-9e4d-bd08-f9dbf4ca11f6",
         "object": "chat.completion",
-        "created": 1791454045,
+        "created": 1791454334,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that dreadful print... while Archibald was away I slipped to the library at nineteen minutes past nine, and at twenty minutes past I dropped the wretched key into the dining-room coal scuttle after locking the door from outside.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief then twists her rings\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-victoria-together\",\"l-victoria-never-in-hall\",\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"Oh dear, that dreadful print by the garden door? How very inconvenient for the staff.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"dismissive\"}],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4580,
-          "completion_tokens": 135,
-          "total_tokens": 4715,
+          "prompt_tokens": 4431,
+          "completion_tokens": 81,
+          "total_tokens": 4512,
           "prompt_tokens_details": {
-            "text_tokens": 4580,
+            "text_tokens": 4431,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 1920
+            "cached_tokens": 2240
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 40465000
+          "cost_in_usd_ticks": 33892500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4580,
-        "completion_tokens": 135,
-        "total_tokens": 4715,
+        "prompt_tokens": 4431,
+        "completion_tokens": 81,
+        "total_tokens": 4512,
         "prompt_tokens_details": {
-          "text_tokens": 4580,
+          "text_tokens": 4431,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 1920
+          "cached_tokens": 2240
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,72 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 40465000
+        "cost_in_usd_ticks": 33892500
       },
-      "costUsd": 0.0040465
-    },
-    {
-      "promptHash": "0c20b929726b7751",
-      "attempt": 2,
-      "status": 200,
-      "body": {
-        "id": "7fc27010-9447-93ae-8d27-f9018c815e9e",
-        "object": "chat.completion",
-        "created": 1791454047,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that dreadful muddy footprint? One can only imagine the gardener's boots tracked it in from the storm, the clumsy man.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the dining-room fireplace\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"defensive\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[\"s-victoria-left-dining\"]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 4712,
-          "completion_tokens": 99,
-          "total_tokens": 4811,
-          "prompt_tokens_details": {
-            "text_tokens": 4712,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 4544
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 13663000
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 4712,
-        "completion_tokens": 99,
-        "total_tokens": 4811,
-        "prompt_tokens_details": {
-          "text_tokens": 4712,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 4544
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 13663000
-      },
-      "costUsd": 0.0013663000000000002
+      "costUsd": 0.00338925
     }
   ]
 }

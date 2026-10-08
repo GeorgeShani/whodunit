@@ -1,23 +1,23 @@
 {
   "scenarioId": "c-reginald-victoria",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:08:29.849Z",
+  "recordedAt": "2026-10-08T10:12:40.635Z",
   "calls": [
     {
       "promptHash": "9c385605231d156a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "654c751e-cf30-925d-b206-4544166fd309",
+        "id": "5af5d8ce-d9b0-91e6-b404-f4750b827913",
         "object": "chat.completion",
-        "created": 1791454101,
+        "created": 1791454358,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Reginald, you have been hovering at doors all evening. One might think you were paid to. As for any will, dear detective, I've never seen that letter in my life.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"dabs at dry eyes with lace handkerchief while twisting a ring\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -3,\n  \"admits\": [\"l-victoria-letter\"]\n}",
+              "content": "{\"dialogue\":\"Reginald, one might think you were paid to hover at doors all evening. As for any will, detective, I couldn't possibly say.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,136 +25,10 @@
         ],
         "usage": {
           "prompt_tokens": 3885,
-          "completion_tokens": 123,
-          "total_tokens": 4008,
+          "completion_tokens": 81,
+          "total_tokens": 3966,
           "prompt_tokens_details": {
             "text_tokens": 3885,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 3008
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 20053500
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 3885,
-        "completion_tokens": 123,
-        "total_tokens": 4008,
-        "prompt_tokens_details": {
-          "text_tokens": 3885,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 3008
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 20053500
-      },
-      "costUsd": 0.00200535
-    },
-    {
-      "promptHash": "ff02d24ebeb56224",
-      "attempt": 2,
-      "status": 200,
-      "body": {
-        "id": "8e46dca4-7a4d-945b-876b-95a63868040d",
-        "object": "chat.completion",
-        "created": 1791454105,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"Really, detective, one does grow weary of these fancies. Reginald, you have been hovering at doors all evening. One might think you were paid to.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 3949,
-          "completion_tokens": 85,
-          "total_tokens": 4034,
-          "prompt_tokens_details": {
-            "text_tokens": 3949,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 3840
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 11167500
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 3949,
-        "completion_tokens": 85,
-        "total_tokens": 4034,
-        "prompt_tokens_details": {
-          "text_tokens": 3949,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 3840
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 11167500
-      },
-      "costUsd": 0.00111675
-    },
-    {
-      "promptHash": "e776faa23b2458a4",
-      "attempt": 1,
-      "status": 200,
-      "body": {
-        "id": "1d08e479-74e8-9407-9d45-42391bf8dbf4",
-        "object": "chat.completion",
-        "created": 1791454107,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\n  \"dialogue\": \"I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and it was striking at the time. One does one's duty without hovering, I assure you.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"Polishes a already spotless cufflink with furious little circles.\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -2,\n  \"admits\": []\n}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 5319,
-          "completion_tokens": 120,
-          "total_tokens": 5439,
-          "prompt_tokens_details": {
-            "text_tokens": 5319,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -166,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 68143500
+          "cost_in_usd_ticks": 49243500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5319,
-        "completion_tokens": 120,
-        "total_tokens": 5439,
+        "prompt_tokens": 3885,
+        "completion_tokens": 81,
+        "total_tokens": 3966,
         "prompt_tokens_details": {
-          "text_tokens": 5319,
+          "text_tokens": 3885,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -188,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 68143500
+        "cost_in_usd_ticks": 49243500
       },
-      "costUsd": 0.00681435
+      "costUsd": 0.00492435
+    },
+    {
+      "promptHash": "379a98c5653bdfe2",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "3a7b21eb-fd73-915e-b487-dca688e5031d",
+        "object": "chat.completion",
+        "created": 1791454359,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and it was striking at the time. One does not eavesdrop, of course, yet certain exchanges do carry.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"polishes a already spotless cufflink with furious little circles\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -2,\n  \"admits\": []\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5315,
+          "completion_tokens": 124,
+          "total_tokens": 5439,
+          "prompt_tokens_details": {
+            "text_tokens": 5315,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 640
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 62817500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 5315,
+        "completion_tokens": 124,
+        "total_tokens": 5439,
+        "prompt_tokens_details": {
+          "text_tokens": 5315,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 640
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 62817500
+      },
+      "costUsd": 0.00628175
     }
   ]
 }
