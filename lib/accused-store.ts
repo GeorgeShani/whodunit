@@ -2,10 +2,10 @@
  * SERVER-ONLY. Best-effort "this game has already been accused" record (#22),
  * kept in the Vercel Runtime Cache (per region, TTL-bound; not a database).
  *
- * Tradeoff: tokens stay stateless, so there is no DB to run. The guard is only
- * as strong as the cache: a request that lands in another region, or after the
- * TTL, or after an eviction, or in the instant before the first write lands, is
- * not caught (#39, a documented known limitation). The state-token max age
+ * With DATABASE_URL set, Postgres (lib/closed-games.ts) is the source of truth and this record is only the fast
+ * pre-check plus a write-through copy of the full accusation (#39). Without it, the guard is only as strong as the
+ * cache: a request that lands in another region, or after the TTL, or after an eviction, or in the instant before
+ * the first write lands, is not caught (the documented fallback risk). The state-token max age
  * (7 days) bounds how long a saved pre-accusation token can be replayed at all. Outside
  * Vercel (dev, tests) it falls back to a bounded in-process map.
  * It fails OPEN: a cache error never blocks a legitimate accusation.

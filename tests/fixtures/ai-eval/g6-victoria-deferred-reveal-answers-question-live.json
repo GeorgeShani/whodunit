@@ -1,0 +1,70 @@
+{
+  "scenarioId": "g6-victoria-deferred-reveal-answers-question-live",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T11:47:42.232Z",
+  "calls": [
+    {
+      "promptHash": "b5642df22fcecec7",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "691e9171-769d-9470-92d8-f69f8b864776",
+        "object": "chat.completion",
+        "created": 1791460060,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"My dear detective, you ask about the letter I have already admitted to burning... but that is hardly the point now. Between thirteen minutes past nine, when Mr Crane left for the brandy, and twenty-two minutes past nine when he returned without it, I did slip away from the dining room; we were never together the whole time as we claimed, and at twenty minutes to ten I persuaded him to say otherwise. Where I went is my own affair.\",\"emotion\":\"nervous\",\"intensity\":0.7,\"action\":\"twists her rings anxiously then dabs at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[\"s-victoria-left-dining\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5023,
+          "completion_tokens": 156,
+          "total_tokens": 5179,
+          "prompt_tokens_details": {
+            "text_tokens": 5023,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 3584
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 29055500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 5023,
+        "completion_tokens": 156,
+        "total_tokens": 5179,
+        "prompt_tokens_details": {
+          "text_tokens": 5023,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 3584
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 29055500
+      },
+      "costUsd": 0.0029055500000000002
+    }
+  ]
+}

@@ -21,9 +21,12 @@ const FORBIDDEN_WORDS = /\b(ai|error|server|api|request|token|state|duplicate|mo
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 /** A model that answers after a short delay (so parallel requests overlap). */
 const slowOk = (ms = 20) => {
+  let n = 0;
+  // A different line each call: an identical reply on the next turn would be a #52 repeat (retried).
+  const lines = ["I was in the pantry, sir, polishing the silver.", "I lit the candles myself, sir, as is proper.", "His lordship rang for coffee, sir, and I served it."];
   const fn = vi.fn(async () => {
     await new Promise((r) => setTimeout(r, ms));
-    return json(200, chatBody(goodReply()));
+    return json(200, chatBody(goodReply({ dialogue: lines[n++ % lines.length] })));
   });
   vi.stubGlobal("fetch", fn);
   return fn;

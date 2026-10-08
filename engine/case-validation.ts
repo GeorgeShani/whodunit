@@ -264,6 +264,22 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
       if (fp.unlessRevealed && core.has(fp.unlessRevealed))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
     });
+  // #52: voice variants. Duplicates waste a rotation slot; a long opener is not an opener; one variant cannot rotate.
+  for (const ch of c.characters) {
+    for (const k of ["openers", "actions", "deflections"] as const) {
+      const list = ch.voice[k];
+      const seen = new Map<string, number>();
+      list.forEach((v, j) => {
+        const key = v.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+        if (seen.has(key)) warnings.push({ file: charFile(ch.id), path: `voice.${k}.${j}`, message: `duplicates voice.${k}.${seen.get(key)}; every variant should be different` });
+        else seen.set(key, j);
+      });
+      if (list.length === 1) warnings.push({ file: charFile(ch.id), path: `voice.${k}`, message: `a single variant cannot rotate; give 6-8, or leave it empty for the generic rules` });
+    }
+    ch.voice.openers.forEach((o, j) => {
+      if (o.split(/\s+/).length > 6) warnings.push({ file: charFile(ch.id), path: `voice.openers.${j}`, message: `"${o}" is longer than 6 words; an opener is the first few words of a reply ("My dear detective,")` });
+    });
+  }
   const reachable = new Set<string>();
   for (let changed = true; changed; ) {
     changed = false;

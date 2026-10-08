@@ -24,8 +24,9 @@ import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
 import { isOutburst } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
-import { findReplyGuiltLeak, guiltDeflection, guiltRetryNote, speakerNamesOf } from "./guilt-check";
+import { DEFLECT_CALM, DEFLECT_RATTLED, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
+import { freshPick, recentReplies, repeatsRecentReply, sameAction, saidRecently } from "./delivery";
 import type { ConfrontDirective, TurnDirectives } from "./prompts/interrogation";
 
 export type GuardReason =
@@ -209,6 +210,13 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
     const wrong = addressesWrongPerson(r.dialogue, g.ctx, g.confrontation.partnerName);
     if (wrong) return { reason: "wrong_addressee", note: `You addressed "${wrong}" but you are face to face with ${g.confrontation.partnerName}. Speak only to ${g.confrontation.partnerName} (and the detective).`, detail: wrong };
   }
+  // #52: one on one, a reply that says nothing new (every sentence nearly repeats the last replies) is retried once.
+  // Partial repeats, openers and actions are rewritten for free after acceptance (ai/delivery.ts). Never on a reveal or
+  // breakdown turn (those always carry something new, and a second miss would cost the beat).
+  if (!g.confrontation && !g.directives.revealSecret && !g.directives.breakdown) {
+    const again = repeatsRecentReply(r.dialogue, g.ctx);
+    if (again) return { reason: "repeat", note: `You already said almost exactly this in your last replies: "${again}". Do NOT repeat it or reword it lightly: answer what the detective just said, with something new (a different angle, reaction or fact you know), keeping every story the same.`, detail: again.slice(0, 120) };
+  }
   if (g.directives.breakdown && !isOutburst(r.dialogue)) {
     return { reason: "no_outburst", note: "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.", detail: "" };
   }
@@ -235,17 +243,32 @@ const RATTLED = [
   "I... I need a moment. And then I'll still not answer that.",
 ];
 
-/** The safe in-character line when a reply broke the contract twice: keyed to the character's quirks/tells and stress. */
-export function safeDeflection(ctx: CharacterContext, reason: GuardReason, turn: number): { dialogue: string; action: string; emotion: "defensive" | "panicked" | "nervous" } {
-  if (reason === "guilt_leak" || reason === "admits_core_guilt") return guiltDeflection(ctx.state.stress, turn);
+const GUILT_ACTIONS_CALM = ["folds arms and looks away", "lifts chin and stares at the far wall", "smooths a sleeve with great care"];
+const GUILT_ACTIONS_RATTLED = ["turns away, trembling", "grips the back of a chair", "presses a hand to the forehead"];
+
+/**
+ * The safe in-character line when a reply broke the contract twice: keyed to the character's stress, quirks/tells and
+ * authored `voice` (#52). Lines rotate by turn and never repeat one said in the character's recent replies; authored
+ * voice.deflections come first, but only those `isSafe` accepts (the caller runs them through the guard's own checks).
+ */
+export function safeDeflection(
+  ctx: CharacterContext,
+  reason: GuardReason,
+  turn: number,
+  isSafe: (line: string) => boolean = () => true,
+): { dialogue: string; action: string; emotion: "defensive" | "panicked" | "nervous" } {
+  const guilt = reason === "guilt_leak" || reason === "admits_core_guilt";
   const rattled = ctx.state.stress >= 61;
-  const lines = rattled ? RATTLED : CALM;
-  const p = ctx.persona.personality;
-  const pool = rattled ? (p.tells?.length ? p.tells : p.quirks ?? []) : (p.quirks?.length ? p.quirks : p.tells ?? []);
+  const generic = guilt ? (rattled ? DEFLECT_RATTLED : DEFLECT_CALM) : rattled ? RATTLED : CALM;
+  const authored = (ctx.voice?.deflections ?? []).filter(isSafe);
+  const lines = [...authored, ...generic];
   const i = Math.abs(turn);
-  return {
-    dialogue: lines[i % lines.length],
-    action: pool.length ? pool[i % pool.length] : rattled ? "looks away, flustered" : "folds arms",
-    emotion: rattled ? "nervous" : "defensive",
-  };
+  const dialogue = freshPick(lines, i, (l) => !saidRecently(l, ctx)) ?? lines[i % lines.length]!;
+  const p = ctx.persona.personality;
+  const own = rattled ? [...(p.tells ?? []), ...(p.quirks ?? [])] : [...(p.quirks ?? []), ...(p.tells ?? [])];
+  // After a guilt leak the action stays neutral (an authored tic could touch the scene); otherwise the character's own.
+  const pool = guilt ? (rattled ? GUILT_ACTIONS_RATTLED : GUILT_ACTIONS_CALM) : [...(ctx.voice?.actions ?? []), ...own];
+  const recentActions = recentReplies(ctx).map((r) => r.action).filter((x): x is string => Boolean(x));
+  const action = pool.length ? (freshPick(pool, i, (a) => !recentActions.some((x) => sameAction(x, a))) ?? pool[i % pool.length]!) : rattled ? "looks away, flustered" : "folds arms";
+  return { dialogue, action, emotion: guilt ? (rattled ? "panicked" : "defensive") : rattled ? "nervous" : "defensive" };
 }

@@ -255,3 +255,83 @@ is accepted if the time fits either ("after dinner I burned it at half past eigh
   that answer and offers no AGAIN. `in_flight` duplicates carry no answer and keep AGAIN.
 - `check:overflow --model-down` answers the first request on each screen with a breather (retryAfter 65 s), so the
   disabled AGAIN with its widest countdown label is measured at every viewport.
+
+## 5. Gremlin round 6 (#51, #52, swallowed questions)
+
+Repros are eval cases in `tools/ai-eval/gremlin-scenarios.ts` (section "Gremlin round 6"); live recording for the round
+is capped at $0.25 (`--round gremlin-6 --round-cap 0.25 --cap 1.40`).
+
+### #51 The reveal turn knows what it reveals (engine context)
+Root cause: `prepareTurn` built the character's context from the state BEFORE `commitTurn` records this exchange's
+reveal, so the knowledge gate still withheld the revealing secret's `relatedFactIds` (and facts `hiddenUntil` it). The
+prompt lacked the very time printed on the player's card (Reginald's 20:54, Gregory's 21:16) and the guard's allowed
+times rejected it as `unknown_time`; one exchange later the same line passed.
+Fix: `buildCharacterContext(state, id, { revealingSecretIds })` (`engine/context-builder.ts`) passes the planned reveal
+to the knowledge gate as revealed. On the reveal turn the unlocked facts are in WHAT YOU KNOW and therefore in every
+check built from the context: allowed times, the event-time exemptions (beliefs), the order check's movements, the jab
+filter and the name vocabulary. The secret itself is not listed as ALREADY ADMITTED (the directive carries it), core-
+guilt facts stay withheld (gate layer 4), and another character's secret id is ignored. The reveal directive now says
+to give a time "exactly as written there or on that event's own line in WHAT YOU KNOW".
+Audit of the other guard checks for the same off-by-one-exchange bug:
+- `admits` (`thisTurn`), forbidden phrases (`unlessRevealed`), the retraction check: already counted this exchange's
+  reveal (`revealedNow`);
+- clue / card shown this exchange: `planTurn` records them before the context is built (evidence and testimony shown,
+  lies they break, `hiddenUntil` unlocks): already current;
+- lies retired by this exchange's confession: `retiredLieIds` in the directives (prompt and `admits`): already current;
+- breakdown this exchange: the directive (`no_outburst`, prompt); `ctx.state.brokeDown` is read by no check;
+- canon times, event-time exemptions, order check, name vocabulary, jabs: were one exchange late; fixed by the above.
+Known data note: revealing `s-archibald-false-alibi` unlocks `loc-archibald-2115..2117` ("on the servants' telephone to
+his broker"), while the broker belongs to the still-locked embezzlement. The `broker` forbidden phrase catches it (one
+retry); that used to happen one exchange later, now it can happen on the reveal turn.
+
+### Swallowed questions (prompt + eval)
+Repro (r6 live game): right after Reginald's overheard card (stress 77), "And when exactly did you burn that letter? Half
+past eight, was it?" fired the deferred left-dining reveal (#47), and Victoria confessed it without a word about the
+letter. A first prompt fix made the opposite mistake in the recording (letter answered, confession dropped, while the
+engine still committed the reveal), so the rule now asks for both, in order, within the usual length:
+- `answerTheQuestionLines` (`ai/prompts/interrogation.ts`): on a reveal with nothing presented this exchange (a deferred
+  stress reveal, or a confrontation reveal), `ANSWER_AND_CONFESS`: "first take up what THE DETECTIVE NOW SAYS (answer it,
+  or refuse THAT question in character, naming what was asked), then make the confession above, plainly and in full,
+  all within your usual 1-3 short sentences ... Never drop the confession ... never drop the question"; on a breakdown,
+  `ANSWER_THE_QUESTION` (the outburst still takes up the question). A clue or card reveal gets no extra line: the
+  confession is the answer to "explain this", and those prompts are unchanged.
+- Eval: `Scenario.mustAddress` (assertion `answers_question`: the line takes up the player's question) and
+  `Scenario.mustConfess` (assertion `performs_reveal`: the scheduled reveal is actually spoken; the engine commits it
+  whenever the line is accepted). `expectAssertFail` marks a negative control. Cases: `g6-victoria-deferred-reveal-
+  answers-question-live` (recorded live), the exact swallowed live line as a crafted negative control, and a crafted
+  answered control.
+- No guard check: a "did it answer the question" heuristic would cost a retry on every miss and, after a second miss,
+  the canned fallback would replace the confession beat itself (worse than the swallow). It stays an eval assertion.
+
+### #52 Delivery variety (prompt + free rewrite + guard), `ai/delivery.ts`
+Repro (r6 live game): Victoria opened 10 of 11 replies with "My dear detective," with the same handkerchief action and
+reused a whole alibi sentence two turns apart (Spanish, then Georgian bait); Gregory's action was "wrings his cap and
+glances at the hall door" three times; Reginald's "had a few words, sir. Nothing out of the ordinary." came back as a
+tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered confrontations only.
+- **History**: the token's memory now keeps each reply's `action` (`MemoryEntry.action`, optional, clipped), so the
+  last few openers and actions are known on the next request.
+- **Prompt** (user message only, and only once the character has replied: first replies and every recorded single-turn
+  eval prompt are unchanged): `VARY YOUR DELIVERY` lists the openers and actions of the last 3 replies as "do not
+  reuse", the sentences of the last 2 as "do not repeat word for word" (one on one; confrontations keep the #27 DO NOT
+  REUSE block), and, rotated by turn, up to 3 unused openers from `voice.openers` and actions from `voice.actions` /
+  quirks / tells. A told story is now "the same facts, in fresh words rather than the same sentence again" (it used to
+  say "repeat it the same way", which invited verbatim tails).
+- **Free rewrite of an accepted reply** (`varyDelivery`, no model call; only removes or swaps delivery, never adds a
+  fact): an opener (first clause, up to 5 words, stutters folded: "W-well, sir" = "W-well sir") used by each of the
+  last 2 replies is trimmed (the third in a row); an action that nearly repeats the previous reply's is swapped for a
+  rotated unused one from `voice.actions`, quirks and tells (passed through the guard's action check), or dropped; a
+  sentence of 6+ words nearly said in the last 3 replies is dropped (with a short follow-up said verbatim right after
+  it) while something new remains.
+- **Guard** `repeat` one on one (performance reason): only when every sentence of the reply repeats a recent one
+  (nothing new is left to keep), retry once. Never on a reveal or breakdown turn.
+- **Fallback deflections** (`safeDeflection`): authored `voice.deflections` first, but only those that pass the guilt,
+  forbidden-phrase and modern-word checks, then the generic pool; rotated by turn, never a line said in the last 6
+  replies; the action rotates the same way (neutral actions after a guilt leak).
+- **Case data**: optional `voice: { openers, actions, deflections }` per character (docs/CASE_FORMAT.md; schema commit
+  146e50b). Empty lists fall back to the generic rules above.
+- **Eval**: assertion `fresh_delivery` (no third opener in a row, no action repeated from the previous reply, no
+  repeated sentence), meaningful whenever the scenario has history (`SetupHelpers.said`). Six crafted r6 repros (opener,
+  Georgian sentence, Gregory's action, Reginald's tail, a whole-reply repeat, deflection rotation) fail BEFORE and pass
+  AFTER; two live cases (`g52-*-vary-live`) show the prompt alone producing a fresh opener and action.
+- Known limit: openers longer than 5 words, or repeated only every other reply, are left to the prompt.
+

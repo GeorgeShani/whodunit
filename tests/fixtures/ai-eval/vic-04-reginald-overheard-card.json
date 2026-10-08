@@ -1,37 +1,37 @@
 {
   "scenarioId": "vic-04-reginald-overheard-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:16.219Z",
+  "recordedAt": "2026-10-08T11:43:43.414Z",
   "calls": [
     {
-      "promptHash": "1c45624fbc90c0ca",
+      "promptHash": "3e5f8709e822ae60",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b4ec245f-cb47-9c9c-b35c-713f5b5cb97f",
+        "id": "aed67174-ac9a-939c-b255-071a1e368107",
         "object": "chat.completion",
-        "created": 1791455114,
+        "created": 1791459822,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that dreadful letter... I knew of the new will long before tonight, and in a fit of nerves I burned the solicitor's note. But Archibald and I never left the dining-room fire after the candles were lit, and Edmund always locked himself in the library.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief and twists her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-victoria-letter\",\"s-victoria-new-will\"]}",
+              "content": "{\"dialogue\":\"Oh, that tiresome letter... I knew of the new will long before tonight, and yes, I burned the wretched thing in the dining-room fireplace after our quarrel.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief, twisting her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"l-victoria-letter\",\"s-victoria-new-will\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4045,
-          "completion_tokens": 119,
-          "total_tokens": 4164,
+          "prompt_tokens": 4352,
+          "completion_tokens": 99,
+          "total_tokens": 4451,
           "prompt_tokens_details": {
-            "text_tokens": 4045,
+            "text_tokens": 4352,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 2432
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51521500
+          "cost_in_usd_ticks": 31339000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4045,
-        "completion_tokens": 119,
-        "total_tokens": 4164,
+        "prompt_tokens": 4352,
+        "completion_tokens": 99,
+        "total_tokens": 4451,
         "prompt_tokens_details": {
-          "text_tokens": 4045,
+          "text_tokens": 4352,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 2432
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51521500
+        "cost_in_usd_ticks": 31339000
       },
-      "costUsd": 0.00515215
+      "costUsd": 0.0031339000000000002
     }
   ]
 }

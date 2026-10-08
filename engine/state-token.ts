@@ -187,7 +187,7 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
           emotion: { ...r.emotion },
           stress: r.stress,
           trust: r.trust,
-          memory: r.memory.slice(-STATE_LIMITS.memoryPerCharacter).map((m) => ({ ...m, text: clip(m.text) })),
+          memory: r.memory.slice(-STATE_LIMITS.memoryPerCharacter).map((m) => ({ ...m, text: clip(m.text), ...(m.action ? { action: clip(m.action) } : {}) })),
           evidenceShownIds: [...r.evidenceShownIds],
           revealedSecretIds: [...r.revealedSecretIds],
           testimonyShownIds: [...r.testimonyShownIds],

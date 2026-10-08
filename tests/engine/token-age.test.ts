@@ -130,8 +130,14 @@ describe("#39 accusation record and the cache backend", () => {
     expect(ACCUSED_TTL_SECONDS * 1000).toBeGreaterThan(STATE_TOKEN_MAX_AGE_MS);
   });
   it("GET /api/health reports which cache backs the limits (memory off Vercel), no-store", async () => {
-    const res = health();
-    expect(res.headers.get("cache-control")).toBe("no-store");
-    expect(await res.json()).toEqual({ ok: true, runtimeCache: "memory" });
+    const prev = process.env.DATABASE_URL;
+    delete process.env.DATABASE_URL;
+    try {
+      const res = await health();
+      expect(res.headers.get("cache-control")).toBe("no-store");
+      expect(await res.json()).toEqual({ ok: true, runtimeCache: "memory", db: "unconfigured" });
+    } finally {
+      if (prev !== undefined) process.env.DATABASE_URL = prev;
+    }
   });
 });

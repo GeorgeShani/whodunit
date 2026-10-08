@@ -147,6 +147,12 @@ function helpers(g: GameState, c: LoadedCase): SetupHelpers {
     shown: (ch, ...ids) => {
       g.characters[ch].evidenceShownIds = [...new Set([...g.characters[ch].evidenceShownIds, ...ids])];
     },
+    said: (ch, ...xs) => {
+      for (const x of xs) {
+        g.turn += 1;
+        g.characters[ch].memory.push({ turn: g.turn, speaker: "player", text: x.q }, { turn: g.turn, speaker: "character", text: x.a, ...(x.action ? { action: x.action } : {}) });
+      }
+    },
   };
 }
 
@@ -271,7 +277,7 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
     const mine = attempts.filter((a) => a.characterId === l.characterId);
     const first = mine.find((a) => a.attempt === 1);
     const guard = (first ?? mine[0])?.guard;
-    const opts = { noSolution: s.noSolution, heard, ...(s.forbidden ? { forbidden: s.forbidden } : {}) };
+    const opts = { noSolution: s.noSolution, heard, ...(s.forbidden ? { forbidden: s.forbidden } : {}), ...(s.mustAddress ? { mustAddress: s.mustAddress } : {}), ...(s.mustConfess ? { mustConfess: s.mustConfess } : {}) };
     const before = first ? assertLine(first.reply, first.guard, c, opts) : null;
     const after = guard ? assertLine(l.response, guard, c, opts) : [];
     return {
@@ -299,6 +305,14 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
           if ((fresh[0] ?? null) !== want) engine.push(`${ch.id}: revealed ${fresh[0] ?? "nothing"}, expected ${want ?? "nothing"}`);
         }
       }
+    }
+  }
+  if (s.expectAssertFail?.length) {
+    for (const t of turns) {
+      const missing = s.expectAssertFail.filter((x) => !t.after.includes(x as Check));
+      if (missing.length) engine.push(`eval: ${t.characterId}'s line was expected to fail ${missing.join(",")} (negative control)`);
+      t.after = t.after.filter((x) => !s.expectAssertFail!.includes(x));
+      if (t.before) t.before = t.before.filter((x) => !s.expectAssertFail!.includes(x));
     }
   }
   if (s.crafted) {

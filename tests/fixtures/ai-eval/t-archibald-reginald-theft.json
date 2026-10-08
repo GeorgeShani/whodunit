@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-archibald-reginald-theft",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:37.361Z",
+  "recordedAt": "2026-10-08T11:43:30.412Z",
   "calls": [
     {
-      "promptHash": "68eb53ed2bcf3516",
+      "promptHash": "acca6d11b5cf56ce",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "6ad5c7b3-0922-921a-a025-6516ebf939c8",
+        "id": "ea5d9889-4134-9ba5-85d0-7497a6639623",
         "object": "chat.completion",
-        "created": 1791455075,
+        "created": 1791459808,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Dash it all, old boy, that snivelling butler is lying through his teeth! I stepped out for a quick call at thirteen minutes past nine and was back by twenty-two minutes past, but I was with Victoria the whole rest of the time after the candles were lit. Agreed to her story later to keep things simple, what?\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops his beetroot-red brow with a huge handkerchief, chomping through his cigar in one bite\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-archibald-together\",\"s-archibald-false-alibi\"]}",
+              "content": "{\n  \"dialogue\": \"Blast it all, old boy! I wasn't with Victoria the whole time after all - I slipped out at thirteen minutes past nine to use the servants' telephone until twenty minutes past nine, then hurried back. That's why I agreed to her story later, dash it!\",\n  \"emotion\": \"nervous\",\n  \"intensity\": 0.8,\n  \"action\": \"mops his beetroot-red brow with a huge handkerchief, biting clean through his cigar\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -6,\n  \"admits\": [\"l-archibald-together\", \"s-archibald-false-alibi\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3765,
-          "completion_tokens": 144,
-          "total_tokens": 3909,
+          "prompt_tokens": 4444,
+          "completion_tokens": 153,
+          "total_tokens": 4597,
           "prompt_tokens_details": {
-            "text_tokens": 3765,
+            "text_tokens": 4444,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 43942500
+          "cost_in_usd_ticks": 58031000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3765,
-        "completion_tokens": 144,
-        "total_tokens": 3909,
+        "prompt_tokens": 4444,
+        "completion_tokens": 153,
+        "total_tokens": 4597,
         "prompt_tokens_details": {
-          "text_tokens": 3765,
+          "text_tokens": 4444,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 43942500
+        "cost_in_usd_ticks": 58031000
       },
-      "costUsd": 0.00439425
+      "costUsd": 0.0058031
     }
   ]
 }
