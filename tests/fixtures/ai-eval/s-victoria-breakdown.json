@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-victoria-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:28.259Z",
+  "recordedAt": "2026-10-08T10:47:58.571Z",
   "calls": [
     {
-      "promptHash": "4b08f96cdf0055d4",
+      "promptHash": "fc41afaeecddfdc7",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b743ad1f-aedb-91de-9b60-240519b9e55e",
+        "id": "f4f0f236-4b98-964f-a4fc-2bd056a2dc07",
         "object": "chat.completion",
-        "created": 1791454345,
+        "created": 1791456477,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, the candlestick! That dreadful thing with the blood... I can't bear it! I left the dining room alone between thirteen minutes past nine and twenty-two minutes past nine while Archibald was gone—we were never together the whole time, though I begged him at twenty to forty to say we were. It was all too much!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings violently\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"l-victoria-together\",\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"OH, THE HORROR! That dreadful thing... it's covered in poor Edmund's blood! How could anyone do such a vile thing?!\", \"emotion\":\"panicked\", \"intensity\":0.9, \"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\", \"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\", \"reaction\":\"surprised\"}], \"wantsToLeave\":false, \"stressDelta\":0, \"trustDelta\":-5, \"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4088,
-          "completion_tokens": 150,
-          "total_tokens": 4238,
+          "prompt_tokens": 3844,
+          "completion_tokens": 107,
+          "total_tokens": 3951,
           "prompt_tokens_details": {
-            "text_tokens": 4088,
+            "text_tokens": 3844,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 1920
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 53506000
+          "cost_in_usd_ticks": 30565000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4088,
-        "completion_tokens": 150,
-        "total_tokens": 4238,
+        "prompt_tokens": 3844,
+        "completion_tokens": 107,
+        "total_tokens": 3951,
         "prompt_tokens_details": {
-          "text_tokens": 4088,
+          "text_tokens": 3844,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 1920
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,72 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 53506000
+        "cost_in_usd_ticks": 30565000
       },
-      "costUsd": 0.0053506000000000005
-    },
-    {
-      "promptHash": "8d7971324af0af1e",
-      "attempt": 2,
-      "status": 200,
-      "body": {
-        "id": "2f2020a7-4db2-9b45-ae1f-a7f7ab7ef651",
-        "object": "chat.completion",
-        "created": 1791454347,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, the BLOOD! I can't bear it!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief while twisting her rings\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 4143,
-          "completion_tokens": 88,
-          "total_tokens": 4231,
-          "prompt_tokens_details": {
-            "text_tokens": 4143,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 3392
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 18371500
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 4143,
-        "completion_tokens": 88,
-        "total_tokens": 4231,
-        "prompt_tokens_details": {
-          "text_tokens": 4143,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 3392
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 18371500
-      },
-      "costUsd": 0.00183715
+      "costUsd": 0.0030565
     }
   ]
 }

@@ -66,9 +66,44 @@ export interface Ledger {
   promptTokens: number;
   cachedTokens: number;
   completionTokens: number;
+  /** Per-round spend (e.g. "gremlin-5"), so a round can carry its own cap alongside the cumulative one. */
+  rounds?: Record<string, { spentUsd: number; calls: number }>;
 }
 
 export class BudgetExceeded extends Error {}
+
+/** A round's cap: the round's id and its own USD ceiling (checked in addition to the cumulative cap). */
+export interface RoundBudget {
+  id: string;
+  capUsd: number;
+}
+
+/**
+ * Throw BudgetExceeded if a call whose worst case is `worstUsd` could push the cumulative ledger past `capUsd` or
+ * the round's spend past its own cap. Pure (testable); the caller sends nothing when it throws.
+ */
+export function assertBudget(ledger: Ledger, worstUsd: number, capUsd: number, round?: RoundBudget): void {
+  if (ledger.spentUsd + worstUsd > capUsd) throw new BudgetExceeded(`budget: $${ledger.spentUsd.toFixed(4)} spent, next call could cost $${worstUsd.toFixed(4)}, cap $${capUsd}`);
+  if (round) {
+    const r = ledger.rounds?.[round.id]?.spentUsd ?? 0;
+    if (r + worstUsd > round.capUsd) throw new BudgetExceeded(`round budget (${round.id}): $${r.toFixed(4)} spent this round, next call could cost $${worstUsd.toFixed(4)}, round cap $${round.capUsd}`);
+  }
+}
+
+/** Charge one call to the ledger (cumulative and, when given, the round). */
+export function chargeLedger(ledger: Ledger, cost: number, usage: Usage | undefined, round?: RoundBudget): void {
+  ledger.spentUsd += cost;
+  ledger.calls += 1;
+  ledger.promptTokens += usage?.prompt_tokens ?? 0;
+  ledger.cachedTokens += usage?.prompt_tokens_details?.cached_tokens ?? 0;
+  ledger.completionTokens += usage?.completion_tokens ?? 0;
+  if (round) {
+    ledger.rounds ??= {};
+    const r = (ledger.rounds[round.id] ??= { spentUsd: 0, calls: 0 });
+    r.spentUsd += cost;
+    r.calls += 1;
+  }
+}
 
 export interface TurnResult {
   characterId: string;
@@ -137,6 +172,8 @@ export interface RunOptions {
   fixture?: Fixture;
   ledger?: Ledger;
   capUsd?: number;
+  /** Record: an optional per-round cap, enforced alongside capUsd. */
+  round?: RoundBudget;
   onFixture?: (f: Fixture) => void;
 }
 
@@ -151,9 +188,17 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
   const notes: string[] = [];
   const realFetch = globalThis.fetch;
   let replayIdx = 0;
+  let craftedIdx = 0;
   const stub = async (url: string | URL | Request, init?: RequestInit): Promise<Response> => {
     if (String(url) !== XAI_CHAT_URL) throw new Error(`eval: unexpected fetch to ${String(url)}`);
     const reqBody = String(init?.body ?? "");
+    if (s.crafted) {
+      // Crafted replay: scripted model output, free in both modes, nothing recorded.
+      const r = s.crafted.replies[Math.min(craftedIdx++, s.crafted.replies.length - 1)];
+      const content = JSON.stringify({ emotion: "nervous", intensity: 0.6, action: "", evidenceReactions: [], wantsToLeave: false, stressDelta: 0, trustDelta: 0, admits: [], ...r });
+      const body = { id: `crafted-${s.id}-${craftedIdx}`, object: "chat.completion", model: "crafted", choices: [{ index: 0, message: { role: "assistant", content }, finish_reason: "stop" }], usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 } };
+      return new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+    }
     if (o.mode === "replay") {
       const rec = o.fixture?.calls[replayIdx++];
       if (!rec) {
@@ -166,7 +211,7 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
     // RECORD: refuse the call if its worst case could cross the cap (prompt chars/3 tokens + the full max_tokens).
     const ledger = o.ledger!;
     const worst = ((reqBody.length / 3) * PRICE_PER_M.input + 400 * PRICE_PER_M.output) / 1e6;
-    if (ledger.spentUsd + worst > (o.capUsd ?? 1.4)) throw new BudgetExceeded(`budget: $${ledger.spentUsd.toFixed(4)} spent, next call could cost $${worst.toFixed(4)}, cap $${o.capUsd}`);
+    assertBudget(ledger, worst, o.capUsd ?? 1.4, o.round);
     const res = await realFetch(url, init);
     const text = await res.text();
     let body: unknown = text;
@@ -177,11 +222,7 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
     }
     const usage = (body as { usage?: Usage })?.usage;
     const cost = usageCost(usage);
-    ledger.spentUsd += cost;
-    ledger.calls += 1;
-    ledger.promptTokens += usage?.prompt_tokens ?? 0;
-    ledger.cachedTokens += usage?.prompt_tokens_details?.cached_tokens ?? 0;
-    ledger.completionTokens += usage?.completion_tokens ?? 0;
+    chargeLedger(ledger, cost, usage, o.round);
     calls.push({ promptHash: hashMessages(reqBody), attempt: attemptOf(reqBody), status: res.status, body, ...(usage ? { usage } : {}), costUsd: cost });
     return new Response(text, { status: res.status, headers: { "content-type": "application/json" } });
   };
@@ -223,7 +264,7 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
     globalThis.fetch = realFetch;
     console.warn = warn;
   }
-  if (o.mode === "record") o.onFixture?.({ scenarioId: s.id, model: "grok-4.20-0309-non-reasoning", recordedAt: new Date().toISOString(), calls });
+  if (o.mode === "record" && !s.crafted) o.onFixture?.({ scenarioId: s.id, model: "grok-4.20-0309-non-reasoning", recordedAt: new Date().toISOString(), calls });
 
   const heard = s.turn.question;
   const turns: TurnResult[] = lines.map((l) => {
@@ -259,6 +300,12 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
         }
       }
     }
+  }
+  if (s.crafted) {
+    const firstRejects = attempts.filter((a) => a.attempt === 1).map((a) => (a.verdict ? a.verdict.reason : null));
+    if (s.crafted.rejectFirst && !firstRejects.some((r) => r && s.crafted!.rejectFirst!.includes(r)))
+      engine.push(`guard: crafted line not rejected with ${s.crafted.rejectFirst.join("|")} (got ${firstRejects.map((r) => r ?? "accepted").join(",")})`);
+    if (s.crafted.acceptFirst && firstRejects.some((r) => r)) engine.push(`guard: crafted control line rejected (${firstRejects.filter(Boolean).join(",")})`);
   }
   return { id: s.id, group: s.group, turns, engine, notes };
 }
