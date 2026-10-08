@@ -7,6 +7,7 @@
  */
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext, type CharacterContext } from "@/engine/context-builder";
+import { guiltProfile } from "@/engine/core-guilt";
 import { commitTurn, planTurn, type PresentMove, type TurnPlan } from "@/engine/interrogation";
 import { isOutburst, stressBand, type StressReading } from "@/engine/stress";
 import { publicTestimonies } from "@/engine/testimony";
@@ -15,6 +16,7 @@ import { cannedCharacterResponse } from "./canned-responses";
 import { fixArticles } from "./text-fixes";
 import { canonTimes, checkTimes, findModernWord } from "./canon-check";
 import { checkOrder } from "./order-check";
+import { findGuiltLeak, guiltDeflection, guiltRetryNote } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier, variedConfrontationFallback } from "./confront-check";
 import { callGrok, isModelDown, isQuotaFailure, type GrokFailure, type GrokResult } from "./grok";
 import type { ModelDownKind } from "./model-down";
@@ -82,14 +84,25 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
   };
 
   const ctx = buildCharacterContext({ caseData, game }, characterId);
+  // Guilt-leak check (ai/guilt-check.ts): nobody confesses the murder before the accusation. A token from before this
+  // rule may still hold such a line in the conversation; it is not replayed to the model.
+  const guilt = guiltProfile(caseData);
+  const scrub = <T extends { text: string }>(m: T): T => (findGuiltLeak(m.text, guilt, characterId) ? { ...m, text: "(I have nothing more to say about that.)" } : m);
+  ctx.memory = ctx.memory.map((m) => (m.speaker === "character" ? scrub(m) : m));
+  ctx.statements = ctx.statements.map(scrub);
   const system = buildSystemPrompt(ctx, directives);
   const user = t.userMessage ? t.userMessage(ctx) : buildUserMessage(ctx, question, t.confrontation ? { partnerName: t.confrontation.partnerName } : {});
   if (!t.skipModel) t.onPrompt?.({ system, user });
   // Canon post-check (#6): every clock time must come from this character's context (or what was just said to them).
   const heard = [question, t.confrontation?.partnerLine ?? ""].join(" ");
   const allowed = canonTimes(ctx, directives, heard);
-  const validate = (r: { dialogue: string; action?: string }) => {
+  let guiltRejected = false;
+  const validate = (r: { dialogue: string; action?: string; admitsKilling?: boolean }) => {
     const said = `${r.dialogue} ${r.action ?? ""}`;
+    // Core guilt first (Agatha's rule): a line admitting the killing is never accepted, whatever else it gets right.
+    const leak = findGuiltLeak(r.dialogue, guilt, characterId) ?? (r.admitsKilling === true ? { kind: "killing" as const, text: r.dialogue } : null);
+    guiltRejected = leak !== null;
+    if (leak) return guiltRetryNote(leak, caseData.victim.name);
     const res = checkTimes(said, allowed);
     if (!res.ok) {
       return `You stated a time you do not know (${res.offending.map((x) => `"${x}"`).join(", ")}). Use only times from WHAT YOU KNOW or your stories, and only the time on the line about THAT person or event, or stay vague ("I couldn't say, sir"). Do not work out a clock time yourself: if it is not listed, say it relative to a listed event ("a couple of minutes after the candles").`;
@@ -125,7 +138,9 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
   if (grok.ok) {
     source = "model";
     // The model may only react to the clue shown THIS turn.
-    response = { ...grok.response, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
+    const { admitsKilling: _flag, ...reply } = grok.response;
+    void _flag;
+    response = { ...reply, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
   } else if (isModelDown(grok.reason) && !(plan.newlyExposedLieIds.length > 0 && (presentedEvidenceId || presentedTestimonyId))) {
     // Model out of reach: no improvised line, nothing committed (stress, trust, turn count, reveals all stay as they were).
     console.warn(`[turn] unavailable reason=${grok.reason}${grok.status ? ` status=${grok.status}` : ""}${grok.skipped ? " (breaker)" : ""} model=${grok.model} attempts=${grok.attempts} ms=${grok.latencyMs}`);
@@ -135,7 +150,12 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     // a clue/testimony that the ENGINE has just proved a lie: that contradiction beat does not need the model, so it is shown.
     source = "fallback";
     response = cannedCharacterResponse(ctx, question, presentedEvidenceId, game.turn);
-    if (t.confrontation && !presentedEvidenceId) {
+    if (!grok.ok && grok.reason === "canon_check_failed" && guiltRejected) {
+      // The model leaked the murder twice: a stonewall in character, no third call.
+      const d = guiltDeflection(ctx.state.stress, game.turn);
+      response = { ...response, dialogue: d.dialogue, action: d.action, emotion: d.emotion, intensity: 0.6 };
+      console.warn(`[turn] guilt leak rejected twice character=${characterId}`);
+    } else if (t.confrontation && !presentedEvidenceId) {
       // Face to face the generic one-on-one lines read oddly and repeat: pick a varied line aimed at the partner (#27).
       const v = variedConfrontationFallback(ctx, t.confrontation.partnerName, game.turn);
       response = { ...response, dialogue: v.dialogue, action: v.action, emotion: "defensive", intensity: 0.5 };

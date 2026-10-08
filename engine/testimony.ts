@@ -16,6 +16,7 @@
  * supersededBySecretIds, whatever the breakMode.
  */
 import type { LoadedCase } from "./case-schema";
+import { coreGuiltSecretIds } from "./core-guilt";
 import type { Character, CharacterRuntimeState, GameState, IntendedLie, Secret } from "./types";
 
 export type LieState = Pick<CharacterRuntimeState, "evidenceShownIds"> & Partial<Pick<CharacterRuntimeState, "testimonyShownIds" | "revealedSecretIds">>;
@@ -90,10 +91,18 @@ export function testimonyFallback(ownerName: string): string {
   return `${ownerName} admitted something under questioning.`;
 }
 
-/** Testimony cards for every revealed secret, in reveal order. */
-export function publicTestimonies(c: Pick<LoadedCase, "characters">, game: Pick<GameState, "revealedSecretIds" | "characters">): PublicTestimony[] {
+/**
+ * Testimony cards for every revealed secret, in reveal order. Core guilt never becomes a card (engine/core-guilt.ts):
+ * a legacy token that revealed one before the rule existed simply loses that card.
+ */
+export function publicTestimonies(
+  c: Pick<LoadedCase, "characters"> & Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution">>,
+  game: Pick<GameState, "revealedSecretIds" | "characters">,
+): PublicTestimony[] {
   const idx = secretIndex(c);
+  const core = coreGuiltSecretIds(c);
   return revealedSecretIds(game)
+    .filter((id) => !core.has(id))
     .map((id) => idx.get(id))
     .filter((x): x is { secret: Secret; owner: Character } => Boolean(x))
     .map(({ secret, owner }) => ({

@@ -17,6 +17,7 @@
  * Lives in engine/ (not ai/) because it is a deterministic projection of engine
  * truth; ai/context-builder.ts re-exports it. See docs/ARCHITECTURE.md.
  */
+import { coreGuiltSecretIds } from "./core-guilt";
 import type { CaseState } from "./game-state";
 import { knowledgeGate } from "./knowledge-gate";
 import { stressBand, type StressBand } from "./stress";
@@ -69,7 +70,19 @@ export interface CharacterContext {
    * "exposed" = evidence has broken it (stop insisting);
    * "retired" = the character has confessed a secret that replaces it (supersededBySecretIds).
    */
-  intendedLies: { id: string; topic?: string; claim: string; status: "maintain" | "exposed" | "retired"; /** Has told the detective this story (engine/memory.ts). */ told: boolean }[];
+  intendedLies: {
+    id: string;
+    topic?: string;
+    claim: string;
+    status: "maintain" | "exposed" | "retired";
+    /** Has told the detective this story (engine/memory.ts). */
+    told: boolean;
+    /**
+     * Exposed, but the truth behind it is core guilt (engine/core-guilt.ts): the character can no longer tell it and
+     * admits NOTHING in its place (stonewalls / deflects). Only set on exposed lies.
+     */
+    stonewall?: true;
+  }[];
   /** The detective's recent assertions to THIS character: untrusted, never facts (engine/memory.ts). */
   playerClaims: { text: string; turn: number }[];
   /** Engine-owned pressure gauges (0..100) and the stress band (engine/stress.ts). */
@@ -93,7 +106,10 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
   const { caseData: c, game } = caseState;
   const ch = c.characters.find((x) => x.id === characterId);
   if (!ch) throw new UnknownCharacterError(characterId);
-  const runtime = game.characters[characterId];
+  // Core guilt is never revealed before the accusation (engine/core-guilt.ts): a legacy token listing one is read without it.
+  const core = coreGuiltSecretIds(c);
+  const raw = game.characters[characterId];
+  const runtime = raw && { ...raw, revealedSecretIds: raw.revealedSecretIds.filter((id) => !core.has(id)) };
 
   const locName = (id?: string) => (id ? c.locations.find((l) => l.id === id)?.name : undefined);
   const personName = (id: string) =>
@@ -167,17 +183,21 @@ export function buildCharacterContext(caseState: CaseState, characterId: string)
       ...(r.defensiveOn?.length ? { defensiveOn: r.defensiveOn.map((d) => ({ ...d })) } : {}),
     })),
     // aboutFactId / brokenByEvidenceIds stay engine-side.
-    intendedLies: ch.intendedLies.map((l) => ({
-      id: l.id,
-      ...(l.topic ? { topic: l.topic } : {}),
-      claim: l.claim,
-      status: isLieSuperseded(l, runtime)
-        ? ("retired" as const)
-        : gate.exposedLieIds.has(l.id)
-          ? ("exposed" as const)
-          : ("maintain" as const),
-      told: (runtime?.liesToldIds ?? []).includes(l.id),
-    })),
+    intendedLies: ch.intendedLies.map((l) => {
+      const status = isLieSuperseded(l, runtime) ? ("retired" as const) : gate.exposedLieIds.has(l.id) ? ("exposed" as const) : ("maintain" as const);
+      // Its truth is core guilt: either only core-guilt secrets would ever replace it, or it is about a core-guilt fact.
+      const guilt =
+        (l.supersededBySecretIds.length > 0 && l.supersededBySecretIds.every((id) => core.has(id))) ||
+        (l.aboutFactId !== undefined && gate.withheldFactIds.has(l.aboutFactId) && ch.secrets.some((s) => core.has(s.id) && s.relatedFactIds.includes(l.aboutFactId!)));
+      return {
+        id: l.id,
+        ...(l.topic ? { topic: l.topic } : {}),
+        claim: l.claim,
+        status,
+        told: (runtime?.liesToldIds ?? []).includes(l.id),
+        ...(status === "exposed" && guilt ? { stonewall: true as const } : {}),
+      };
+    }),
     playerClaims: (runtime?.playerClaims ?? []).slice(-4).map((x) => ({ ...x })),
     state: { stress: runtime?.stress ?? 0, trust: runtime?.trust ?? 50, band: stressBand(runtime?.stress ?? 0), brokeDown: runtime?.brokeDown ?? false },
     memory: (runtime?.memory ?? [])

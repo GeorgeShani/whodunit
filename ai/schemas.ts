@@ -42,6 +42,11 @@ export const CharacterResponseSchema = z.strictObject({
    */
   stressDelta: z.number().finite().default(0),
   trustDelta: z.number().finite().default(0),
+  /**
+   * The model's own flag that the line admits the killing (ai/guilt-check.ts). Never trusted to decide anything:
+   * true only makes the engine REJECT the line (retry once, then a canned deflection).
+   */
+  admitsKilling: z.boolean().optional(),
 });
 export type CharacterResponse = z.infer<typeof CharacterResponseSchema>;
 

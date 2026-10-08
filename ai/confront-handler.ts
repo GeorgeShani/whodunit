@@ -143,7 +143,8 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
         game,
         characterId: bId,
         question,
-        ...(thrown ? { move: { presentedTestimonyId: thrown } } : {}),
+        // One secret per exchange: if A's turn planned a reveal, B's reaction reveals nothing this exchange.
+        move: { ...(thrown ? { presentedTestimonyId: thrown } : {}), allowReveal: !first.plan.revealSecretId },
         confrontation: { partnerName: a.name, role: "reacting", partnerLine: aLine },
         memoryText: `(Face to face with ${a.name}) The detective asked ${a.name}: "${question}" ${a.name} said: "${aLine}"`,
         userMessage: (ctx) =>

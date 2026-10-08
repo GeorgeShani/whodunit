@@ -3,11 +3,12 @@
  * and a reachability simulation from an empty state. Pure. Cases without any progression field return nothing.
  *
  * The simulation is deliberately generous to the player: every suspect can be questioned without limit and any
- * clue in hand can be shown to anyone. Secrets reveal by evidence and afterSecretIds only (stress-only conditions
- * count as unreachable). It iterates to a fixed point; anything still locked then can never be reached.
+ * clue in hand can be shown to anyone. Secrets reveal by evidence, testimony held and afterSecretIds only (stress-only
+ * conditions count as unreachable); core guilt (engine/core-guilt.ts) never reveals. It iterates to a fixed point; anything still locked then can never be reached.
  */
 import type { LoadedCase } from "./case-schema";
 import type { CaseIssue } from "./case-validation";
+import { coreGuiltSecretIds } from "./core-guilt";
 import { accuseProgress, isUnlocked, leadStates, type LeadStates } from "./progress";
 import type { Condition, GameState } from "./types";
 import { GameStateSchema } from "./types";
@@ -45,19 +46,27 @@ export interface Simulation {
   actions?: number;
 }
 
+/**
+ * Can this secret be cracked now with the clues found and the testimony held (stress never counts)?
+ * Testimony conditions count once that secret is revealed (any card can be presented to anyone). Core guilt never.
+ */
+function crackable(s: LoadedCase["characters"][number]["secrets"][number], core: ReadonlySet<string>, discovered: ReadonlySet<string> | readonly string[], revealed: ReadonlySet<string> | readonly string[]): boolean {
+  const has = (set: ReadonlySet<string> | readonly string[], id: string) => ("has" in set ? set.has(id) : set.includes(id));
+  const rc = s.revealConditions;
+  if (core.has(s.id) || has(revealed, s.id) || !rc || !rc.afterSecretIds.every((id) => has(revealed, id))) return false;
+  const conds = [...rc.evidenceIds.map((e) => has(discovered, e)), ...(rc.testimonyIds ?? []).map((t) => has(revealed, t))];
+  return conds.length > 0 && (rc.mode === "all" ? conds.every(Boolean) : conds.some(Boolean));
+}
+
 /** Secrets whose reveal conditions can be met with the given clues (stress never counts). */
 function revealableSecrets(c: LoadedCase, discovered: ReadonlySet<string>, revealed: Set<string>): boolean {
   let changed = false;
+  const core = coreGuiltSecretIds(c);
   for (const ch of c.characters) {
     for (const s of ch.secrets) {
-      const rc = s.revealConditions;
-      if (revealed.has(s.id) || !rc || !rc.afterSecretIds.every((id) => revealed.has(id))) continue;
-      const conds = rc.evidenceIds.map((e) => discovered.has(e));
-      if (conds.length === 0) continue;
-      if (rc.mode === "all" ? conds.every(Boolean) : conds.some(Boolean)) {
-        revealed.add(s.id);
-        changed = true;
-      }
+      if (!crackable(s, core, discovered, revealed)) continue;
+      revealed.add(s.id);
+      changed = true;
     }
   }
   return changed;
@@ -250,6 +259,7 @@ export function fastestPath(c: LoadedCase): number | null {
     if (sol.keyEvidenceIds.filter((id) => g.discoveredEvidenceIds.includes(id)).length < (sol.minKeyEvidence ?? 1)) return false;
     return (sol.keyTestimonyIds ?? []).filter((id) => g.revealedSecretIds.includes(id)).length >= (sol.minKeyTestimony ?? 0);
   };
+  const core = coreGuiltSecretIds(c);
   const seen = new Set([key(start)]);
   let frontier: Node[] = [{ game: start, steps: 0 }];
   while (frontier.length) {
@@ -277,13 +287,10 @@ export function fastestPath(c: LoadedCase): number | null {
         g.characters[id].interrogationCount = Math.min(cap, g.characters[id].interrogationCount + 1);
         push(g);
       }
-      // Show a clue that cracks one of that suspect's secrets (an exchange too).
+      // Show a clue (or present a testimony card) that cracks one of that suspect's secrets (an exchange too). Never core guilt.
       for (const ch of c.characters) {
         for (const sec of ch.secrets) {
-          const rc = sec.revealConditions;
-          if (!rc || game.revealedSecretIds.includes(sec.id) || !rc.afterSecretIds.every((x) => game.revealedSecretIds.includes(x))) continue;
-          const conds = rc.evidenceIds.map((e) => game.discoveredEvidenceIds.includes(e));
-          if (!conds.length || !(rc.mode === "all" ? conds.every(Boolean) : conds.some(Boolean))) continue;
+          if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
           const g = clone(game);
           g.revealedSecretIds.push(sec.id);
           g.characters[ch.id].interrogationCount = Math.min(cap, g.characters[ch.id].interrogationCount + 1);
