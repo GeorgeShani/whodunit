@@ -70,8 +70,12 @@ export type GateRefusal =
 
 export interface GatePass {
   ok: true;
-  /** Call once the turn is over. `called: false` (the model was never reached) refunds the reserved turns. */
-  settle(o: { called: boolean }): Promise<void>;
+  /**
+   * Call once the turn is over. `called: false` (the model was never reached) refunds the reserved turns.
+   * `extra`: model calls beyond the reserved ones (a rejected reply's single retry, e.g. the guilt-leak or canon
+   * check) are charged to both counters too, after the fact (never refused: the call already happened).
+   */
+  settle(o: { called: boolean; extra?: number }): Promise<void>;
 }
 
 export interface ModelGate {
@@ -139,10 +143,17 @@ export function createModelGate({ kv, ip, env = process.env, now = Date.now, log
       let settled = false;
       return {
         ok: true,
-        async settle({ called }) {
+        async settle({ called, extra = 0 }) {
           if (settled) return;
           settled = true;
-          if (called) return;
+          if (called) {
+            const more = Math.max(0, Math.floor(extra));
+            if (more > 0) {
+              await write(rk, (await read(rk, "per-IP")) + more, cfg.windowSeconds);
+              await write(dk, (await read(dk, "daily")) + more, 2 * 24 * 3600);
+            }
+            return;
+          }
           await write(rk, (await read(rk, "per-IP")) - cost, cfg.windowSeconds);
           await write(dk, (await read(dk, "daily")) - cost, 2 * 24 * 3600);
         },

@@ -171,6 +171,13 @@ describe("model gate: kill switch and refunds", () => {
     await p2.settle({ called: true });
     expect((await gate.open(1)).ok).toBe(false);
   });
+  it("settle({called:true, extra}) charges a rejected reply's retry to both counters (core-guilt / canon retries cost money too)", async () => {
+    const { gate } = gateFor({ env: { MODEL_RATE_LIMIT: "3", MODEL_DAILY_CAP: "100" } });
+    const p = (await gate.open(1)) as GatePass;
+    await p.settle({ called: true, extra: 1 });
+    expect((await gate.open(1)).ok).toBe(true); // 3rd of 3
+    expect((await gate.open(1)).ok).toBe(false);
+  });
 });
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -220,6 +227,17 @@ describe("POST /api/interrogate behind the gate", () => {
     expect(second.status).toBe(429);
     expect(second.body.stateToken).toBe(first.body.stateToken);
     expect(fetchFn).toHaveBeenCalledTimes(1);
+  });
+  it("a reply rejected by the guilt-leak check costs its retry too: 2 calls = 2 turns against the limit", async () => {
+    const fn = vi.fn(async () => json(200, chatBody(goodReply({ dialogue: "Yes, I did it! I struck his lordship down!" }))));
+    vi.stubGlobal("fetch", fn);
+    const { gate } = gateFor({ env: { MODEL_RATE_LIMIT: "3" } });
+    const first = await handleInterrogate({ ...ask, stateToken: midGame() }, { caseData: c, env: TEST_ENV, gate });
+    expect(first.status).toBe(200);
+    expect(first.body.source).toBe("fallback");
+    expect(fn).toHaveBeenCalledTimes(2);
+    expect((await gate.open(1)).ok).toBe(true); // 3rd of 3
+    expect((await gate.open(1)).ok).toBe(false);
   });
   it("daily cap reached: 503 with the quiet line, token unchanged, no model call", async () => {
     const fetchFn = okFetch();

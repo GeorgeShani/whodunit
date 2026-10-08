@@ -149,6 +149,7 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
     // nothing spent), so the engine's deterministic contradiction beat still lands.
     const offline = pass && !pass.ok ? pass.reason : null;
     let called = true;
+    let extra = 0;
     let turn: Awaited<ReturnType<typeof performTurn>>;
     try {
       turn = await performTurn({
@@ -162,8 +163,10 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
         ...(deps.onPrompt ? { onPrompt: deps.onPrompt } : {}),
       });
       called = turn.grok.attempts > 0;
+      // A rejected reply's single retry (canon / guilt-leak check) is a second paid call: it counts too.
+      extra = Math.max(0, turn.grok.attempts - 1);
     } finally {
-      if (pass?.ok) await pass.settle({ called });
+      if (pass?.ok) await pass.settle({ called, extra });
     }
 
     if (isTurnUnavailable(turn)) {

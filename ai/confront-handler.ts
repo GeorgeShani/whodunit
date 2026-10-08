@@ -105,6 +105,8 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
     const offline = pass && !pass.ok ? pass.reason : null;
     const skip = offline ? { skipModel: "quota" as const } : {};
     let called = false;
+    // Retries after a rejected reply (canon / guilt-leak check) are extra paid calls, charged on settle.
+    let extra = 0;
     const exchange = async (): Promise<{ status: number; body: ConfrontResponseBody }> => {
       // Face-to-face pressure (engine rule), before either side's reveal is decided.
       for (const id of [aId, bId]) game.characters[id].stress = clampStress(game.characters[id].stress + CONFRONTATION_PRESSURE);
@@ -133,6 +135,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
         ...(onPrompt(aId) ? { onPrompt: onPrompt(aId) } : {}),
       });
       called ||= first.grok.attempts > 0;
+      extra += Math.max(0, first.grok.attempts - 1);
 
       if (isTurnUnavailable(first)) return down(first.kind, first.reason);
 
@@ -156,6 +159,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
         ...(onPrompt(bId) ? { onPrompt: onPrompt(bId) } : {}),
       });
       called ||= second.grok.attempts > 0;
+      extra += Math.max(0, second.grok.attempts - 1);
 
       if (isTurnUnavailable(second)) return down(second.kind, second.reason);
 
@@ -181,7 +185,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
     try {
       return await exchange();
     } finally {
-      if (pass?.ok) await pass.settle({ called });
+      if (pass?.ok) await pass.settle({ called, extra });
     }
   };
 
