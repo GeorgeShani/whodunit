@@ -74,14 +74,14 @@ describe("varyDelivery (deterministic, no model call)", () => {
     expect(r.dialogue).toBe("I beg your pardon, sir? I saw no such thing.");
   });
 
-  it("Gregory: the same action as last time is swapped for an unused quirk/tell (never one near a recent action)", () => {
+  it("Gregory: the same action as last time is swapped for an unused voice action/quirk/tell (never one near a recent action)", () => {
     const same = "wrings his cap and glances at the hall door";
     const { ctx } = ctxFor(withMemory(createInitialGameState(c), "gregory", [{ a: "W-well, sir... I heard the thud.", action: same }, { a: "W-well sir, it were m'lady.", action: same }]), "gregory");
     const r = varyDelivery({ dialogue: "I didn't see no candlestick, sir.", action: same }, ctx, 3);
     expect(r.action).toBeDefined();
     expect(sameAction(r.action!, same)).toBe(false);
     const g = c.characters.find((x) => x.id === "gregory")!;
-    expect([...g.personality.quirks, ...g.personality.tells]).toContain(r.action);
+    expect([...g.voice.actions, ...g.personality.quirks, ...g.personality.tells]).toContain(r.action);
     expect(r.action).not.toMatch(/wrings his cap|hall door/);
   });
 
@@ -122,9 +122,15 @@ describe("prompt: VARY YOUR DELIVERY", () => {
     expect(msg).toContain('Do not open with: "My dear detective"');
     expect(msg).toContain('"dabs at her eyes with a lace handkerchief"');
     expect(msg).toContain("I couldn't possibly have done any such thing");
-    // Suggested fresh actions are the character's own and never one of the recent ones.
-    expect(msg).toMatch(/Actions you have not used lately: .*"laughs a half-beat too long"|Actions you have not used lately: .*"swoons onto the nearest chaise"/);
-    expect(msg.split("Actions you have not used lately:")[1]).not.toContain("dabs dry eyes");
+    // Suggested fresh actions are the character's own (authored voice.actions first, then quirks/tells) and never one of
+    // the recent ones.
+    const v = c.characters.find((x) => x.id === "victoria")!;
+    const own = [...v.voice.actions, ...v.personality.quirks, ...v.personality.tells];
+    const line = msg.split("\n").find((l) => l.includes("Actions you have not used lately:"))!;
+    const offered = [...line.matchAll(/"([^"]+)"/g)].map((m) => m[1]!);
+    expect(offered.length).toBeGreaterThan(0);
+    for (const a of offered) expect(own).toContain(a);
+    expect(line).not.toMatch(/dabs (at )?(dry|her) eyes/);
   });
 
   it("authored voice openers are offered (fixture case), never the one just used", () => {

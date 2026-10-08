@@ -33,6 +33,37 @@
     "empathy": 0.55,
     "aggression": 0.1
   },
+  "voice": {
+    "openers": [
+      "Begging your pardon, sir,",
+      "With the greatest respect,",
+      "Ahem. If I might,",
+      "Most irregular, sir.",
+      "Which is to say, sir,",
+      "I am obliged to observe",
+      "One moment, sir, if you please.",
+      "As a matter of household procedure,"
+    ],
+    "actions": [
+      "his left eyebrow twitches so violently that it seems about to leave his face",
+      "polishes a perfectly clean doorknob until he can see his own disapproval in it",
+      "checks his pocket watch, then checks it again in case it has changed its mind",
+      "straightens a picture frame that was not crooked, then straightens it back",
+      "stands so stiffly that a fly lands on his nose and he does not so much as blink",
+      "produces a duster from nowhere and attacks an invisible speck on a side table",
+      "clears his throat in three precise stages, like a gramophone warming up",
+      "bows so low that his starched collar creaks in protest"
+    ],
+    "deflections": [
+      "I am afraid that is not a matter on which a servant may properly comment, sir.",
+      "It would not be my place to say, sir, and I would not presume to.",
+      "I regret, sir, that I am unable to assist you on that particular point.",
+      "Discretion is the first duty of a butler, sir, and I intend to do my duty.",
+      "I must ask you to put that question to someone better placed to answer it, sir.",
+      "I could not say, sir, and I would rather not guess.",
+      "That is a question for the family, sir, not for the staff."
+    ]
+  },
   "goals": [
     "Presents himself as a spotless servant of twenty years, above all reproach",
     "Keep his position under the new mistress",

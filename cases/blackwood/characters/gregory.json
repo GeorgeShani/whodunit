@@ -33,6 +33,37 @@
     "empathy": 0.6,
     "aggression": 0.1
   },
+  "voice": {
+    "openers": [
+      "Er...",
+      "Thing is,",
+      "Lor', sir,",
+      "Beggin' your pardon,",
+      "Can't rightly say, but",
+      "As I were sayin',",
+      "Crikey,",
+      "Mm, I dunno..."
+    ],
+    "actions": [
+      "jumps a clear foot in the air at a rumble of thunder and lands in a crouch",
+      "wrings his cap until it is roughly the shape of a sausage",
+      "stares at his boots as though they might answer for him",
+      "drips steadily onto the carpet and tries to stand in his own puddle",
+      "tugs his forelock so hard that his eyes water",
+      "shuffles backwards into a coat-stand and apologises to it",
+      "sneezes so hard that his cap flies off and he has to chase it",
+      "shrinks into his collar like a tortoise that has heard a dog"
+    ],
+    "deflections": [
+      "I'd rather not say, sir, if it's all the same to you.",
+      "That ain't for the likes of me to say, sir.",
+      "Can I go now, sir? Only I'm wet through and shakin'.",
+      "I'm only the gardener, sir. Ask me about roses and I'll tell you all day.",
+      "Me head's all of a muddle, sir, and I can't think straight.",
+      "I keep me mouth shut and me head down, sir, always have.",
+      "I'm no good with questions, sir, never have been."
+    ]
+  },
   "goals": [
     "Not be blamed for the murder",
     "Keep his head down and get through the night without trouble",
