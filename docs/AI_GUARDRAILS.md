@@ -205,3 +205,10 @@ their lies but never makes them confess something unrelated.
 - No semantic second pass: every probe line is now held by the regex layer plus the language gate, so a model call per
   suspicious line (cost, latency, a new failure mode) is not justified yet. It stays the next step if a future probe
   defeats both.
+
+### #46 Per-character forbidden phrases (schema + validator + guard)
+`characters[].forbiddenPhrases` (see docs/CASE_FORMAT.md), enforced by `checkReply` on every reply (dialogue) as
+`forbidden_phrase`, a contract reason, right after the guilt and `admits` checks (`ai/forbidden-phrases.ts`). A secret
+revealed in the current exchange counts as revealed for `unlessRevealed`. The retry note quotes only the model's own
+matched words, never the entry's `note`. Case one's lists are Agatha's data PR; the fixture case
+(`tests/fixtures/cases/harbor-light`) carries three samples.

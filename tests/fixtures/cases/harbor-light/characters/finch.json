@@ -57,5 +57,11 @@
     "intensity": 0.3,
     "composure": 0.8
   },
-  "intendedLies": []
+  "intendedLies": [],
+  "forbiddenPhrases": [
+    {
+      "text": "the keeper did it",
+      "note": "Sample (#46): Finch slept through the night and cannot know."
+    }
+  ]
 }

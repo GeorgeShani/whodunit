@@ -16,6 +16,7 @@
  */
 import { findRetraction } from "./retraction-check";
 import { findForeignLanguage } from "./language-check";
+import { findForbiddenPhrase } from "./forbidden-phrases";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
@@ -33,6 +34,7 @@ export type GuardReason =
   | "concedes_maintained_lie"
   | "retracts_admission"
   | "not_english"
+  | "forbidden_phrase"
   | "multiple_reveals"
   | "unknown_time"
   | "event_order"
@@ -43,7 +45,7 @@ export type GuardReason =
   | "modern_word";
 
 /** Reasons that mean the line said something the engine did not allow (as opposed to a performance slip). */
-export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "not_english", "multiple_reveals", "unknown_name"]);
+export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "not_english", "forbidden_phrase", "multiple_reveals", "unknown_name"]);
 
 export interface GuardReply {
   dialogue: string;
@@ -144,9 +146,19 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
     if (kept) return { reason: "concedes_maintained_lie", note: `Your line conceded the story "${kept}", which you still MAINTAIN. ${stonewall}`, detail: `admits:${kept}` };
   }
 
+  // 2a. Per-character forbidden phrases from the case data (#46). A secret revealed this exchange counts as revealed.
+  const revealedNow = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
+  const banned = findForbiddenPhrase(r.dialogue, ch?.forbiddenPhrases, revealedNow);
+  if (banned) {
+    return {
+      reason: "forbidden_phrase",
+      note: `Your line said "${banned.match.slice(0, 80)}", which you cannot say: you did not see, hear or do that, or you have not admitted it. Say only what WHAT YOU KNOW, your stories and ALREADY ADMITTED support; if you only suspect something, say it is a suspicion, or deflect.`,
+      detail: `forbidden:${banned.index}:${banned.match.slice(0, 80)}`,
+    };
+  }
+
   // 2b. Never retract what the engine has revealed (#48), breakdowns included.
-  const revealedIds = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
-  const retraction = findRetraction(r.dialogue, g.caseData, g.characterId, revealedIds, g.guilt);
+  const retraction = findRetraction(r.dialogue, g.caseData, g.characterId, revealedNow, g.guilt);
   if (retraction) {
     const what = g.ctx.secrets.find((s) => s.id === retraction.secretId)?.description ?? g.directives.revealSecret?.description ?? retraction.secretId;
     return {

@@ -99,5 +99,17 @@
   ],
   "aliases": [
     "the cook"
+  ],
+  "forbiddenPhrases": [
+    {
+      "text": "smuggle rum",
+      "unlessRevealed": "marlow-secret",
+      "note": "Sample (#46): his own locked secret, lifted once he admits it."
+    },
+    {
+      "text": "(?<!\\bnever\\s)\\bsaw\\s+(?:the\\s+)?keeper\\b[^.!?]{0,30}\\b(?:throw|threw|toss|tossed)\\b",
+      "regex": true,
+      "note": "Sample (#46): an over-claim. Marlow saw Quill come in wet, never throw anything."
+    }
   ]
 }

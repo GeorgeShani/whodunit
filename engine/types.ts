@@ -421,6 +421,30 @@ export type IntendedLie = z.infer<typeof IntendedLieSchema>;
 // Characters
 // ---------------------------------------------------------------------------
 
+/**
+ * A phrase this character must never say (#46), enforced by the guard on every reply. `text` is a plain phrase
+ * (matched case-insensitively as whole words, any whitespace between words) or, with `regex: true`, a JavaScript
+ * regex compiled with `new RegExp(text, "i")` (lookbehind allowed). It stops applying once the speaker's own secret
+ * `unlessRevealed` is revealed, counting a secret revealed in the current exchange. `note` is for authors only and is
+ * never sent to the model.
+ */
+export const ForbiddenPhraseSchema = z
+  .strictObject({
+    text: NonEmptyText,
+    regex: z.boolean().default(false),
+    unlessRevealed: IdSchema.optional(),
+    note: z.string().optional(),
+  })
+  .superRefine((p, ctx) => {
+    if (!p.regex) return;
+    try {
+      new RegExp(p.text, "i");
+    } catch (e) {
+      ctx.addIssue({ code: "custom", path: ["text"], message: `invalid regex: ${(e as Error).message}` });
+    }
+  });
+export type ForbiddenPhrase = z.infer<typeof ForbiddenPhraseSchema>;
+
 /** An authored suspect/witness. Everything they know is scoped to them. */
 export const CharacterSchema = z.strictObject({
   id: IdSchema,
@@ -441,6 +465,8 @@ export const CharacterSchema = z.strictObject({
   relationships: z.array(RelationshipSchema).default([]),
   /** Authored lies / cover stories the character intends to tell. */
   intendedLies: z.array(IntendedLieSchema).default([]),
+  /** Phrases the guard rejects in this character's replies (#46); see ForbiddenPhraseSchema. */
+  forbiddenPhrases: z.array(ForbiddenPhraseSchema).default([]),
   /** Emotional state at the start of the case. */
   initialEmotion: EmotionalStateSchema,
   /** Asset key for their portrait set (resolved under assets/characters). */
