@@ -4,9 +4,9 @@
 |---|---|
 | **Case id** | `tallyho` |
 | **Author** | Agatha (mystery and narrative design) |
-| **Status** | Design only. No JSON, no art. A later build turns this into `cases/tallyho/*` mechanically. |
+| **Status** | Design only. No JSON, no art. A later build turns this into `cases/tallyho/*` mechanically. Brought in line with `docs/CASE_TWO_IMPLEMENTATION_PLAN.md` (PR #34): the 1936 setting and era vocabulary (1.5), the purser (1.6), the helper picker and strict roles (4.7), real order landmarks (3.6), and section 11 brought up to date. |
 | **Branch** | `agatha/case-tallyho-design` |
-| **Depends on** | The progression model in `docs/BLACKWOOD_PROGRESSION_PROPOSAL.md` (on `main` since commit 55a65fd: `requires`/`lockedLine`, `leads`, `accuseGate`, key testimony). **The proposal is on `main` but the engine does not implement it yet** (no `requires`, `leads`, `accuseGate` or `keyTestimonyIds` anywhere in `engine/`), so every progression field below is written against the proposal, not against today's engine. |
+| **Depends on** | The progression model (`requires`/`lockedLine`, `leads`, `accuseGate`, key testimony). **It is built and on `main`** (Dexter's backend, commits 5831a5e to 4709822; Blackwood migrated in #36), and every Tallyho condition uses only the five shipped `Condition` atoms (plan 3.7). The two-culprit accusation (G1), the `setting` block and per-case `orderLandmarks` are decided in the plan but not built yet. |
 | **Engine note** | `engine/` is untouched. Section 11 lists everything the engine cannot express today, with the smallest proposed change for each. |
 
 ---
@@ -15,7 +15,7 @@
 
 > **This page is spoiler-free.** Everything after the "SPOILERS BELOW" marker gives away the answer.
 
-**Murder Cruise on the S.S. Tallyho** is a cartoon whodunit in a thunderstorm. Commodore Barnabas "Barnacle" Brine, the Marmalade King, throws his Last Tally-Ho Gala aboard his steam yacht. He means to make a Midnight Announcement that will wreck at least five people's lives. At 22:38 the whole ship hears him bellow his famous cheer, "TALLY-HO! SPREAD THE BRINE!". At 22:55 his niece finds him in his stateroom, bonked on the head with something heavy that has vanished, his orange toupee gone, marmalade everywhere and his pocket-watch smashed at 22:41. No doctor aboard, no radio, no docking until dawn.
+**Murder Cruise on the S.S. Tallyho** is a cartoon whodunit in a thunderstorm. Commodore Barnabas "Barnacle" Brine, the Marmalade King, throws his Last Tally-Ho Gala aboard his steam yacht. He means to make a Midnight Announcement that will wreck at least five people's lives. At 22:38 the whole ship hears him bellow his famous cheer, "TALLY-HO! SPREAD THE BRINE!". At 22:55 his niece finds him in his stateroom, bonked on the head with something heavy that has vanished, his orange toupee gone, marmalade everywhere and his pocket-watch smashed at 22:41. No doctor aboard, the wireless dead in the storm, and no police until the ship makes port at dawn.
 
 **The cast (six suspects, all funny, all lying about something):**
 
@@ -35,7 +35,7 @@
 - **Two culprits who each did half the job** (a new multi-culprit accusation, see section 11).
 - **Visual pay-offs.** The BONK lands, the sticky clues tell tales, and one very silly object ends up in a very wrong place.
 
-**Length.** The fastest legal win is **32 actions** (Blackwood under the same progression model: 11). A typical game is **45 to 70**. Winning needs three key clues and two revealed testimonies, so it cannot be done on a lucky guess or a confession.
+**Length.** The fastest legal win is **32 actions** (Blackwood, now built on the same progression model: 10, as the validator prints). A typical game is **45 to 70**. Winning needs three key clues and two revealed testimonies, so it cannot be done on a lucky guess or a confession.
 
 **Size against the brief:**
 
@@ -50,8 +50,8 @@
 
 **What I need from you (spoiler-safe):**
 
-1. **Two-culprit grading.** Do you want *strict* roles (name the right doer and the right stager) or *lenient* roles (name the right pair, either order)? I recommend strict. Section 11.
-2. **The progression engine.** Tallyho only works with the progression proposal (gates, leads, accuse gate). Is that going to `main` first?
+1. ~~**Two-culprit grading.**~~ **Decided: strict roles** (plan Q1). The accuse form always asks "Did anyone help?" with an explicit "No one helped" (plan Q2). Section 4.7.
+2. ~~**The progression engine.**~~ **Done: progression is built and on `main`.** Section 11.
 3. **Length.** Is a 32-action floor right for you, or do you want a lower or higher floor?
 
 **What I need from the build:** one new field for the second culprit, one new reveal trigger, a few small validator tweaks. Section 11 has the full list.
@@ -76,14 +76,14 @@
 
 ### 1.1 Premise and setting
 
-It is **the night of the Gala in the Bay of Bother**, and the steam yacht **S.S. Tallyho** is wallowing in a thunderstorm during the Commodore's Last Tally-Ho Gala. The Marmalade King, **Commodore Barnabas "Barnacle" Brine** (Brine's Bitter Orange: "Spread the Brine!"), has invited his niece, his rival, his chef, his captain, his engineer and a headlining magician, and has promised a **Midnight Announcement** that nobody is allowed to know about. His orange toupee, his brass trumpet and his booming cheer, "TALLY-HO! SPREAD THE BRINE!", are the stuff of legend. At 22:55 his niece finds him dead in the Owner's Stateroom, bonked on the head with something heavy and round that is nowhere to be seen, the room awash in sticky marmalade, his pocket-watch smashed at 22:41. The squall knocked out the wireless, there is no doctor aboard, and the next port is hours away. Nobody leaves. The detective is a guest on board. Six people had a reason to want the Commodore quiet. Everybody is lying about something.
+It is **a summer night in 1936 in the Bay of Bother**, and the private steam yacht **S.S. Tallyho** is wallowing in a thunderstorm during the Commodore's Last Tally-Ho Gala. The Marmalade King, **Commodore Barnabas "Barnacle" Brine** (Brine's Bitter Orange: "Spread the Brine!"), has invited his niece, his rival, his chef, his captain, his engineer and a headlining magician, and has promised a **Midnight Announcement** that nobody is allowed to know about. His orange toupee, his brass trumpet and his booming cheer, "TALLY-HO! SPREAD THE BRINE!", are the stuff of legend. At 22:55 his niece finds him dead in the Owner's Stateroom, bonked on the head with something heavy and round that is nowhere to be seen, the room awash in sticky marmalade, his pocket-watch smashed at 22:41. The squall knocked out the wireless, there is no doctor aboard, and the next port is hours away. Nobody leaves. There are **no police aboard**: until the Tallyho makes port at dawn, the in-world authority is the ship's purser (1.6), a neutral officer who is not a suspect. The detective is a guest on board, and is always called "detective". Six people had a reason to want the Commodore quiet. Everybody is lying about something.
 
 **World details that carry the plot (all fair, all introduced early):**
 
 - **The Voice-Horn network.** Brass horns in the Grand Saloon, the cabin-deck corridor, the galley and the bridge wing. The Commodore speaks into a trumpet in his stateroom; the Captain's chartroom holds the junction box that feeds the horns, and the Cheer-Box.
 - **The Plunge.** At 22:17 the headliner Zippelli is chained into a glass chest by a volunteer (Dame Gherkina seals it with her pickle-jar wax signet) and lowered into a tank-stage. At 22:38 the band drum-rolls, a rubber shark is lowered and the Commodore bellows his cheer over the horns. At 22:49 Zippelli bursts out.
 - **The list.** The ship leans one way or the other. A squall at 21:40 makes her heel to starboard. At 22:14 a rogue wave and the Captain's "hard-a-port" flip her to a port list. Everything loose then slides to port.
-- **Offstage extras.** About forty Gala guests fill the saloon, the helmsman stands on the bridge, and the kitchen boys are seasick in the scullery. None of them is a character, none is a witness to anything that matters, and none can be interrogated. The "saloon" alibis rely on named suspects only (Percy and Dame Gherkina).
+- **Offstage extras.** About forty Gala guests fill the saloon, the helmsman stands on the bridge, a footman and the stewards wait at table, the kitchen boys are seasick in the scullery, and the **purser** keeps his office forward on the main deck (1.6). None of them is a character, none is a witness to anything that matters, and none can be interrogated. The "saloon" alibis rely on named suspects only (Percy and Dame Gherkina).
 
 ### 1.2 The victim
 
@@ -126,6 +126,89 @@ The tone is Looney Tunes, but the rules never change mid-case. These are also th
 6. **The Rule of the Seal.** Dame Gherkina's pickle-jar wax signet is unforgeable and unbroken. The chest was never opened.
 7. **The Rule of the Captain.** Bilge is never wrong. He only alters course. Nothing he says in the early game is ever a plain "I was wrong".
 
+
+### 1.5 Era and vocabulary (decided: plan Q6)
+
+**The summer of 1936, aboard a private steam yacht at sea in a storm.** This replaces Blackwood's hard-coded "English country house in the 1920s" with a per-case `setting` block (plan 4.4). The player stays **"detective"** everywhere; there is no field for it.
+
+```json
+"setting": {
+  "place": "aboard a private steam yacht at sea in a storm",
+  "decade": "the 1930s",
+  "dateLine": "the summer of 1936",
+  "site": "the ship",
+  "authority": {
+    "noun": "the purser",
+    "policeAboard": false,
+    "note": "the police take over when we make port"
+  },
+  "roster": "Others aboard:",
+  "vocabulary": {
+    "allowed": [
+      "disc",
+      "gramophone",
+      "wireless",
+      "telegraph",
+      "galley",
+      "purser"
+    ],
+    "banned": [
+      "phones",
+      "apps"
+    ]
+  }
+}
+```
+
+- **Allowed words** (`vocabulary.allowed`, named in the era prompt as ordinary for this world, and exempt from every banned list): **disc, gramophone, wireless, telegraph, galley, purser.** Blackwood's "the telephone is not modern" sentence does not apply here.
+- **Banned words** (`vocabulary.banned`, added to the default anachronism list; whole words, case-insensitive, plural-aware): **phones, apps.** "phones" bans *phone* and *phones*, but not *gramophone* or *telephone*. The always-banned meta words (emoji, AI, JSON, "okay" and so on) still apply.
+- **Period words used in this design that need no exemption:** Voice-Horn, voice-pipe, Cheer-Box, wax cylinder, heel recorder, engine-room telegraph, cheque book, lugger, sovereigns.
+- **Authoring rules for the build:**
+  - The ship talks over the Voice-Horns and the voice-pipe, never a "phone". This document used to say "house-phone" at 21:09; it now says the Captain **calls down the voice-pipe to the greenroom** (3.3, A.2 `ev-plan-call`).
+  - Say "wireless", not "radio".
+  - No authored string (bio, secret, lie, fact, `lockedLine`, ending) may contain a banned word. Validator V26 checks this.
+
+### 1.6 The purser: the in-world authority (decided: plan Q6)
+
+**Mr Ambrose Quill, the purser.** He is the owner's officer: he keeps the ship's log, the passenger list, the Gala cash and the passengers' valuables. He is **neutral, offstage and never a suspect**. He is not a character file, not a witness and not someone the player can question.
+
+**Why the purser, and not the Captain or the police:**
+- Captain Bilge is a suspect, so he cannot be the authority.
+- "The constable" does not exist at sea, and there are **no police aboard until port**.
+- So the Captain keeps the ship, and the purser keeps the inquiry.
+
+**Engine lines that read `setting.authority`** (plan 4.4), drafted:
+- `CASE_CLOSED_LINE`: *"The purser has everyone's statements, and the police take over when we make port."*
+- `CASE_CLOSED_SEARCH_LINE`: *"The purser has sealed the ship."*
+
+**His timeline.** He is never at any of the six locations before 23:08, so he is in no checkpoint row of 3.4.
+
+| Time | Where | What |
+|---|---|---|
+| 19:30 to 23:04 | Purser's office, forward on the main deck (not a game location) | Doing the Gala accounts with the cash box and the valuables safe, door shut against the weather. From 21:40 storm discipline keeps him at this post: his storm station is the safe. There is no Voice-Horn in his office (1.1 lists every horn). |
+| 23:04 | Office | A steward brings word of the body. |
+| 23:08 | Cabin deck | `ev-purser-takes-charge` (A.2). He arrives with the ship's log, seals the stateroom, says the wireless is dead and the police take over at port, and asks the detective, a guest aboard, to find out what happened. Travel from the office to the cabin deck: 4 minutes. |
+
+**Knowledge boundaries** (in case a later build gives him lines, e.g. in an ending):
+
+| He knows | He does not know, and must never say |
+|---|---|
+| The passenger list and who has which cabin. | Anything seen or heard anywhere between 19:30 and 23:04. He was alone in his office behind a shut door. |
+| The printed programme (`f-plunge-programme`) and the cheer tradition (`f-cheer-tradition`). | The cheer at 22:38: his office has no horn. He can neither confirm nor deny it. |
+| That the wireless died in the squall, that there is no doctor (`f-no-doctor`), and that the police take over at port. | The BONK, the Great Lurch's effect on the stateroom, or anyone's movements. |
+| That the Commodore asked him to bring the ship's log to the saloon at midnight. | What The Announcement was. He witnesses nothing at midnight because the Commodore is dead. He does not know about the new will (`f-new-will`). |
+| | The cargo or the crocks. By the Commodore's standing order, the Captain's private stores never pass through the purser's books, so he cannot testify to crock 13 or the route (`f-route-dawn`). |
+| | The chartroom, the Cheer-Box, the course, the goat, the still, or the recipe sale. |
+
+**Alibi and timeline check** (done by hand against 3.3, 3.4 and section 12):
+- He is in no located entry before 23:08, so the presence check (12 #3) is unchanged.
+- His office is on no movement route used in 3.2, so he crosses nobody, and no travel time changes.
+- He hears neither the BONK nor the cheer, so the true-time and staged-time alibi tables (12 #10) are unchanged.
+- He knows nothing about crock 13, so he cannot break any lie early. No lie or secret lists him.
+- The grid stays 23 checkpoints x 7 rows.
+- `ev-household-gathers` (23:05) does not involve him: he arrives at 23:08, after it.
+- **He is not a suspect, and it is not a gap that he has no alibi.** He is never in `characters`, he never appears in `motives`, and V32 rejects an authority noun that matches a suspect's name, alias or role.
+- His new entry `ev-purser-takes-charge` matches no order landmark's fact pattern (checked with 3.6).
 
 ---
 
@@ -202,7 +285,7 @@ Times marked **(P)** are perception entries: what a character personally saw or 
 | 20:45 | Saloon | A footman presses a card into Zippelli's hand: *"A quarter to ten, my stateroom. The fee, and another matter. B.B."* |
 | 20:50 | Saloon to bridge | Bilge slips out of the dinner ("storm warnings"); on the bridge from 20:53. |
 | 20:55 to 21:11 | Saloon, bridge | The Commodore follows. On the bridge (20:58 to 21:08) he tells Bilge he will **scrap the Tallyho**, and that they will "talk about crock 13 after the show". He is back in the saloon by 21:11. |
-| 21:09 | Bridge | Bilge phones the saloon house-phone and asks Zippelli to "come up and discuss the Plunge". |
+| 21:09 | Bridge | Bilge calls down the voice-pipe to the greenroom and asks Zippelli to "come up and discuss the Plunge". |
 | 21:12 to 21:21 | Saloon, bridge | Zippelli goes to the bridge (arrives 21:15). **In the chartroom, 21:15 to 21:18, the pair settle the plan:** Zippelli will silence the Commodore at his 21:45 summons and set the Commodore's watch to **22:41**; at **22:38**, while Zippelli is chained in the glass chest and the Captain is on the bridge, the Captain will play the Cheer-Box. Zippelli is back in the saloon at 21:21. |
 | 21:33 to 21:35 | Saloon to cabin deck | The Commodore retires "to polish the Speech", announcing he is not to be disturbed, and hangs his **ENTER AT PERIL** sign (21:35). |
 | 21:35 to 21:40 | Cabin deck, boat deck | Percy leaves the saloon, passes the stateroom at **21:37** (hears her uncle humming "Tally-Ho" inside) **(P)**, reaches her cabin, grabs carrots, and heads for the boat deck, arriving at **21:40** (the goat, Duchess, lives in lifeboat 3). |
@@ -236,6 +319,7 @@ Times marked **(P)** are perception entries: what a character personally saw or 
 | 22:49 | Saloon | Zippelli bursts out of the chest to thunderous applause. Dame Gherkina confirms that her wax seal was intact the whole time. |
 | 22:52 to 22:55 | Cabin deck | Percy leaves the saloon, worried by the hush, and arrives at 22:54. At **22:55** she ignores the sign, opens the door, finds the body: marmalade everywhere, the toupee missing, the sea chest on her uncle's coat-tail and the watch smashed at 22:41. She screams **(P)**. |
 | 22:58 to 23:05 | Cabin deck | The Captain leaves the bridge (22:58) and arrives at 23:01. Everyone else arrives by 23:05. The Captain reads the watch aloud and says: "Alive at 22:38, dead by 22:41." |
+| 23:08 | Cabin deck | The purser arrives from his office (1.6), seals the stateroom and asks the detective to find out what happened. |
 | 23:10 | Cabin deck | The detective takes over. |
 
 **What the ship believes at 23:10 (the "official" story):**
@@ -288,6 +372,161 @@ Legend: **Sal** = Ballroom (Grand Saloon, greenroom, stage). **Cab** = Cabin dec
 | **Percy** | "In my cabin with a migraine from half past nine until the band struck up at a quarter past ten. Then the saloon. I went to say goodnight to Uncle at five to eleven." | A glimpse of the cabin deck at 21:37; the boat deck with the goat 21:40 to 22:07; the saloon from 22:10. | `l-percy-cabin` |
 | **Boris** | "In my galley all night. The flambé doesn't flambé itself." | Galley, except the boat deck 21:50 to 21:56 and the greenroom at 22:03. | `l-boris-galley` |
 | **Ottilie** | "I never left the engine room. Gladys won't babysit herself." | On the bridge 21:49 to 21:56 and again 22:34 to 22:41. | `l-ottilie-engine` |
+
+### 3.6 Order landmarks (`orderLandmarks`, decided: plan Q6)
+
+The order check (`ai/order-check.ts`) maps landmark phrases in a reply to the minute the **speaker's own visible knowledge** gives them (`landmarksOf`: the earliest matching fact wins), and rejects a reply that puts the speaker's own movement in the wrong window. Today it knows only Blackwood's five landmarks, so for Tallyho it is inert. The plan makes the landmarks per-case in `case.json`.
+
+**Storm time, checked.** The plan's 21:40 for the storm agrees with this design everywhere:
+- 1.1, the list;
+- 1.4, Rule of the Slide;
+- 3.1, the squall;
+- 3.3, the 21:40 row;
+- `f-list-history`;
+- `ev-storm-squall`.
+
+Nothing needed fixing. The thunderstorm rumbles all evening, but the landmark is **the squall at 21:40**, when the wireless dies and the ship heels to starboard. "Storm" on its own is not a pattern, because "in this storm" can mean any minute.
+
+**The real patterns.** Each `say` and `fact` entry is one regex source, joined with `|`. `say` is compiled with `gi`, `fact` with `i`. There are no nested quantifiers and every source is under 160 characters, for the plan's safe-regex limits. `expectTime` is the validator pin (V13).
+
+```json
+"orderLandmarks": [
+  {
+    "id": "retires",
+    "label": "the Commodore goes to polish his Speech",
+    "say": [
+      "\\b(?:went|gone|retired|left|went off|goes)\\s+(?:down\\s+)?to\\s+(?:polish|write|work on)\\s+(?:the|his)\\s+speech\\b",
+      "\\bpolish(?:ing)?\\s+(?:the|his)\\s+speech\\b"
+    ],
+    "fact": [
+      "\\bpolish the Speech\\b"
+    ],
+    "expectTime": "21:33"
+  },
+  {
+    "id": "storm",
+    "label": "the squall hits (the ship heels to starboard)",
+    "say": [
+      "\\bthe\\s+squall\\b",
+      "\\b(?:squall|storm)\\s+(?:hit|struck|broke|came in|blew up)\\b",
+      "\\bwhen\\s+it\\s+(?:broke|hit)\\b",
+      "\\bheeled\\s+(?:over\\s+)?to\\s+starboard\\b",
+      "\\bthe\\s+wireless\\s+(?:died|went|cut out)\\b"
+    ],
+    "fact": [
+      "\\bsquall hits\\b"
+    ],
+    "expectTime": "21:40"
+  },
+  {
+    "id": "bonk",
+    "label": "the hollow BONK",
+    "say": [
+      "\\b(?:the|that|a)\\s+(?:hollow\\s+|distant\\s+)?bonk\\b",
+      "\\b(?:the|that|a)\\s+(?:distant\\s+)?gong\\b"
+    ],
+    "fact": [
+      "\\bBONK\\b"
+    ],
+    "expectTime": "21:52"
+  },
+  {
+    "id": "wave",
+    "label": "the Great Lurch (the big wave; the ship swings over to port)",
+    "say": [
+      "\\b(?:the\\s+)?great\\s+lurch\\b",
+      "\\bthe\\s+lurch\\b",
+      "\\bthe\\s+(?:big|rogue|great)\\s+wave\\b",
+      "\\b(?:she|the ship|the tallyho|the yacht)\\s+(?:lurched|rolled|flipped|swung|heeled)\\s+(?:over\\s+)?(?:to\\s+)?port\\b",
+      "\\bhard-a-port\\b",
+      "\\beverything\\s+slid\\b"
+    ],
+    "fact": [
+      "\\bgreat lurch\\b",
+      "\\bLURCH 22:14\\b"
+    ],
+    "expectTime": "22:14"
+  },
+  {
+    "id": "plunge",
+    "label": "the Plunge begins (Zippelli sealed in the glass chest)",
+    "say": [
+      "\\bthe\\s+plunge\\s+(?:began|begins|started|starts)\\b",
+      "\\b(?:chained|sealed|locked)\\s+(?:him\\s+|zippelli\\s+)?in(?:to)?\\s+(?:the|his|that)\\s+(?:glass\\s+)?chest\\b",
+      "\\bwent\\s+under\\s+glass\\b"
+    ],
+    "fact": [
+      "\\bsits sealed in the glass chest\\b"
+    ],
+    "expectTime": "22:17"
+  },
+  {
+    "id": "cheer",
+    "label": "the cheer over the horns at the shark",
+    "say": [
+      "\\b(?:the|that|his)\\s+(?:shark|drum-?roll|hiccup(?:ing|y)?)\\s+cheer\\b",
+      "\\bcheer(?:ed)?\\s+(?:at|for|over)\\s+the\\s+(?:shark|drum-?roll)\\b",
+      "\\bthe\\s+horns?\\s+(?:bellowed|blared|boomed|went off)\\b",
+      "\\bcheer\\s+with\\s+(?:a|the|that)\\s+hiccup\\b",
+      "\\bthe\\s+(?:commodore's\\s+|old man's\\s+|uncle's\\s+|his\\s+)?cheer\\b(?!\\s+at\\s+dinner)"
+    ],
+    "fact": [
+      "\\bbellows?\\b[^.]{0,40}\\b(?:cheer|TALLY-HO)"
+    ],
+    "expectTime": "22:38"
+  },
+  {
+    "id": "escape",
+    "label": "Zippelli bursts out of the chest",
+    "say": [
+      "\\b(?:burst|broke|bursts|came|got|popped)\\s+out\\s+of\\s+(?:the|his|that)\\s+(?:glass\\s+)?chest\\b",
+      "\\bthe\\s+(?:great\\s+)?escape\\b"
+    ],
+    "fact": [
+      "\\bbursts out of the chest\\b"
+    ],
+    "expectTime": "22:49"
+  },
+  {
+    "id": "body",
+    "label": "the body is found (Percy screams)",
+    "say": [
+      "\\b(?:body|corpse)\\s+(?:was\\s+|is\\s+|had\\s+been\\s+)?(?:found|discovered)\\b",
+      "\\b(?:found|discovered|finds)\\s+(?:him|the commodore|uncle|the old man|the body)\\b",
+      "\\b(?:the|percy's|her)\\s+scream\\b",
+      "\\bpercy\\s+screamed\\b"
+    ],
+    "fact": [
+      "\\bfinds the Commodore dead\\b"
+    ],
+    "expectTime": "22:55"
+  }
+]
+```
+
+**Check against the registry** (Appendix A, 75 statements; a scratch script using the engine's own `landmarksOf` rule; every known fact was treated as visible, which is the worst case):
+
+| Landmark | Statements its `fact` matches | Minute per knower | Pin |
+|---|---|---|---|
+| retires | `ev-commodore-retires` | Zippelli, Gherkina, Percy 21:33 | 21:33 |
+| storm | `ev-storm-squall` | all six 21:40 | 21:40 |
+| bonk | `ev-boris-sees-shadows`, `ev-gherkina-hears-bonk`, `ev-percy-hears-gong` | Boris, Gherkina, Percy 21:52 | 21:52 |
+| wave | `ev-great-lurch`, `ev-chart-flip`, `f-list-history` (untimed, ignored) | all six 22:14 | 22:14 |
+| plunge | `ev-plunge` | Zippelli, Percy 22:17 | 22:17 |
+| cheer | `ev-cheer-heard-bridge`, `-galley`, `-saloon`, `ev-cheer-played`, `ev-door-silence`, `f-cheer-tradition` (untimed) | all six 22:38 | 22:38 |
+| escape | `ev-plunge-ends` | Zippelli, Gherkina, Percy 22:49 | 22:49 |
+| body | `ev-percy-finds-body` | Percy 22:55 | 22:55 |
+
+0 mismatches. Sample replies matched every `say` pattern, and the false-positive probes matched none: "his cheer at dinner", "in this storm nobody moves", "the chest of drawers".
+
+**Notes for the build:**
+- **Why the plan's illustrative patterns had to change.**
+  - `fact: ["cheer"]` also matches `ev-live-cheer` (19:31). The earliest match wins, so the cheer would have landed at 19:31. The real pattern needs "bellows ... cheer/TALLY-HO", which only the 22:38 entries have.
+  - `fact: "found dead"` matches nothing, because the entry says "finds the Commodore dead".
+  - `"list(?:ed)? to port"` matches nothing either.
+- **Plan four vs design eight.** The plan's four landmarks (storm, wave, cheer, body) are all here. The other four (retires, bonk, plunge, escape) are the evening's other shared or perceived moments, and suspects will use them to place their own movements.
+- **Visibility.** The `bonk` landmark only appears for a speaker who can see a BONK fact. All three are hidden until their owner's secret or broken lie (A.2), so it never leaks the true time early. Percy calls it "a gong", and her `say` pattern includes that.
+- **Dexter ask.** The `ABSENCE` and `MOVEMENT` word lists in `ai/order-check.ts` are still Blackwood-worded ("left the dining room", "telephone"). Tallyho movements are "slipped out of the saloon", "went up to the boat deck" and "left the bridge". Those lists need to be per-case or generic, or the order check finds no movement to compare.
 
 ---
 
@@ -363,6 +602,36 @@ Nothing in this chain is a confession. `s-bilge-cheer` and `s-zippelli-deed` are
 - **Won (both right):** Zippelli breaks first ("Zippelli's greatest escape, ruined by MARMALADE!") then Bilge ("I did not make an error. I *altered the course of events*."). The recap names 21:52 and the cheer, with the watch, the chest and the crock as visual cuts.
 - **Lost:** the wrong-accusation endings use the authored `wrong` entries for innocents. Both culprits' speaker lines are suppressed in other people's endings (section 11).
 
+
+### 4.7 The accusation form: "Did anyone help?" and strict roles (decided: plan Q1, Q2)
+
+**The picker is always visible, in every case.** It is a new section 2 of the accuse form, after "Who did it?" (plan 3.2):
+
+- Title **"Did anyone help?"** and hint *"Name one helper, or tell us no one did."*
+- One row of buttons: an explicit **"No one helped"**, then every suspect except the one named as murderer. That chip is disabled and labelled, not hidden.
+- **Nothing is preselected, and Submit stays disabled until the helper question is answered.** A visible hint by the button says *"Say whether anyone helped."*
+- Changing the murderer to the suspect already chosen as helper clears the helper answer.
+- `ConfirmDialog` repeats the whole accusation, helper or "no one" included.
+- Single-culprit cases show the picker too (the right answer there is "No one helped"), so the form never tips off that Tallyho has two culprits.
+
+**Wire format.** `accompliceId` is:
+- `undefined`: not answered (the client blocks Submit);
+- `null`: "No one helped";
+- a suspect id: that suspect helped.
+
+The server treats an absent field as `null`.
+
+**Strict role grading.** The doer goes in "Who did it?" and the stager in "Did anyone help?":
+- `accompliceCorrect = (accusation.accompliceId ?? null) === (solution.accompliceId ?? null)`.
+- `won` also needs `murdererCorrect`, `weaponCorrect`, `motiveCorrect`, the key evidence and the key testimony.
+- There is no either-order mode.
+
+**For Tallyho:** `murdererId: "zippelli"`, `accompliceId: "bilge"`. These accusations **lose**:
+- Bilge as murderer with Zippelli as helper (swapped roles);
+- Zippelli with "No one helped" (half the case);
+- Zippelli with any other helper.
+
+Each role is proven by different evidence (4.5), so a half-right accusation has not proved the case. The recap may say which half was right (G2), but the verdict is win or lose.
 
 ---
 
@@ -1165,30 +1434,32 @@ Standard pose set per suspect (the existing convention): **neutral, talking, ang
 
 ## 11. Schema gaps and risks
 
+> **Status (updated for the plan, PR #34): this section is no longer stale. Progression is built.** `requires`/`lockedLine`, `leads`, `accuseGate`, `keyTestimonyIds`/`minKeyTestimony`, search-returns-every-eligible-clue and the reachability simulation (`engine/progression-validation.ts`, `fastestPath`) are on `main`, and Blackwood runs on them (#36; the validator prints a fastest path of 10). The rows below are marked **Built**, **Decided (not built)** or **Open**.
+
 ### 11.1 How the engine grades an accusation today
 
 - **`solution.json`** (`engine/solution.ts`): `murdererId` (one id), `weaponId`, `locationId`, `time`, `motiveId`, `keyEvidenceIds`, `explanation`.
 - **Grading** (`engine/accusation.ts`, `gradeAccusation`): `won = murdererCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence` (at least one cited id is in `keyEvidenceIds`). Time and place are returned for the recap but not graded. The accusation (`Accusation` in `engine/types.ts`, `AccuseRequestSchema` in `engine/accuse-schema.ts`) carries one `murdererId`; `/api/accuse` (`engine/accuse-handler.ts`, around line 83) rejects an unknown suspect.
 - **Endings** (`engine/ending-payload.ts`): the default confession is spoken by `c.solution.murdererId` (line ~54), the reveal names `s.murdererId` (lines ~43, 94), and a loss uses `endings.wrong[accusedId]` but **drops any line whose speaker is the real murderer** (lines ~80 to 81), so the real culprit's confession is never leaked into an innocent's ending.
 - **Validator** (`engine/case-validation.ts`; `docs/CASE_FORMAT.md` rules 7 to 9): the 15-minute **opportunity rule** applies to `murdererId` only; "every innocent has at least one secret" is `ch.id !== murdererId`; `endings.wrong` must cover every suspect.
-- **Progression and key testimony** are specified in the proposal on `main` but not implemented in `engine/`; this design assumes them.
+- **Progression and key testimony are built** (`engine/progress.ts`, `engine/progression-validation.ts`, `solution.keyTestimonyIds`/`minKeyTestimony`, `accuseGate`). The one-culprit grading above is still today's; G1 changes it.
 
 ### 11.2 Gaps, with the smallest proposed change
 
 | # | Need | Proposed field or change | Where |
 |---|---|---|---|
-| **G1** | **A second culprit in the solution and the accusation** | `solution.accompliceId?: Id` (optional; default none, so every existing case is unchanged) and `Accusation.accompliceId?: Id`. Grade: `accompliceCorrect = (accusation.accompliceId ?? null) === (solution.accompliceId ?? null)`; `won` additionally requires it. `AccusationGrade` and `AccuseVerdict` gain `accompliceCorrect`; `SolutionReveal` gains `accomplice`. **Alternative:** a `culprits` role map (`{ doer, stager }`) which generalises to N culprits but changes `murdererId`'s meaning; I recommend the smaller `accompliceId`, keeping `murdererId` as the doer. | `engine/solution.ts`, `engine/types.ts`, `engine/accusation.ts`, `engine/accuse-schema.ts`, `engine/accuse-handler.ts` |
-| **G1a** | **Accusation UI** | Always show an optional **"Did anyone help?"** picker on the accuse form. In single-culprit cases the right answer is "no one", so the picker does not reveal whether a case has an accomplice. | `components/accuse/AccuseScreen.tsx` |
-| **G1b** | **Strict or lenient roles?** | Default **strict** (doer and stager must both be right and in the right roles). A lenient mode (`solution.culpritGrading: "either-order"`) accepts the right pair in either order. Needs your call (pitch, question 1). | `engine/accusation.ts` |
+| **G1** | **A second culprit in the solution and the accusation.** *Decided (not built): `accompliceId`, strict (plan 3.1, Q1).* | `solution.accompliceId?: Id` (optional; default none, so every existing case is unchanged) and `Accusation.accompliceId?: Id`. Grade: `accompliceCorrect = (accusation.accompliceId ?? null) === (solution.accompliceId ?? null)`; `won` additionally requires it. `AccusationGrade` and `AccuseVerdict` gain `accompliceCorrect`; `SolutionReveal` gains `accomplice`. **Alternative:** a `culprits` role map (`{ doer, stager }`) which generalises to N culprits but changes `murdererId`'s meaning; I recommend the smaller `accompliceId`, keeping `murdererId` as the doer. | `engine/solution.ts`, `engine/types.ts`, `engine/accusation.ts`, `engine/accuse-schema.ts`, `engine/accuse-handler.ts` |
+| **G1a** | **Accusation UI.** *Decided (not built), plan 3.2, Q2.* | Always show **"Did anyone help?"** with an explicit **"No one helped"**, nothing preselected and Submit disabled until it is answered (section 4.7). In single-culprit cases the right answer is "No one helped", so the picker does not reveal whether a case has an accomplice. | `components/accuse/AccuseScreen.tsx` |
+| **G1b** | **Strict or lenient roles?** *Decided: strict (plan Q1).* | Doer and stager must both be right and in the right roles. **No lenient mode is built.** | `engine/accusation.ts` |
 | **G2** | **Endings must not leak the accomplice** | Extend the `kept = authored?.filter(l => l.speaker !== murdererId)` rule to drop lines by **both** culprits in every loss ending, and never use either culprit's `wrong` entry for a loss. The win confession gets two speakers (`correct.confession` already allows any speaker). A "half right" loss line (named one of two correctly) is optional flavour for the recap only (the verdict stays win-only, per #22). | `engine/ending-payload.ts`, `engine/endings.ts` |
 | **G3** | **Opportunity check for the accomplice** | `solution.accompliceAct?: { locationId, time }` validated like the murderer's 15-minute rule. Tallyho: `{ "locationId": "bridge", "time": "22:38" }`, supported by `ev-cheer-played` and `ev-curtain`. Also relax rule 8 so the accomplice is required to have a secret (Bilge has two). | `engine/case-validation.ts` |
-| **G4** | **A testimony-triggered secret reveal** | `revealConditions.testimonyIds?: Id[]`: another character's revealed secret, presented as testimony to this character, can trigger their own. Tallyho does not need it (every key secret reveals on a clue), but it would let `s-bilge-cheer` crack from `s-ottilie-curtain`, which is what a good detective would try. Today that route is "lie breaks, stress rises" only. | `engine/types.ts`, the reveal evaluator |
+| **G4** | **A testimony-triggered secret reveal.** *Built (da253b4): `revealConditions.testimonyIds`, with validator, reachability and fastest-path support.* | `revealConditions.testimonyIds?: Id[]`: another character's revealed secret, presented as testimony to this character, can trigger their own. Tallyho does not need it (every key secret reveals on a clue), but it would let `s-bilge-cheer` crack from `s-ottilie-curtain`, which is what a good detective would try. Today that route is "lie breaks, stress rises" only. | `engine/types.ts`, the reveal evaluator |
 | **G5** | **Key-testimony groups** | `keyTestimonyGroups?: Id[][]`: cite at least one id from each group. Tallyho: `[["s-boris-saw-shadows", "s-boris-hives"], ["s-ottilie-curtain", "s-gherkina-at-door"]]`, i.e. at least one witness to each half. Without it, `minKeyTestimony: 2` can be satisfied by two doer-side testimonies. Low priority; without it the design still works. | `engine/accusation.ts`, accuse form |
 | **G6** | **Staged vs real time for the recap** | `solution.stagedTime?: string` and a short `solution.staging?: string` so the recap can say "he made you think 22:41". Purely cosmetic: it can live in `solution.explanation`. | `engine/solution.ts` |
 | **G7** | **Per-knower source and confidence on a shared fact** | A known limitation. This design authors a separate perceiver entry for each witness (the Blackwood convention), not a shared one. | n/a |
-| **G8** | **Lead conditions on broken lies** | `Condition` has no "lie broken". Tallyho closes `lead-stager` on `s-ottilie-curtain` instead. A `lieBrokenIds` field would be a nice-to-have. | `engine/progress.ts` (proposal) |
-| **G9** | **Progression** | All of the proposal: `requires`/`lockedLine`, `leads`, `accuseGate`, `keyTestimonyIds`/`minKeyTestimony`, the reachability simulation in `case-validation.ts`. Tallyho cannot be built without it. | per the proposal |
-| **G10** | **A search returns every clue that is eligible** | Assumed from the proposal ("a locked location returns its `lockedLine` and finds nothing; locked evidence stays hidden and its `lockedLine` is appended to the search lines"). The path counts in section 9 assume one search finds every currently-eligible clue in that location. If the build returns only one, the minimum path rises by about 2. | `searchLocation` |
+| **G8** | **Lead conditions on broken lies.** *Open, nice-to-have (plan 3.7).* | The shipped `Condition` has five atoms (interrogated, evidenceIds, secretIds, searchedLocationIds, leadIds) and no "lie broken". Tallyho closes `lead-stager` on `s-ottilie-curtain` instead, so it does not need one. | `engine/types.ts` `ConditionSchema` |
+| **G9** | **Progression.** *Built.* | `requires`/`lockedLine`, `leads`, `accuseGate`, `keyTestimonyIds`/`minKeyTestimony` and the reachability simulation are on `main`. Still to do for Tallyho (plan 3.7): measure `fastestPath` at six suspects, and add a confront move to the simulator. | done; scale check in phase 8 |
+| **G10** | **A search returns every clue that is eligible.** *Built.* | `engine/investigation.ts` returns every unlocked clue at the location and appends the `lockedLine` of each clue that is still locked, so the path counts in section 9 stand. | done |
 
 ### 11.3 Risks
 
@@ -1199,7 +1470,8 @@ Standard pose set per suspect (the existing convention): **neutral, talking, ang
 - **Orange overload.** Marmalade, a still, hives and a galley all smell of orange. *Mitigation:* each source is tied to a different sense and place (smell: engine room; touch: the stateroom carpet; skin: Zippelli's hives; taste: the galley).
 - **Single witnesses.** Ottilie carries three secrets and a key clue; Boris carries three. The reveals are deterministic (clue shown, secret out), so a flaky model reply cannot dead-end the game. But if the model refuses to *speak* a revealed secret, the testimony card (which is authored, not generated) still carries the information.
 - **Originality.** No names, relationships, settings or plot beats come from any Christie work. The tropes (a watch set to the wrong time, a recorded voice, two collaborators) are generic genre staples; the specific mechanism (a heel-chart proof that the sea moved the evidence, a Voice-Horn network, a doer/stager split between a magician and a captain who are business partners, not lovers) is original. If you want an independent originality read before the build, flag it.
-- **Today's engine.** Nothing here runs on `main` until the progression model and G1 land. Until then, a "Blackwood-style" fallback is possible (no gates, one culprit), but it is not the case this document describes.
+- **Today's engine.** Progression is built. What Tallyho still needs before it runs is G1 (two-culprit grading and the picker), the `setting` block, and per-case `orderLandmarks` (all decided in the plan).
+- **The stress-gated deed confession conflicts with the live-play fix in Blackwood (PR #41).** That fix says a culprit's core-guilt secret never reveals in interrogation; the confession lives only in the ending. `s-zippelli-deed` (and anything in Bilge's file that admits playing the cylinder *as a murder alibi*) should therefore be authored as core guilt, with no stress reveal. Section 9 already proves the case without it. Dexter's `coreGuilt: true` secret flag is now on `main` (da253b4). It also derives core guilt for the murderer's secret that covers the murder minute, so the build should set `coreGuilt: true` on `s-zippelli-deed` and drop its stress reveal. Bilge is the accomplice: the validator accepts `coreGuilt` on a non-murderer with a warning, so decide this when G1 lands.
 
 ---
 
@@ -1213,8 +1485,8 @@ Every check below was run mechanically over the registry in Appendix A and the c
 |---|---|---|---|
 | 1 | Location grid: one location per character per checkpoint, nobody in transit | PASS | 23 checkpoints x 7 rows = 161 cells, 0 in transit |
 | 2 | Travel times: every move takes at least the table time (Zippelli always uses the 3-minute service stair) | PASS | 26 moves checked, 0 violations |
-| 3 | Presence: everyone an entry involves, and everyone who knows it, is physically at that location for its whole time range | PASS | 45 located entries, 91 (entry, person) pairs, 0 violations |
-| 4 | Knowledge gate: every `hiddenUntil` fact has a key the knower owns, every key exists and is owned by a knower (nothing is hidden forever, nothing leaks) | PASS | 33 hidden facts of 74, 0 problems |
+| 3 | Presence: everyone an entry involves, and everyone who knows it, is physically at that location for its whole time range | PASS | 45 located entries, 91 (entry, person) pairs, 0 violations Plus `ev-purser-takes-charge` (23:08), checked by hand: all six are on the cabin deck from 23:05 on. |
+| 4 | Knowledge gate: every `hiddenUntil` fact has a key the knower owns, every key exists and is owned by a knower (nothing is hidden forever, nothing leaks) | PASS | 33 hidden facts of 75 (the new `ev-purser-takes-charge` is open), 0 problems |
 | 5 | Secrets in this document match the reachability model (owner, evidence, ordering) | PASS | 15 secrets parsed, mismatches: none |
 | 6 | Lies: each is about a fact its owner knows, can be broken, breaks only on clues or other people's testimony, and is retired by the owner's own secret | PASS | 12 lies, problems: none |
 | 7 | Reachability: fixed point from an empty state reaches every location, every clue and every non-stress secret | PASS | clues 10/10, secrets 14/14 (the 15th, `s-zippelli-deed`, is stress-gated by design), locations searched 6/6 plus the open ones |
@@ -1307,7 +1579,7 @@ Source-of-truth for the build. `f-*` are world facts (`case.json`); `ev-*` are t
 | `ev-crock-heft` | 20:20 | galley | commodore-brine, boris | witnessed (0.95) | boris | (open) | The Commodore visits the galley, hefts a crock chalked '13', finds it far too heavy for marmalade, tucks it under his arm and asks who packed it. Boris says the crates came from the Captain's stores. |
 | `ev-summons-card` | 20:45 | (none) | zippelli, commodore-brine | told (0.95) | zippelli | `s-zippelli-summons`, `l-zippelli-greenroom` | A footman presses a card into Zippelli's hand: 'A quarter to ten, my stateroom. The fee, and another matter. B.B.' |
 | `ev-commodore-tells-bilge` | 20:58 to 21:08 | bridge | commodore-brine, bilge | told (0.95) | bilge | `s-bilge-smuggling` | The Commodore visits the bridge and tells the Captain he will scrap the Tallyho, and that they will talk about crock 13 after the show. |
-| `ev-plan-call` | 21:09 | (none) | - | canonical (1) | bilge, zippelli | `s-bilge-cheer`, `s-zippelli-deed` | The Captain telephones the saloon house-phone and asks Zippelli to come up and 'discuss the Plunge'. |
+| `ev-plan-call` | 21:09 | (none) | - | canonical (1) | bilge, zippelli | `s-bilge-cheer`, `s-zippelli-deed` | The Captain calls down the voice-pipe to the greenroom and asks Zippelli to come up and 'discuss the Plunge'. |
 | `ev-plan-meeting` | 21:15 to 21:18 | bridge | bilge, zippelli | canonical (1) | bilge, zippelli | `s-bilge-cheer`, `s-zippelli-deed` | In the chartroom the Captain and Zippelli settle the plan: Zippelli deals with the Commodore at his quarter-to-ten summons and sets the Commodore's watch for 22:41; the Captain will make the Commodore 'cheer' at 22:38 while Zippelli is under glass. |
 | `ev-commodore-retires` | 21:33 | ballroom | commodore-brine, percy, gherkina, zippelli | canonical (1) | percy, gherkina, zippelli | (open) | The Commodore leaves the saloon announcing he must 'polish the Speech' and is not to be disturbed. |
 | `ev-sign-hung` | 21:35 | cabin-deck | commodore-brine | canonical (1) | (nobody, world truth) | (open) | The Commodore hangs his 'WRITING SPEECH, ENTER AT PERIL' sign on the stateroom door. |
@@ -1351,3 +1623,4 @@ Source-of-truth for the build. `f-*` are world facts (`case.json`); `ev-*` are t
 | `ev-percy-finds-body` | 22:55 | cabin-deck | percy, commodore-brine | witnessed (1) | percy | (open) | Percy ignores the sign, opens the stateroom door and finds the Commodore dead among sticky marmalade, his famous orange toupee missing, a sea chest on his coat-tail and his pocket-watch smashed at 22:41. She screams. |
 | `ev-captain-arrives` | 23:01 | cabin-deck | bilge | canonical (1) | bilge | (open) | The Captain arrives, orders that nobody leaves the ship (not that anybody can) and reads the watch aloud: 22:41. 'Alive at 22:38, dead by 22:41.' |
 | `ev-household-gathers` | 23:05 | cabin-deck | bilge, zippelli, gherkina, percy, boris, ottilie, commodore-brine | canonical (1) | all six | (open) | The whole company gathers at the stateroom door, all talking at once. |
+| `ev-purser-takes-charge` | 23:08 | cabin-deck | - (the purser is offstage, not a character) | canonical (1) | all six | (open) | The purser arrives from his office with the ship's log, seals the stateroom, says the wireless is dead and the police take over when we make port, and asks the detective, a guest aboard, to find out what happened. |
