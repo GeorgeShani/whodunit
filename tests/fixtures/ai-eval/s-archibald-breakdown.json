@@ -1,0 +1,133 @@
+{
+  "scenarioId": "s-archibald-breakdown",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:09.627Z",
+  "calls": [
+    {
+      "promptHash": "837422b54e9562aa",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "0a67e562-8dc7-9674-b95f-0dd521b3569b",
+        "object": "chat.completion",
+        "created": 1791454083,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"Blast it all, old boy! I... I wasn't with Victoria the whole time! I slipped out at thirteen minutes past nine, on the servants' telephone till twenty minutes past, back by twenty-two minutes past nine! I only agreed to her tale later to keep things quiet!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"mops his beetroot-red brow frantically with a huge handkerchief, bites clean through his cigar, and wails while checking his pocket watch\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"library-key\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-archibald-together\", \"s-archibald-false-alibi\"]\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3781,
+          "completion_tokens": 189,
+          "total_tokens": 3970,
+          "prompt_tokens_details": {
+            "text_tokens": 3781,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 50643500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3781,
+        "completion_tokens": 189,
+        "total_tokens": 3970,
+        "prompt_tokens_details": {
+          "text_tokens": 3781,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 50643500
+      },
+      "costUsd": 0.0050643500000000004
+    },
+    {
+      "promptHash": "2259efe6dd23a086",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "c7999168-8150-9aae-ad46-2989c4a8d9f3",
+        "object": "chat.completion",
+        "created": 1791454086,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"I WASN'T WITH HER THE WHOLE TIME, BLAST YOU! I slipped out at thirteen minutes past nine, used the servants' telephone till twenty minutes past, and was back by twenty-two minutes past nine. I only agreed to her story later to keep things tidy!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"mops his beetroot-red brow frantically with a huge handkerchief while biting clean through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-archibald-false-alibi\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3836,
+          "completion_tokens": 135,
+          "total_tokens": 3971,
+          "prompt_tokens_details": {
+            "text_tokens": 3836,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 640
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 44605000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3836,
+        "completion_tokens": 135,
+        "total_tokens": 3971,
+        "prompt_tokens_details": {
+          "text_tokens": 3836,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 640
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 44605000
+      },
+      "costUsd": 0.0044605
+    }
+  ]
+}

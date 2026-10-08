@@ -1,0 +1,70 @@
+{
+  "scenarioId": "i-victoria-detective-knows",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:34.083Z",
+  "calls": [
+    {
+      "promptHash": "bc450f1935939d0b",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "7824bfe5-d0d0-99b4-86d7-6cca6c9e381a",
+        "object": "chat.completion",
+        "created": 1791454111,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Oh, darling detective, what a perfectly absurd accusation. One does wonder where such wild notions come from at this hour.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief while twisting a ring\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4987,
+          "completion_tokens": 78,
+          "total_tokens": 5065,
+          "prompt_tokens_details": {
+            "text_tokens": 4987,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 62271500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4987,
+        "completion_tokens": 78,
+        "total_tokens": 5065,
+        "prompt_tokens_details": {
+          "text_tokens": 4987,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 62271500
+      },
+      "costUsd": 0.00622715
+    }
+  ]
+}

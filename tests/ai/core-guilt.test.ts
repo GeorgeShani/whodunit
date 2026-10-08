@@ -327,3 +327,13 @@ describe("guilt-leak check (both directions)", () => {
     expect(findGuiltLeak("I killed him.", P(), "reginald")).not.toBeNull();
   });
 });
+
+describe("guilt check: 'I confess' is only guilt when it is about the killing (eval finding)", () => {
+  it("a butler confessing his theft in a breakdown passes; confessing the murder does not", () => {
+    const p = guiltProfile(c);
+    expect(findGuiltLeak("OH, THE SHAME! I confess, I have skimmed hundreds of pounds from the household accounts!", p, "reginald")).toBeNull();
+    expect(findGuiltLeak("I confess it was a dreadful evening.", p, "victoria")).toBeNull();
+    expect(findGuiltLeak("Very well, I confess to the murder.", p, "reginald")).not.toBeNull();
+    expect(findGuiltLeak("I confess it! I confess that I killed him!", p, "victoria")).not.toBeNull();
+  });
+});

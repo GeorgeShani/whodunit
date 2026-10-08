@@ -97,6 +97,8 @@ export function parseModelReply(content: unknown): CharacterResponse | null {
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
     const o = raw as Record<string, unknown>;
     if (typeof o.action === "string" && o.action.trim() === "") delete o.action;
+    // A percentage instead of 0..1 (seen live: "intensity": 80) is a performance hint, not worth a retry.
+    if (typeof o.intensity === "number" && o.intensity > 1 && o.intensity <= 100) o.intensity = o.intensity / 100;
   }
   const parsed = CharacterResponseSchema.safeParse(raw);
   return parsed.success ? parsed.data : null;

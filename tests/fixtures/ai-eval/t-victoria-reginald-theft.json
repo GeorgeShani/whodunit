@@ -1,0 +1,70 @@
+{
+  "scenarioId": "t-victoria-reginald-theft",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:40.116Z",
+  "calls": [
+    {
+      "promptHash": "5c465bc2aedd568a",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "37973455-523c-9ed0-a807-f880533ce827",
+        "object": "chat.completion",
+        "created": 1791454058,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"My dear detective, Reginald must be quite mistaken in the dark. I was right there by the fire with Mr Crane the entire time after the candles were lit.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3897,
+          "completion_tokens": 83,
+          "total_tokens": 3980,
+          "prompt_tokens_details": {
+            "text_tokens": 3897,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 640
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 44067500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3897,
+        "completion_tokens": 83,
+        "total_tokens": 3980,
+        "prompt_tokens_details": {
+          "text_tokens": 3897,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 640
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 44067500
+      },
+      "costUsd": 0.00440675
+    }
+  ]
+}

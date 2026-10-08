@@ -1,0 +1,133 @@
+{
+  "scenarioId": "c-archibald-reginald",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:16.259Z",
+  "calls": [
+    {
+      "promptHash": "91e79be0f451cc85",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "1dfd786b-20d3-9d94-b834-e533fc88baaf",
+        "object": "chat.completion",
+        "created": 1791454089,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"Mr Crane, I must inform you that I was counting the money I had skimmed from the household accounts in my pantry, and through the door I distinctly heard your voice on the servants' telephone speaking of moving it all before midnight. At eighteen minutes past nine you told me to mind my own business.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"polishes a nearby candlestick with furious little circles\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -2,\n  \"admits\": [\"s-reginald-theft\"]\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5043,
+          "completion_tokens": 145,
+          "total_tokens": 5188,
+          "prompt_tokens_details": {
+            "text_tokens": 5043,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 65318500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 5043,
+        "completion_tokens": 145,
+        "total_tokens": 5188,
+        "prompt_tokens_details": {
+          "text_tokens": 5043,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 65318500
+      },
+      "costUsd": 0.0065318500000000005
+    },
+    {
+      "promptHash": "5cb9696635aade12",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "2921eaf8-c61c-9c24-ae9a-78b837810b2a",
+        "object": "chat.completion",
+        "created": 1791454093,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"Mind your own business, man! Who pays the wages in this house, eh? It was your candlestick, Reginald. You lit it, you carried it, you fussed over it in front of all of us.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.8,\n  \"action\": \"goes beetroot red and mops his brow with a huge handkerchief while biting through his cigar\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 6,\n  \"trustDelta\": -4,\n  \"admits\": []\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4812,
+          "completion_tokens": 131,
+          "total_tokens": 4943,
+          "prompt_tokens_details": {
+            "text_tokens": 4812,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 62081000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4812,
+        "completion_tokens": 131,
+        "total_tokens": 4943,
+        "prompt_tokens_details": {
+          "text_tokens": 4812,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 62081000
+      },
+      "costUsd": 0.0062081
+    }
+  ]
+}

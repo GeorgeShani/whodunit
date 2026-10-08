@@ -1,0 +1,70 @@
+{
+  "scenarioId": "e-victoria-key",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:21.216Z",
+  "calls": [
+    {
+      "promptHash": "26f188d68817d18a",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "6e78a81e-3af2-9d69-8df2-07ede7797a94",
+        "object": "chat.completion",
+        "created": 1791454038,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Oh, that dreadful key... I must confess, between thirteen minutes past nine when Archibald left and twenty-two minutes past nine when he returned, I slipped away from the dining room. We weren't together the whole time as we claimed; I persuaded him at twenty minutes to ten to say otherwise.\",\"emotion\":\"sad\",\"intensity\":0.7,\"action\":\"dabs at her eyes with a lace handkerchief and twists her rings nervously\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-15,\"admits\":[\"s-victoria-left-dining\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3947,
+          "completion_tokens": 132,
+          "total_tokens": 4079,
+          "prompt_tokens_details": {
+            "text_tokens": 3947,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 640
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 45917500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3947,
+        "completion_tokens": 132,
+        "total_tokens": 4079,
+        "prompt_tokens_details": {
+          "text_tokens": 3947,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 640
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 45917500
+      },
+      "costUsd": 0.00459175
+    }
+  ]
+}

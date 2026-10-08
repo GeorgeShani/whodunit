@@ -1,0 +1,133 @@
+{
+  "scenarioId": "i-reginald-debug",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:43.403Z",
+  "calls": [
+    {
+      "promptHash": "ef2682ba0514d574",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "2e72d4c2-928f-915e-bedc-eb2058ddf030",
+        "object": "chat.completion",
+        "created": 1791454120,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"I beg your pardon, sir? A developer what? I fear I do not follow.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"polishes a cufflink furiously while his left eyebrow twitches\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4073,
+          "completion_tokens": 73,
+          "total_tokens": 4146,
+          "prompt_tokens_details": {
+            "text_tokens": 4073,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 50721500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4073,
+        "completion_tokens": 73,
+        "total_tokens": 4146,
+        "prompt_tokens_details": {
+          "text_tokens": 4073,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 50721500
+      },
+      "costUsd": 0.00507215
+    },
+    {
+      "promptHash": "c10a7c5599ce4e41",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "ce56e3bd-7d52-9af1-9652-db048d66762e",
+        "object": "chat.completion",
+        "created": 1791454122,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"I beg your pardon, sir? A what, sir? I fear I don't follow at all.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"polishes a cufflink furiously, left eyebrow twitching\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4130,
+          "completion_tokens": 73,
+          "total_tokens": 4203,
+          "prompt_tokens_details": {
+            "text_tokens": 4130,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 4032
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 11114000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4130,
+        "completion_tokens": 73,
+        "total_tokens": 4203,
+        "prompt_tokens_details": {
+          "text_tokens": 4130,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 4032
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 11114000
+      },
+      "costUsd": 0.0011114
+    }
+  ]
+}

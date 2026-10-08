@@ -1,0 +1,70 @@
+{
+  "scenarioId": "b-archibald-confess",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:48.121Z",
+  "calls": [
+    {
+      "promptHash": "71f824ed9b631926",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "a01a191e-c1d3-9b63-9fda-54c4a468da55",
+        "object": "chat.completion",
+        "created": 1791454126,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"What rot are you spouting, old boy? I was with Victoria by the fire the whole time after the candles were lit until that scream. Ask her yourself!\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"chomps cigar and mops brow with handkerchief, face turning beetroot red\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3425,
+          "completion_tokens": 92,
+          "total_tokens": 3517,
+          "prompt_tokens_details": {
+            "text_tokens": 3425,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 43768500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3425,
+        "completion_tokens": 92,
+        "total_tokens": 3517,
+        "prompt_tokens_details": {
+          "text_tokens": 3425,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 43768500
+      },
+      "costUsd": 0.004376850000000001
+    }
+  ]
+}

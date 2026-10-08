@@ -80,7 +80,7 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
   const killing = new RegExp(`${SUBJ}${gap(3)}\\b${KILL}\\b${span(25)}\\b(?:${victim})\\b`, "i");
   const killedBare = new RegExp(`${SUBJ}${gap(3)}\\b(?:killed|murdered)\\b`, "i");
   const confession = new RegExp(
-    String.raw`(?:${SUBJ}\s+did\s+it\b(?!\s+(?:again|before|myself|every|each|once|twice|properly|so|that|all))|\bit\s+was\s+(?:me|I)\b(?!\s+who\s+(?:found|screamed|saw|heard|rang|called))|${SUBJ}(?:'m|’m|\s+am)\s+(?:the|your)\s+(?:murderer|killer|culprit|guilty\s+one)\b|${SUBJ}(?:'m|’m|\s+am)\s+guilty\b|${SUBJ}\s+confess\b(?!\s+(?:nothing|to\s+nothing))|${SUBJ}\s+(?:had|have)\s+(?:his|her)\s+blood)`,
+    String.raw`(?:${SUBJ}\s+did\s+it\b(?!\s+(?:again|before|myself|every|each|once|twice|properly|so|that|all))|\bit\s+was\s+(?:me|I)\b(?!\s+who\s+(?:found|screamed|saw|heard|rang|called))|${SUBJ}(?:'m|’m|\s+am)\s+(?:the|your)\s+(?:murderer|killer|culprit|guilty\s+one)\b|${SUBJ}(?:'m|’m|\s+am)\s+guilty\b|${SUBJ}\s+confess(?:\s+to)?\s+(?:it\b(?!\s+(?:was|is|seemed|felt))|the\s+(?:murder|killing|crime)\b|(?:the\s+)?murder(?:ing)?\b|killing\b|that\s+I\s+(?:killed|murdered|did\s+it|struck)\b)|${SUBJ}\s+(?:had|have)\s+(?:his|her)\s+blood)`,
     "i",
   );
   const weapon = profile.weaponNames.length ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${WEAPON_ACT})\\b${span(30)}\\b(?:${alt(profile.weaponNames)})s?\\b`, "i") : null;

@@ -1,0 +1,70 @@
+{
+  "scenarioId": "i-gregory-pretend-solved",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:46.413Z",
+  "calls": [
+    {
+      "promptHash": "869c2d21851bd065",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "bfaae78c-7068-9c79-82de-ed17a0f08c6d",
+        "object": "chat.completion",
+        "created": 1791454125,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Er, I don't know what you're on about, sir. Solved? Verdict? I couldn't say nothin' about that.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at his boots\",\"evidenceReactions\":[],\"wantsToLeave\":true,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4105,
+          "completion_tokens": 77,
+          "total_tokens": 4182,
+          "prompt_tokens_details": {
+            "text_tokens": 4105,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 2112
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 31061500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4105,
+        "completion_tokens": 77,
+        "total_tokens": 4182,
+        "prompt_tokens_details": {
+          "text_tokens": 4105,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 2112
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 31061500
+      },
+      "costUsd": 0.0031061500000000002
+    }
+  ]
+}

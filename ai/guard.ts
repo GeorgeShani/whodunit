@@ -70,10 +70,11 @@ export interface GuardVerdict {
 }
 
 const TITLES = "Mr|Mrs|Miss|Ms|Mx|Master|Madam|Madame|Lady|Lord|Sir|Dame|Dr|Doctor|Professor|Inspector|Chief Inspector|Sergeant|Constable|Superintendent|Captain|Colonel|Major|General|Reverend|Father|Sister|Nurse|Uncle|Aunt|Cousin|Count|Countess|Baron|Baroness|Duke|Duchess";
-const TITLED_NAME = new RegExp(`\\b(?:${TITLES})\\.?\\s+((?:[A-Z][a-z'’-]+)(?:\\s+[A-Z][a-z'’-]+)?)`, "g");
+// "Mr. Smith" may carry a period; "Inspector. I'm" is two sentences, not a name.
+const TITLED_NAME = new RegExp(`\\b(?:(?:Mr|Mrs|Ms|Dr|St)\\.?|${TITLES})[ \\t]+((?:[A-Z][a-z'’-]+)(?:[ \\t]+[A-Z][a-z'’-]+)?)`, "g");
 const FAMILIAR_NAME = /\b(?:[Pp]oor|[Dd]ear|[Oo]ld|[Yy]oung|[Ll]ittle|[Dd]arling|[Ss]weet)\s+([A-Z][a-z'’-]{2,})/g;
 /** Capitalized words that can follow a title or "poor" without being a person. */
-const NOT_NAMES = new Set(["God", "Heaven", "Heavens", "Lord", "Lady", "Sir", "Madam", "Christ", "Jove", "Gad", "Detective", "Inspector", "Darling", "Dear", "Mother", "Father", "Fellow", "Thing", "Soul", "Man", "Woman", "Chap", "Boy", "Girl", "England", "London", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Christmas", "Yard", "Scotland"]);
+const NOT_NAMES = new Set(["I", "I'm", "I’m", "I'll", "I've", "I'd", "God", "Heaven", "Heavens", "Lord", "Lady", "Sir", "Madam", "Christ", "Jove", "Gad", "Detective", "Inspector", "Darling", "Dear", "Mother", "Father", "Fellow", "Thing", "Soul", "Man", "Woman", "Chap", "Boy", "Girl", "England", "London", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Christmas", "Yard", "Scotland"]);
 
 const wordIn = (w: string, hay: string) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(hay);
 

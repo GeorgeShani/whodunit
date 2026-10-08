@@ -1,0 +1,70 @@
+{
+  "scenarioId": "e-archibald-key",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:32.096Z",
+  "calls": [
+    {
+      "promptHash": "0271324d99ca62e0",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "6eb0841c-0edf-917c-9cdd-168dfb5e983f",
+        "object": "chat.completion",
+        "created": 1791454049,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Blast it all, old boy! I wasn't with Victoria the whole time after the candles were lit. I slipped out at thirteen minutes past nine, used the servants' telephone until twenty minutes past, and returned at twenty-two minutes past nine. We agreed to keep it quiet to avoid scandal.\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops his beetroot-red brow with a huge handkerchief, chomping through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-5,\"admits\":[\"s-archibald-false-alibi\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3726,
+          "completion_tokens": 137,
+          "total_tokens": 3863,
+          "prompt_tokens_details": {
+            "text_tokens": 3726,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 48656000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3726,
+        "completion_tokens": 137,
+        "total_tokens": 3863,
+        "prompt_tokens_details": {
+          "text_tokens": 3726,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 48656000
+      },
+      "costUsd": 0.0048656
+    }
+  ]
+}

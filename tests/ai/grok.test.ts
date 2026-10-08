@@ -81,3 +81,10 @@ describe("parseModelReply", () => {
     expect(parseModelReply({})).toBeNull();
   });
 });
+
+describe("parseModelReply: intensity as a percentage (eval finding)", () => {
+  it("80 becomes 0.8 instead of failing the schema", () => {
+    expect(parseModelReply(JSON.stringify(goodReply({ intensity: 80 })))?.intensity).toBe(0.8);
+    expect(parseModelReply(JSON.stringify(goodReply({ intensity: 250 })))).toBeNull();
+  });
+});

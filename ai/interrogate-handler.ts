@@ -15,7 +15,7 @@ import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
-import { isTurnUnavailable, performTurn } from "./perform-turn";
+import { isTurnUnavailable, performTurn, type AttemptHook } from "./perform-turn";
 import { answeredLine, breatherLine, stillAnsweringLine, unavailable, type Unavailable } from "./model-down";
 import type { ModelGate } from "./model-gate";
 import { claimTurn } from "./turn-lock";
@@ -46,6 +46,8 @@ export interface HandlerDeps {
   gate?: ModelGate;
   /** One model turn per pre-turn state (#40, ai/turn-lock.ts). Absent = no duplicate check (tests, scripts). */
   claims?: KvStore;
+  /** Tooling hook (scripts/eval-ai): every model reply and its guard verdict. */
+  onAttempt?: AttemptHook;
 }
 
 /** The per-IP limit refused the turn: HTTP 429, nothing spent, the token is unchanged. */
@@ -153,6 +155,7 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
     let turn: Awaited<ReturnType<typeof performTurn>>;
     try {
       turn = await performTurn({
+        ...(deps.onAttempt ? { onAttempt: deps.onAttempt } : {}),
         caseData,
         game,
         characterId,

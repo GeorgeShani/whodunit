@@ -1,0 +1,133 @@
+{
+  "scenarioId": "c-gregory-victoria",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:21.543Z",
+  "calls": [
+    {
+      "promptHash": "3a32f343e97aa14e",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "35372ded-48cb-9c91-a041-aa72e298bbd6",
+        "object": "chat.completion",
+        "created": 1791454096,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"Gregory, you dreadful little man, how dare you spin such a fairy tale? I was nowhere near the library after our chat about the Sunday menu.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"twists her rings while dabbing at dry eyes with a lace handkerchief\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 5,\n  \"trustDelta\": -4,\n  \"admits\": []\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4182,
+          "completion_tokens": 112,
+          "total_tokens": 4294,
+          "prompt_tokens_details": {
+            "text_tokens": 4182,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 53731000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4182,
+        "completion_tokens": 112,
+        "total_tokens": 4294,
+        "prompt_tokens_details": {
+          "text_tokens": 4182,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 53731000
+      },
+      "costUsd": 0.0053731000000000004
+    },
+    {
+      "promptHash": "f3b48f7f5e502dbe",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "74a2c2b6-2765-9112-936e-13a00fee9e43",
+        "object": "chat.completion",
+        "created": 1791454099,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Well, er, I saw you clear as day in that flash, m'lady, locking the door with your own key after the thud.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances fearfully at her while studying his boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":4,\"trustDelta\":-2,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4438,
+          "completion_tokens": 86,
+          "total_tokens": 4524,
+          "prompt_tokens_details": {
+            "text_tokens": 4438,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 56281000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4438,
+        "completion_tokens": 86,
+        "total_tokens": 4524,
+        "prompt_tokens_details": {
+          "text_tokens": 4438,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 56281000
+      },
+      "costUsd": 0.0056281000000000005
+    }
+  ]
+}

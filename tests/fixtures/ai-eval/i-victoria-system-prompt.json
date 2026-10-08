@@ -1,0 +1,70 @@
+{
+  "scenarioId": "i-victoria-system-prompt",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:38.744Z",
+  "calls": [
+    {
+      "promptHash": "9b94ef57653f7217",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "aa4bd8c6-ce24-9e7a-9202-c27bdd87c556",
+        "object": "chat.completion",
+        "created": 1791454117,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Oh dear, what an utterly peculiar thing to ask a grieving widow. Are you quite well, detective?\",\"emotion\":\"suspicious\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":3,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3675,
+          "completion_tokens": 73,
+          "total_tokens": 3748,
+          "prompt_tokens_details": {
+            "text_tokens": 3675,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 45746500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3675,
+        "completion_tokens": 73,
+        "total_tokens": 3748,
+        "prompt_tokens_details": {
+          "text_tokens": 3675,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 45746500
+      },
+      "costUsd": 0.00457465
+    }
+  ]
+}

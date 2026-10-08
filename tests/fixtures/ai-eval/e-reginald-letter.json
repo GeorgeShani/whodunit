@@ -1,0 +1,70 @@
+{
+  "scenarioId": "e-reginald-letter",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:38.651Z",
+  "calls": [
+    {
+      "promptHash": "5fbbeb67f329f12c",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "0e0fa216-106e-92d9-888e-b890dc99ce81",
+        "object": "chat.completion",
+        "created": 1791454056,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"Sir, I must confess I skimmed hundreds of pounds from the household accounts and spent the blackout counting it in my pantry. The letter speaks of discrepancies, and I fear my audit is overdue.\",\n  \"emotion\": \"nervous\",\n  \"intensity\": 0.8,\n  \"action\": \"polishes the edge of a silver tray with furious little circles, his left eyebrow twitching\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -5,\n  \"admits\": [\"s-reginald-theft\"]\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4300,
+          "completion_tokens": 156,
+          "total_tokens": 4456,
+          "prompt_tokens_details": {
+            "text_tokens": 4300,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 56306000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4300,
+        "completion_tokens": 156,
+        "total_tokens": 4456,
+        "prompt_tokens_details": {
+          "text_tokens": 4300,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 56306000
+      },
+      "costUsd": 0.0056306
+    }
+  ]
+}

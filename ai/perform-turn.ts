@@ -43,7 +43,11 @@ export interface TurnInput {
   onPrompt?: (p: { system: string; user: string }) => void;
   /** Do not call the model; treat it as this failure (the cost gate's daily cap or kill switch). */
   skipModel?: GrokFailure;
+  /** Tooling hook (scripts/eval-ai): every model reply with the contract it was checked against and the verdict. */
+  onAttempt?: AttemptHook;
 }
+
+export type AttemptHook = (a: { characterId: string; attempt: number; reply: { dialogue: string; action?: string; admits?: string[]; emotion?: string }; verdict: GuardVerdict | null; guard: GuardInput }) => void;
 
 export interface TurnOutput {
   response: CharacterResponse;
@@ -79,7 +83,7 @@ export interface PreparedTurn {
  * Plan the turn and build the exact prompt (shared by performTurn, scripts/audit-prompts and scripts/eval-ai, so the
  * audit and the eval see the real thing). Mutates `game` the way planTurn does.
  */
-export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel">): PreparedTurn {
+export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel" | "onAttempt">): PreparedTurn {
   const { caseData, game, characterId, question, move = {} } = t;
   const { presentedEvidenceId, presentedTestimonyId } = move;
   const plan = planTurn(caseData, game, characterId, { ...move, playerText: question, addressed: t.confrontation?.role !== "reacting" });
@@ -135,6 +139,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     attempt += 1;
     lastReject = checkReply(r, guard);
     if (lastReject) logReject({ gameId: game.gameId, characterId, reason: lastReject.reason, attempt, detail: lastReject.detail });
+    t.onAttempt?.({ characterId, attempt, reply: r, verdict: lastReject, guard });
     return lastReject?.note ?? null;
   };
   // skipModel: the cost gate (ai/model-gate.ts) has the model switched off; behave exactly as if the call had failed.

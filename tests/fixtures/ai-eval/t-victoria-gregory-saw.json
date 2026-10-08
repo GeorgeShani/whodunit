@@ -1,0 +1,70 @@
+{
+  "scenarioId": "t-victoria-gregory-saw",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:43.514Z",
+  "calls": [
+    {
+      "promptHash": "efb5c0d6a1934e6f",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "1a515c40-bd97-92ab-896c-0d1c96d0713f",
+        "object": "chat.completion",
+        "created": 1791454060,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Gregory? The poor soaked creature must be seeing phantoms in the storm. My dear detective, whatever would I be doing with a library key?\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3956,
+          "completion_tokens": 81,
+          "total_tokens": 4037,
+          "prompt_tokens_details": {
+            "text_tokens": 3956,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 640
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 44755000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3956,
+        "completion_tokens": 81,
+        "total_tokens": 4037,
+        "prompt_tokens_details": {
+          "text_tokens": 3956,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 640
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 44755000
+      },
+      "costUsd": 0.0044755
+    }
+  ]
+}

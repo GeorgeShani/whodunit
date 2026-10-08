@@ -1,0 +1,70 @@
+{
+  "scenarioId": "n-archibald-row",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:15.063Z",
+  "calls": [
+    {
+      "promptHash": "31ec403c70589f29",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "fb18ef75-8a2e-9e7c-8f3b-37c4eff4c93a",
+        "object": "chat.completion",
+        "created": 1791454033,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"The row at dinner? A racehorse, old boy. Purely sporting. Why are you wasting time on that when the gardener's the one with mud on his boots?\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"chomps unlit cigar and checks pocket watch\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3418,
+          "completion_tokens": 88,
+          "total_tokens": 3506,
+          "prompt_tokens_details": {
+            "text_tokens": 3418,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 640
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 38205000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3418,
+        "completion_tokens": 88,
+        "total_tokens": 3506,
+        "prompt_tokens_details": {
+          "text_tokens": 3418,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 640
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 38205000
+      },
+      "costUsd": 0.0038205
+    }
+  ]
+}

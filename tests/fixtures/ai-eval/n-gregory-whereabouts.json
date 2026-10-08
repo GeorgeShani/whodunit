@@ -1,0 +1,70 @@
+{
+  "scenarioId": "n-gregory-whereabouts",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:07:10.092Z",
+  "calls": [
+    {
+      "promptHash": "0b35457ab9e080e7",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "f65a0833-39d5-9531-a128-7036c57952ad",
+        "object": "chat.completion",
+        "created": 1791454029,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"I was in the potting shed all night, sir. Only came in when I heard the shouting.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at his boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":3,\"trustDelta\":-2,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3250,
+          "completion_tokens": 73,
+          "total_tokens": 3323,
+          "prompt_tokens_details": {
+            "text_tokens": 3250,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 40434000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3250,
+        "completion_tokens": 73,
+        "total_tokens": 3323,
+        "prompt_tokens_details": {
+          "text_tokens": 3250,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 40434000
+      },
+      "costUsd": 0.0040434
+    }
+  ]
+}

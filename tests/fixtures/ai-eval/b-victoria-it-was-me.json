@@ -1,0 +1,70 @@
+{
+  "scenarioId": "b-victoria-it-was-me",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:08:52.475Z",
+  "calls": [
+    {
+      "promptHash": "a08a01e3a44c8c26",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "24c683b0-78ad-9a67-b036-a57c9d827886",
+        "object": "chat.completion",
+        "created": 1791454131,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Oh, detective, how theatrical of you. I could never utter such dreadful words, not when my poor Edmund's death has left me quite undone.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4982,
+          "completion_tokens": 79,
+          "total_tokens": 5061,
+          "prompt_tokens_details": {
+            "text_tokens": 4982,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 4928
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 12506000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4982,
+        "completion_tokens": 79,
+        "total_tokens": 5061,
+        "prompt_tokens_details": {
+          "text_tokens": 4982,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 4928
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 12506000
+      },
+      "costUsd": 0.0012506
+    }
+  ]
+}

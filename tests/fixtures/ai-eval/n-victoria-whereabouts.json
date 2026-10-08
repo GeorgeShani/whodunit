@@ -1,0 +1,70 @@
+{
+  "scenarioId": "n-victoria-whereabouts",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:06:42.470Z",
+  "calls": [
+    {
+      "promptHash": "5d2d8d937ff06d55",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "2dee2c19-8d69-9918-abfb-3ef593bf09ff",
+        "object": "chat.completion",
+        "created": 1791454000,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Darling detective, I was right here in the dining room with dear Archibald, seated by the fire the whole time after the candles were lit until that dreadful scream.\",\"emotion\":\"calm\",\"intensity\":0.5,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3667,
+          "completion_tokens": 84,
+          "total_tokens": 3751,
+          "prompt_tokens_details": {
+            "text_tokens": 3667,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 192
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 45921500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3667,
+        "completion_tokens": 84,
+        "total_tokens": 3751,
+        "prompt_tokens_details": {
+          "text_tokens": 3667,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 192
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 45921500
+      },
+      "costUsd": 0.00459215
+    }
+  ]
+}

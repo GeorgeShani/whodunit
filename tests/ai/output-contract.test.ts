@@ -131,3 +131,10 @@ describe("output contract: names", () => {
     expect(calm.dialogue).not.toBe(rattled.dialogue);
   });
 });
+
+describe("eval findings (live recording, 2026-10-08)", () => {
+  it("a vocative title at a sentence end is not a name ('a peculiar little game, Inspector. I'm afraid...')", () => {
+    expect(findUnknownName("Oh, what a peculiar little game, Inspector. I'm afraid my nerves are far too delicate.", "Victoria")).toBeNull();
+    expect(findUnknownName("Do sit down, Mr. Grimsby.", "Victoria")).toBe("Mr. Grimsby");
+  });
+});

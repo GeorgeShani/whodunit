@@ -19,7 +19,7 @@ import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { ConfrontRequestSchema, type ConfrontLine, type ConfrontResponseBody } from "./confront-schema";
-import { isTurnUnavailable, performTurn } from "./perform-turn";
+import { isTurnUnavailable, performTurn, type AttemptHook } from "./perform-turn";
 import { confrontBreatherLine, confrontDownLine } from "./model-down";
 import { claimTurn } from "./turn-lock";
 import type { KvStore } from "@/lib/runtime-kv";
@@ -38,6 +38,8 @@ export interface ConfrontDeps {
   gate?: ModelGate;
   /** One model turn per pre-turn state (#40, ai/turn-lock.ts). Absent = no duplicate check. */
   claims?: KvStore;
+  /** Tooling hook (scripts/eval-ai): every model reply and its guard verdict. */
+  onAttempt?: AttemptHook;
 }
 
 const pairNames = (a: string, b: string) => `${a.trim().split(/\s+/)[0]} and ${b.trim().split(/\s+/)[0]}`;
@@ -123,6 +125,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
 
       // 1. A answers the detective, in front of B.
       const first = await performTurn({
+        ...(deps.onAttempt ? { onAttempt: deps.onAttempt } : {}),
         caseData,
         game,
         characterId: aId,
@@ -142,6 +145,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
       // 2. B reacts to A. If A threw an admission, the engine counts it as presented to B.
       const aLine = first.response.dialogue;
       const second = await performTurn({
+        ...(deps.onAttempt ? { onAttempt: deps.onAttempt } : {}),
         caseData,
         game,
         characterId: bId,
