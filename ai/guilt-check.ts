@@ -7,6 +7,11 @@
  *  - THE CULPRIT, additionally: the weapon used in a first-person act ("I wiped the candlestick"), locking the
  *    door or taking/hiding the key, and placing herself at the murder scene during the murder window
  *    ("I was in the library at seventeen past nine").
+ *  - THE CULPRIT, since Agatha's leak audit: ANY first-person act at a clock time inside the murder window
+ *    ("I burned it at twenty past nine"; an alibi "I was by the fire at 21:16" passes), handling a core-guilt object
+ *    ("I wiped the base with my handkerchief", "I dropped it in the coal scuttle", "I took the letter off his desk"),
+ *    "I locked it", and being with the victim or at the scene while someone was away, in the dark or by candlelight.
+ *    The window, objects and places all come from case data (engine/core-guilt.ts guiltProfile).
  * Denials ("I never killed him"), questions ("You think I killed him?") and hypotheticals ("as if I could
  * have struck him") pass. A bare MOTIVE admission ("I knew about the will and burned the letter") is NOT
  * core guilt and passes.
@@ -34,7 +39,13 @@ const gap = (words: number) => String.raw`(?:[\s,]+(?!(?:${NEG}|${BLOCK})\b)[\w'
 const KILL = String.raw`(?:kill(?:ed)?|murder(?:ed)?|struck|strike|hit|bludgeon(?:ed)?|club(?:bed)?|bash(?:ed)?|cosh(?:ed)?|brain(?:ed)?|smash(?:ed)?|clobber(?:ed)?|whack(?:ed)?|walloped|crowned|did\s+away\s+with|did\s+for|done\s+for|did\s+(?:him|her)\s+in|finished\s+(?:him|her)\s+off|silenced)(?!\s+(?:a\s+|the\s+)?(?:match|light|bargain|deal|note|chord|pose|nerve|snag|wall|roof|ceiling))`;
 const WEAPON_ACT = String.raw`swung|swing|raised|lifted|brought(?:\s+down)?|picked\s+up|seized|grabbed|snatched|used(?!\s+to\b)|wiped|cleaned|wielded|carried|took|struck|hit|bashed|brained`;
 const KEY_ACT = String.raw`took|taken|pocketed|hid|hidden|dropped|slipped|kept|had|turned|threw|tossed|buried`;
-const MOVE = String.raw`was|went|slipped|stepped|crept|returned|popped|came|got|ran|hurried|stole|sneaked|snuck|knocked|entered|been`;
+const MOVE = String.raw`was|went|slipped|stepped|crept|returned|popped|came|got|ran|hurried|stole|sneaked|snuck|knocked|entered|been|stayed|waited|stood|sat|talked|spoke|pleaded|argued`;
+/** Handling a core-guilt object (desk, handkerchief, coal scuttle...): "took" but not "took out (my handkerchief)". */
+const OBJECT_ACT = String.raw`took(?!\s+out)|taken|snatched|grabbed|picked\s+up|lifted|pocketed|hid|hidden|dropped|slipped|threw|tossed|stuffed|shoved|pushed|wiped|wiping|cleaned|scrubbed|rubbed|burned|burnt|buried|stood|set|put|placed|tucked`;
+/** Proxies for "during the murder window" that need no clock: the dark, the candles, the blackout. */
+/** The victim already down: "I came out of the library, but he was already dead". */
+const DEAD = /\b(?:already\s+dead|was\s+dead|lay\s+dead|lying\s+dead|his\s+body|her\s+body|the\s+body|lay\s+there|lying\s+there)\b/i;
+const DARK = /\b(?:in\s+the\s+dark(?:ness)?|by\s+candle-?light|by\s+the\s+light\s+of\s+(?:a|the)\s+candle|during\s+the\s+blackout|when\s+the\s+lights?\s+(?:went|were|was)\s+out|after\s+the\s+lights?\s+(?:went|failed))\b/i;
 /**
  * Hedges RIGHT BEFORE the "I" that make it someone else's claim or a hypothetical: "you think I killed him",
  * "as if I could", "if I had", "accusing me... that I". ("If you must know, I killed him" is NOT hedged.)
@@ -46,7 +57,7 @@ const HEDGE = new RegExp(
 
 export interface GuiltLeak {
   /** Which rule matched. */
-  kind: "killing" | "confession" | "weapon" | "key" | "scene";
+  kind: "killing" | "confession" | "weapon" | "key" | "scene" | "object" | "window";
   /** The offending sentence (trimmed). */
   text: string;
 }
@@ -89,6 +100,24 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
   const scene = profile.sceneNames.length ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${MOVE})\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i") : null;
   const [lo, hi] = profile.window;
   const inWindow = (s: string) => extractTimes(s).some((m) => m.candidates.some((c) => c >= lo - 1 && c <= hi + 1) && !m.hourOnly);
+  const inWindowStrict = (s: string) => extractTimes(s).flatMap((m) => (m.hourOnly ? [] : m.candidates.filter((c) => c >= lo && c <= hi)));
+  // Any first-person act ("I burned it at twenty past nine"), not a denial or a modal.
+  const actor = new RegExp(`${SUBJ}${gap(3)}\\b(?!(?:${NEG}|${BLOCK})\\b)[a-z'’]+`, "i");
+  const objects = profile.coreObjects?.length ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${OBJECT_ACT})\\b${span(40)}\\b(?:${alt(profile.coreObjects)})s?\\b`, "i") : null;
+  const lockBare = new RegExp(`${SUBJ}${gap(3)}\\b(?:locked|bolted)\\b(?!\\s+(?:myself|me)\\b)`, "i");
+  const sceneOrVictim = alt([...profile.sceneNames, ...profile.victimNames]);
+  const presence = sceneOrVictim ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${MOVE})\\b${span(30)}\\b(?:${sceneOrVictim})\\b`, "i") : null;
+  /**
+   * "I was by the fire at 21:16" is the culprit's ALIBI (a lie, but no admission): a stative verb with a place her
+   * core-guilt facts do NOT put her in at that minute. "I was in the dining room at 21:20" (true, and core) is not.
+   */
+  const alibi = (s: string, minutes: number[]) => {
+    if (!/\bI\s+(?:was|sat|stayed|remained|waited|stood)\b/i.test(s)) return false;
+    const places = (profile.locationNames ?? []).filter((l) => l.names.some((n) => new RegExp(`\\b${esc(n)}\\b`, "i").test(s))).map((l) => l.id);
+    if (/\bby\s+the\s+fire(?:side)?\b|\bat\s+the\s+fireside\b/i.test(s)) places.push(...(profile.locationNames ?? []).filter((l) => /dining|drawing|sitting|parlou?r|lounge/.test(l.id)).map((l) => l.id));
+    if (!places.length || places.some((p) => profile.sceneNames.length && p === profile.sceneNames[0])) return false;
+    return minutes.every((m) => !places.some((p) => (profile.coreWhereabouts?.[m] ?? []).includes(p)));
+  };
   const whileAway = /\bwhile\b[^.!?;]{0,40}\b(?:away|gone|out|telephon\w*|on\s+the\s+(?:tele)?phone)\b|\bafter\s+\w+(?:\s+\w+)?\s+(?:left|had\s+gone|went\s+out)\b/i;
 
   for (const s of sentences(text)) {
@@ -96,8 +125,12 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     if (hit(s, confession)) return { kind: "confession", text: s };
     if (!culprit) continue;
     if (weapon && hit(s, weapon)) return { kind: "weapon", text: s };
-    if (hit(s, lockDoor) || hit(s, key)) return { kind: "key", text: s };
-    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s))) return { kind: "scene", text: s };
+    if (hit(s, lockDoor) || hit(s, key) || hit(s, lockBare)) return { kind: "key", text: s };
+    if (objects && hit(s, objects)) return { kind: "object", text: s };
+    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || DARK.test(s) || DEAD.test(s))) return { kind: "scene", text: s };
+    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || DARK.test(s) || DEAD.test(s))) return { kind: "scene", text: s };
+    const minutes = inWindowStrict(s);
+    if (minutes.length && hit(s, actor) && !alibi(s, minutes)) return { kind: "window", text: s };
   }
   return null;
 }

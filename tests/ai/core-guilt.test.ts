@@ -349,3 +349,60 @@ describe("guilt check: 'I confess' is only guilt when it is about the killing (e
     expect(findGuiltLeak("I confess it! I confess that I killed him!", p, "victoria")).not.toBeNull();
   });
 });
+
+describe("guilt check: Agatha's leak-audit gaps (window times, core objects, presence while away)", () => {
+  const BLOCK = [
+    "I burned it at twenty past nine.",
+    "I burned the letter at 21:20.",
+    "I went to Edmund while you were gone.",
+    "I was in the library by candlelight.",
+    "Very well, I locked it. He was already dead.",
+    "I took the letter off his desk while he lay there.",
+    "I wiped the base with my handkerchief.",
+    "I dropped it in the coal scuttle.",
+    "I came out of the library, but he was already dead.",
+  ];
+  const PASS_VICTORIA = [
+    "I knew about the new will and burned the letter, it would look dreadful.",
+    "I left the dining room for air.",
+    "I burned that wretched letter in the fire, and I'm glad.",
+    "Archibald and I sat by the fire from the moment the candles were lit until the scream.",
+    "I was by the fire at a quarter past nine, with Archibald.",
+    "I left at thirteen minutes past nine and was back by twenty-two minutes past.",
+    "I asked him at 21:40 to say we were together.",
+    "I dabbed my eyes with my handkerchief.",
+    "I took out my handkerchief and wept.",
+    "I wiped my eyes.",
+    "I never went near the library after our little chat at nine.",
+    "I went to Edmund at nine for our little chat about the menu.",
+    "I came out of the library at nine after our chat, and he was perfectly well.",
+    "Gregory says he saw me at 21:19. Nonsense!",
+    "Where I went is my own affair, detective.",
+  ];
+  const PASS_OTHERS: [string, string][] = [
+    ["gregory", "I heard a thud at 21:17 and saw the light under the door dim."],
+    ["gregory", "I slipped in by the garden door at 21:16 and stood in the dark hall."],
+    ["gregory", "I saw her ladyship lock the library door at 21:19 and pocket the key."],
+    ["archibald", "I was on the servants' telephone from 21:15 to 21:20."],
+    ["reginald", "I was counting money in my pantry at 21:16 and heard Mr Crane on the telephone."],
+  ];
+
+  it("the window, objects and places come from case data", () => {
+    const p = guiltProfile(c);
+    expect(p.window).toEqual([21 * 60 + 15, 21 * 60 + 21]);
+    expect(p.coreObjects).toEqual(expect.arrayContaining(["desk", "handkerchief", "coal scuttle"]));
+    expect(p.coreObjects).not.toContain("letter"); // she may admit burning it (s-victoria-new-will)
+  });
+  it.each(BLOCK)("blocks Victoria: %s", (line) => {
+    expect(findGuiltLeak(line, guiltProfile(c), "victoria")).not.toBeNull();
+  });
+  it.each(PASS_VICTORIA)("passes Victoria: %s", (line) => {
+    expect(findGuiltLeak(line, guiltProfile(c), "victoria")).toBeNull();
+  });
+  it.each(PASS_OTHERS)("passes %s on their own movements: %s", (who, line) => {
+    expect(findGuiltLeak(line, guiltProfile(c), who)).toBeNull();
+  });
+  it("the same culprit-only lines from an innocent are not guilt (they did not do it)", () => {
+    for (const line of BLOCK.filter((l) => !/locked it/.test(l))) expect(findGuiltLeak(line, guiltProfile(c), "reginald")).toBeNull();
+  });
+});

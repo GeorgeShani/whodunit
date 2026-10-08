@@ -77,7 +77,20 @@ export interface GuiltProfile {
   sceneNames: string[];
   /** Clock-minute window (minutes after midnight) of the murderer's core-guilt facts plus the murder minute. */
   window: [number, number];
+  /**
+   * Lower-case nouns that only the murderer's core-guilt facts and secrets mention as things handled in the killing
+   * or the cover-up ("handkerchief", "coal scuttle", "desk"). Nouns the culprit may legitimately talk about (anything
+   * in her revealable secrets, e.g. "letter"), places, people and the weapon (its own rule) are left out.
+   */
+  coreObjects: string[];
+  /** For each clock minute in the window: the location ids the culprit's core facts put her in (alibi check). */
+  coreWhereabouts: Record<number, string[]>;
+  /** Lower-case names of every location (for "I was in the dining room at 21:16"). */
+  locationNames: { id: string; names: string[] }[];
 }
+
+/** Generic nouns never worth treating as a core-guilt object. */
+const NOT_OBJECTS = new Set(["head", "room", "way", "time", "night", "evening", "minute", "moment", "side", "back", "front", "inside", "outside", "floor", "hand", "hands", "face", "door", "lock", "fire", "light", "dark", "storm", "rain", "house", "chair", "table", "lit", "candle", "new", "old", "same", "other", "own", "few", "little", "with", "from", "into", "onto", "upon", "over", "under", "beside", "behind", "after", "before", "then", "there", "that", "this", "husband", "wife", "master", "lord", "lady", "body", "blow", "death"]);
 
 const clock = (t: string) => {
   const [h, m] = t.split(":").map(Number);
@@ -112,11 +125,47 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
       }
     }
   }
+  // Core objects: nouns after a determiner in the core facts / core secrets, minus everything the culprit may say.
+  const coreObjects = new Set<string>();
+  const coreWhereabouts: Record<number, string[]> = {};
+  if (murderer) {
+    const core = coreGuiltSecretIds(c);
+    const facts = coreGuiltFactIds(c, murderer);
+    const coreTexts = [...allFacts(c).filter((f) => facts.has(f.id)).map((f) => f.statement), ...murderer.secrets.filter((s) => core.has(s.id)).map((s) => s.description)];
+    const norm = (w: string | undefined) => w?.replace(/['’]s$/, "").replace(/['’]/g, "");
+    const words = (t: string) => (t.toLowerCase().replace(/-/g, " ").match(/[a-z][a-z'’]*/g) ?? []).map((w) => norm(w)!);
+    const banned = new Set([
+      ...murderer.secrets.filter((s) => !core.has(s.id)).flatMap((s) => words(s.description)),
+      ...c.locations.flatMap((l) => words(l.name)),
+      ...c.characters.flatMap((ch) => [...words(ch.name), ...(ch.aliases ?? []).flatMap(words)]),
+      ...[c.victim.name, ...c.victim.aliases].flatMap(words),
+      ...(weapon ? words(weapon.name) : []),
+    ]);
+    const ok = (w: string | undefined): w is string => !!w && w.length >= 4 && !banned.has(w) && !NOT_OBJECTS.has(w) && !/(?:ly|ing|ed)$/.test(w);
+    for (const t of coreTexts) {
+      for (const m of t.toLowerCase().replace(/-/g, " ").matchAll(/\b(?:the|her|his|its|a|an)\s+([a-z'’]+)(?:\s+([a-z'’]+))?/g)) {
+        const a = norm(m[1]);
+        const b = norm(m[2]);
+        if (ok(a) && ok(b)) coreObjects.add(`${a} ${b}`).add(b);
+        else if (ok(a)) coreObjects.add(a);
+        else if (ok(b)) coreObjects.add(b);
+      }
+    }
+    for (const f of allFacts(c)) {
+      if (!facts.has(f.id) || !f.locationId) continue;
+      const from = clock(f.time ?? f.from ?? sol.time);
+      const to = clock(f.time ?? f.to ?? f.from ?? sol.time);
+      for (let m = from; m <= to; m++) (coreWhereabouts[m] ??= []).push(f.locationId);
+    }
+  }
   return {
     murdererId: sol.murdererId,
     victimNames: [...new Set(victimNames)],
     weaponNames: weapon ? nouns(weapon.name) : [],
     sceneNames: scene ? nouns(scene.name) : [],
     window: [lo, hi],
+    coreObjects: [...coreObjects],
+    coreWhereabouts,
+    locationNames: c.locations.map((l) => ({ id: l.id, names: nouns(l.name) })),
   };
 }
