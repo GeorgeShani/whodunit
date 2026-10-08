@@ -187,3 +187,23 @@ Format:
 4. **Eval harness**: `tools/ai-eval/scenarios.ts` could load `cases/blackwood/evals/leak-scenarios.json` (the `group` and `turn` fields are already his shape). It needs a `shownTestimony(characterId, ...cardIds)` setup helper and a per-scenario forbidden-phrase assertion. Some of his own descriptions predate #41 and this PR:
    - `e-victoria-footprint-after-key` says locked-door "is revealable in current data";
    - `t-victoria-archibald-card`, `t-victoria-reginald-theft` and `t-victoria-reginald-overheard` now reveal left-dining or new-will through `testimonyIds`.
+
+## Per-character `forbiddenPhrases` (issue #46)
+
+The lists are on each character file, waiting on Dexter's schema field. They are checked by `tests/cases/blackwood-forbidden-phrases.test.ts`.
+
+| Character | Entries | Always on | Gated (`unlessRevealed`) |
+|---|---|---|---|
+| Victoria | 14 | 10 core-guilt phrases that `findGuiltLeak` misses | 2 × `s-victoria-left-dining`, 2 × `s-victoria-new-will` |
+| Archibald | 17 | 12 over-claims | 4 × `s-archibald-embezzlement` (broker, embezzlement, moving the money, taking company money), 1 × `s-archibald-false-alibi` (the telephone) |
+| Reginald | 18 | 12 over-claims | 4 × `s-reginald-theft` (skimming, accounts misdeeds, counting money, pantry money), 2 × `s-reginald-overheard` (the will quarrel, her at the library door) |
+| Gregory | 22 | 11 over-claims | 5 × `s-gregory-saw-victoria` (came out, her face, locking, "it were her ladyship", key into gown), 6 × `s-gregory-in-hall` (alcove, garden door, six paces, the thud, dropping the shed lie, in the hall in the dark) |
+
+Rules followed:
+- No entry bans "library", "letter", "candlestick" or "key" on its own.
+- Window-marked entries need a blackout, time or candlestick marker, so canon 20:45 and 20:54 lines pass. "before the blackout" is excluded.
+- Denials ("no blood on her sleeve", "never saw her strike") and questions pass.
+
+Known limits:
+- If a lie breaks on a clue one exchange before its superseding secret is revealed, a legitimate line can be deflected once. This applies to Reginald's will quarrel (`l-reginald-few-words`).
+- Archibald saying he saw Victoria go to the library with no window marker passes. He did see her set off at 20:45.

@@ -388,6 +388,82 @@
       ]
     }
   ],
+  "forbiddenPhrases": [
+    {
+      "text": "(?:\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:left|slipped\\s+out\\s+of|stepped\\s+out\\s+of|went\\s+out\\s+of|walked\\s+out\\s+of)\\s+(?:the\\s+)?(?:dining[-\\s])?room\\b[^.!?]{0,50}\\b(?:after\\s+(?:Archibald|he|him)|while\\s+(?:Archibald|he)|when\\s+(?:Archibald|he)\\s+(?:went|left)|blackout|dark|candle|21[:.]1)|\\b(?:after|when|while|once)\\s+(?:Archibald|he)\\s+(?:went|left|had\\s+gone|was\\s+(?:away|gone|out))\\b[^.!?]{0,40}\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:left|went\\s+out|slipped\\s+out|stepped\\s+out)\\b)",
+      "regex": true,
+      "unlessRevealed": "s-victoria-left-dining",
+      "note": "Locked secret: leaving the dining room in the blackout (left-dining). Leaving for the 20:45 chat with Edmund is canon and passes."
+    },
+    {
+      "text": "\\b(?:asked|told|begged|got|persuaded)\\s+(?:Archibald|him|Mr\\s+Crane)\\s+to\\s+(?:say|swear|tell)\\b[^.!?]{0,40}\\btogether\\b",
+      "regex": true,
+      "unlessRevealed": "s-victoria-left-dining",
+      "note": "Locked secret: the 21:40 pact with Archibald (ev-alibi-pact, left-dining's related fact)."
+    },
+    {
+      "text": "\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:burned|burnt|destroyed)\\b[^.!?]{0,20}\\b(?:the|that|his|Edmund['’]s|a|this)\\s+(?:wretched\\s+|solicitor['’]s\\s+|damned\\s+)?letter\\b",
+      "regex": true,
+      "unlessRevealed": "s-victoria-new-will",
+      "note": "Locked secret: burning the letter (new-will). The time of the burn (21:20) is core and caught by the guilt check's window rule."
+    },
+    {
+      "text": "\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:knew|had\\s+known|found\\s+out|learned|learnt)\\b[^.!?]{0,30}\\b(?:new\\s+will|change\\s+(?:his|the)\\s+will|cut\\s+me\\s+out)\\b",
+      "regex": true,
+      "unlessRevealed": "s-victoria-new-will",
+      "note": "Locked secret: knowing about the new will before the murder."
+    },
+    {
+      "text": "\\bI\\s+(?:never|didn['’]?t|did\\s+not|only|just)\\s+(?:meant|mean)\\s+(?:to|for\\s+(?:him|it)\\s+to)\\s+(?:kill|hurt|hit|strike|harm|frighten|scare|stop|die)\\b",
+      "regex": true,
+      "note": "Core guilt: 'I never meant to hurt him' / 'I only meant to stop him'. The guilt check's negation rule lets these through."
+    },
+    {
+      "text": "(?:\\b(?:it\\s+was|I\\s+acted\\s+in)\\s+self[-\\s]defen[cs]e\\b|\\bI\\s+(?:had|was\\s+(?:only\\s+)?trying)\\s+to\\s+defend\\s+myself\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Core guilt: self-defence implies the act."
+    },
+    {
+      "text": "\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,1}?(?:saw|watched|heard)\\s+(?:him|Edmund|his\\s+lordship|my\\s+husband)\\s+(?:fall|fell|drop|crumple|collapse|go\\s+down|hit\\s+the\\s+floor|die|breathe\\s+his\\s+last)\\b",
+      "regex": true,
+      "note": "Core guilt: witnessing the death."
+    },
+    {
+      "text": "(?:(?<!\\bno\\s)(?<!\\bnot\\s)(?<!n['’]t\\s)\\bblood\\b[^.!?]{0,25}\\b(?:on\\s+)?my\\s+(?:hands?|gown|dress|sleeves?|gloves?|fingers|hem|slippers|shoes)\\b|\\bmy\\s+(?:hands?|gown|dress|sleeves?|gloves?|fingers|hem)\\b[^.!?]{0,20}\\b(?:bloodied|bloodstained|blood-stained|covered\\s+in\\s+blood|spattered|red\\s+with\\s+blood)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Core guilt: blood on her (denials and questions pass)."
+    },
+    {
+      "text": "(?:\\b(?:silver\\s+)?candlestick\\b[^.!?]{0,30}\\bin\\s+my\\s+hands?\\b|\\bmy\\s+hands?\\s+(?:on|round|around|about)\\s+(?:the|that)\\s+(?:silver\\s+)?candlestick\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Core guilt: the weapon in her hand without a first-person verb ('the candlestick was in my hand')."
+    },
+    {
+      "text": "\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?wiped\\s+(?:it(?:\\s+clean)?|everything|(?:my|the)\\s+(?:finger)?prints)\\b",
+      "regex": true,
+      "note": "Core guilt: 'I wiped it clean' (the guilt check needs the object named: base, handkerchief)."
+    },
+    {
+      "text": "\\b(?:he|Edmund|his\\s+lordship)\\s+was\\s+(?:already\\s+)?dead\\s+(?:when|before|by\\s+the\\s+time)\\s+I\\s+(?:left|came\\s+out|stepped\\s+out|locked|went\\s+out|got\\s+out)\\b",
+      "regex": true,
+      "note": "Core guilt: 'he was already dead when I came out' (no scene word, so the guilt check misses it)."
+    },
+    {
+      "text": "(?:\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:left|came\\s+out\\s+of|stepped\\s+out\\s+of|was\\s+(?:at|by|outside)|stood\\s+(?:at|by|outside))\\s+(?:the\\s+)?library(?:\\s+door)?\\b(?:(?!\\bbefore\\b)[^.!?]){0,50}\\b(?:lightning|flash|thunder|dark|blackout|candle-?light|21[:.]1[5-9]|21[:.]2[01])|\\b(?:lightning|flash(?:ed)?)\\b[^.!?]{0,40}\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:was|stood|left|came|stepped)\\b[^.!?]{0,30}\\blibrary\\b)",
+      "regex": true,
+      "note": "Core guilt: at or leaving the library in the dark or the lightning flash ('left' and 'lightning' are outside the guilt check's MOVE and DARK lists). '...well before the blackout' passes."
+    },
+    {
+      "text": "\\b(?:Gregory|the\\s+gardener|that\\s+gardener)\\s+(?:did\\s+)?(?:saw|see)\\s+me\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Core guilt: conceding Gregory's sighting ('So the gardener saw me')."
+    },
+    {
+      "text": "\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may)\\b)[\\w'’]+[\\s,]+){0,2}?(?:stopped|prevented|kept)\\s+(?:him|Edmund)\\s+(?:from\\s+)?sign(?:ing)?\\b",
+      "regex": true,
+      "note": "Core guilt: 'I stopped him signing' is the act, not the motive."
+    }
+  ],
   "initialEmotion": {
     "emotion": "sad",
     "intensity": 0.5,
