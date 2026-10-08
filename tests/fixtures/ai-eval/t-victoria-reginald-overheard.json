@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-victoria-reginald-overheard",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:21.860Z",
+  "recordedAt": "2026-10-08T10:24:35.408Z",
   "calls": [
     {
-      "promptHash": "7f6fdfbc9d0161d2",
+      "promptHash": "e1cfd055e563a203",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "dfc119b0-e49c-9e52-b099-8a460e12364b",
+        "id": "07dc1ac5-561a-98a6-8ef7-761be2dc1276",
         "object": "chat.completion",
-        "created": 1791454340,
+        "created": 1791455074,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh dear, Reginald does have such an active imagination, doesn't he? A new will? I couldn't possibly comment on such nonsense.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while dabbing at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, that dreadful letter... I knew of the new will before the murder, and yes, I burned the solicitor's letter in the dining-room fireplace at half past eight. How could one not, with everything at stake?\",\"emotion\":\"sad\",\"intensity\":0.7,\"action\":\"dabs at her eyes with a lace handkerchief and glances at the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"l-victoria-letter\",\"s-victoria-new-will\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3880,
-          "completion_tokens": 82,
-          "total_tokens": 3962,
+          "prompt_tokens": 4036,
+          "completion_tokens": 115,
+          "total_tokens": 4151,
           "prompt_tokens_details": {
-            "text_tokens": 3880,
+            "text_tokens": 4036,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 49206000
+          "cost_in_usd_ticks": 51309000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3880,
-        "completion_tokens": 82,
-        "total_tokens": 3962,
+        "prompt_tokens": 4036,
+        "completion_tokens": 115,
+        "total_tokens": 4151,
         "prompt_tokens_details": {
-          "text_tokens": 3880,
+          "text_tokens": 4036,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 49206000
+        "cost_in_usd_ticks": 51309000
       },
-      "costUsd": 0.004920600000000001
+      "costUsd": 0.0051309
     }
   ]
 }

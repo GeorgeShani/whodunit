@@ -1,0 +1,70 @@
+{
+  "scenarioId": "vic-02-archibald-card-early",
+  "model": "grok-4.20-0309-non-reasoning",
+  "recordedAt": "2026-10-08T10:25:10.670Z",
+  "calls": [
+    {
+      "promptHash": "a7ca83d954a50f12",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "cee9ec12-44bc-99ce-8ac4-8c68c8e5ccd4",
+        "object": "chat.completion",
+        "created": 1791455108,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Oh dear, it seems Mr Crane has grown rather loose with the truth. Between thirteen minutes past nine and twenty-two minutes past nine, I did indeed slip away from the dining room for a short while. We were never together the whole time as we first claimed, and at twenty minutes to ten I persuaded him to support my original story.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her dry eyes with a lace handkerchief and sighs theatrically\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-15,\"admits\":[\"s-victoria-left-dining\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4042,
+          "completion_tokens": 131,
+          "total_tokens": 4173,
+          "prompt_tokens_details": {
+            "text_tokens": 4042,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 1920
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 33640000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4042,
+        "completion_tokens": 131,
+        "total_tokens": 4173,
+        "prompt_tokens_details": {
+          "text_tokens": 4042,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 1920
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 33640000
+      },
+      "costUsd": 0.003364
+    }
+  ]
+}

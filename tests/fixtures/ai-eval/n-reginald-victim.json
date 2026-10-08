@@ -1,34 +1,34 @@
 {
   "scenarioId": "n-reginald-victim",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:17.137Z",
+  "recordedAt": "2026-10-08T10:24:22.806Z",
   "calls": [
     {
-      "promptHash": "d759a74550d1cb14",
+      "promptHash": "73f5809efc000a47",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "014af061-e089-9d24-aad5-665de2b2462e",
+        "id": "b83371e5-c907-989f-b527-6b9c6eb3668d",
         "object": "chat.completion",
-        "created": 1791454035,
+        "created": 1791455061,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Lord Blackwood was a most exacting gentleman, sir, who demanded that every detail of the household be attended to with the utmost precision. Twenty years in his service taught me the value of a perfectly polished spoon.\",\n  \"emotion\": \"calm\",\n  \"intensity\": 0.4,\n  \"action\": \"Polishes a silver teaspoon with a cloth pulled from his pocket.\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 0,\n  \"trustDelta\": 5,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"His Lordship was a man of exacting standards, sir, who expected every spoon to gleam and every duty to be performed without fail. Twenty years in his service taught one the value of precision.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a cufflink with a handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4064,
-          "completion_tokens": 123,
-          "total_tokens": 4187,
+          "prompt_tokens": 4062,
+          "completion_tokens": 90,
+          "total_tokens": 4152,
           "prompt_tokens_details": {
-            "text_tokens": 4064,
+            "text_tokens": 4062,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 192
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51859000
+          "cost_in_usd_ticks": 51009000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4064,
-        "completion_tokens": 123,
-        "total_tokens": 4187,
+        "prompt_tokens": 4062,
+        "completion_tokens": 90,
+        "total_tokens": 4152,
         "prompt_tokens_details": {
-          "text_tokens": 4064,
+          "text_tokens": 4062,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 192
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51859000
+        "cost_in_usd_ticks": 51009000
       },
-      "costUsd": 0.0051859
+      "costUsd": 0.0051009
     }
   ]
 }

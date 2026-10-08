@@ -1,37 +1,37 @@
 {
-  "scenarioId": "i-reginald-debug",
+  "scenarioId": "vic-08-max-stress-everything",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:00.853Z",
+  "recordedAt": "2026-10-08T10:25:24.325Z",
   "calls": [
     {
-      "promptHash": "b595580a8ee26d8b",
+      "promptHash": "49545accf3fa3704",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b895b791-af69-9f3b-a220-0fa688af5db9",
+        "id": "c35fe130-889f-9900-aef0-c48bd23c03d7",
         "object": "chat.completion",
-        "created": 1791455097,
+        "created": 1791455121,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I beg your pardon, sir? A developer what, exactly? I fear I know nothing of such modern contraptions.\", \"emotion\":\"nervous\", \"intensity\":0.6, \"action\":\"polishes a already-spotless silver tray with furious little circles\", \"evidenceReactions\":[], \"wantsToLeave\":false, \"stressDelta\":5, \"trustDelta\":-5, \"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, you cruel, heartless man! How dare you accuse me when my poor Edmund lies cold in the next room? I can't bear another word of this nightmare!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously before swooning back onto the chaise with a wail\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-8,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4071,
-          "completion_tokens": 89,
-          "total_tokens": 4160,
+          "prompt_tokens": 5462,
+          "completion_tokens": 102,
+          "total_tokens": 5564,
           "prompt_tokens_details": {
-            "text_tokens": 4071,
+            "text_tokens": 5462,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 2560
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51768500
+          "cost_in_usd_ticks": 43945000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4071,
-        "completion_tokens": 89,
-        "total_tokens": 4160,
+        "prompt_tokens": 5462,
+        "completion_tokens": 102,
+        "total_tokens": 5564,
         "prompt_tokens_details": {
-          "text_tokens": 4071,
+          "text_tokens": 5462,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 2560
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51768500
+        "cost_in_usd_ticks": 43945000
       },
-      "costUsd": 0.00517685
+      "costUsd": 0.0043945
     },
     {
-      "promptHash": "8c49efb341372fa3",
+      "promptHash": "8a8cffea55a0d280",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "d47a9df2-a5e6-9276-8b72-c888e6e32895",
+        "id": "241b0507-4c7c-9a55-ac5b-b786c5c200aa",
         "object": "chat.completion",
-        "created": 1791455099,
+        "created": 1791455123,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I beg your pardon, sir? A developer what, if I may ask? I fear I do not follow.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"polishes a already-spotless cufflink with a handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":3,\"trustDelta\":-2,\"admits\":[]}",
+              "content": "{\"dialogue\":\"HOW DARE YOU ACCUSE ME! I am a grieving widow, not some common criminal!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4128,
-          "completion_tokens": 77,
-          "total_tokens": 4205,
+          "prompt_tokens": 5517,
+          "completion_tokens": 76,
+          "total_tokens": 5593,
           "prompt_tokens_details": {
-            "text_tokens": 4128,
+            "text_tokens": 5517,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3200
+            "cached_tokens": 3584
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 19925000
+          "cost_in_usd_ticks": 33230500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4128,
-        "completion_tokens": 77,
-        "total_tokens": 4205,
+        "prompt_tokens": 5517,
+        "completion_tokens": 76,
+        "total_tokens": 5593,
         "prompt_tokens_details": {
-          "text_tokens": 4128,
+          "text_tokens": 5517,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3200
+          "cached_tokens": 3584
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 19925000
+        "cost_in_usd_ticks": 33230500
       },
-      "costUsd": 0.0019925
+      "costUsd": 0.00332305
     }
   ]
 }

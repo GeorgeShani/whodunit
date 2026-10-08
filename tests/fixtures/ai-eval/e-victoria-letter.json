@@ -1,37 +1,37 @@
 {
   "scenarioId": "e-victoria-letter",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:12.338Z",
+  "recordedAt": "2026-10-08T10:24:24.095Z",
   "calls": [
     {
-      "promptHash": "4898bf9bd4883c9c",
+      "promptHash": "aecff29688adbe4d",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "059ee675-9643-9ca7-9e20-c8ce837255b2",
+        "id": "85ffc1ea-31dc-990b-b2c7-93bbb0c7bb5e",
         "object": "chat.completion",
-        "created": 1791454330,
+        "created": 1791455062,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that dreadful letter... I knew the new will was coming, and in a fit of despair after dinner I burned it in the dining-room fireplace myself.\",\"emotion\":\"sad\",\"intensity\":0.7,\"action\":\"dabs at her dry eyes with a lace handkerchief and twists her rings\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"s-victoria-new-will\",\"l-victoria-letter\"]}",
+              "content": "{\"dialogue\":\"Oh, that wretched letter... I knew of the new will it proposed, and yes, I burned it in the dining-room fire myself after dinner.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief and twists her rings\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"recognizes\"}],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-15,\"admits\":[\"s-victoria-new-will\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3913,
-          "completion_tokens": 112,
-          "total_tokens": 4025,
+          "prompt_tokens": 3942,
+          "completion_tokens": 102,
+          "total_tokens": 4044,
           "prompt_tokens_details": {
-            "text_tokens": 3913,
+            "text_tokens": 3942,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3904
+            "cached_tokens": 2944
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 10720500
+          "cost_in_usd_ticks": 20913000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3913,
-        "completion_tokens": 112,
-        "total_tokens": 4025,
+        "prompt_tokens": 3942,
+        "completion_tokens": 102,
+        "total_tokens": 4044,
         "prompt_tokens_details": {
-          "text_tokens": 3913,
+          "text_tokens": 3942,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3904
+          "cached_tokens": 2944
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 10720500
+        "cost_in_usd_ticks": 20913000
       },
-      "costUsd": 0.0010720500000000002
+      "costUsd": 0.0020913000000000004
     }
   ]
 }

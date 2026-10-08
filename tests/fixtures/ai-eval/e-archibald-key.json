@@ -1,34 +1,34 @@
 {
   "scenarioId": "e-archibald-key",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:32.096Z",
+  "recordedAt": "2026-10-08T10:24:26.053Z",
   "calls": [
     {
-      "promptHash": "0271324d99ca62e0",
+      "promptHash": "9a2610d9bbf4538c",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "6eb0841c-0edf-917c-9cdd-168dfb5e983f",
+        "id": "62ed2ee4-3676-9c96-827f-280e15ac9044",
         "object": "chat.completion",
-        "created": 1791454049,
+        "created": 1791455064,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Blast it all, old boy! I wasn't with Victoria the whole time after the candles were lit. I slipped out at thirteen minutes past nine, used the servants' telephone until twenty minutes past, and returned at twenty-two minutes past nine. We agreed to keep it quiet to avoid scandal.\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops his beetroot-red brow with a huge handkerchief, chomping through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-5,\"admits\":[\"s-archibald-false-alibi\"]}",
+              "content": "{\"dialogue\":\"Blast it all, old boy! I... I wasn't with Victoria the whole time after the candles were lit. Slipped out at thirteen minutes past nine for a quick call on the servants' telephone till twenty minutes past, back by twenty-two past. We agreed to keep it quiet at twenty to ten, that's all.\",\"emotion\":\"panicked\",\"intensity\":0.8,\"action\":\"mops his beetroot-red brow with a huge handkerchief, biting clean through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-archibald-together\",\"s-archibald-false-alibi\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3726,
-          "completion_tokens": 137,
-          "total_tokens": 3863,
+          "prompt_tokens": 3676,
+          "completion_tokens": 147,
+          "total_tokens": 3823,
           "prompt_tokens_details": {
-            "text_tokens": 3726,
+            "text_tokens": 3676,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 48656000
+          "cost_in_usd_ticks": 48281000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3726,
-        "completion_tokens": 137,
-        "total_tokens": 3863,
+        "prompt_tokens": 3676,
+        "completion_tokens": 147,
+        "total_tokens": 3823,
         "prompt_tokens_details": {
-          "text_tokens": 3726,
+          "text_tokens": 3676,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 48656000
+        "cost_in_usd_ticks": 48281000
       },
-      "costUsd": 0.0048656
+      "costUsd": 0.0048281
     }
   ]
 }

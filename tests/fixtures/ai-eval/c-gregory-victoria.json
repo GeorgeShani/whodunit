@@ -1,23 +1,23 @@
 {
   "scenarioId": "c-gregory-victoria",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:38.000Z",
+  "recordedAt": "2026-10-08T10:24:50.920Z",
   "calls": [
     {
       "promptHash": "3a32f343e97aa14e",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "5afd2142-d8a9-9e10-aff9-999e178edc33",
+        "id": "1b910e19-21be-9118-ae6f-03fdab9585e8",
         "object": "chat.completion",
-        "created": 1791454355,
+        "created": 1791455088,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Gregory, how dare you spin such a tale after being dismissed this very morning? Edmund turned you off for drinking on duty, and a sacked man with a grudge is precisely who the police will want.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"Twists her rings while dabbing dry eyes with a lace handkerchief, nose wrinkling as she speaks past Gregory.\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 7,\n  \"trustDelta\": -4,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Gregory, how dare you spin such a wild tale about seeing my face at the library door?\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing sharply at Gregory, nose wrinkling at his muddy boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,13 +25,13 @@
         ],
         "usage": {
           "prompt_tokens": 4182,
-          "completion_tokens": 130,
-          "total_tokens": 4312,
+          "completion_tokens": 79,
+          "total_tokens": 4261,
           "prompt_tokens_details": {
             "text_tokens": 4182,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 4160
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 11845000
+          "cost_in_usd_ticks": 52234000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 4182,
-        "completion_tokens": 130,
-        "total_tokens": 4312,
+        "completion_tokens": 79,
+        "total_tokens": 4261,
         "prompt_tokens_details": {
           "text_tokens": 4182,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 4160
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 11845000
+        "cost_in_usd_ticks": 52234000
       },
-      "costUsd": 0.0011845
+      "costUsd": 0.0052234
     },
     {
-      "promptHash": "09126d6181f7d21f",
+      "promptHash": "3aea5a07943123f7",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "a33843d7-f6a3-9a93-ae10-c8b063134d47",
+        "id": "7566b516-42a3-9021-a5e8-9e19c503de20",
         "object": "chat.completion",
-        "created": 1791454356,
+        "created": 1791455089,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Well, m'lady, it were his lordship turned me off, not you. You've no call to tell the constable I'm sore about it. I did see you clear as day, locking that door after the thud.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"wrings his cap tightly, glancing fearfully at her boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":6,\"trustDelta\":-4,\"admits\":[]}",
+              "content": "{\"dialogue\":\"M'lady, I... I did see your face clear as day when the lightning flashed. It were you locking that door.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances towards the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4448,
-          "completion_tokens": 99,
-          "total_tokens": 4547,
+          "prompt_tokens": 4428,
+          "completion_tokens": 79,
+          "total_tokens": 4507,
           "prompt_tokens_details": {
-            "text_tokens": 4448,
+            "text_tokens": 4428,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3456
+            "cached_tokens": 640
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 21787000
+          "cost_in_usd_ticks": 50605000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4448,
-        "completion_tokens": 99,
-        "total_tokens": 4547,
+        "prompt_tokens": 4428,
+        "completion_tokens": 79,
+        "total_tokens": 4507,
         "prompt_tokens_details": {
-          "text_tokens": 4448,
+          "text_tokens": 4428,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3456
+          "cached_tokens": 640
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 21787000
+        "cost_in_usd_ticks": 50605000
       },
-      "costUsd": 0.0021787
+      "costUsd": 0.0050605
     }
   ]
 }

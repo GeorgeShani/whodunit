@@ -13,6 +13,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { loadCase } from "../engine/case-loader";
 import { BudgetExceeded, runScenario, summarize, type Fixture, type Ledger, type ScenarioResult } from "../tools/ai-eval/run";
+import { allScenarios } from "../tools/ai-eval/case-scenarios";
 import { SCENARIOS } from "../tools/ai-eval/scenarios";
 
 const args = process.argv.slice(2);
@@ -28,7 +29,7 @@ const ledgerFile = path.resolve(".ai-eval-spend.json");
 await mkdir(dir, { recursive: true });
 
 const c = await loadCase("blackwood");
-const scenarios = SCENARIOS.filter((s) => !only || only.includes(s.id));
+const scenarios = allScenarios(SCENARIOS, c.id).filter((s) => !only || only.includes(s.id));
 const ledger: Ledger = existsSync(ledgerFile) ? JSON.parse(await readFile(ledgerFile, "utf8")) : { spentUsd: 0, calls: 0, promptTokens: 0, cachedTokens: 0, completionTokens: 0 };
 const apiKey = process.env.XAI_API_KEY;
 if (record && !apiKey) {

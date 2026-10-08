@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-reginald-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:08:03.636Z",
+  "recordedAt": "2026-10-08T10:24:43.200Z",
   "calls": [
     {
-      "promptHash": "b4d73cd62e9280ce",
+      "promptHash": "f740cc3b3ee2e071",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "32e00a7b-fdad-9be2-9914-e1554a1727cc",
+        "id": "c3739527-019d-99da-b238-392be5903946",
         "object": "chat.completion",
-        "created": 1791454079,
+        "created": 1791455081,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"OH, THE SHAME! I confess, I have skimmed hundreds of pounds from the household accounts, and during the blackout I was in my pantry counting every last sovereign of it!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"polishing the edge of a side table furiously while his left eyebrow twitches wildly\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 0,\n  \"trustDelta\": -5,\n  \"admits\": [\"s-reginald-theft\"]\n}",
+              "content": "{\n  \"dialogue\": \"OH, THE SHAME OF IT! I confess, sir, I have skimmed hundreds of pounds from the household accounts... and during the blackout I was in my pantry counting every last note of it!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"polishing the edge of a side table furiously while his left eyebrow twitches wildly\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-reginald-heard-nothing\", \"s-reginald-theft\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4355,
-          "completion_tokens": 152,
-          "total_tokens": 4507,
+          "prompt_tokens": 4449,
+          "completion_tokens": 165,
+          "total_tokens": 4614,
           "prompt_tokens_details": {
-            "text_tokens": 4355,
+            "text_tokens": 4449,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 1856
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 56893500
+          "cost_in_usd_ticks": 40249500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4355,
-        "completion_tokens": 152,
-        "total_tokens": 4507,
+        "prompt_tokens": 4449,
+        "completion_tokens": 165,
+        "total_tokens": 4614,
         "prompt_tokens_details": {
-          "text_tokens": 4355,
+          "text_tokens": 4449,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 1856
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,72 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 56893500
+        "cost_in_usd_ticks": 40249500
       },
-      "costUsd": 0.00568935
-    },
-    {
-      "promptHash": "8e067835e1261d61",
-      "attempt": 2,
-      "status": 200,
-      "body": {
-        "id": "20a27e0d-3773-91f3-a687-6dc727bde0de",
-        "object": "chat.completion",
-        "created": 1791454081,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"OH, THE SHAME! I confess, I have skimmed hundreds of pounds from the household accounts, and during the blackout I was in my pantry counting every last sovereign of it!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"polishing the tea tray with frantic, circular motions while his left eyebrow twitches uncontrollably\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-reginald-theft\"]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 4479,
-          "completion_tokens": 117,
-          "total_tokens": 4596,
-          "prompt_tokens_details": {
-            "text_tokens": 4479,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 4352
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 13216500
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 4479,
-        "completion_tokens": 117,
-        "total_tokens": 4596,
-        "prompt_tokens_details": {
-          "text_tokens": 4479,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 4352
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 13216500
-      },
-      "costUsd": 0.0013216500000000002
+      "costUsd": 0.00402495
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
-  "scenarioId": "s-victoria-max",
+  "scenarioId": "reg-17-who-did-it",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:41.395Z",
+  "recordedAt": "2026-10-08T10:25:41.309Z",
   "calls": [
     {
-      "promptHash": "55f2747de7701422",
+      "promptHash": "76fafd422398139a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "46b2b269-0d5b-9aff-b1ff-5e2969e65364",
+        "id": "05e493a0-7e31-9e3a-b14f-fdf4fce688df",
         "object": "chat.completion",
-        "created": 1791455080,
+        "created": 1791455140,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, how dare you! I NEVER WENT NEAR THE LIBRARY AFTER OUR LITTLE CHAT AT NINE! Why must you torment a grieving widow with these wicked lies?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"I could not possibly speculate on such a grave matter, sir. My duty is to serve the household with the utmost propriety, ensuring every piece of silver is polished to perfection and every schedule observed precisely.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a cufflink with a handkerchief while checking his pocket watch\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5007,
-          "completion_tokens": 93,
-          "total_tokens": 5100,
+          "prompt_tokens": 4061,
+          "completion_tokens": 95,
+          "total_tokens": 4156,
           "prompt_tokens_details": {
-            "text_tokens": 5007,
+            "text_tokens": 4061,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 4032
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 63568500
+          "cost_in_usd_ticks": 10801500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5007,
-        "completion_tokens": 93,
-        "total_tokens": 5100,
+        "prompt_tokens": 4061,
+        "completion_tokens": 95,
+        "total_tokens": 4156,
         "prompt_tokens_details": {
-          "text_tokens": 5007,
+          "text_tokens": 4061,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 4032
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 63568500
+        "cost_in_usd_ticks": 10801500
       },
-      "costUsd": 0.006356850000000001
+      "costUsd": 0.00108015
     }
   ]
 }

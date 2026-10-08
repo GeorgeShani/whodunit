@@ -1,37 +1,37 @@
 {
   "scenarioId": "e-reginald-letter",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:38.651Z",
+  "recordedAt": "2026-10-08T10:24:30.553Z",
   "calls": [
     {
-      "promptHash": "5fbbeb67f329f12c",
+      "promptHash": "3590a3125009e45a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "0e0fa216-106e-92d9-888e-b890dc99ce81",
+        "id": "e665c37f-10c7-9d85-b927-c7db9ad9061e",
         "object": "chat.completion",
-        "created": 1791454056,
+        "created": 1791455069,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Sir, I must confess I skimmed hundreds of pounds from the household accounts and spent the blackout counting it in my pantry. The letter speaks of discrepancies, and I fear my audit is overdue.\",\n  \"emotion\": \"nervous\",\n  \"intensity\": 0.8,\n  \"action\": \"polishes the edge of a silver tray with furious little circles, his left eyebrow twitching\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -5,\n  \"admits\": [\"s-reginald-theft\"]\n}",
+              "content": "{\"dialogue\":\"Sir, I must confess that during the blackout I was in my pantry, counting the money I had skimmed from the household accounts. The letter is most distressing, I agree.\",\"emotion\":\"nervous\",\"intensity\":0.7,\"action\":\"polishes a spoon furiously while his left eyebrow twitches\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-reginald-heard-nothing\",\"s-reginald-theft\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4300,
-          "completion_tokens": 156,
-          "total_tokens": 4456,
+          "prompt_tokens": 4394,
+          "completion_tokens": 116,
+          "total_tokens": 4510,
           "prompt_tokens_details": {
-            "text_tokens": 4300,
+            "text_tokens": 4394,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 640
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 56306000
+          "cost_in_usd_ticks": 51105000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4300,
-        "completion_tokens": 156,
-        "total_tokens": 4456,
+        "prompt_tokens": 4394,
+        "completion_tokens": 116,
+        "total_tokens": 4510,
         "prompt_tokens_details": {
-          "text_tokens": 4300,
+          "text_tokens": 4394,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 640
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 56306000
+        "cost_in_usd_ticks": 51105000
       },
-      "costUsd": 0.0056306
+      "costUsd": 0.0051105
     }
   ]
 }

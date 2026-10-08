@@ -1,23 +1,23 @@
 {
   "scenarioId": "c-reginald-victoria",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:40.635Z",
+  "recordedAt": "2026-10-08T10:24:55.125Z",
   "calls": [
     {
       "promptHash": "9c385605231d156a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "5af5d8ce-d9b0-91e6-b404-f4750b827913",
+        "id": "1be86c52-6e37-938b-9be5-40cdb81c60a6",
         "object": "chat.completion",
-        "created": 1791454358,
+        "created": 1791455091,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Reginald, one might think you were paid to hover at doors all evening. As for any will, detective, I couldn't possibly say.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Reginald, one might think you were paid to hover at doors all evening. And as for any supposed quarrel over a will, I've never seen that letter in my life, Detective.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing sharply at Reginald\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[\"l-victoria-letter\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,13 +25,13 @@
         ],
         "usage": {
           "prompt_tokens": 3885,
-          "completion_tokens": 81,
-          "total_tokens": 3966,
+          "completion_tokens": 93,
+          "total_tokens": 3978,
           "prompt_tokens_details": {
             "text_tokens": 3885,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 3840
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 49243500
+          "cost_in_usd_ticks": 10567500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 3885,
-        "completion_tokens": 81,
-        "total_tokens": 3966,
+        "completion_tokens": 93,
+        "total_tokens": 3978,
         "prompt_tokens_details": {
           "text_tokens": 3885,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 3840
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 49243500
+        "cost_in_usd_ticks": 10567500
       },
-      "costUsd": 0.00492435
+      "costUsd": 0.00105675
     },
     {
-      "promptHash": "379a98c5653bdfe2",
-      "attempt": 1,
+      "promptHash": "ff02d24ebeb56224",
+      "attempt": 2,
       "status": 200,
       "body": {
-        "id": "3a7b21eb-fd73-915e-b487-dca688e5031d",
+        "id": "efc47bbd-d9a1-9b3a-868e-ba8090b4135c",
         "object": "chat.completion",
-        "created": 1791454359,
+        "created": 1791455092,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and it was striking at the time. One does not eavesdrop, of course, yet certain exchanges do carry.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"polishes a already spotless cufflink with furious little circles\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -2,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Really, Reginald, one might think you were paid to hover at doors all evening. As for any will, I've never seen such a letter in my life.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing sharply at Reginald\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5315,
-          "completion_tokens": 124,
-          "total_tokens": 5439,
+          "prompt_tokens": 3949,
+          "completion_tokens": 83,
+          "total_tokens": 4032,
           "prompt_tokens_details": {
-            "text_tokens": 5315,
+            "text_tokens": 3949,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 3904
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 62817500
+          "cost_in_usd_ticks": 10445500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5315,
-        "completion_tokens": 124,
-        "total_tokens": 5439,
+        "prompt_tokens": 3949,
+        "completion_tokens": 83,
+        "total_tokens": 4032,
         "prompt_tokens_details": {
-          "text_tokens": 5315,
+          "text_tokens": 3949,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 3904
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 62817500
+        "cost_in_usd_ticks": 10445500
       },
-      "costUsd": 0.00628175
+      "costUsd": 0.0010445500000000002
+    },
+    {
+      "promptHash": "c488cb3b80d9c2de",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "9a151516-5942-9ad0-9b06-b41cbf7e9316",
+        "object": "chat.completion",
+        "created": 1791455093,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and it was striking at the time.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"polishes the edge of a nearby silver tray with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5317,
+          "completion_tokens": 84,
+          "total_tokens": 5401,
+          "prompt_tokens_details": {
+            "text_tokens": 5317,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 1856
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 49074500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 5317,
+        "completion_tokens": 84,
+        "total_tokens": 5401,
+        "prompt_tokens_details": {
+          "text_tokens": 5317,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 1856
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 49074500
+      },
+      "costUsd": 0.00490745
     }
   ]
 }

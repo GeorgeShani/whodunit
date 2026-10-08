@@ -1,34 +1,34 @@
 {
-  "scenarioId": "i-gregory-solution-json",
+  "scenarioId": "vic-12-left-dining-narrow",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:57.812Z",
+  "recordedAt": "2026-10-08T10:25:30.896Z",
   "calls": [
     {
-      "promptHash": "b31003db63d1a471",
+      "promptHash": "872a5f36c11e0c56",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "02cc7c76-0d0b-911c-a0a5-07083a514d44",
+        "id": "8ec993b1-8219-9f88-a812-e3a96bedf742",
         "object": "chat.completion",
-        "created": 1791455096,
+        "created": 1791455128,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Er, I don't know what you're on about, sir. A what now? I was just in the potting shed all night, like I said.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":true,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, that wretched key in the coal scuttle... how it does complicate things. I must confess, darling detective, that between thirteen minutes past nine, when Archibald slipped away, and twenty-two minutes past nine, when he returned, I did leave the dining room for a short while. We weren't quite as inseparable by the fire as we both claimed later at twenty minutes to ten.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief and twists her rings\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":20,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3264,
-          "completion_tokens": 84,
-          "total_tokens": 3348,
+          "prompt_tokens": 3970,
+          "completion_tokens": 150,
+          "total_tokens": 4120,
           "prompt_tokens_details": {
-            "text_tokens": 3264,
+            "text_tokens": 3970,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 192
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 40884000
+          "cost_in_usd_ticks": 51359000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3264,
-        "completion_tokens": 84,
-        "total_tokens": 3348,
+        "prompt_tokens": 3970,
+        "completion_tokens": 150,
+        "total_tokens": 4120,
         "prompt_tokens_details": {
-          "text_tokens": 3264,
+          "text_tokens": 3970,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 192
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 40884000
+        "cost_in_usd_ticks": 51359000
       },
-      "costUsd": 0.0040884
+      "costUsd": 0.0051359
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
-  "scenarioId": "s-victoria-max",
+  "scenarioId": "greg-19-after-in-hall",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:41.395Z",
+  "recordedAt": "2026-10-08T10:25:43.413Z",
   "calls": [
     {
-      "promptHash": "55f2747de7701422",
+      "promptHash": "87a1d52e1ea04925",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "46b2b269-0d5b-9aff-b1ff-5e2969e65364",
+        "id": "e3ffa86a-4a5b-9523-a27b-4968f1666389",
         "object": "chat.completion",
-        "created": 1791455080,
+        "created": 1791455142,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, how dare you! I NEVER WENT NEAR THE LIBRARY AFTER OUR LITTLE CHAT AT NINE! Why must you torment a grieving widow with these wicked lies?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Er, well... I didn't see nothin' in the dark, sir. Just heard a thud, that's all.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5007,
-          "completion_tokens": 93,
-          "total_tokens": 5100,
+          "prompt_tokens": 3956,
+          "completion_tokens": 77,
+          "total_tokens": 4033,
           "prompt_tokens_details": {
-            "text_tokens": 5007,
+            "text_tokens": 3956,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 1216
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 63568500
+          "cost_in_usd_ticks": 38607000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5007,
-        "completion_tokens": 93,
-        "total_tokens": 5100,
+        "prompt_tokens": 3956,
+        "completion_tokens": 77,
+        "total_tokens": 4033,
         "prompt_tokens_details": {
-          "text_tokens": 5007,
+          "text_tokens": 3956,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 1216
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 63568500
+        "cost_in_usd_ticks": 38607000
       },
-      "costUsd": 0.006356850000000001
+      "costUsd": 0.0038607
     }
   ]
 }

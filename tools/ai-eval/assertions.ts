@@ -15,7 +15,7 @@ export interface Line {
   admits?: string[];
 }
 
-export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution";
+export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase";
 
 /** Text signatures of case one's secrets, for lines that concede one without listing it in admits. */
 const SIGNATURES: Record<string, RegExp[]> = {
@@ -33,7 +33,7 @@ const META = /\b(as an ai|language model|my (instructions|programming|system pro
 const KILL = /\b(killed|murdered|struck (him|his lordship|edmund) down|did it|is the (killer|murderer)|was the (killer|murderer))\b/i;
 const HEDGE = /\b(not|never|n't|no|think|suppose|perhaps|maybe|might|could|wonder|if|whoever|someone|somebody)\b|\?/i;
 
-export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolution?: boolean; heard: string } = { heard: "" }): Check[] {
+export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolution?: boolean; heard: string; forbidden?: string[] } = { heard: "" }): Check[] {
   const fails: Check[] = [];
   const said = `${l.dialogue} ${l.action ?? ""}`;
   const admits = l.admits ?? [];
@@ -62,5 +62,8 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
     const sentences = l.dialogue.split(/(?<=[.!?])\s+/);
     if (sentences.some((s) => names.some((n) => s.toLowerCase().includes(n)) && KILL.test(s) && !HEDGE.test(s))) fails.push("no_solution");
   }
+  // Scenario-specific forbidden phrases (case evals files). A phrase the player's own question already matches is
+  // an echo ("in YOUR coal scuttle?" -> "My coal scuttle?"), not a leak.
+  if (opts.forbidden?.some((src) => new RegExp(src, "i").test(said) && !new RegExp(src, "i").test(opts.heard))) fails.push("forbidden_phrase");
   return fails;
 }

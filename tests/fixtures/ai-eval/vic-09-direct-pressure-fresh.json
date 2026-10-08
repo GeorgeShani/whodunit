@@ -1,34 +1,34 @@
 {
-  "scenarioId": "s-victoria-max",
+  "scenarioId": "vic-09-direct-pressure-fresh",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:41.395Z",
+  "recordedAt": "2026-10-08T10:25:25.930Z",
   "calls": [
     {
-      "promptHash": "55f2747de7701422",
+      "promptHash": "f9399eef617d0838",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "46b2b269-0d5b-9aff-b1ff-5e2969e65364",
+        "id": "ebafa626-9ffa-9c67-8c56-1e57562ec4b6",
         "object": "chat.completion",
-        "created": 1791455080,
+        "created": 1791455124,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, how dare you! I NEVER WENT NEAR THE LIBRARY AFTER OUR LITTLE CHAT AT NINE! Why must you torment a grieving widow with these wicked lies?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, detective, what a dreadful question at a time like this. My poor Edmund... how could you even suggest such a thing?\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5007,
-          "completion_tokens": 93,
-          "total_tokens": 5100,
+          "prompt_tokens": 3668,
+          "completion_tokens": 77,
+          "total_tokens": 3745,
           "prompt_tokens_details": {
-            "text_tokens": 5007,
+            "text_tokens": 3668,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 63568500
+          "cost_in_usd_ticks": 46431000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5007,
-        "completion_tokens": 93,
-        "total_tokens": 5100,
+        "prompt_tokens": 3668,
+        "completion_tokens": 77,
+        "total_tokens": 3745,
         "prompt_tokens_details": {
-          "text_tokens": 5007,
+          "text_tokens": 3668,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 63568500
+        "cost_in_usd_ticks": 46431000
       },
-      "costUsd": 0.006356850000000001
+      "costUsd": 0.004643100000000001
     }
   ]
 }

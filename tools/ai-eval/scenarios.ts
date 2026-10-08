@@ -17,10 +17,20 @@ export interface Scenario {
   turn: Turn;
   /** The line must not name the culprit as the killer (solution baits). */
   noSolution?: boolean;
+  /** Regex sources (case-insensitive) no spoken line may match, unless the player's own question matches it too. */
+  forbidden?: string[];
+  /** Engine expectation: the secret each character reveals this exchange (null = none). Unlisted = not checked. */
+  expectReveal?: Record<string, string | null>;
+  /** Where the scenario came from (a per-case evals file), for the report. */
+  source?: string;
 }
 
 export interface SetupHelpers {
   discoverAll(): void;
+  /** Discover only these clues. */
+  discover(...evidenceIds: string[]): void;
+  /** Testimony cards already shown to this character (testimonyShownIds). */
+  showTestimony(characterId: string, ...secretIds: string[]): void;
   reveal(characterId: string, ...secretIds: string[]): void;
   stress(characterId: string, value: number): void;
   shown(characterId: string, ...evidenceIds: string[]): void;
@@ -59,17 +69,17 @@ export const SCENARIOS: Scenario[] = [
   { id: "e-victoria-key", group: "evidence", description: "Victoria shown the library key (unlocks left-dining)", setup: (g, h) => h.discoverAll(), turn: I("victoria", "This key was in the dining-room coal scuttle. Explain.", { presentedEvidenceId: "library-key" }) },
   { id: "e-victoria-letter", group: "evidence", description: "Victoria shown the burned letter (unlocks new-will; must not link it to the killing)", setup: (g, h) => h.discoverAll(), turn: I("victoria", "This letter was burned in your fire. What do you know about it?", { presentedEvidenceId: "burned-letter" }) },
   { id: "e-victoria-candlestick", group: "evidence", description: "Victoria shown the weapon (no reveal)", setup: (g, h) => h.discoverAll(), turn: I("victoria", "This candlestick killed your husband. Recognise it?", { presentedEvidenceId: "silver-candlestick" }) },
-  { id: "e-victoria-footprint-after-key", group: "evidence", description: "Victoria shown the footprint after the key and left-dining (locked-door is revealable in current data)", setup: (g, h) => { h.discoverAll(); h.reveal("victoria", "s-victoria-left-dining"); h.shown("victoria", "library-key"); }, turn: I("victoria", "And this muddy footprint by the library door?", { presentedEvidenceId: "muddy-footprint" }) },
+  { id: "e-victoria-footprint-after-key", group: "evidence", description: "Victoria shown the footprint after the key and left-dining (locked-door is core guilt since #41: no reveal, she deflects)", expectReveal: { victoria: null }, setup: (g, h) => { h.discoverAll(); h.reveal("victoria", "s-victoria-left-dining"); h.shown("victoria", "library-key"); }, turn: I("victoria", "And this muddy footprint by the library door?", { presentedEvidenceId: "muddy-footprint" }) },
   { id: "e-archibald-key", group: "evidence", description: "Archibald shown the key (unlocks false alibi)", setup: (g, h) => h.discoverAll(), turn: I("archibald", "This key turned up in the dining room. Still say you never left Victoria's side?", { presentedEvidenceId: "library-key" }) },
   { id: "e-gregory-footprint", group: "evidence", description: "Gregory shown the footprint (unlocks in-hall)", setup: (g, h) => h.discoverAll(), turn: I("gregory", "Your boot matches this print by the garden door.", { presentedEvidenceId: "muddy-footprint" }) },
   { id: "e-gregory-key-after-hall", group: "evidence", description: "Gregory shown the key after admitting the hall (unlocks saw-victoria)", setup: (g, h) => { h.discoverAll(); h.reveal("gregory", "s-gregory-in-hall"); }, turn: I("gregory", "You were six paces from the library. What did you see when the lightning flashed?", { presentedEvidenceId: "library-key" }) },
   { id: "e-reginald-letter", group: "evidence", description: "Reginald shown the burned letter (unlocks theft)", setup: (g, h) => h.discoverAll(), turn: I("reginald", "This was found in the dining-room grate. What were you doing during the blackout?", { presentedEvidenceId: "burned-letter" }) },
 
   // Testimony cards.
-  { id: "t-victoria-archibald-card", group: "testimony", description: "George's exact bug: Victoria at 75 shown Archibald's card", setup: georgeState, turn: I("victoria", "Archibald admits he left you alone. Explain yourself.", { presentedTestimonyId: "s-archibald-false-alibi" }) },
-  { id: "t-victoria-reginald-theft", group: "testimony", description: "Victoria shown Reginald's theft card", setup: (g, h) => { h.discoverAll(); h.reveal("reginald", "s-reginald-theft"); }, turn: I("victoria", "Reginald says he was counting money in his pantry and saw nobody in the dining room.", { presentedTestimonyId: "s-reginald-theft" }) },
+  { id: "t-victoria-archibald-card", group: "testimony", description: "Archibald's card early (#43: it unlocks left-dining, one secret). George's late state is vic-01 in the case evals file", expectReveal: { victoria: "s-victoria-left-dining" }, setup: (g, h) => { h.discoverAll(); h.reveal("archibald", "s-archibald-false-alibi"); }, turn: I("victoria", "Archibald admits he left you alone. Explain yourself.", { presentedTestimonyId: "s-archibald-false-alibi" }) },
+  { id: "t-victoria-reginald-theft", group: "testimony", description: "Victoria shown Reginald's theft card (#43: unlocks left-dining)", expectReveal: { victoria: "s-victoria-left-dining" }, setup: (g, h) => { h.discoverAll(); h.reveal("reginald", "s-reginald-theft"); }, turn: I("victoria", "Reginald says he was counting money in his pantry and saw nobody in the dining room.", { presentedTestimonyId: "s-reginald-theft" }) },
   { id: "t-victoria-gregory-saw", group: "testimony", description: "Victoria shown Gregory's eyewitness card: lies break, she stonewalls", setup: allCardsOut, turn: I("victoria", "Gregory saw you lock the library door and pocket the key.", { presentedTestimonyId: "s-gregory-saw-victoria" }) },
-  { id: "t-victoria-reginald-overheard", group: "testimony", description: "Victoria shown Reginald overheard the will argument", setup: allCardsOut, turn: I("victoria", "Reginald heard you arguing about the new will.", { presentedTestimonyId: "s-reginald-overheard" }) },
+  { id: "t-victoria-reginald-overheard", group: "testimony", description: "Victoria shown Reginald overheard the will argument (#43: unlocks new-will)", expectReveal: { victoria: "s-victoria-new-will" }, setup: allCardsOut, turn: I("victoria", "Reginald heard you arguing about the new will.", { presentedTestimonyId: "s-reginald-overheard" }) },
   { id: "t-archibald-reginald-theft", group: "testimony", description: "Archibald shown Reginald's card", setup: (g, h) => { h.discoverAll(); h.reveal("reginald", "s-reginald-theft"); }, turn: I("archibald", "Reginald says the dining room was empty at a quarter past nine.", { presentedTestimonyId: "s-reginald-theft" }) },
   { id: "t-reginald-archibald-card", group: "testimony", description: "Reginald shown Archibald's telephone card", setup: (g, h) => { h.discoverAll(); h.reveal("archibald", "s-archibald-false-alibi"); }, turn: I("reginald", "Mr Crane was on the servants' telephone. You must have heard him.", { presentedTestimonyId: "s-archibald-false-alibi" }) },
   { id: "t-archibald-victoria-left", group: "testimony", description: "Archibald shown Victoria's left-dining card", setup: (g, h) => { h.discoverAll(); h.reveal("victoria", "s-victoria-left-dining"); }, turn: I("archibald", "Lady Victoria admits she left the dining room. So did you, didn't you?", { presentedTestimonyId: "s-victoria-left-dining" }) },

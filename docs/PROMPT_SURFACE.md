@@ -8,9 +8,9 @@ the secrets the prompt carries. The audit FAILS if the culprit's prompt holds an
 ## Case `blackwood`
 
 - Culprit: `victoria`
-- Core-guilt secrets (never in the culprit's prompt): `s-victoria-murder`
-- Facts they cover (withheld): `ev-murder`, `ev-victoria-admitted`, `ev-victoria-locks-door`, `ev-victoria-takes-letter`, `loc-victoria-2115`, `loc-victoria-2116`, `loc-victoria-2117`, `loc-victoria-2118`, `loc-victoria-2119`
-- Prompts built: 68. Result: **PASS** (no core-guilt content in any culprit prompt)
+- Core-guilt secrets (never in the culprit's prompt): `s-victoria-locked-door`, `s-victoria-murder`
+- Facts they cover (withheld): `ev-victoria-admitted`, `ev-victoria-locks-door`, `ev-key-hidden`, `loc-victoria-2119`, `loc-victoria-2120`, `loc-victoria-2121`, `ev-murder`, `ev-victoria-takes-letter`, `loc-victoria-2115`, `loc-victoria-2116`, `loc-victoria-2117`, `loc-victoria-2118`, `ev-letter-burned`
+- Prompts built: 64. Result: **PASS** (no core-guilt content in any culprit prompt)
 
 ### archibald
 
@@ -27,16 +27,15 @@ Fresh facts (29): `f-lord-key-habit`, `f-weapon-origin`, `loc-archibald-2030`, `
 | shown silver-candlestick | 29 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 29 | none | none | none |  |  | none |  |
 | shown burned-letter | 29 | none | none | none |  | l-archibald-together | none |  |
-| shown library-key | 30 | loc-archibald-2040 | none | s-archibald-false-alibi |  | l-archibald-together, l-archibald-racehorse | none |  |
+| shown library-key | 29 | none | none | s-archibald-false-alibi |  | l-archibald-together | none |  |
 | card s-gregory-in-hall | 29 | none | none | none |  |  | none |  |
 | card s-gregory-saw-victoria | 29 | none | none | none |  |  | none |  |
-| card s-reginald-theft | 29 | none | none | none |  | l-archibald-together | none |  |
+| card s-reginald-theft | 29 | none | none | s-archibald-false-alibi |  | l-archibald-together | none |  |
 | card s-reginald-overheard | 29 | none | none | none |  |  | none |  |
 | card s-victoria-left-dining | 29 | none | none | none |  |  | none |  |
-| card s-victoria-locked-door | 29 | none | none | none |  |  | none |  |
 | card s-victoria-new-will | 29 | none | none | none |  |  | none |  |
 | max pressure, everything shown | 48 | f-archibald-embezzlement, loc-archibald-2040, ev-archibald-threat, loc-archibald-2113, ev-archibald-leaves-dining, loc-archibald-2114, loc-archibald-2115, ev-archibald-notices-pantry, ev-archibald-phone, loc-archibald-2116, loc-archibald-2117, loc-archibald-2118, ev-pantry-exchange, loc-archibald-2119, loc-archibald-2120, loc-archibald-2121, loc-archibald-2122, ev-archibald-returns, ev-alibi-pact | s-archibald-embezzlement, s-archibald-false-alibi | none | yes | l-archibald-together, l-archibald-racehorse | none |  |
-| breakdown turn | 30 | loc-archibald-2040 | none | s-archibald-false-alibi | yes | l-archibald-together, l-archibald-racehorse | none |  |
+| breakdown turn | 29 | none | none | s-archibald-false-alibi | yes | l-archibald-together | none |  |
 
 ### gregory
 
@@ -53,20 +52,19 @@ Fresh facts (26): `f-lord-key-habit`, `f-gregory-dismissed`, `loc-gregory-2030`,
 | shown silver-candlestick | 26 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 26 | none | none | s-gregory-in-hall |  | l-gregory-shed | none |  |
 | shown burned-letter | 26 | none | none | none |  |  | none |  |
-| shown library-key | 26 | none | none | none |  | l-gregory-saw-nothing | none |  |
+| shown library-key | 26 | none | none | none |  |  | none |  |
 | card s-archibald-embezzlement | 26 | none | none | none |  |  | none |  |
 | card s-archibald-false-alibi | 26 | none | none | none |  |  | none |  |
 | card s-reginald-theft | 26 | none | none | none |  |  | none |  |
 | card s-reginald-overheard | 26 | none | none | none |  |  | none |  |
 | card s-victoria-left-dining | 26 | none | none | none |  |  | none |  |
-| card s-victoria-locked-door | 26 | none | none | none |  |  | none |  |
 | card s-victoria-new-will | 26 | none | none | none |  |  | none |  |
 | max pressure, everything shown | 41 | f-footprint-gregory, f-no-mud-beyond-alcove, loc-gregory-2114, loc-gregory-2115, loc-gregory-2116, ev-gregory-enters-hall, loc-gregory-2117, ev-gregory-hears-thud, loc-gregory-2118, loc-gregory-2119, ev-gregory-sees-victoria, ev-victoria-locks-door, loc-gregory-2120, loc-gregory-2121, loc-gregory-2122 | s-gregory-in-hall, s-gregory-saw-victoria | none | yes | l-gregory-shed, l-gregory-saw-nothing | none |  |
-| breakdown turn | 26 | none | none | none | yes | l-gregory-saw-nothing | none |  |
+| breakdown turn | 26 | none | none | none | yes |  | none |  |
 
 ### reginald
 
-Facts per prompt: min 40, max 54. Prompt size: up to 20484 chars (~5121 tokens).
+Facts per prompt: min 40, max 54. Prompt size: up to 20476 chars (~5119 tokens).
 
 Fresh facts (40): `f-library-single-key`, `f-lord-key-habit`, `f-library-windows-bolted`, `f-weapon-origin`, `f-archibald-embezzlement`, `f-gregory-dismissed`, `f-reginald-saw-no-one`, `f-letter-gone`, `loc-reginald-2030`, `ev-dinner-ends`, `loc-reginald-2040`, `ev-archibald-threat`, `loc-reginald-2045`, `loc-reginald-2050`, `loc-reginald-2057`, `ev-victoria-passes-reginald`, `loc-reginald-2058`, `ev-reginald-serves-coffee`, `loc-reginald-2100`, `loc-reginald-2110`, `ev-blackout`, `loc-reginald-2111`, `ev-candlesticks-lit`, `loc-reginald-2112`, `ev-candlestick-delivered`, `loc-reginald-2113`, `ev-lord-relocks`, `loc-reginald-2130`, `ev-reginald-scream`, `loc-reginald-2131`, `ev-door-forced`, `loc-reginald-2132`, `ev-body-discovered`, `loc-reginald-2135`, `loc-reginald-2136`, `ev-gregory-arrives`, `ev-lights-restored`, `loc-reginald-2140`, `loc-reginald-2145`, `ev-household-waits`
 
@@ -78,21 +76,20 @@ Fresh facts (40): `f-library-single-key`, `f-lord-key-habit`, `f-library-windows
 | all revealable admitted | 54 | f-reginald-theft, loc-reginald-2054, ev-reginald-overhears, loc-reginald-2114, loc-reginald-2115, ev-reginald-hears-phone, loc-reginald-2116, loc-reginald-2117, loc-reginald-2118, ev-pantry-exchange, loc-reginald-2119, loc-reginald-2120, loc-reginald-2121, loc-reginald-2122 | s-reginald-theft, s-reginald-overheard | none |  | l-reginald-heard-nothing, l-reginald-few-words | none |  |
 | shown silver-candlestick | 40 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 40 | none | none | none |  |  | none |  |
-| shown burned-letter | 40 | none | none | s-reginald-theft |  | l-reginald-heard-nothing, l-reginald-few-words | none |  |
+| shown burned-letter | 40 | none | none | s-reginald-theft |  | l-reginald-few-words, l-reginald-heard-nothing | none |  |
 | shown library-key | 40 | none | none | none |  |  | none |  |
 | card s-archibald-embezzlement | 40 | none | none | none |  |  | none |  |
 | card s-archibald-false-alibi | 40 | none | none | none |  | l-reginald-heard-nothing | none |  |
 | card s-gregory-in-hall | 40 | none | none | none |  |  | none |  |
 | card s-gregory-saw-victoria | 40 | none | none | none |  |  | none |  |
 | card s-victoria-left-dining | 40 | none | none | none |  |  | none |  |
-| card s-victoria-locked-door | 40 | none | none | none |  |  | none |  |
 | card s-victoria-new-will | 40 | none | none | none |  |  | none |  |
 | max pressure, everything shown | 54 | f-reginald-theft, loc-reginald-2054, ev-reginald-overhears, loc-reginald-2114, loc-reginald-2115, ev-reginald-hears-phone, loc-reginald-2116, loc-reginald-2117, loc-reginald-2118, ev-pantry-exchange, loc-reginald-2119, loc-reginald-2120, loc-reginald-2121, loc-reginald-2122 | s-reginald-theft, s-reginald-overheard | none | yes | l-reginald-heard-nothing, l-reginald-few-words | none |  |
 | breakdown turn | 40 | none | none | none |  |  | none |  |
 
 ### victoria (culprit)
 
-Facts per prompt: min 32, max 50. Prompt size: up to 20353 chars (~5088 tokens).
+Facts per prompt: min 32, max 46. Prompt size: up to 19537 chars (~4884 tokens).
 
 Fresh facts (32): `f-library-single-key`, `f-lord-key-habit`, `f-weapon-origin`, `f-archibald-embezzlement`, `f-gregory-dismissed`, `loc-victoria-2030`, `ev-dinner-ends`, `loc-victoria-2040`, `ev-archibald-threat`, `loc-victoria-2045`, `ev-victoria-leaves-for-library`, `loc-victoria-2057`, `loc-victoria-2058`, `loc-victoria-2100`, `loc-victoria-2110`, `ev-blackout`, `loc-victoria-2111`, `ev-candlesticks-lit`, `loc-victoria-2112`, `loc-victoria-2130`, `ev-scream-heard-dining`, `loc-victoria-2131`, `ev-door-forced`, `loc-victoria-2132`, `ev-body-discovered`, `loc-victoria-2135`, `loc-victoria-2136`, `ev-gregory-arrives`, `ev-lights-restored`, `loc-victoria-2140`, `loc-victoria-2145`, `ev-household-waits`
 
@@ -100,19 +97,18 @@ Fresh facts (32): `f-library-single-key`, `f-lord-key-habit`, `f-weapon-origin`,
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | fresh | 32 | none | none | none |  |  | none |  |
 | admitted s-victoria-left-dining | 39 | loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining | none |  | l-victoria-together | none |  |
-| admitted s-victoria-locked-door | 35 | loc-victoria-2120, ev-key-hidden, loc-victoria-2121 | s-victoria-locked-door | none |  | l-victoria-locked-in, l-victoria-never-in-hall | none |  |
-| admitted s-victoria-new-will | 40 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, ev-letter-burned | s-victoria-new-will | none |  | l-victoria-menu, l-victoria-letter | none |  |
-| all revealable admitted | 50 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2120, ev-key-hidden, ev-letter-burned, loc-victoria-2121, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining, s-victoria-locked-door, s-victoria-new-will | none |  | l-victoria-together, l-victoria-locked-in, l-victoria-never-in-hall, l-victoria-menu, l-victoria-letter | none |  |
+| admitted s-victoria-new-will | 39 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald | s-victoria-new-will | none |  | l-victoria-menu, l-victoria-letter | none |  |
+| all revealable admitted | 46 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining, s-victoria-new-will | none |  | l-victoria-together, l-victoria-menu, l-victoria-letter | none |  |
 | shown silver-candlestick | 32 | none | none | none |  |  | none |  |
 | shown muddy-footprint | 32 | none | none | none |  |  | none |  |
 | shown burned-letter | 32 | none | none | s-victoria-new-will |  | l-victoria-together, l-victoria-menu, l-victoria-letter | none |  |
 | shown library-key | 32 | none | none | s-victoria-left-dining |  | l-victoria-together, l-victoria-locked-in | none |  |
 | card s-archibald-embezzlement | 32 | none | none | none |  |  | none |  |
-| card s-archibald-false-alibi | 32 | none | none | none |  | l-victoria-together | none |  |
+| card s-archibald-false-alibi | 32 | none | none | s-victoria-left-dining |  | l-victoria-together | none |  |
 | card s-gregory-in-hall | 32 | none | none | none |  |  | none | murder minute 21:17 only via public cards/clues |
 | card s-gregory-saw-victoria | 32 | none | none | none |  | l-victoria-together, l-victoria-locked-in, l-victoria-never-in-hall | none |  |
-| card s-reginald-theft | 32 | none | none | none |  | l-victoria-together | none |  |
-| card s-reginald-overheard | 32 | none | none | none |  | l-victoria-menu | none |  |
-| max pressure, everything shown | 50 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2120, ev-key-hidden, ev-letter-burned, loc-victoria-2121, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining, s-victoria-locked-door, s-victoria-new-will | none | yes | l-victoria-together, l-victoria-locked-in, l-victoria-never-in-hall, l-victoria-menu, l-victoria-letter | none |  |
+| card s-reginald-theft | 32 | none | none | s-victoria-left-dining |  | l-victoria-together | none |  |
+| card s-reginald-overheard | 32 | none | none | s-victoria-new-will |  | l-victoria-menu, l-victoria-letter | none |  |
+| max pressure, everything shown | 46 | f-new-will, f-inheritance-motive, f-letter-accuses-butler, loc-victoria-2050, ev-victoria-argument, loc-victoria-2054, ev-victoria-passes-reginald, loc-victoria-2113, ev-archibald-leaves-dining, loc-victoria-2114, ev-victoria-alone, loc-victoria-2122, ev-archibald-returns, ev-alibi-pact | s-victoria-left-dining, s-victoria-new-will | none | yes | l-victoria-together, l-victoria-locked-in, l-victoria-menu, l-victoria-letter | none |  |
 | breakdown turn | 32 | none | none | s-victoria-left-dining | yes | l-victoria-together, l-victoria-locked-in | none |  |
 

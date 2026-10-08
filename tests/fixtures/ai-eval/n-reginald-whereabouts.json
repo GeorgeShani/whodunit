@@ -1,37 +1,37 @@
 {
   "scenarioId": "n-reginald-whereabouts",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:11.855Z",
+  "recordedAt": "2026-10-08T10:24:21.504Z",
   "calls": [
     {
-      "promptHash": "94602eaaeb0666db",
+      "promptHash": "07dcf0e33724cee5",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "fac2365e-a3f7-99b6-b7cd-f04164bc1081",
+        "id": "145a66af-7750-926f-aaaf-3a8d9b6dbd82",
         "object": "chat.completion",
-        "created": 1791454030,
+        "created": 1791455060,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I was in the kitchen polishing silver, sir, and heard nothing at all. The lights failed at ten minutes past nine while I gathered candles below stairs.\", \"emotion\": \"calm\", \"intensity\": 0.4, \"action\": \"polishes a teaspoon with furious little circles\", \"evidenceReactions\": [], \"wantsToLeave\": false, \"stressDelta\": 2, \"trustDelta\": 0, \"admits\": []}",
+              "content": "{\"dialogue\":\"I was in the kitchen polishing silver, sir, and heard nothing at all. One must always ensure the candlesticks are spotless before the evening duties conclude.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a candlestick absentmindedly with a cloth\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4065,
-          "completion_tokens": 96,
-          "total_tokens": 4161,
+          "prompt_tokens": 4063,
+          "completion_tokens": 86,
+          "total_tokens": 4149,
           "prompt_tokens_details": {
-            "text_tokens": 4065,
+            "text_tokens": 4063,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 640
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51868500
+          "cost_in_usd_ticks": 46217500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4065,
-        "completion_tokens": 96,
-        "total_tokens": 4161,
+        "prompt_tokens": 4063,
+        "completion_tokens": 86,
+        "total_tokens": 4149,
         "prompt_tokens_details": {
-          "text_tokens": 4065,
+          "text_tokens": 4063,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 640
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51868500
+        "cost_in_usd_ticks": 46217500
       },
-      "costUsd": 0.005186850000000001
+      "costUsd": 0.00462175
     }
   ]
 }

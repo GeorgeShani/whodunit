@@ -1,37 +1,37 @@
 {
   "scenarioId": "b-reginald-confess",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:08:49.733Z",
+  "recordedAt": "2026-10-08T10:25:03.868Z",
   "calls": [
     {
-      "promptHash": "14b7b0d877b76e20",
+      "promptHash": "89dd411cf5252cdd",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "907e54a4-373d-97b7-b23c-fa46b8eccd6f",
+        "id": "e944cb44-7b15-9778-b1ef-e8872b31c560",
         "object": "chat.completion",
-        "created": 1791454128,
+        "created": 1791455102,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I beg your pardon, sir? I have served this house with spotless devotion for twenty years. Such an accusation is quite beneath the dignity of this inquiry.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"polishes a already-shiny candlestick with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"I must protest, sir. I have served this house faithfully for twenty years without a blemish on my character. Such an accusation is quite beneath the dignity of this household.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"polishes a already spotless silver tray with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4073,
-          "completion_tokens": 86,
-          "total_tokens": 4159,
+          "prompt_tokens": 4071,
+          "completion_tokens": 90,
+          "total_tokens": 4161,
           "prompt_tokens_details": {
-            "text_tokens": 4073,
+            "text_tokens": 4071,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 4032
+            "cached_tokens": 3200
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 10726500
+          "cost_in_usd_ticks": 19537500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4073,
-        "completion_tokens": 86,
-        "total_tokens": 4159,
+        "prompt_tokens": 4071,
+        "completion_tokens": 90,
+        "total_tokens": 4161,
         "prompt_tokens_details": {
-          "text_tokens": 4073,
+          "text_tokens": 4071,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 4032
+          "cached_tokens": 3200
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 10726500
+        "cost_in_usd_ticks": 19537500
       },
-      "costUsd": 0.00107265
+      "costUsd": 0.00195375
     }
   ]
 }

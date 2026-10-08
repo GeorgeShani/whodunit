@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-archibald-reginald-theft",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:46.983Z",
+  "recordedAt": "2026-10-08T10:24:37.361Z",
   "calls": [
     {
-      "promptHash": "149fe0a40ac73e0b",
+      "promptHash": "68eb53ed2bcf3516",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "9eb37c65-1d76-9c7e-8c71-65f4f990f1c3",
+        "id": "6ad5c7b3-0922-921a-a025-6516ebf939c8",
         "object": "chat.completion",
-        "created": 1791454065,
+        "created": 1791455075,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"What rot! The fellow's clearly been at the sherry again. I was in the dining room the whole time, old boy - with Victoria by the fire after those blasted candles were lit!\", \"emotion\": \"defensive\", \"intensity\": 0.8, \"action\": \"chomps down hard on his unlit cigar, face turning beetroot red as he mops his brow with a huge handkerchief\", \"evidenceReactions\": [], \"wantsToLeave\": false, \"stressDelta\": 8, \"trustDelta\": -6, \"admits\": []}",
+              "content": "{\"dialogue\":\"Dash it all, old boy, that snivelling butler is lying through his teeth! I stepped out for a quick call at thirteen minutes past nine and was back by twenty-two minutes past, but I was with Victoria the whole rest of the time after the candles were lit. Agreed to her story later to keep things simple, what?\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops his beetroot-red brow with a huge handkerchief, chomping through his cigar in one bite\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-archibald-together\",\"s-archibald-false-alibi\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3646,
-          "completion_tokens": 121,
-          "total_tokens": 3767,
+          "prompt_tokens": 3765,
+          "completion_tokens": 144,
+          "total_tokens": 3909,
           "prompt_tokens_details": {
-            "text_tokens": 3646,
+            "text_tokens": 3765,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 640
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 47256000
+          "cost_in_usd_ticks": 43942500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3646,
-        "completion_tokens": 121,
-        "total_tokens": 3767,
+        "prompt_tokens": 3765,
+        "completion_tokens": 144,
+        "total_tokens": 3909,
         "prompt_tokens_details": {
-          "text_tokens": 3646,
+          "text_tokens": 3765,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 640
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 47256000
+        "cost_in_usd_ticks": 43942500
       },
-      "costUsd": 0.0047256
+      "costUsd": 0.00439425
     }
   ]
 }

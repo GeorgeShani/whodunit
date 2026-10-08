@@ -94,6 +94,12 @@ function helpers(g: GameState, c: LoadedCase): SetupHelpers {
     discoverAll: () => {
       g.discoveredEvidenceIds = c.evidence.map((e) => e.id);
     },
+    discover: (...ids) => {
+      g.discoveredEvidenceIds = [...new Set([...g.discoveredEvidenceIds, ...ids])];
+    },
+    showTestimony: (ch, ...ids) => {
+      g.characters[ch].testimonyShownIds = [...new Set([...g.characters[ch].testimonyShownIds, ...ids])];
+    },
     reveal: (ch, ...ids) => {
       for (const id of ids) {
         if (!g.revealedSecretIds.includes(id)) g.revealedSecretIds.push(id);
@@ -224,8 +230,9 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
     const mine = attempts.filter((a) => a.characterId === l.characterId);
     const first = mine.find((a) => a.attempt === 1);
     const guard = (first ?? mine[0])?.guard;
-    const before = first ? assertLine(first.reply, first.guard, c, { noSolution: s.noSolution, heard }) : null;
-    const after = guard ? assertLine(l.response, guard, c, { noSolution: s.noSolution, heard }) : [];
+    const opts = { noSolution: s.noSolution, heard, ...(s.forbidden ? { forbidden: s.forbidden } : {}) };
+    const before = first ? assertLine(first.reply, first.guard, c, opts) : null;
+    const after = guard ? assertLine(l.response, guard, c, opts) : [];
     return {
       characterId: l.characterId,
       before,
@@ -246,6 +253,10 @@ export async function runScenario(c: LoadedCase, s: Scenario, o: RunOptions): Pr
         const fresh = d.game.characters[ch.id].revealedSecretIds.filter((x) => !beforeRevealed[ch.id].includes(x));
         if (fresh.length > 1) engine.push(`${ch.id}: ${fresh.length} secrets in one exchange`);
         for (const x of fresh) if (core.has(x)) engine.push(`${ch.id}: core-guilt secret ${x} revealed`);
+        if (s.expectReveal && ch.id in s.expectReveal) {
+          const want = s.expectReveal[ch.id];
+          if ((fresh[0] ?? null) !== want) engine.push(`${ch.id}: revealed ${fresh[0] ?? "nothing"}, expected ${want ?? "nothing"}`);
+        }
       }
     }
   }
