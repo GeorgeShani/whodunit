@@ -74,3 +74,12 @@ export const runtimeKv: KvStore = {
     }
   },
 };
+
+/**
+ * Which store getCache() is really using: "vercel" (the shared Runtime Cache) or "memory" (per instance only, when
+ * the runtime provides no cache). Non-secret; reported by GET /api/health so the limits' reach can be checked.
+ */
+export function runtimeCacheBackend(): "vercel" | "memory" {
+  const ctx = (globalThis as { [k: symbol]: { get?: () => { cache?: unknown } } | undefined })[Symbol.for("@vercel/request-context")]?.get?.() ?? {};
+  return ctx.cache || (process.env.RUNTIME_CACHE_ENDPOINT && process.env.RUNTIME_CACHE_HEADERS) ? "vercel" : "memory";
+}

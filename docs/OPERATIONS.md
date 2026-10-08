@@ -39,3 +39,16 @@ the confrontation caps. `ai/turn-lock.ts` claims "game id + the token's turn cou
 An in-flight claim left by a crashed function expires after **90 s**. A brand-new game (no token) is not claimed. Same caveats as
 above: concurrent requests on one instance are caught exactly (a synchronous in-process check); across instances a
 write-then-read-back check narrows the race; a region change or cache eviction forgets a claim. A cache error fails open.
+
+### Old state tokens and the accusation record (#39, known limitation)
+
+- Every state token carries its issue time and is refused once it is **older than 7 days** (each save re-stamps it, so an
+  active game never expires). The player sees "*This case file has gone cold, detective…*" and a fresh start. Tokens from
+  before this change (no issue time) are accepted until **2026-10-15 UTC**, then expire the same way.
+- The "this game was already accused" record (`lib/accused-store.ts`) lives **30 days** in the Runtime Cache, longer than
+  any playable token. Vercel documents the Runtime Cache as persisting across deployments, but it is a cache: per region,
+  and entries can be evicted. **Residual risk:** within the 7 days a token stays playable, a saved pre-accusation token can
+  accuse again if the record was lost (eviction, another region, the cache unavailable). Closing that fully needs a real
+  database; it is accepted as a known limitation for a single-player game.
+- `GET /api/health` returns `{ ok, runtimeCache: "vercel" | "memory" }`. `"memory"` means the runtime gave the function no
+  shared cache, so the limits, the turn claims and the accusation record are per instance only.
