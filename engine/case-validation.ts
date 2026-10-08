@@ -6,7 +6,7 @@ import type { LoadedCase } from "./case-schema";
 import { gameMinutes } from "./time";
 import type { TimelineEntry } from "./types";
 import { checkProgression, progressionWarnings } from "./progression-validation";
-import { coreGuiltSecretIds } from "./core-guilt";
+import { coreGuiltSecretIds, guiltProfile } from "./core-guilt";
 
 /**
  * Opportunity rule: some timeline entry with `locationId` = solution.locationId
@@ -299,6 +299,8 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
     }
   }
 
+  warnings.push(...checkGuiltLeakPaths(c));
+
   const summaryNeeded = new Set<string>();
   for (const ch of c.characters) {
     const f = charFile(ch.id);
@@ -347,4 +349,65 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   }
   warnings.push(...progressionWarnings(c));
   return warnings;
+}
+
+const clockMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+const KILLER_CLAIM = /\b(?:killed|murdered|did\s+(?:it|him\s+in|away\s+with)|struck\s+(?:him|her)\s+down|(?:is|was)\s+the\s+(?:killer|murderer|culprit))\b/i;
+const NOT_A_CLAIM = /\b(?:not|never|n't|no|nobody|think|thinks|suppose|perhaps|maybe|might|could|wonder|if|whether|suspect|suspects|fear|fears|accuse|accuses)\b|\?/i;
+
+/**
+ * Guard-robustness warnings (leak paths that bypass coreGuilt):
+ *  (a) a fact inside the murder window that involves the culprit (or happens at the scene) and is unhidden by the
+ *      culprit's OWN non-coreGuilt secret (relatedFactIds or hiddenUntil) or her own lie breaking. That is how the
+ *      21:20 letter-burning reached her prompt. (Another witness's card unlocking a fact for her is a confrontation
+ *      by design and is not flagged; layer 4 of the knowledge gate still withholds anything a core secret covers.)
+ *  (b) an innocent suspect's always-visible text (bio, personality, goals, beliefs, relationships, stories) names
+ *      the culprit as the killer: it is in their prompt from the first turn.
+ */
+export function checkGuiltLeakPaths(c: LoadedCase): CaseIssue[] {
+  const out: CaseIssue[] = [];
+  const murderer = c.characters.find((ch) => ch.id === c.solution.murdererId);
+  if (!murderer) return out;
+  const core = coreGuiltSecretIds(c);
+  const [lo, hi] = guiltProfile(c).window;
+  const inWindow = (f: { time?: string; from?: string; to?: string }) => {
+    const a = f.time ?? f.from;
+    if (!a) return false;
+    const b = f.time ?? f.to ?? f.from!;
+    return clockMin(a) <= hi && clockMin(b) >= lo;
+  };
+  const ownNonCore = murderer.secrets.filter((s) => !core.has(s.id));
+  for (const [file, list] of [["case.json", c.facts], ["timeline.json", c.timeline]] as const) {
+    list.forEach((f, i) => {
+      if (!inWindow(f)) return;
+      if (!f.involvesCharacterIds.includes(murderer.id) && f.locationId !== c.solution.locationId) return;
+      const via = [
+        ...ownNonCore.filter((s) => s.relatedFactIds.includes(f.id)).map((s) => `secret ${s.id} (relatedFactIds)`),
+        ...(f.hiddenUntil?.secretIds ?? []).filter((id) => ownNonCore.some((s) => s.id === id)).map((id) => `secret ${id} (hiddenUntil)`),
+        ...(f.hiddenUntil?.lieIds ?? []).filter((id) => murderer.intendedLies.some((l) => l.id === id)).map((id) => `lie ${id} (hiddenUntil)`),
+      ];
+      if (via.length) {
+        out.push({ file, path: `${file === "case.json" ? "facts" : "timeline"}.${i}(${f.id})`, message: `inside the murder window and about the culprit, but unhidden by ${via.join(", ")}, which is not coreGuilt: the culprit's prompt would carry it (move it behind a coreGuilt secret)` });
+      }
+    });
+  }
+  const names = [murderer.name, ...murderer.name.split(/\s+/), ...(murderer.aliases ?? [])].filter((n) => n.length > 2 && !/^(lady|lord|sir|mrs?|miss|the|her|his)$/i.test(n));
+  const strings = (v: unknown): string[] => (typeof v === "string" ? [v] : Array.isArray(v) ? v.flatMap(strings) : v && typeof v === "object" ? Object.values(v).flatMap(strings) : []);
+  for (const ch of c.characters) {
+    if (ch.id === murderer.id) continue;
+    const { secrets: _s, ...visible } = ch;
+    void _s;
+    for (const text of strings(visible)) {
+      for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+        if (!names.some((n) => new RegExp(`\\b${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(sentence))) continue;
+        if (KILLER_CLAIM.test(sentence) && !NOT_A_CLAIM.test(sentence)) {
+          out.push({ file: `characters/${ch.id}.json`, path: "(always-visible text)", message: `names the culprit as the killer: "${sentence.slice(0, 120)}" (an innocent should not know; this is in their prompt from the first turn)` });
+        }
+      }
+    }
+  }
+  return out;
 }
