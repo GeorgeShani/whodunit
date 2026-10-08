@@ -236,10 +236,14 @@ describe("Blackwood characters: relationships, beliefs and secrets", () => {
     expect(topSuspect("gregory")).toBe("victoria");
   });
 
-  it("every innocent has a secret and a wrong belief; every secret is revealable by the engine", () => {
+  it("every innocent has a secret and a wrong belief; every secret is revealable except the murderer's core guilt", () => {
+    const coreGuilt = ["s-victoria-locked-door", "s-victoria-murder"];
     for (const ch of c.characters) {
       if (ch.id !== c.solution.murdererId) expect(ch.beliefs.some((b) => !b.isAccurate), ch.id).toBe(true);
-      for (const s of ch.secrets) expect(s.revealConditions, `${ch.id}/${s.id}`).toBeDefined();
+      for (const s of ch.secrets) {
+        if (coreGuilt.includes(s.id)) expect(s.revealConditions, `${ch.id}/${s.id}`).toBeUndefined();
+        else expect(s.revealConditions, `${ch.id}/${s.id}`).toBeDefined();
+      }
     }
   });
 
@@ -264,13 +268,13 @@ describe("Blackwood characters: relationships, beliefs and secrets", () => {
     expect(shouldRevealSecret(arch, { ...base, evidenceShownIds: ["library-key"] })).toBe(true);
   });
 
-  it("Victoria's confession needs all the proof, prior cracks and high stress", () => {
-    const murder = byId("victoria").secrets.find((s) => s.id === "s-victoria-murder")!;
+  it("Victoria never confesses the killing or the locked door in interrogation (the confession lives in endings.json)", () => {
     const all = ["silver-candlestick", "library-key", "burned-letter", "muddy-footprint"];
     const cracked = ["s-victoria-left-dining", "s-victoria-new-will"];
-    expect(shouldRevealSecret(murder, { stress: 100, evidenceShownIds: all, revealedSecretIds: [] })).toBe(false);
-    expect(shouldRevealSecret(murder, { stress: 50, evidenceShownIds: all, revealedSecretIds: cracked })).toBe(false);
-    expect(shouldRevealSecret(murder, { stress: 90, evidenceShownIds: all, revealedSecretIds: cracked })).toBe(true);
+    for (const id of ["s-victoria-murder", "s-victoria-locked-door"]) {
+      const s = byId("victoria").secrets.find((x) => x.id === id)!;
+      expect(shouldRevealSecret(s, { stress: 100, evidenceShownIds: all, revealedSecretIds: cracked }), id).toBe(false);
+    }
   });
 });
 
@@ -415,6 +419,7 @@ describe("Blackwood knowledge gating (QA #6, #7)", () => {
       const gate = knowledgeGate(c, ch, {
         evidenceShownIds: c.evidence.map((e) => e.id),
         revealedSecretIds: ch.secrets.map((s) => s.id),
+        testimonyShownIds: c.characters.flatMap((x) => x.secrets.filter((s) => s.testimonySummary).map((s) => s.id)),
       });
       // The culprit's core-guilt facts (engine/core-guilt.ts) stay withheld whatever the token says.
       const core = coreGuiltFactIds(c, ch);
@@ -550,7 +555,7 @@ describe("Blackwood reveal paths: stress and evidence", () => {
       for (let pass = 0; pass < ch.secrets.length; pass++) {
         for (const s of ch.secrets) if (!revealed.includes(s.id) && shouldRevealSecret(s, st(0, all, revealed))) revealed.push(s.id);
       }
-      const expected = ch.secrets.filter((s) => s.id !== "s-victoria-murder").map((s) => s.id);
+      const expected = ch.secrets.filter((s) => s.id !== "s-victoria-murder" && s.id !== "s-victoria-locked-door").map((s) => s.id);
       expect(revealed.sort(), ch.id).toEqual(expected.sort());
       for (const l of ch.intendedLies) {
         // Victoria's "never in the hall" is testimony-only: no clue puts her in the hall, only Gregory's eyewitness does.
@@ -645,8 +650,6 @@ describe("Blackwood round 2: Dexter's data notes", () => {
       "l-victoria-together": "s-victoria-left-dining",
       "l-victoria-letter": "s-victoria-new-will",
       "l-victoria-menu": "s-victoria-new-will",
-      "l-victoria-locked-in": "s-victoria-locked-door",
-      "l-victoria-never-in-hall": "s-victoria-locked-door",
       "l-reginald-heard-nothing": "s-reginald-theft",
       "l-reginald-few-words": "s-reginald-overheard",
       "l-archibald-together": "s-archibald-false-alibi",

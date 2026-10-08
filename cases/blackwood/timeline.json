@@ -1084,7 +1084,7 @@
   },
   {
     "id": "ev-letter-burned",
-    "statement": "Victoria burns the solicitor's letter and her handkerchief in the dining-room fire.",
+    "statement": "Victoria burns the solicitor's letter in the dining-room fire.",
     "category": "motive",
     "time": "21:20",
     "locationId": "dining-room",

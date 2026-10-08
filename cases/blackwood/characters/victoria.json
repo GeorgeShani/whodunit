@@ -142,7 +142,7 @@
   "secrets": [
     {
       "id": "s-victoria-left-dining",
-      "description": "She left the dining room for a while between 21:13, when Archibald went off, and 21:22, when he came back, so they were never together as they both claim. At 21:40 she got him to agree to say they were.",
+      "description": "She left the dining room for a while between 21:13, when Archibald went off, and 21:22, when he came back, so they were never together as they both claim. At 21:40 she got him to agree to say they were. Where she went in that time is her own business, and she will not say.",
       "severity": "serious",
       "revealConditions": {
         "stressThreshold": 70,
@@ -166,16 +166,6 @@
       "id": "s-victoria-locked-door",
       "description": "While Archibald was away she went to the library. At 21:19 she came out, locked the door from outside, and at 21:20 dropped the key into the dining-room coal scuttle.",
       "severity": "damning",
-      "revealConditions": {
-        "evidenceIds": [
-          "library-key",
-          "muddy-footprint"
-        ],
-        "mode": "all",
-        "afterSecretIds": [
-          "s-victoria-left-dining"
-        ]
-      },
       "relatedFactIds": [
         "ev-victoria-admitted",
         "ev-victoria-locks-door",
@@ -183,7 +173,8 @@
         "loc-victoria-2119",
         "loc-victoria-2120",
         "loc-victoria-2121"
-      ]
+      ],
+      "coreGuilt": true
     },
     {
       "id": "s-victoria-new-will",
@@ -211,19 +202,6 @@
       "id": "s-victoria-murder",
       "description": "She killed her husband with the silver candlestick at 21:17 to stop him signing the new will.",
       "severity": "damning",
-      "revealConditions": {
-        "stressThreshold": 80,
-        "evidenceIds": [
-          "silver-candlestick",
-          "library-key",
-          "burned-letter"
-        ],
-        "mode": "all",
-        "afterSecretIds": [
-          "s-victoria-left-dining",
-          "s-victoria-new-will"
-        ]
-      },
       "relatedFactIds": [
         "ev-murder",
         "ev-victoria-admitted",
@@ -234,7 +212,8 @@
         "loc-victoria-2117",
         "loc-victoria-2118",
         "loc-victoria-2119"
-      ]
+      ],
+      "coreGuilt": true
     }
   ],
   "relationships": [
@@ -360,10 +339,7 @@
       "breaksOnSecretIds": [
         "s-gregory-saw-victoria"
       ],
-      "breakMode": "any",
-      "supersededBySecretIds": [
-        "s-victoria-locked-door"
-      ]
+      "breakMode": "any"
     },
     {
       "id": "l-victoria-never-in-hall",
@@ -374,10 +350,7 @@
       "breaksOnSecretIds": [
         "s-gregory-saw-victoria"
       ],
-      "breakMode": "any",
-      "supersededBySecretIds": [
-        "s-victoria-locked-door"
-      ]
+      "breakMode": "any"
     },
     {
       "id": "l-victoria-menu",

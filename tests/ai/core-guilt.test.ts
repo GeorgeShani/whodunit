@@ -28,8 +28,18 @@ import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 let c: LoadedCase;
 /** Blackwood with Agatha's mapping applied in memory (her data PR sets these flags; this repo's data is untouched). */
 let agatha: LoadedCase;
+/** Blackwood as it was during George's live play: no coreGuilt flags, the murder revealable at stress 80. */
+let legacy: LoadedCase;
 beforeAll(async () => {
   c = await loadCase("blackwood");
+  legacy = structuredClone(c);
+  for (const s of legacy.characters.find((x) => x.id === "victoria")!.secrets) {
+    if (s.id === "s-victoria-murder") {
+      delete s.coreGuilt;
+      s.revealConditions = { stressThreshold: 80, evidenceIds: ["silver-candlestick", "library-key", "burned-letter"], mode: "all", afterSecretIds: ["s-victoria-left-dining", "s-victoria-new-will"] };
+    }
+    if (s.id === "s-victoria-locked-door") delete s.coreGuilt;
+  }
   agatha = structuredClone(c);
   const v = agatha.characters.find((x) => x.id === "victoria")!;
   for (const s of v.secrets) {
@@ -67,11 +77,12 @@ const gameOf = (cs: LoadedCase, token?: string) => {
 
 describe("George's live-play bug: Archibald's card made Victoria confess the murder", () => {
   it("root cause, pinned: on the old rules the card's +5 tipped her to 80 and the engine chose s-victoria-murder; now it never does", () => {
-    const g = georgeState(c);
-    const plan = planTurn(c, g, "victoria", { presentedTestimonyId: "s-archibald-false-alibi", playerText: "Explain this." });
+    // Pinned on the legacy data (the shipped data now flags both secrets coreGuilt and gives them no reveal conditions).
+    const g = georgeState(legacy);
+    const plan = planTurn(legacy, g, "victoria", { presentedTestimonyId: "s-archibald-false-alibi", playerText: "Explain this." });
     expect(g.characters.victoria.stress).toBe(80); // the murder's stressThreshold
     // The old secretsToReveal (no core-guilt exclusion) would have picked the murder:
-    expect(secretsToReveal(c.characters.find((x) => x.id === "victoria")!.secrets, g.characters.victoria)).toEqual(["s-victoria-murder"]);
+    expect(secretsToReveal(legacy.characters.find((x) => x.id === "victoria")!.secrets, g.characters.victoria)).toEqual(["s-victoria-murder"]);
     expect(plan.revealSecretId).toBeNull();
   });
 
@@ -151,7 +162,8 @@ describe("George's live-play bug: Archibald's card made Victoria confess the mur
 
 describe("core guilt: data flag and derivation", () => {
   it("derives s-victoria-murder from the solution (murderer's secret covering 21:17); left-dining and new-will are not core", () => {
-    expect([...coreGuiltSecretIds(c)]).toEqual(["s-victoria-murder"]);
+    expect([...coreGuiltSecretIds(legacy)]).toEqual(["s-victoria-murder"]); // derived only (no flags)
+    expect([...coreGuiltSecretIds(c)].sort()).toEqual(["s-victoria-locked-door", "s-victoria-murder"]); // shipped data: both flagged
     expect([...coreGuiltSecretIds(agatha)].sort()).toEqual(["s-victoria-locked-door", "s-victoria-murder"]);
     expect(guiltProfile(agatha).window).toEqual([21 * 60 + 15, 21 * 60 + 21]);
   });
