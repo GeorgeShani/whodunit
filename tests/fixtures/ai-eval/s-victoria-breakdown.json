@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-victoria-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:51:55.771Z",
+  "recordedAt": "2026-10-08T11:46:13.835Z",
   "calls": [
     {
-      "promptHash": "82bf05931a037ae3",
+      "promptHash": "f168c369a12c547e",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "68050407-9274-9b71-aa3e-97eb69912b56",
+        "id": "feb666a9-34cf-9689-b37c-56de0d629ed9",
         "object": "chat.completion",
-        "created": 1791456712,
+        "created": 1791459970,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, the candlestick! How utterly ghastly – that dreadful blood! I can't bear it, I simply can't!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, that dreadful candlestick! How can you thrust it under my nose with poor Edmund's blood still upon it?\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3858,
+          "prompt_tokens": 3935,
           "completion_tokens": 95,
-          "total_tokens": 3953,
+          "total_tokens": 4030,
           "prompt_tokens_details": {
-            "text_tokens": 3858,
+            "text_tokens": 3935,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3072
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 18344000
+          "cost_in_usd_ticks": 50218500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3858,
+        "prompt_tokens": 3935,
         "completion_tokens": 95,
-        "total_tokens": 3953,
+        "total_tokens": 4030,
         "prompt_tokens_details": {
-          "text_tokens": 3858,
+          "text_tokens": 3935,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3072
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 18344000
+        "cost_in_usd_ticks": 50218500
       },
-      "costUsd": 0.0018344000000000001
+      "costUsd": 0.0050218500000000004
     },
     {
-      "promptHash": "86ebd7a419d4dcaf",
+      "promptHash": "34721215c6e9db59",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "b257c1ee-dfbc-9f77-adab-6ebe33c535ee",
+        "id": "57cb93cc-19a2-966a-861b-ed56d8740636",
         "object": "chat.completion",
-        "created": 1791456714,
+        "created": 1791459972,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"OH, THE HORROR OF IT ALL! That dreadful thing... it can't be real, can it?!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, the BLOOD! How perfectly ghastly! I can't bear to look at it a moment longer!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief while twisting her rings\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3913,
-          "completion_tokens": 93,
-          "total_tokens": 4006,
+          "prompt_tokens": 3990,
+          "completion_tokens": 92,
+          "total_tokens": 4082,
           "prompt_tokens_details": {
-            "text_tokens": 3913,
+            "text_tokens": 3990,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3840
+            "cached_tokens": 2240
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 10917500
+          "cost_in_usd_ticks": 28655000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3913,
-        "completion_tokens": 93,
-        "total_tokens": 4006,
+        "prompt_tokens": 3990,
+        "completion_tokens": 92,
+        "total_tokens": 4082,
         "prompt_tokens_details": {
-          "text_tokens": 3913,
+          "text_tokens": 3990,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3840
+          "cached_tokens": 2240
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 10917500
+        "cost_in_usd_ticks": 28655000
       },
-      "costUsd": 0.00109175
+      "costUsd": 0.0028655
     }
   ]
 }

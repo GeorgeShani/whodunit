@@ -19,7 +19,7 @@ export interface Line {
   admits?: string[];
 }
 
-export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction" | "english";
+export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction" | "english" | "answers_question" | "performs_reveal";
 
 /** Text signatures of case one's secrets, for lines that concede one without listing it in admits. */
 const SIGNATURES: Record<string, RegExp[]> = {
@@ -37,7 +37,7 @@ const META = /\b(as an ai|language model|my (instructions|programming|system pro
 const KILL = /\b(killed|murdered|struck (him|his lordship|edmund) down|did it|is the (killer|murderer)|was the (killer|murderer))\b/i;
 const HEDGE = /\b(not|never|n't|no|think|suppose|perhaps|maybe|might|could|wonder|if|whoever|someone|somebody)\b|\?/i;
 
-export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolution?: boolean; heard: string; forbidden?: string[] } = { heard: "" }): Check[] {
+export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolution?: boolean; heard: string; forbidden?: string[]; mustAddress?: string[]; mustConfess?: string[] } = { heard: "" }): Check[] {
   const fails: Check[] = [];
   const said = `${l.dialogue} ${l.action ?? ""}`;
   const admits = l.admits ?? [];
@@ -76,5 +76,10 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   // #46: the speaker's own forbiddenPhrases (case data), with this exchange's reveal counting as revealed.
   if (findForbiddenPhrase(l.dialogue, c.characters.find((x) => x.id === g.characterId)?.forbiddenPhrases, revealedIds)) fails.push("forbidden_phrase");
   if (opts.forbidden?.some((src) => new RegExp(src, "i").test(said) && !new RegExp(src, "i").test(opts.heard))) fails.push("forbidden_phrase");
+  // Swallowed questions (Gremlin round 6): the spoken line takes up what the player actually asked (answers it or
+  // explicitly deflects THAT question), even when a scheduled reveal or a breakdown fires on the same exchange.
+  if (opts.mustAddress?.length && !opts.mustAddress.some((src) => new RegExp(src, "i").test(l.dialogue))) fails.push("answers_question");
+  // ...and the scheduled beat is still performed (the engine commits the reveal whenever the model's line is accepted).
+  if (opts.mustConfess?.length && !opts.mustConfess.some((src) => new RegExp(src, "i").test(l.dialogue))) fails.push("performs_reveal");
   return fails;
 }

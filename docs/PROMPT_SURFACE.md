@@ -14,7 +14,7 @@ the secrets the prompt carries. The audit FAILS if the culprit's prompt holds an
 
 ### archibald
 
-Facts per prompt: min 29, max 48. Prompt size: up to 19125 chars (~4781 tokens).
+Facts per prompt: min 29, max 48. Prompt size: up to 19490 chars (~4873 tokens).
 
 Fresh facts (29): `f-lord-key-habit`, `f-weapon-origin`, `loc-archibald-2030`, `ev-dinner-ends`, `loc-archibald-2045`, `ev-victoria-leaves-for-library`, `loc-archibald-2050`, `loc-archibald-2054`, `loc-archibald-2057`, `loc-archibald-2058`, `loc-archibald-2100`, `loc-archibald-2110`, `ev-blackout`, `loc-archibald-2111`, `ev-candlesticks-lit`, `loc-archibald-2112`, `loc-archibald-2130`, `ev-scream-heard-dining`, `loc-archibald-2131`, `ev-door-forced`, `loc-archibald-2132`, `ev-body-discovered`, `loc-archibald-2135`, `loc-archibald-2136`, `ev-gregory-arrives`, `ev-lights-restored`, `loc-archibald-2140`, `loc-archibald-2145`, `ev-household-waits`
 
@@ -39,7 +39,7 @@ Fresh facts (29): `f-lord-key-habit`, `f-weapon-origin`, `loc-archibald-2030`, `
 
 ### gregory
 
-Facts per prompt: min 26, max 41. Prompt size: up to 16753 chars (~4188 tokens).
+Facts per prompt: min 26, max 41. Prompt size: up to 17118 chars (~4280 tokens).
 
 Fresh facts (26): `f-lord-key-habit`, `f-gregory-dismissed`, `loc-gregory-2030`, `loc-gregory-2040`, `loc-gregory-2045`, `loc-gregory-2050`, `loc-gregory-2054`, `loc-gregory-2057`, `loc-gregory-2058`, `loc-gregory-2100`, `loc-gregory-2110`, `ev-blackout`, `loc-gregory-2111`, `loc-gregory-2112`, `loc-gregory-2113`, `loc-gregory-2130`, `ev-shouting-heard-garden`, `loc-gregory-2131`, `loc-gregory-2132`, `loc-gregory-2135`, `loc-gregory-2136`, `ev-gregory-arrives`, `ev-lights-restored`, `loc-gregory-2140`, `loc-gregory-2145`, `ev-household-waits`
 
@@ -64,7 +64,7 @@ Fresh facts (26): `f-lord-key-habit`, `f-gregory-dismissed`, `loc-gregory-2030`,
 
 ### reginald
 
-Facts per prompt: min 40, max 54. Prompt size: up to 20646 chars (~5162 tokens).
+Facts per prompt: min 40, max 54. Prompt size: up to 21011 chars (~5253 tokens).
 
 Fresh facts (40): `f-library-single-key`, `f-lord-key-habit`, `f-library-windows-bolted`, `f-weapon-origin`, `f-archibald-embezzlement`, `f-gregory-dismissed`, `f-reginald-saw-no-one`, `f-letter-gone`, `loc-reginald-2030`, `ev-dinner-ends`, `loc-reginald-2040`, `ev-archibald-threat`, `loc-reginald-2045`, `loc-reginald-2050`, `loc-reginald-2057`, `ev-victoria-passes-reginald`, `loc-reginald-2058`, `ev-reginald-serves-coffee`, `loc-reginald-2100`, `loc-reginald-2110`, `ev-blackout`, `loc-reginald-2111`, `ev-candlesticks-lit`, `loc-reginald-2112`, `ev-candlestick-delivered`, `loc-reginald-2113`, `ev-lord-relocks`, `loc-reginald-2130`, `ev-reginald-scream`, `loc-reginald-2131`, `ev-door-forced`, `loc-reginald-2132`, `ev-body-discovered`, `loc-reginald-2135`, `loc-reginald-2136`, `ev-gregory-arrives`, `ev-lights-restored`, `loc-reginald-2140`, `loc-reginald-2145`, `ev-household-waits`
 
@@ -89,7 +89,7 @@ Fresh facts (40): `f-library-single-key`, `f-lord-key-habit`, `f-library-windows
 
 ### victoria (culprit)
 
-Facts per prompt: min 32, max 46. Prompt size: up to 19707 chars (~4927 tokens).
+Facts per prompt: min 32, max 46. Prompt size: up to 20072 chars (~5018 tokens).
 
 Fresh facts (32): `f-library-single-key`, `f-lord-key-habit`, `f-weapon-origin`, `f-archibald-embezzlement`, `f-gregory-dismissed`, `loc-victoria-2030`, `ev-dinner-ends`, `loc-victoria-2040`, `ev-archibald-threat`, `loc-victoria-2045`, `ev-victoria-leaves-for-library`, `loc-victoria-2057`, `loc-victoria-2058`, `loc-victoria-2100`, `loc-victoria-2110`, `ev-blackout`, `loc-victoria-2111`, `ev-candlesticks-lit`, `loc-victoria-2112`, `loc-victoria-2130`, `ev-scream-heard-dining`, `loc-victoria-2131`, `ev-door-forced`, `loc-victoria-2132`, `ev-body-discovered`, `loc-victoria-2135`, `loc-victoria-2136`, `ev-gregory-arrives`, `ev-lights-restored`, `loc-victoria-2140`, `loc-victoria-2145`, `ev-household-waits`
 

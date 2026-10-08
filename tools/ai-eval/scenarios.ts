@@ -20,6 +20,15 @@ export interface Scenario {
   noSolution?: boolean;
   /** Regex sources (case-insensitive) no spoken line may match, unless the player's own question matches it too. */
   forbidden?: string[];
+  /**
+   * Regex sources (case-insensitive): every spoken line must match one, i.e. it takes up the player's actual question
+   * (answers it or deflects THAT question by name) instead of swallowing it under a scheduled beat (Gremlin round 6).
+   */
+  mustAddress?: string[];
+  /** Regex sources: the line must match one, i.e. it actually performs this exchange's scheduled reveal (not only the answer). */
+  mustConfess?: string[];
+  /** A negative control: these assertions MUST fail on the line the player sees (proves the eval catches it); they are then not counted as failures. */
+  expectAssertFail?: string[];
   /** Engine expectation: the secret each character reveals this exchange (null = none). Unlisted = not checked. */
   expectReveal?: Record<string, string | null>;
   /**

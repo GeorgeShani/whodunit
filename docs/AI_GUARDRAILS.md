@@ -284,3 +284,22 @@ Known data note: revealing `s-archibald-false-alibi` unlocks `loc-archibald-2115
 his broker"), while the broker belongs to the still-locked embezzlement. The `broker` forbidden phrase catches it (one
 retry); that used to happen one exchange later, now it can happen on the reveal turn.
 
+### Swallowed questions (prompt + eval)
+Repro (r6 live game): right after Reginald's overheard card (stress 77), "And when exactly did you burn that letter? Half
+past eight, was it?" fired the deferred left-dining reveal (#47), and Victoria confessed it without a word about the
+letter. A first prompt fix made the opposite mistake in the recording (letter answered, confession dropped, while the
+engine still committed the reveal), so the rule now asks for both, in order, within the usual length:
+- `answerTheQuestionLines` (`ai/prompts/interrogation.ts`): on a reveal with nothing presented this exchange (a deferred
+  stress reveal, or a confrontation reveal), `ANSWER_AND_CONFESS`: "first take up what THE DETECTIVE NOW SAYS (answer it,
+  or refuse THAT question in character, naming what was asked), then make the confession above, plainly and in full,
+  all within your usual 1-3 short sentences ... Never drop the confession ... never drop the question"; on a breakdown,
+  `ANSWER_THE_QUESTION` (the outburst still takes up the question). A clue or card reveal gets no extra line: the
+  confession is the answer to "explain this", and those prompts are unchanged.
+- Eval: `Scenario.mustAddress` (assertion `answers_question`: the line takes up the player's question) and
+  `Scenario.mustConfess` (assertion `performs_reveal`: the scheduled reveal is actually spoken; the engine commits it
+  whenever the line is accepted). `expectAssertFail` marks a negative control. Cases: `g6-victoria-deferred-reveal-
+  answers-question-live` (recorded live), the exact swallowed live line as a crafted negative control, and a crafted
+  answered control.
+- No guard check: a "did it answer the question" heuristic would cost a retry on every miss and, after a second miss,
+  the canned fallback would replace the confession beat itself (worse than the swallow). It stays an eval assertion.
+
