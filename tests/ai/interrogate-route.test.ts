@@ -243,7 +243,7 @@ describe("handleInterrogate", () => {
       expect(system).toContain("EXPOSED STORIES");
       const g = stateOf(r.body.stateToken);
       expect(g.characters.reginald.revealedSecretIds).toEqual(["s-reginald-theft"]);
-      expect(g.characters.reginald.stress).toBe(30);
+      expect(g.characters.reginald.stress).toBe(25); // the letter breaks "few words" (+15) and pressures the theft (+10); it no longer breaks "heard nothing"
 
       // Same move, but the model fails: engine keeps the reveal pending.
       mockGrok({ status: 500 });

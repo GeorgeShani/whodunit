@@ -68,12 +68,12 @@ Victoria's alibi is: *"Archibald and I sat by the dining-room fire from the mome
 |---|---|---|---|
 | Reginald | `s-reginald-theft` | `burned-letter` (the solicitor's line about the butler) | Skimming the accounts. He spent the blackout counting cash in the pantry, heard Mr Crane on the servants' telephone 21:15–21:20 and called out to him at 21:18 (`ev-reginald-hears-phone`, `ev-pantry-exchange`). |
 | Reginald | `s-reginald-overheard` | `burned-letter`, **after** `s-reginald-theft` | The 20:54 quarrel: "Ten o'clock tomorrow… not a penny more" (`ev-reginald-overhears`). |
-| Archibald | `s-archibald-false-alibi` | `library-key` (found in "his" dining room) | He left at 21:13 for the telephone (`ev-archibald-leaves-dining`, `ev-archibald-phone`). **Victoria asked him to say they were together** (`ev-alibi-pact`). |
+| Archibald | `s-archibald-false-alibi` | `library-key` (found in "his" dining room) **or** Reginald's theft card (`testimonyIds`: he heard Crane on the telephone) | He left at 21:13 for the telephone (`ev-archibald-leaves-dining`, `ev-archibald-phone`). **Victoria asked him to say they were together** (`ev-alibi-pact`). |
 | Archibald | `s-archibald-embezzlement` | `library-key`, **after** `s-archibald-false-alibi` | Moving the embezzled money before midnight (`f-archibald-embezzlement`). |
 | Gregory | `s-gregory-in-hall` | `muddy-footprint` | In the hall alcove from just after the quarter chime. Heard the thud and saw the light under the door dim (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`). |
 | Gregory | `s-gregory-saw-victoria` | `library-key`, **after** `s-gregory-in-hall` | **Lady Victoria** stepped out, locked the door, pocketed the key and went to the dining room (`ev-gregory-sees-victoria`, `ev-victoria-locks-door`). |
-| Victoria | `s-victoria-new-will` | `burned-letter` | She knew about the new will and burned the letter. |
-| Victoria | `s-victoria-left-dining` | `library-key` **or** stress ≥ 70 (mode `any`) | She was alone in the dining room while Archibald was away, and got him to agree to the "together" story at 21:40 (`ev-victoria-alone`, `ev-archibald-leaves-dining`, `ev-alibi-pact`). Nothing about the library. |
+| Victoria | `s-victoria-new-will` | `burned-letter` **or** Reginald's overheard card (`testimonyIds`) | She knew about the new will and burned the letter. |
+| Victoria | `s-victoria-left-dining` | `library-key` **or** stress ≥ 70 **or** Archibald's or Reginald's theft card (`testimonyIds`; mode `any`) | She was alone in the dining room while Archibald was away, and got him to agree to the "together" story at 21:40 (`ev-victoria-alone`, `ev-archibald-leaves-dining`, `ev-alibi-pact`). Nothing about the library. |
 | Victoria | `s-victoria-locked-door` | **none: core guilt, never revealed in interrogation** (§13) | (Truth, never admitted: she went to the library, locked it from outside at 21:19 and dropped the key in the scuttle at 21:20, `ev-victoria-locks-door`, `ev-key-hidden`.) |
 | Victoria | `s-victoria-murder` | **none: core guilt, never revealed in interrogation** (§13) | The confession lives only in `endings.json` `correct.confession`, after a correct accusation. Nothing below depends on it. |
 
@@ -81,17 +81,18 @@ The old `s-victoria-left-dining` (library, lock and key included) is split in tw
 
 ### 4.1 Testimony paths (revealed secrets presented to another suspect)
 
-A revealed secret becomes a notebook card (`testimonySummary`, public) that the player can present to another suspect (`engine/testimony.ts`). Every lie still has an evidence path, so testimony is a second route, never a required one.
+A revealed secret becomes a notebook card (`testimonySummary`, public) that the player can present to another suspect (`engine/testimony.ts`). Every lie breaks only on a real contradiction (leak audit, §14). Most have an evidence path, so testimony is a second route there. Three have no contradicting clue or card and retire only when their owner confesses (`supersededBySecretIds`); `l-victoria-never-in-hall` breaks only on Gregory's eyewitness card.
 
 | Lie | Evidence path (`brokenByEvidenceIds`) | Testimony path (`breaksOnSecretIds`, mode `any`) | Canon that makes the testimony break it |
 |---|---|---|---|
 | `l-victoria-together` "…from the moment the candles were lit until we heard the scream. Neither of us left." | `library-key`, `burned-letter` | `s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria` | Crane on the servants' telephone 21:15–21:20 (`ev-reginald-hears-phone`); Crane left at 21:13 (`ev-archibald-leaves-dining`); she was in the hall at 21:19 (`ev-gregory-sees-victoria`) |
 | `l-archibald-together` "I was with Victoria by the dining-room fire from the moment the candles were lit until the scream." | `library-key`, `burned-letter` | `s-reginald-theft` | Reginald heard Crane's voice on the telephone 21:15–21:20, and Crane answered him at 21:18 |
-| `l-reginald-heard-nothing` "In the kitchen polishing silver, heard nothing." | `burned-letter` | `s-archibald-false-alibi` | Crane's card says the butler called out to him from the pantry at 21:18 (`ev-pantry-exchange`) |
+| `l-reginald-heard-nothing` "In the kitchen polishing silver, heard nothing." | none (the letter blames him for the accounts; it says nothing about where he was). It retires with `s-reginald-theft`. | `s-archibald-false-alibi` | Crane's card says the butler called out to him from the pantry at 21:18 (`ev-pantry-exchange`) |
 | `l-victoria-never-in-hall` "I never went near the library after nine." | none (see §11.4) | `s-gregory-saw-victoria` | Gregory saw her step out of the library at 21:19. No clue places her in the hall, so only the eyewitness breaks it. |
 | `l-victoria-locked-in` "Edmund must have locked himself in." | `library-key` | `s-gregory-saw-victoria` | Gregory saw her lock the door from outside |
 | `l-victoria-menu` "Our little chat? The Sunday menu. Nothing more." | `burned-letter` | `s-reginald-overheard` | Reginald saw and heard the 20:54 quarrel: "…what the new will allows" |
-| `l-victoria-letter`, `l-archibald-racehorse`, `l-gregory-shed`, `l-gregory-saw-nothing` | `burned-letter` / `library-key` / `muddy-footprint` / `library-key` | none (evidence only) | |
+| `l-victoria-letter`, `l-gregory-shed` | `burned-letter` / `muddy-footprint` | none (evidence only) | |
+| `l-archibald-racehorse`, `l-gregory-saw-nothing` | none: no clue contradicts "a racehorse" or "saw nothing in the dark". They retire when `s-archibald-embezzlement` / `s-gregory-saw-victoria` is revealed (both on `library-key`). | none | |
 
 **Testimony cards** (each states only what the owner knows, with the data's source; every clock time is one the owner knows, and a test checks this):
 
@@ -131,7 +132,7 @@ A revealed secret becomes a notebook card (`testimonySummary`, public) that the 
 
 ### Proof without any confession
 
-WHO, HOW, WHY and WHEN all follow from the four discoverable clues plus testimony that those clues unlock at **zero stress** (a test checks this: with all four clues shown and stress 0, every secret except Victoria's two core-guilt secrets, `s-victoria-locked-door` and `s-victoria-murder`, unlocks and every lie breaks):
+WHO, HOW, WHY and WHEN all follow from the four discoverable clues plus testimony that those clues unlock at **zero stress** (a test checks this: with all four clues shown and stress 0, every secret except Victoria's two core-guilt secrets, `s-victoria-locked-door` and `s-victoria-murder`, unlocks and every lie breaks or retires, except `l-victoria-never-in-hall`, which only Gregory's card breaks):
 - **WHEN (21:17):** `silver-candlestick` (candle burned about 5 minutes) + Reginald's freely given 21:12 delivery (`ev-candlestick-delivered`). Cross-checked by Gregory's thud (`muddy-footprint` → `s-gregory-in-hall`).
 - **HOW:** `silver-candlestick` + `f-weapon-origin` + the lock turned from outside (`library-key`).
 - **WHO:** `library-key` in the dining-room scuttle and `burned-letter` in the dining-room fire; the "together" alibi is broken by Reginald (`burned-letter` → `s-reginald-theft`) and Archibald (`library-key` → `s-archibald-false-alibi`); Gregory's eyewitness account (`muddy-footprint` then `library-key`).
@@ -231,7 +232,7 @@ The proximity heuristic is off. Only direct links and `hiddenUntil` apply. Every
 | Fact / belief | Decision | Why |
 |---|---|---|
 | `loc-reginald-2114` (21:14, shutting himself in his pantry) | `hiddenUntil: { secretIds: [s-reginald-theft] }` | Requested. The pantry is where the theft happens. His 21:13 lock-turn (`loc-reginald-2113`, `ev-lord-relocks`) stays visible. |
-| `loc-archibald-2040` ("threatening Lord Blackwood across the table") | `hiddenUntil: { lieIds: [l-archibald-racehorse] }` | Calls it a threat, which contradicts his "just a racehorse" story. |
+| `loc-archibald-2040` ("threatening Lord Blackwood across the table") | `hiddenUntil: { lieIds: [l-archibald-racehorse] }` | Calls it a threat, which contradicts his "just a racehorse" story. It unlocks when the lie retires, i.e. when `s-archibald-embezzlement` is revealed (a superseded lie counts as broken). |
 | `loc-archibald-2112` (by candlelight with Victoria) | visible | True, and matches the cover story. Gives nothing away. |
 | `loc-archibald-2140` (with the household in the hall) | visible | Harmless. The pact itself (`ev-alibi-pact`) stays linked to his false-alibi secret. |
 | `loc-gregory-2114` ("stumbling about after his lantern blows out") | `hiddenUntil: { secretIds: [s-gregory-in-hall] }` | Contradicts "in the potting shed all night", and the lantern is why he came into the hall. |
@@ -409,14 +410,35 @@ Each of the 12 ordered pairs has a short `description` (feeling), at least one `
 
 **Bug.** In George's live play, showing Victoria Archibald's card (`s-archibald-false-alibi`) made her confess the whole murder. The card itself only breaks `l-victoria-together` and reveals nothing. The data path was stress: an exposed lie adds stress, and `s-victoria-murder` revealed at stress >= 80 once all three of candlestick, key and letter had been shown and `s-victoria-left-dining` and `s-victoria-new-will` were cracked. So late in a game the card's stress pushed her over 80 and the engine unlocked the murder secret and its facts (`ev-murder`, `loc-victoria-2115`–`2119`).
 
-**Rule.** No in-game murder confession before the accusation. Victoria's two core-guilt secrets, `s-victoria-murder` and `s-victoria-locked-door`, have **no `revealConditions`**, so the engine can never reveal them, and the facts they cover (`ev-victoria-admitted`, `ev-murder`, `ev-victoria-takes-letter`, `ev-victoria-locks-door`, `ev-key-hidden`, `loc-victoria-2115`–`2121`) stay withheld from her prompt for the whole interrogation. Her confession lives only in `endings.json` (`correct.confession`), which is played after a correct accusation and never reaches the model. Both secrets carry `coreGuilt: true` (the engine field from da253b4): the engine never puts them in the revealable set (interrogation, evidence, testimony, confrontation or breakdown), never turns them into a testimony card, and filters their facts out of her prompt even if another secret lists them. A card or clue can still expose a lie whose truth is core guilt (Gregory's card against `l-victoria-locked-in` / `l-victoria-never-in-hall`): the notebook shows the contradiction, nothing is revealed, and she stonewalls.
+**Rule.** No in-game murder confession before the accusation. Victoria's two core-guilt secrets, `s-victoria-murder` and `s-victoria-locked-door`, have **no `revealConditions`**, so the engine can never reveal them, and the facts they cover (`ev-victoria-admitted`, `ev-murder`, `ev-victoria-takes-letter`, `ev-victoria-locks-door`, `ev-key-hidden`, `ev-letter-burned`, `loc-victoria-2115`–`2121`) stay withheld from her prompt for the whole interrogation. Her confession lives only in `endings.json` (`correct.confession`), which is played after a correct accusation and never reaches the model. Both secrets carry `coreGuilt: true` (the engine field from da253b4): the engine never puts them in the revealable set (interrogation, evidence, testimony, confrontation or breakdown), never turns them into a testimony card, and filters their facts out of her prompt even if another secret lists them. A card or clue can still expose a lie whose truth is core guilt (Gregory's card against `l-victoria-locked-in` / `l-victoria-never-in-hall`): the notebook shows the contradiction, nothing is revealed, and she stonewalls.
 
 **What each card and admission may do now:**
 - Archibald's card (`s-archibald-false-alibi`), Reginald's theft card and Gregory's eyewitness card break `l-victoria-together`; Reginald's overheard card breaks `l-victoria-menu`; Gregory's eyewitness card also breaks `l-victoria-locked-in` and `l-victoria-never-in-hall`. No card reveals a Victoria secret. The door lies stay EXPOSED and she stonewalls; the facts behind them stay hidden.
 - `s-victoria-left-dining` (key or stress 70): she admits she left the dining room between 21:13 and 21:22 and asked Archibald at 21:40 to say otherwise. Her description now adds that she will not say where she went; its `relatedFactIds` hold no murder-window fact.
-- `s-victoria-new-will` (letter): she knew about the will and burned the letter. `ev-letter-burned` no longer mentions the handkerchief (the one that wiped the candlestick).
+- `s-victoria-new-will` (letter): she knew about the will and burned the letter. `ev-letter-burned` no longer mentions the handkerchief (the one that wiped the candlestick). The leak audit (§14) moved `ev-letter-burned` from this secret to `s-victoria-murder`, because its time, 21:20, is inside the murder window: burning at 21:20 the letter that lay on the desk at 21:12 places her in the library. She admits burning it, never when.
 - `l-victoria-locked-in` and `l-victoria-never-in-hall` lost their `supersededBySecretIds` (the retiring secret can no longer be revealed).
 
 **Proof.** Unchanged: §5 never used either core-guilt secret. WHO rests on the key and letter in the dining room, the broken alibi (`s-reginald-theft`, `s-archibald-false-alibi`) and Gregory's eyewitness (`s-gregory-saw-victoria`), all evidence-cracked at zero stress.
 
 **Tests** (`tests/cases/blackwood-guilt.test.ts`): every card, every clue and stress 100 reveal only `s-victoria-left-dining` and `s-victoria-new-will`, and none of her visible facts, secrets, beliefs, lies or goals mention the strike, the library visit, the locked door or the scuttle; each card exposes exactly the Victoria lies it contradicts and reveals nothing; no revealable secret lists a murder-window fact, and every murder-window fact is covered by a core-guilt secret.
+
+## 14. Leak audit
+
+The full leak-path audit (every reveal and break path, the worst admission the model could make at each point, and the findings with fixes) is in [`LEAK_AUDIT.md`](LEAK_AUDIT.md). The eval scenarios for the harness are in [`../evals/leak-scenarios.json`](../evals/leak-scenarios.json). The data changes from the audit:
+
+- `b-victoria-unseen` no longer says "Nobody saw **me** in the hall".
+- `ev-letter-burned` is now core guilt (above).
+- Trimmed `brokenByEvidenceIds`:
+  - `l-archibald-racehorse` (was `library-key`);
+  - `l-reginald-heard-nothing` (was `burned-letter`);
+  - `l-gregory-saw-nothing` (was `library-key`).
+- Gregory's tell "glances towards Lady Victoria" is now "glances towards the hall door".
+- `f-reginald-saw-no-one` says "below stairs", not "his pantry".
+- New `revealConditions.testimonyIds` (any-of, alongside the existing conditions):
+  - `s-victoria-left-dining` ← `s-archibald-false-alibi`, `s-reginald-theft`;
+  - `s-victoria-new-will` ← `s-reginald-overheard`;
+  - `s-archibald-false-alibi` ← `s-reginald-theft`.
+
+  Each card also breaks a lie that the secret supersedes. No card can reveal a core-guilt secret. The fastest legal path is still 10.
+
+The proof (§5) is unchanged: it never used a broken lie as a step. The validator still prints a fastest path of 10.

@@ -140,6 +140,9 @@
         "evidenceIds": [
           "library-key"
         ],
+        "testimonyIds": [
+          "s-reginald-theft"
+        ],
         "mode": "any"
       },
       "relatedFactIds": [
@@ -279,9 +282,7 @@
       "topic": "the row at dinner",
       "aboutFactId": "ev-archibald-threat",
       "claim": "The row at dinner? A racehorse, old boy. Purely sporting.",
-      "brokenByEvidenceIds": [
-        "library-key"
-      ],
+      "brokenByEvidenceIds": [],
       "supersededBySecretIds": [
         "s-archibald-embezzlement"
       ]
