@@ -7,7 +7,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
-import { commitTurn, planTurn, type TurnPlan } from "@/engine/interrogation";
+import { commitTurn, planTurn } from "@/engine/interrogation";
 import { isMappedToPresentation } from "@/engine/secrets";
 import type { GameState } from "@/engine/types";
 import { FIXTURES_DIR } from "../helpers/fixture";
@@ -19,7 +19,7 @@ beforeAll(async () => {
   hl = await loadCase("harbor-light", FIXTURES_DIR);
 });
 
-const performed = (_plan: TurnPlan) => ({ playerText: "", dialogue: "…", emotion: "nervous" as const, intensity: 0.5, stressDelta: 0, trustDelta: 0, performed: true });
+const performed = () => ({ playerText: "", dialogue: "…", emotion: "nervous" as const, intensity: 0.5, stressDelta: 0, trustDelta: 0, performed: true });
 function cardsOut(): GameState {
   const g = createInitialGameState(c);
   g.discoveredEvidenceIds = c.evidence.map((e) => e.id);
@@ -36,7 +36,7 @@ describe("#47 a presented card reveals only the secret mapped to it", () => {
     const plan = planTurn(c, g, "victoria", { presentedTestimonyId: "s-reginald-overheard" });
     expect(g.characters.victoria.stress).toBeGreaterThanOrEqual(70); // the card's stress still accrues past the left-dining threshold
     expect(plan.revealSecretId).toBe("s-victoria-new-will");
-    commitTurn(g, plan, performed(plan));
+    commitTurn(g, plan, performed());
     // The deferred stress-threshold reveal arrives on the next ordinary exchange.
     const next = planTurn(c, g, "victoria", { playerText: "Where did you go when you left the dining room?" });
     expect(next.revealSecretId).toBe("s-victoria-left-dining");
@@ -49,7 +49,7 @@ describe("#47 a presented card reveals only the secret mapped to it", () => {
     expect(plan.engineStressDelta).toBeGreaterThan(0);
     expect(plan.newlyExposedLieIds.length).toBeGreaterThan(0); // the card still breaks her lies
     expect(plan.revealSecretId).toBeNull();
-    commitTurn(g, plan, performed(plan));
+    commitTurn(g, plan, performed());
     expect(planTurn(c, g, "victoria", { playerText: "Well?" }).revealSecretId).toBe("s-victoria-left-dining");
   });
 

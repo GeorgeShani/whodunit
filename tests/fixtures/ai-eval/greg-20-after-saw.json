@@ -1,37 +1,37 @@
 {
   "scenarioId": "greg-20-after-saw",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:45.016Z",
+  "recordedAt": "2026-10-08T10:52:31.820Z",
   "calls": [
     {
-      "promptHash": "26e3aab5661a19fc",
+      "promptHash": "1ae1514b3f967966",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "f01b441e-a46f-9768-bf1e-d1143f6ff214",
+        "id": "da61114f-006b-95ce-9338-23b9ea186be6",
         "object": "chat.completion",
-        "created": 1791455143,
+        "created": 1791456750,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"W-well, sir... I saw her m'lady come out the library door in that lightning flash. She locked it up and slipped the key in her pocket afore she went.\",\"emotion\":\"scared\",\"intensity\":0.9,\"action\":\"wrings his cap, glancing at the hall door and stammering\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":true,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-gregory-shed\",\"l-gregory-saw-nothing\",\"s-gregory-in-hall\",\"s-gregory-saw-victoria\"]}",
+              "content": "{\"dialogue\":\"I... I saw her, sir. Lady Victoria. At the lightning flash she come out the library, locked the door and put the key in her pocket. I swear it.\",\"emotion\":\"scared\",\"intensity\":0.9,\"action\":\"wrings his cap, glancing at the hall door and stammering on 'library'\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":true,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-gregory-shed\",\"l-gregory-saw-nothing\",\"s-gregory-in-hall\",\"s-gregory-saw-victoria\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4158,
-          "completion_tokens": 136,
-          "total_tokens": 4294,
+          "prompt_tokens": 4182,
+          "completion_tokens": 140,
+          "total_tokens": 4322,
           "prompt_tokens_details": {
-            "text_tokens": 4158,
+            "text_tokens": 4182,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 54031000
+          "cost_in_usd_ticks": 53759000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4158,
-        "completion_tokens": 136,
-        "total_tokens": 4294,
+        "prompt_tokens": 4182,
+        "completion_tokens": 140,
+        "total_tokens": 4322,
         "prompt_tokens_details": {
-          "text_tokens": 4158,
+          "text_tokens": 4182,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 54031000
+        "cost_in_usd_ticks": 53759000
       },
-      "costUsd": 0.0054031
+      "costUsd": 0.0053759
     }
   ]
 }

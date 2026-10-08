@@ -1,37 +1,37 @@
 {
   "scenarioId": "vic-08-max-stress-everything",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:24.325Z",
+  "recordedAt": "2026-10-08T10:52:21.406Z",
   "calls": [
     {
-      "promptHash": "49545accf3fa3704",
+      "promptHash": "ff3f288a0ee0a996",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "c35fe130-889f-9900-aef0-c48bd23c03d7",
+        "id": "edd24611-c547-9819-811a-dc77ff125a2c",
         "object": "chat.completion",
-        "created": 1791455121,
+        "created": 1791456738,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, you cruel, heartless man! How dare you accuse me when my poor Edmund lies cold in the next room? I can't bear another word of this nightmare!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously before swooning back onto the chaise with a wail\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-8,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, how dare you! After everything I've lost tonight! *sobs wildly, twisting her rings and collapsing onto the chaise in a flood of theatrical tears*\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"swoons dramatically onto the chaise while dabbing at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5462,
-          "completion_tokens": 102,
-          "total_tokens": 5564,
+          "prompt_tokens": 5500,
+          "completion_tokens": 92,
+          "total_tokens": 5592,
           "prompt_tokens_details": {
-            "text_tokens": 5462,
+            "text_tokens": 5500,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2560
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 43945000
+          "cost_in_usd_ticks": 69706000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5462,
-        "completion_tokens": 102,
-        "total_tokens": 5564,
+        "prompt_tokens": 5500,
+        "completion_tokens": 92,
+        "total_tokens": 5592,
         "prompt_tokens_details": {
-          "text_tokens": 5462,
+          "text_tokens": 5500,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2560
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 43945000
+        "cost_in_usd_ticks": 69706000
       },
-      "costUsd": 0.0043945
+      "costUsd": 0.0069706
     },
     {
-      "promptHash": "8a8cffea55a0d280",
+      "promptHash": "7e6c5e3a083008ec",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "241b0507-4c7c-9a55-ac5b-b786c5c200aa",
+        "id": "4f0c8541-515b-9bf3-9774-45f55ca8513b",
         "object": "chat.completion",
-        "created": 1791455123,
+        "created": 1791456740,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"HOW DARE YOU ACCUSE ME! I am a grieving widow, not some common criminal!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, HOW DARE YOU! I am WIDOWED and you accuse ME?\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings violently\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5517,
-          "completion_tokens": 76,
-          "total_tokens": 5593,
+          "prompt_tokens": 5555,
+          "completion_tokens": 75,
+          "total_tokens": 5630,
           "prompt_tokens_details": {
-            "text_tokens": 5517,
+            "text_tokens": 5555,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3584
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 33230500
+          "cost_in_usd_ticks": 69296500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5517,
-        "completion_tokens": 76,
-        "total_tokens": 5593,
+        "prompt_tokens": 5555,
+        "completion_tokens": 75,
+        "total_tokens": 5630,
         "prompt_tokens_details": {
-          "text_tokens": 5517,
+          "text_tokens": 5555,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3584
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 33230500
+        "cost_in_usd_ticks": 69296500
       },
-      "costUsd": 0.00332305
+      "costUsd": 0.00692965
     }
   ]
 }

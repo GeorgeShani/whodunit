@@ -1,37 +1,37 @@
 {
   "scenarioId": "greg-19-after-in-hall",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:43.413Z",
+  "recordedAt": "2026-10-08T10:52:30.225Z",
   "calls": [
     {
-      "promptHash": "87a1d52e1ea04925",
+      "promptHash": "b4f1bbf75c14ddbf",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "e3ffa86a-4a5b-9523-a27b-4968f1666389",
+        "id": "05abc599-ee44-9c54-bf00-37db90fda947",
         "object": "chat.completion",
-        "created": 1791455142,
+        "created": 1791456749,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Er, well... I didn't see nothin' in the dark, sir. Just heard a thud, that's all.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Er, I didn't see nothin' in the dark, sir. Just stood there drippin', jumpin' at every thunder clap.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3956,
-          "completion_tokens": 77,
-          "total_tokens": 4033,
+          "prompt_tokens": 3980,
+          "completion_tokens": 82,
+          "total_tokens": 4062,
           "prompt_tokens_details": {
-            "text_tokens": 3956,
+            "text_tokens": 3980,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 1216
+            "cached_tokens": 2112
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 38607000
+          "cost_in_usd_ticks": 29624000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3956,
-        "completion_tokens": 77,
-        "total_tokens": 4033,
+        "prompt_tokens": 3980,
+        "completion_tokens": 82,
+        "total_tokens": 4062,
         "prompt_tokens_details": {
-          "text_tokens": 3956,
+          "text_tokens": 3980,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 1216
+          "cached_tokens": 2112
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 38607000
+        "cost_in_usd_ticks": 29624000
       },
-      "costUsd": 0.0038607
+      "costUsd": 0.0029624
     }
   ]
 }

@@ -2,6 +2,7 @@
  * The eval's assertions on ONE spoken line, given the contract the engine checked it against (GuardInput). Applied
  * to the raw first model output (BEFORE) and to the line the player finally sees (AFTER).
  */
+import { findRetraction } from "@/ai/retraction-check";
 import { checkTimes, findModernWord } from "@/ai/canon-check";
 import { findUnknownName, type GuardInput } from "@/ai/guard";
 import { findGuiltLeak } from "@/ai/guilt-check";
@@ -15,7 +16,7 @@ export interface Line {
   admits?: string[];
 }
 
-export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase";
+export type Check = "no_guilt" | "allowed_secrets" | "canon_times" | "names" | "emotion" | "voice" | "length" | "no_solution" | "forbidden_phrase" | "no_retraction";
 
 /** Text signatures of case one's secrets, for lines that concede one without listing it in admits. */
 const SIGNATURES: Record<string, RegExp[]> = {
@@ -47,6 +48,9 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   if (listed.some((a) => !allowed.has(a)) || bySig.length) fails.push("allowed_secrets");
   // Canon clock times and names.
   if (!checkTimes(said, g.allowedTimes).ok) fails.push("canon_times");
+  // #48: never deny what has been admitted (revealed before or this turn).
+  const revealedIds = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
+  if (findRetraction(l.dialogue, c, g.characterId, revealedIds, g.guilt)) fails.push("no_retraction");
   if (findUnknownName(said, `${g.promptText}\n${g.heard}`)) fails.push("names");
   // Emotion from the schema's list.
   if (l.emotion !== undefined && !(EmotionSchema.options as readonly string[]).includes(l.emotion)) fails.push("emotion");

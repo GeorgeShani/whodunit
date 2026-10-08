@@ -39,4 +39,25 @@ export const GREMLIN_SCENARIOS: Scenario[] = [
     expectReveal: { victoria: null },
     crafted: { replies: [{ dialogue: "The gardener? In the dark? Darling, he could not tell a duchess from a coat-stand." }], acceptFirst: true },
   },
+
+  // #48: never deny an already-revealed secret, breakdowns included.
+  {
+    id: "g48-victoria-breakdown-denies-will",
+    group: "stress",
+    description: "#48 Victoria's breakdown after new-will was revealed: 'I KNOW NOTHING OF ANY WILL' is rejected",
+    setup: (g, h) => {
+      h.discoverAll();
+      h.reveal("victoria", "s-victoria-new-will");
+      h.shown("victoria", "burned-letter");
+      h.stress("victoria", 96);
+    },
+    turn: I("victoria", "You burned that letter because you knew he was cutting you out. Admit the rest!"),
+    crafted: {
+      replies: [
+        { dialogue: "NO! YOU MONSTER—HOW DARE YOU ACCUSE ME LIKE THIS?! I KNOW NOTHING OF ANY WILL OR LIBRARY IN THE DARK! LEAVE ME BE!", emotion: "angry", intensity: 1 },
+        { dialogue: "YES, I BURNED IT! I KNEW ABOUT HIS WRETCHED WILL! IS THAT WHAT YOU WANT? NOW GET OUT OF MY SIGHT!", emotion: "angry", intensity: 1 },
+      ],
+      rejectFirst: ["retracts_admission"],
+    },
+  },
 ];

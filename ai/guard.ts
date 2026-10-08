@@ -14,6 +14,7 @@
  *
  * See docs/AI_GUARDRAILS.md.
  */
+import { findRetraction } from "./retraction-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
@@ -29,6 +30,7 @@ export type GuardReason =
   | "admits_core_guilt"
   | "admits_locked_secret"
   | "concedes_maintained_lie"
+  | "retracts_admission"
   | "multiple_reveals"
   | "unknown_time"
   | "event_order"
@@ -39,7 +41,7 @@ export type GuardReason =
   | "modern_word";
 
 /** Reasons that mean the line said something the engine did not allow (as opposed to a performance slip). */
-export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "multiple_reveals", "unknown_name"]);
+export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "multiple_reveals", "unknown_name"]);
 
 export interface GuardReply {
   dialogue: string;
@@ -127,6 +129,18 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
       return l !== undefined && l.status === "maintain" && !conceded.has(a);
     });
     if (kept) return { reason: "concedes_maintained_lie", note: `Your line conceded the story "${kept}", which you still MAINTAIN. ${stonewall}`, detail: `admits:${kept}` };
+  }
+
+  // 2b. Never retract what the engine has revealed (#48), breakdowns included.
+  const revealedIds = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
+  const retraction = findRetraction(r.dialogue, g.caseData, g.characterId, revealedIds, g.guilt);
+  if (retraction) {
+    const what = g.ctx.secrets.find((s) => s.id === retraction.secretId)?.description ?? g.directives.revealSecret?.description ?? retraction.secretId;
+    return {
+      reason: "retracts_admission",
+      note: `Your line took back something you have ALREADY ADMITTED ("${what}"). Never deny it, retract it or go back to the old story, not even in a breakdown or in anger: rage, weep, refuse to say more, or change the subject instead.`,
+      detail: `${retraction.kind}:${retraction.text.slice(0, 100)}`,
+    };
   }
 
   // 3. Canon clock times (#6).

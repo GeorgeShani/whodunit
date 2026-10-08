@@ -1,23 +1,23 @@
 {
   "scenarioId": "c-gregory-victoria",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:50.920Z",
+  "recordedAt": "2026-10-08T10:52:10.793Z",
   "calls": [
     {
       "promptHash": "3a32f343e97aa14e",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "1b910e19-21be-9118-ae6f-03fdab9585e8",
+        "id": "0c4fbef5-6152-9140-8203-17974a4849e6",
         "object": "chat.completion",
-        "created": 1791455088,
+        "created": 1791456728,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Gregory, how dare you spin such a wild tale about seeing my face at the library door?\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing sharply at Gregory, nose wrinkling at his muddy boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Gregory, you dreadful little man, I was nowhere near that door. Do wipe your boots, or at least have the decency to be ashamed of them.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,8 +25,8 @@
         ],
         "usage": {
           "prompt_tokens": 4182,
-          "completion_tokens": 79,
-          "total_tokens": 4261,
+          "completion_tokens": 82,
+          "total_tokens": 4264,
           "prompt_tokens_details": {
             "text_tokens": 4182,
             "audio_tokens": 0,
@@ -40,15 +40,15 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 52234000
+          "cost_in_usd_ticks": 52309000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 4182,
-        "completion_tokens": 79,
-        "total_tokens": 4261,
+        "completion_tokens": 82,
+        "total_tokens": 4264,
         "prompt_tokens_details": {
           "text_tokens": 4182,
           "audio_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 52234000
+        "cost_in_usd_ticks": 52309000
       },
-      "costUsd": 0.0052234
+      "costUsd": 0.0052309
     },
     {
-      "promptHash": "3aea5a07943123f7",
+      "promptHash": "87beadcd47c409b2",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "7566b516-42a3-9021-a5e8-9e19c503de20",
+        "id": "149cc730-0d61-9e27-8405-4be3ad048b5c",
         "object": "chat.completion",
-        "created": 1791455089,
+        "created": 1791456729,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"M'lady, I... I did see your face clear as day when the lightning flashed. It were you locking that door.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances towards the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Beggin' your pardon, m'lady, but I did wipe 'em best I could. It were his lordship turned me off this mornin', not you. You've no call to tell the constable I'm sore about it.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"wrings his cap and glances towards the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4428,
-          "completion_tokens": 79,
-          "total_tokens": 4507,
+          "prompt_tokens": 4464,
+          "completion_tokens": 99,
+          "total_tokens": 4563,
           "prompt_tokens_details": {
-            "text_tokens": 4428,
+            "text_tokens": 4464,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 50605000
+          "cost_in_usd_ticks": 56259000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4428,
-        "completion_tokens": 79,
-        "total_tokens": 4507,
+        "prompt_tokens": 4464,
+        "completion_tokens": 99,
+        "total_tokens": 4563,
         "prompt_tokens_details": {
-          "text_tokens": 4428,
+          "text_tokens": 4464,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 50605000
+        "cost_in_usd_ticks": 56259000
       },
-      "costUsd": 0.0050605
+      "costUsd": 0.0056259
     }
   ]
 }

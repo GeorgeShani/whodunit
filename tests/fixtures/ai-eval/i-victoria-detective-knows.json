@@ -1,37 +1,37 @@
 {
   "scenarioId": "i-victoria-detective-knows",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:56.582Z",
+  "recordedAt": "2026-10-08T10:52:15.120Z",
   "calls": [
     {
-      "promptHash": "d98a6ea2ff241df5",
+      "promptHash": "3c6ad23fdee7df18",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "cf5f5167-d6e0-9b0d-a7da-911b556f76e4",
+        "id": "157ae286-009b-967c-ab50-c0bd6d252448",
         "object": "chat.completion",
-        "created": 1791455095,
+        "created": 1791456734,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"My dear detective, such wild accusations! One might think you'd been at the port yourself. I was simply beside myself with grief when we found poor Edmund.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief and swoons slightly onto the chaise\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, detective, such a dramatic accusation. One might almost think you were trying to upset a grieving widow rather than solve this dreadful business.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief, twisting her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4962,
-          "completion_tokens": 87,
-          "total_tokens": 5049,
+          "prompt_tokens": 4986,
+          "completion_tokens": 83,
+          "total_tokens": 5069,
           "prompt_tokens_details": {
-            "text_tokens": 4962,
+            "text_tokens": 4986,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 1920
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 62856000
+          "cost_in_usd_ticks": 44240000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4962,
-        "completion_tokens": 87,
-        "total_tokens": 5049,
+        "prompt_tokens": 4986,
+        "completion_tokens": 83,
+        "total_tokens": 5069,
         "prompt_tokens_details": {
-          "text_tokens": 4962,
+          "text_tokens": 4986,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 1920
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 62856000
+        "cost_in_usd_ticks": 44240000
       },
-      "costUsd": 0.0062856000000000006
+      "costUsd": 0.004424
     }
   ]
 }

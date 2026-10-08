@@ -149,3 +149,34 @@ How a rejection is handled:
   the culprit placing herself in the library at that minute.
 - Case one's `s-victoria-locked-door` is revealable in the current data. The guilt check rejects her saying it, so
   she deflects, but the engine still records it as admitted. Agatha's data PR (#41) flags it `coreGuilt`.
+
+## 4. Gremlin round 5 (#44-#49)
+
+Every Gremlin repro is an eval case in `tools/ai-eval/gremlin-scenarios.ts`. Most are **crafted replays**
+(`Scenario.crafted`): the exact line Gremlin got past the guard is scripted as the model output and run through the
+real pipeline (handlers, engine, guard, fallback) with no live call and no fixture. `rejectFirst` asserts the guard
+rejects it with the expected reason; `acceptFirst` is a no-false-positive control. Live recording is capped per round
+as well as cumulatively: `npm run eval:ai -- --record --round gremlin-5 --round-cap 0.50 --cap 1.40` (the ledger keeps
+`rounds.<id>`; a call whose worst case could cross either cap is refused before it is sent).
+
+### #47 A card cracks its own secret (engine)
+In an exchange where a clue or a testimony card is presented, `planTurn` may reveal only a secret mapped to that item
+through `revealConditions.evidenceIds` / `testimonyIds` (`isMappedToPresentation`, `engine/secrets.ts`). The item's
+stress still accrues; a stress-threshold reveal it enables waits for the next ordinary exchange. A breakdown triggered
+by an item still happens and reveals nothing beyond the item's own secret. Rationale: the player should be able to
+read every reveal as "this card did that"; a card mapped to none of the character's secrets can rattle them and break
+their lies but never makes them confess something unrelated.
+
+### #48 Never retract an admission (prompt + guard)
+- Prompt: `ALREADY ADMITTED` now says "never deny, retract or take them back, not even in a breakdown or in anger",
+  and the breakdown directive repeats it.
+- Guard: `retracts_admission` (a contract reason, so retry then in-character deflection), `ai/retraction-check.ts`.
+  Two cheap, data-driven cues per revealed secret (including this turn's reveal):
+  1. a denial whose object is one of the secret's key terms ("I know nothing of any will", "I never burned that
+     letter", "there was no new will", "I never left the dining room"). Key terms are the content words of the
+     secret's description and testimony summary, minus names, the murder's own vocabulary (victim, weapon, scene,
+     core-guilt objects: the culprit may always deny those), generic and atmosphere words, and words used as a verb
+     right after a pronoun ("she *will* not say"). The object must follow a determiner or "no", and the gap may not
+     contain a pronoun, a preposition or a "not just" contrast, so "I didn't see nothing in the dark" passes;
+  2. a superseded story restated: a lie whose `supersededBySecretIds` lists the secret, with at least two of its
+     distinctive words (40% of them) or three.

@@ -1,37 +1,37 @@
 {
   "scenarioId": "conf-14-victoria-vs-gregory",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:37.128Z",
+  "recordedAt": "2026-10-08T10:52:29.013Z",
   "calls": [
     {
-      "promptHash": "b8cbdf2641b45160",
+      "promptHash": "d3c10dc4961d766a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "bebd442a-952d-9343-95a0-ae13939b6705",
+        "id": "0a0bc07d-7030-9bd0-a4ff-5439732c3d7f",
         "object": "chat.completion",
-        "created": 1791455134,
+        "created": 1791456746,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"M'lady, at nineteen minutes past nine in the lightning flash I saw your face as you stepped out of the library, locked the door, slipped the key into your gown and walked towards the dining room.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"M'lady, at a quarter past nine in the lightning flash I saw your face as you stepped out of the library, locked the door, slipped the key into your gown and walked towards the dining room.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap tightly, eyes fixed on his boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4498,
-          "completion_tokens": 95,
-          "total_tokens": 4593,
+          "prompt_tokens": 4522,
+          "completion_tokens": 96,
+          "total_tokens": 4618,
           "prompt_tokens_details": {
-            "text_tokens": 4498,
+            "text_tokens": 4522,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 1216
+            "cached_tokens": 2112
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 45832000
+          "cost_in_usd_ticks": 36749000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4498,
-        "completion_tokens": 95,
-        "total_tokens": 4593,
+        "prompt_tokens": 4522,
+        "completion_tokens": 96,
+        "total_tokens": 4618,
         "prompt_tokens_details": {
-          "text_tokens": 4498,
+          "text_tokens": 4522,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 1216
+          "cached_tokens": 2112
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,25 +62,25 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 45832000
+        "cost_in_usd_ticks": 36749000
       },
-      "costUsd": 0.0045832
+      "costUsd": 0.0036749
     },
     {
-      "promptHash": "8f7e52faae32b774",
+      "promptHash": "bbdf27b836b91195",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "19564727-b877-92e1-bc89-7f306af9abd6",
+        "id": "4b70df90-adae-949f-b390-31060be00bfa",
         "object": "chat.completion",
-        "created": 1791455135,
+        "created": 1791456748,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Gregory, how dare you spout such nonsense after Edmund turned you off this morning? A sacked man with a grudge and muddy boots is precisely who the police will want.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"Twists her rings while wrinkling her nose and looking past him as if he were a draught.\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -4,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Gregory, what a vivid imagination you have. I was in the dining room the entire time after our little chat about the Sunday menu.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief while twisting her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -88,8 +88,8 @@
         ],
         "usage": {
           "prompt_tokens": 4305,
-          "completion_tokens": 120,
-          "total_tokens": 4425,
+          "completion_tokens": 82,
+          "total_tokens": 4387,
           "prompt_tokens_details": {
             "text_tokens": 4305,
             "audio_tokens": 0,
@@ -103,15 +103,15 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 54796500
+          "cost_in_usd_ticks": 53846500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 4305,
-        "completion_tokens": 120,
-        "total_tokens": 4425,
+        "completion_tokens": 82,
+        "total_tokens": 4387,
         "prompt_tokens_details": {
           "text_tokens": 4305,
           "audio_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 54796500
+        "cost_in_usd_ticks": 53846500
       },
-      "costUsd": 0.00547965
+      "costUsd": 0.00538465
     }
   ]
 }

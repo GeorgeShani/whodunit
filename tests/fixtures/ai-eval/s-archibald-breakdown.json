@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-archibald-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:45.532Z",
+  "recordedAt": "2026-10-08T10:52:05.132Z",
   "calls": [
     {
-      "promptHash": "94b84b3d21d4a4d2",
+      "promptHash": "bf5f4266ce7a0cad",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "213776ef-5434-932a-81c6-fa72b7c8df5a",
+        "id": "9dc1dd50-4fec-9680-9f3d-b12cc3f468f1",
         "object": "chat.completion",
-        "created": 1791455083,
+        "created": 1791456721,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Blast it all, old boy! I WASN'T with Victoria the whole time after the candles were lit! I slipped out at thirteen minutes past nine, yammered on the servants' telephone from 21:15 to 21:20, and slunk back by 21:22! I only agreed to her story later to cover the dashed call!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"goes beetroot red, mops his brow frantically with a huge handkerchief while biting clean through his cigar, then bursts into loud sobbing\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"library-key\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-archibald-together\", \"s-archibald-false-alibi\"]\n}",
+              "content": "{\"dialogue\":\"I wasn't with Victoria the whole time, dash it! I slipped out at thirteen minutes past nine, used the servants' telephone until twenty past, and was back by twenty-two minutes past nine. I only agreed to her story later to keep my nose clean!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"turns beetroot red, mops his brow frantically with a huge handkerchief while biting clean through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"l-archibald-together\",\"s-archibald-false-alibi\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3731,
-          "completion_tokens": 205,
-          "total_tokens": 3936,
+          "prompt_tokens": 3745,
+          "completion_tokens": 139,
+          "total_tokens": 3884,
           "prompt_tokens_details": {
-            "text_tokens": 3731,
+            "text_tokens": 3745,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 192
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 45042500
+          "cost_in_usd_ticks": 48271500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3731,
-        "completion_tokens": 205,
-        "total_tokens": 3936,
+        "prompt_tokens": 3745,
+        "completion_tokens": 139,
+        "total_tokens": 3884,
         "prompt_tokens_details": {
-          "text_tokens": 3731,
+          "text_tokens": 3745,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 192
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 45042500
+        "cost_in_usd_ticks": 48271500
       },
-      "costUsd": 0.00450425
+      "costUsd": 0.00482715
+    },
+    {
+      "promptHash": "17f5ffdd9994f140",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "39d322e7-5379-9bef-9d95-53a6a8b9a5ae",
+        "object": "chat.completion",
+        "created": 1791456723,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"I WASN'T WITH HER THE WHOLE TIME, BLAST YOU! I slipped out for a quick call on the servants' telephone from thirteen minutes past nine until twenty past, then I was back by twenty-two minutes past nine - I only agreed to her story later to keep things quiet!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"mops his beetroot-red brow frantically with a huge handkerchief while biting clean through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-archibald-false-alibi\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 3800,
+          "completion_tokens": 138,
+          "total_tokens": 3938,
+          "prompt_tokens_details": {
+            "text_tokens": 3800,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 49606000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 3800,
+        "completion_tokens": 138,
+        "total_tokens": 3938,
+        "prompt_tokens_details": {
+          "text_tokens": 3800,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 49606000
+      },
+      "costUsd": 0.004960600000000001
     }
   ]
 }
