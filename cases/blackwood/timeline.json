@@ -710,7 +710,7 @@
   },
   {
     "id": "loc-archibald-2115",
-    "statement": "At 21:15 Archibald is in the kitchen and servants' quarters, on the servants' telephone to his broker.",
+    "statement": "At 21:15 Archibald is in the kitchen and servants' quarters, on the servants' telephone, speaking low and urgently.",
     "category": "location",
     "time": "21:15",
     "locationId": "kitchen",
@@ -797,7 +797,7 @@
   },
   {
     "id": "loc-archibald-2116",
-    "statement": "At 21:16 Archibald is in the kitchen and servants' quarters, on the servants' telephone to his broker.",
+    "statement": "At 21:16 Archibald is in the kitchen and servants' quarters, still on the servants' telephone, speaking low and urgently.",
     "category": "location",
     "time": "21:16",
     "locationId": "kitchen",
@@ -847,7 +847,7 @@
   },
   {
     "id": "loc-archibald-2117",
-    "statement": "At 21:17 Archibald is in the kitchen and servants' quarters, on the servants' telephone to his broker.",
+    "statement": "At 21:17 Archibald is in the kitchen and servants' quarters, hunched over the servants' telephone, keeping his voice down.",
     "category": "location",
     "time": "21:17",
     "locationId": "kitchen",

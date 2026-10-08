@@ -41,7 +41,7 @@
       "Confound it, man,",
       "Bless my soul, not this again.",
       "Steady on, steady on.",
-      "You want it straight? Here it is:",
+      "You want it straight? Fine:",
       "Listen to me, young fellow,"
     ],
     "actions": [
@@ -178,7 +178,6 @@
       },
       "relatedFactIds": [
         "ev-archibald-leaves-dining",
-        "ev-archibald-phone",
         "ev-alibi-pact",
         "ev-archibald-returns",
         "ev-archibald-notices-pantry",

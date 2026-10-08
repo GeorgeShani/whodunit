@@ -1,14 +1,13 @@
 /**
  * Per-character `voice` pools (issue #52: openers, actions, deflections the anti-repetition rotation draws on) in
- * cases/blackwood/characters/*.json. Read straight from JSON so the test does not depend on the schema accepting the
- * field yet; the guilt profile is built from a copy of the case with `voice` stripped.
+ * cases/blackwood/characters/*.json (schema: engine/types.ts VoiceSchema, 146e50b). The pools are read from the JSON as
+ * authored; the validator's own warnings (duplicates, single variants, openers over 6 words) are asserted here too.
  *
  * Every string must be safe to emit in ANY state, so it is checked against the strictest one: a fresh game (every
  * forbiddenPhrases entry live), the guilt check on the dialogue and on the action field, and a bare-yes reading after
  * a spelled-out accusation.
  */
-import { cpSync, mkdtempSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { findForbiddenPhrase } from "@/ai/forbidden-phrases";
@@ -50,15 +49,7 @@ const ACCUSATION = "You went into the library during the blackout and struck him
 
 let profile: GuiltProfile;
 beforeAll(async () => {
-  const tmp = mkdtempSync(join(tmpdir(), "voice-"));
-  cpSync(DIR, join(tmp, "blackwood"), { recursive: true });
-  for (const f of readdirSync(join(tmp, "blackwood/characters"))) {
-    const p = join(tmp, "blackwood/characters", f);
-    const raw = JSON.parse(readFileSync(p, "utf8")) as Record<string, unknown>;
-    delete raw.voice;
-    writeFileSync(p, JSON.stringify(raw));
-  }
-  profile = guiltProfile((await loadCase("blackwood", tmp)) as never);
+  profile = guiltProfile((await loadCase("blackwood")) as never);
 });
 
 describe("blackwood voice pools (#52): shape", () => {
@@ -90,6 +81,17 @@ describe("blackwood voice pools (#52): shape", () => {
         const inter = [...a].filter((w) => b.has(w)).length;
         expect(inter / Math.min(a.size, b.size), `${who}: "${o[i]}" ~ "${o[j]}"`).toBeLessThan(0.5);
       }
+    }
+  });
+
+  it("every opener is at most 6 words, counted as the validator counts (split on whitespace)", () => {
+    for (const who of IDS) for (const o of chars[who].voice.openers) expect(o.split(/\s+/).length, `${who}: "${o}"`).toBeLessThanOrEqual(6);
+  });
+
+  it("every line is 1-160 characters and every list has at most 16 lines (schema limits)", () => {
+    for (const who of IDS) for (const k of POOLS) {
+      expect(chars[who].voice[k].length, `${who}.${k}`).toBeLessThanOrEqual(16);
+      for (const t of chars[who].voice[k]) expect(t.length, `${who}.${k}: ${t}`).toBeLessThanOrEqual(160);
     }
   });
 
