@@ -15,8 +15,10 @@ import { encodeStateToken } from "@/engine/state-token";
 import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
 let c: LoadedCase;
+let base: LoadedCase;
 beforeAll(async () => {
   c = await loadCase("blackwood");
+  base = c;
 });
 
 const fresh = () => ({ caseData: c, game: createInitialGameState(c) });
@@ -220,6 +222,14 @@ describe("#13 era vocabulary post-check", () => {
 });
 
 describe("#23 Victoria's confession turn is performed, not replaced by the canned denial", () => {
+  // Blackwood's murderer never confesses in interrogation (her core-guilt secrets have no revealConditions), so this
+  // engine check runs on a copy that restores the old confession rule.
+  let c: LoadedCase;
+  beforeAll(() => {
+    c = structuredClone(base);
+    const murder = c.characters.find((x) => x.id === "victoria")!.secrets.find((s) => s.id === "s-victoria-murder")!;
+    murder.revealConditions = { stressThreshold: 80, evidenceIds: ["silver-candlestick", "library-key", "burned-letter"], mode: "all", afterSecretIds: ["s-victoria-left-dining", "s-victoria-new-will"] };
+  });
   const CONFESSION = "Darling, that silver candlestick... I struck Edmund with it at a quarter past nine, in the library, to stop him signing that wretched new will.";
   const ready = (stress: number) => {
     const g = createInitialGameState(c);

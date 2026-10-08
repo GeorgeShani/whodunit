@@ -56,14 +56,13 @@ describe("planTurn", () => {
     expect(next.revealSecretId).toBe("s-reginald-overheard");
   });
 
-  it("the murderer's confession needs all three clues plus stress 80 plus prerequisites", () => {
+  it("the murderer never confesses in interrogation: every clue, stress 100 and the prior cracks still reveal no core-guilt secret", () => {
     const g = createInitialGameState(c);
     const v = g.characters.victoria;
     v.stress = 100;
-    v.evidenceShownIds = ["silver-candlestick", "library-key", "burned-letter"];
-    expect(planTurn(c, g, "victoria").revealSecretId).not.toBe("s-victoria-murder");
+    v.evidenceShownIds = ["silver-candlestick", "library-key", "burned-letter", "muddy-footprint"];
     v.revealedSecretIds = ["s-victoria-left-dining", "s-victoria-new-will"];
-    expect(planTurn(c, g, "victoria").revealSecretId).toBe("s-victoria-murder");
+    expect(planTurn(c, g, "victoria").revealSecretId).toBeNull();
   });
 });
 
