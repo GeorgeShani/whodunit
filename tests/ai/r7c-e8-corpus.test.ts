@@ -33,10 +33,6 @@ const KNOWN = new Set<string>([
   "B2|Gregory told me her ladyship came out of the library in the lightning.",
   "B2|The gardener swears it was her ladyship at the door.",
   "P9b|Gregory saw her ladyship come out of the library, I'm told.",
-  // R8 true discovery-scene lines.
-  "E2|Her ladyship came into the library with us when the door was forced, sir, in the dark.",
-  "E2|Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.",
-  "E2|Her ladyship was in the library by candlelight when we found his lordship dead, sir.",
 ]);
 
 describe("r7c E8 corpus (engine layer alone)", async () => {

@@ -216,8 +216,9 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     if (weapon && hit(s, weapon)) return { kind: "weapon", text: s };
     if (hit(s, lockDoor) || hit(s, key) || hit(s, lockBare)) return { kind: "key", text: s };
     if (objects && hit(s, objects)) return { kind: "object", text: s };
-    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || DARK.test(s) || DEAD.test(s) || anchored(s))) return { kind: "scene", text: s };
-    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || DARK.test(s) || DEAD.test(s) || anchored(s))) return { kind: "scene", text: s };
+    const darkOrDead = (DARK.test(s) || DEAD.test(s)) && !atDiscovery(s, profile);
+    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || darkOrDead || anchored(s))) return { kind: "scene", text: s };
+    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || darkOrDead || anchored(s))) return { kind: "scene", text: s };
     const minutes = inWindowStrict(s);
     if (minutes.length && hit(s, actor) && !alibi(s, minutes)) return { kind: "window", text: s };
   }
@@ -234,6 +235,30 @@ const ANCHOR = /\b(after|once|when|while|as\s+soon\s+as|by\s+the\s+time|before|u
  * events count, and ALL of them must agree, so an anchor that could name an event outside the window (or none) is
  * ambiguous and is not a leak: "before the scream" (after the window) and an exit with no anchor at all both pass.
  */
+/**
+ * R8 / E15d: the sentence is about the discovery of the body, after the window: "when we found him", "after I forced
+ * the door", "the body was found", "with the rest of us", or an after/when/once anchor whose best-matching timed events
+ * all start after the window. "In the dark" or "he was dead" in such a line describes the discovery scene, not the
+ * killing. A discovery phrase under "before / until" ("before anyone found him") does not count.
+ */
+const DISCOVERY =
+  /\b(?:(?:we|they|I|you|everyone|everybody|he|she|the\s+others)\s+(?:found|discovered|forced|broke\s+(?:down|open|in))|(?:was|were|been)\s+(?:found|discovered|forced|broken\s+(?:down|open))|found\s+(?:him|her|the\s+body|his\s+lordship|her\s+ladyship)|forced\s+(?:the|that|his|her)\s+door|with\s+(?:us|the\s+rest\s+of\s+us|the\s+others|everyone|everybody|all\s+of\s+us))\b/i;
+export function atDiscovery(sentence: string, profile: Pick<GuiltProfile, "anchorEvents" | "window">): boolean {
+  for (const m of sentence.matchAll(new RegExp(DISCOVERY.source, "gi"))) {
+    if (!/\b(?:before|until|till|ere)\b[^,.;:!?]*$/i.test(sentence.slice(0, m.index ?? 0))) return true;
+  }
+  const events = profile.anchorEvents ?? [];
+  const hi = profile.window[1];
+  for (const m of sentence.matchAll(ANCHOR)) {
+    if (/^(?:before|until|till|by\s+the\s+time)$/i.test(m[1]!.replace(/\s+/g, " "))) continue;
+    const said = [...contentWords(m[2]!)];
+    const scored = events.map((e) => ({ e, n: e.words.filter((w) => said.some((x) => sameWord(x, w))).length }));
+    const best = Math.max(0, ...scored.map((x) => x.n));
+    if (best >= 1 && scored.filter((x) => x.n === best).every((x) => x.e.range[0] > hi)) return true;
+  }
+  return false;
+}
+
 export function windowAnchor(sentence: string, profile: Pick<GuiltProfile, "anchorEvents" | "window">): boolean {
   const events = profile.anchorEvents ?? [];
   if (!events.length) return false;
@@ -252,7 +277,6 @@ export function windowAnchor(sentence: string, profile: Pick<GuiltProfile, "anch
   return false;
 }
 
-/** E8: words anywhere in a sentence that make a third-person claim a suspicion, a report or a hypothetical. */
 /**
  * R10: hedges are structural. A hedge exempts a third-person claim only when it governs the claim's own clause: it
  * stands in the same clause BEFORE the subject ("I think / perhaps / I'd say / if / whether X did..."), or a modal
@@ -337,7 +361,7 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       "scene",
       "scene",
       new RegExp(`${S}${g}\\b(?:${MOVE}|left|came\\s+out\\s+of|stepped\\s+out\\s+of|slipped\\s+out\\s+of)\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i"),
-      (s) => inWindow(s) || DARK.test(s) || DEAD.test(s) || windowAnchor(s, profile),
+      (s) => inWindow(s) || ((DARK.test(s) || DEAD.test(s)) && !atDiscovery(s, profile)) || windowAnchor(s, profile),
     ]);
   /** A match counts unless its own clause, before the subject, holds a hedge or a negated frame (R10, E15a). */
   const hitOver = (s: string, re: RegExp) => {
