@@ -57,6 +57,10 @@ cases/<caseId>/
   "intro": "Para one.\n\nPara two.",     // intro screen
   "dayStartsAt": "12:00",               // optional
   "knowledgeGate": "proximity",         // optional: "proximity" (default) | "explicit"; see "Knowledge gate" below
+  "guiltCheck": {                       // optional, server-only (C3): the guilt check's single-word name tokens
+    "ignoreNameTokens": ["barnacle"],    //   words of multi-word names that must NOT count alone (lower-case)
+    "keepNameTokens": ["brine"]          //   stoplisted ordinary words that SHOULD count alone (e.g. a surname)
+  },
   "victim": {                           // PUBLIC
     "id": "lord-blackwood", "name": "…", "description": "…",
     "aliases": ["his lordship"],        // optional; how people refer to them (canon check subject matching)
@@ -307,6 +311,8 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 
 1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower or a listed lie is broken. Nothing else applies to that fact.
 2. **Direct links** (both modes): an unbroken lie's `aboutFactId` and a locked own secret's `relatedFactIds`.
+**Guilt-check name tokens (C3).** The guilt check matches every name in full and, for multi-word names (victim name and aliases, location names, a witness's first name), each word of 4+ letters alone too, except ordinary English words in the generic stoplist (`engine/name-tokens.ts`: "king", "deck", "brine", "marmalade", "room", "captain", ...). The weapon's head noun always counts. `guiltCheck.ignoreNameTokens` drops more words, `keepNameTokens` restores a stoplisted one; `validate:case` errors on a word in both lists and warns about a word that is no word of any multi-word name.
+
 3. **Proximity heuristic** (`"knowledgeGate": "proximity"`, the default): the character's own time-bound facts that fall within a padded window around a protected time are withheld too. `"knowledgeGate": "explicit"` turns this off, so only layers 1 and 2 apply.
 
 ## solution.json (server-only)

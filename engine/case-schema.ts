@@ -94,6 +94,18 @@ export const CaseEnvelopeSchema = z.strictObject({
    * "explicit": direct links only, no window heuristic. In both modes a fact with `hiddenUntil` follows only its own rule.
    */
   knowledgeGate: z.enum(["explicit", "proximity"]).default("proximity"),
+  /**
+   * C3 (optional, SERVER-ONLY): tuning for the guilt check's single-word name tokens. A multi-word name ("the Marmalade
+   * King", "Boat Deck") is matched in full and, by default, by its words too, minus a generic stoplist of ordinary
+   * English words (engine/name-tokens.ts). `ignoreNameTokens` drops more words; `keepNameTokens` puts a stoplisted
+   * word back (e.g. a surname that is also a common word). Lower-case single words.
+   */
+  guiltCheck: z
+    .strictObject({
+      ignoreNameTokens: z.array(z.string().regex(/^[a-z][a-z'’-]*$/, "a lower-case single word")).optional(),
+      keepNameTokens: z.array(z.string().regex(/^[a-z][a-z'’-]*$/, "a lower-case single word")).optional(),
+    })
+    .optional(),
   /** Progression (optional): open questions the player works through. Omitted: no leads. */
   leads: z.array(LeadSchema).optional(),
   /** Progression (optional): when ACCUSE unlocks. Omitted: today's behaviour (a single clue is enough). */

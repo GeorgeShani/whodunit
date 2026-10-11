@@ -17,6 +17,7 @@
  * facts it covers (relatedFactIds) out of the owner's prompt even if another
  * revealed secret also lists them (engine/knowledge-gate.ts).
  */
+import { keepNameToken } from "./name-tokens";
 import type { LoadedCase } from "./case-schema";
 import { gameMinutes } from "./time";
 import type { Character, Fact, Secret } from "./types";
@@ -107,18 +108,22 @@ const clock = (t: string) => {
   return h * 60 + m;
 };
 
-export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidence" | "locations" | "solution">): GuiltProfile {
+export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidence" | "locations" | "solution"> & Partial<Pick<LoadedCase, "guiltCheck">>): GuiltProfile {
   const sol = c.solution;
-  const nouns = (name: string) => {
+  // C3: a single word split from a multi-word name only counts if it is not an ordinary word (engine/name-tokens.ts).
+  const token = (w: string) => keepNameToken(w, c.guiltCheck ?? {});
+  const nouns = (name: string, head = false) => {
     const full = name.toLowerCase().replace(/^(the|a|an)\s+/, "").trim();
     const last = full.split(/\s+/).pop() ?? full;
-    return [...new Set([full, ...(last.length >= 4 ? [last] : [])])];
+    // `head`: the weapon's head noun ("candlestick") is the point of the weapon rule and always counts.
+    return [...new Set([full, ...(last.length >= 4 && last !== full && (head || token(last)) ? [last] : [])])];
   };
   const weapon = c.evidence.find((e) => e.id === sol.weaponId);
   const scene = c.locations.find((l) => l.id === sol.locationId);
   const victimNames = [c.victim.name, ...c.victim.aliases].flatMap((n) => {
     const full = n.toLowerCase().trim();
-    const parts = full.split(/\s+/).filter((w) => w.length >= 4 && !/^(lord|lady|sir|his|her|mrs?|miss|lordship|ladyship)$/.test(w));
+    const words = full.split(/\s+/);
+    const parts = words.length > 1 ? words.filter((w) => w.length >= 4 && !/^(lord|lady|sir|his|her|mrs?|miss|lordship|ladyship)$/.test(w) && token(w)) : [];
     return [full, ...parts];
   });
   let lo = clock(sol.time);
@@ -175,7 +180,8 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     for (const ch of c.characters) {
       if (ch.id === murderer.id || !ch.secrets.some((s) => s.relatedFactIds.some((f) => facts.has(f)))) continue;
       const role = (ch as { role?: string }).role;
-      for (const n of [ch.name, ch.name.split(/\s+/)[0], ...(ch.aliases ?? []), ...(role ? [role] : [])]) {
+      const first = ch.name.split(/\s+/)[0];
+      for (const n of [ch.name, ...(first !== ch.name && token(first.toLowerCase()) ? [first] : []), ...(ch.aliases ?? []), ...(role ? [role] : [])]) {
         const v = n.toLowerCase().replace(/^(the|a|an)\s+/, "").trim();
         if (v.length >= 3) witnessNames.add(v);
       }
@@ -189,7 +195,7 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     motiveActs: [...motiveActs],
     murdererId: sol.murdererId,
     victimNames: [...new Set(victimNames)],
-    weaponNames: weapon ? nouns(weapon.name) : [],
+    weaponNames: weapon ? nouns(weapon.name, true) : [],
     sceneNames: scene ? nouns(scene.name) : [],
     window: [lo, hi],
     coreObjects: [...coreObjects],
