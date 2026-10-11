@@ -1,9 +1,10 @@
 /**
  * Confrontation caps per case (case.json `confrontation`, optional) and the "N left" counter. Dependency-free so the
- * client can import it. The global constants are the defaults and also the hard ceilings (each exchange costs two
- * model calls): a case may lower them, never raise them.
+ * client can import it. Defaults: MAX_CONFRONTATION_TURNS (6) per pair, MAX_CONFRONTATION_TOTAL (12) per game. A case
+ * may set 1..6 per pair and 1..MAX_CASE_CONFRONTATION_TOTAL (20) per game; the per-IP and daily model caps stay the
+ * cost guard.
  */
-import { MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
+import { MAX_CASE_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 
 export interface ConfrontationCaps {
   /** Exchanges one pair may have, ever. */
@@ -14,9 +15,9 @@ export interface ConfrontationCaps {
 
 export const DEFAULT_CONFRONTATION_CAPS: ConfrontationCaps = { perPair: MAX_CONFRONTATION_TURNS, total: MAX_CONFRONTATION_TOTAL };
 
-/** The case's caps (defaults for what it leaves out; a per-pair cap above the total is clamped to it). */
+/** The case's caps (defaults for what it leaves out; a per-pair cap above the total is clamped to it, and validate:case warns). */
 export function confrontationCaps(c?: { confrontation?: { perPair?: number | undefined; total?: number | undefined } | undefined }): ConfrontationCaps {
-  const total = Math.min(c?.confrontation?.total ?? MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TOTAL);
+  const total = Math.min(c?.confrontation?.total ?? MAX_CONFRONTATION_TOTAL, MAX_CASE_CONFRONTATION_TOTAL);
   return { perPair: Math.min(c?.confrontation?.perPair ?? MAX_CONFRONTATION_TURNS, MAX_CONFRONTATION_TURNS, total), total };
 }
 

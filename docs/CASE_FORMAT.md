@@ -88,13 +88,14 @@ cases/<caseId>/
   "howToPlayTips": [                    // optional, PUBLIC: 1–8 tips, 1–200 chars each (How to Play → "Tips for this case")
     "Spoiler-free advice for this case only, e.g. how its clock or its house works."
   ],
-  "confrontation": { "perPair": 6, "total": 12 }   // optional: confrontation caps (defaults shown; may only be lowered)
+  "confrontation": { "perPair": 6, "total": 12 }   // optional: confrontation caps (defaults shown; perPair 1–6, total 1–20)
 }
 ```
 
 ### Confrontation caps (optional)
 
-- **`confrontation.perPair`** (1–6): exchanges one pair of suspects may have; **`confrontation.total`** (1–12): exchanges in the whole game, across every pair. Omitted: 6 and 12. The global constants are hard ceilings (each exchange costs two model calls), so a case can lower them but not raise them; a per-pair cap above the total is clamped to it.
+- **`confrontation.perPair`** (1–6): exchanges one pair of suspects may have; **`confrontation.total`** (1–20): exchanges in the whole game, across every pair. Omitted: 6 and 12. Example: `{ "perPair": 4, "total": 16 }`. Each exchange costs two model calls; the per-IP and daily model caps remain the cost guard.
+- `perPair` greater than `total` (or than the default 12 when `total` is omitted) is a `validate:case` **warning**: the engine clamps the per-pair cap to the total.
 - The confrontation screen's "N left" is whichever runs out first, shown from the first look at a pair.
 
 ### How to Play tips (optional)
@@ -444,4 +445,5 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
 - secrets used as testimony without a `testimonySummary`;
 - `hiddenUntil` on a fact nobody knows, or pointing at a secret that can never be revealed;
 - `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere;
-- `howToPlayTips` that repeat each other or mention the culprit's name, the weapon or the true motive.
+- `howToPlayTips` that repeat each other or mention the culprit's name, the weapon or the true motive;
+- `confrontation.perPair` greater than `confrontation.total` (or than the default 12 when `total` is omitted): the engine clamps it to the total.

@@ -9,7 +9,9 @@ import { handleConfront } from "@/ai/confront-handler";
 import { ConfrontScreen } from "@/components/confront/ConfrontScreen";
 import { loadCase } from "@/engine/case-loader";
 import { CaseEnvelopeSchema, type LoadedCase } from "@/engine/case-schema";
+import { checkCaseWarnings, confrontationCapWarnings } from "@/engine/case-validation";
 import { confrontCounter, confrontLeft, confrontationCaps, DEFAULT_CONFRONTATION_CAPS } from "@/engine/confront-caps";
+import { MAX_CASE_CONFRONTATION_TOTAL } from "@/engine/constants";
 import { MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS, openConfrontation, pairKey, spendExchange } from "@/engine/confrontation";
 import { createInitialGameState } from "@/engine/game-state";
 import { confrontProgress, publicProgress } from "@/engine/progress";
@@ -30,10 +32,13 @@ describe("caps from case data", () => {
     expect(confrontationCaps({ confrontation: { perPair: 3 } })).toEqual({ perPair: 3, total: MAX_CONFRONTATION_TOTAL });
     expect(confrontationCaps({ confrontation: { total: 4 } })).toEqual({ perPair: 4, total: 4 });
     expect(confrontationCaps({ confrontation: { perPair: 5, total: 2 } })).toEqual({ perPair: 2, total: 2 });
+    // Case two (George): 4 per pair, 16 in the game, above the default 12.
+    expect(confrontationCaps({ confrontation: { perPair: 4, total: 16 } })).toEqual({ perPair: 4, total: 16 });
+    expect(confrontationCaps({ confrontation: { total: 20 } })).toEqual({ perPair: 6, total: 20 });
     expect(DEFAULT_CONFRONTATION_CAPS).toEqual({ perPair: 6, total: 12 });
   });
 
-  it("schema: optional; 1..6 per pair and 1..12 in total (the constants are hard ceilings), strict keys", () => {
+  it("schema: optional; 1..6 per pair and 1..20 in total, strict keys", () => {
     const env: Record<string, unknown> = { ...c };
     for (const k of ["timeline", "evidence", "characters", "solution", "endings"]) delete env[k];
     const ok = (confrontation: unknown) => CaseEnvelopeSchema.safeParse({ ...env, confrontation }).success;
@@ -41,10 +46,36 @@ describe("caps from case data", () => {
     expect(ok({ perPair: 3, total: 8 })).toBe(true);
     expect(ok({})).toBe(true);
     expect(ok({ perPair: 7 })).toBe(false);
-    expect(ok({ total: 13 })).toBe(false);
+    expect(MAX_CASE_CONFRONTATION_TOTAL).toBe(20);
+    expect(ok({ perPair: 4, total: 16 })).toBe(true);
+    expect(ok({ total: 13 })).toBe(true);
+    expect(ok({ total: 20 })).toBe(true);
+    expect(ok({ total: 21 })).toBe(false);
+    expect(ok({ total: 0 })).toBe(false);
     expect(ok({ perPair: 0 })).toBe(false);
     expect(ok({ perPair: 2.5 })).toBe(false);
     expect(ok({ perpair: 3 })).toBe(false);
+  });
+});
+
+describe("validate:case: perPair above total is a warning, not an error", () => {
+  it("warns when perPair > total (or > the default 12 when total is omitted); silent otherwise", () => {
+    expect(confrontationCapWarnings({ confrontation: { perPair: 5, total: 3 } })).toEqual([
+      { file: "case.json", path: "confrontation.perPair", message: "perPair 5 is greater than total 3; a pair can only ever get 3" },
+    ]);
+    expect(confrontationCapWarnings({ confrontation: { perPair: 4, total: 16 } })).toEqual([]);
+    expect(confrontationCapWarnings({ confrontation: { perPair: 4, total: 4 } })).toEqual([]);
+    expect(confrontationCapWarnings({ confrontation: { total: 2 } })).toEqual([]); // perPair defaulted: nothing authored to warn about
+    expect(confrontationCapWarnings({})).toEqual([]);
+    expect(confrontationCapWarnings(c)).toEqual([]); // Blackwood sets nothing
+  });
+
+  it("the full validator reports it as a warning and the case still parses", { timeout: 30_000 }, () => {
+    const env: Record<string, unknown> = { ...c, confrontation: { perPair: 6, total: 2 } };
+    for (const k of ["timeline", "evidence", "characters", "solution", "endings"]) delete env[k];
+    expect(CaseEnvelopeSchema.safeParse(env).success).toBe(true);
+    const w = checkCaseWarnings({ ...c, confrontation: { perPair: 6, total: 2 } }).filter((x) => x.path === "confrontation.perPair");
+    expect(w).toHaveLength(1);
   });
 });
 
@@ -59,6 +90,20 @@ describe("confrontLeft: min(per-pair remaining, game-wide remaining), before the
     expect(confrontLeft(p, VA)).toBe(2); // min(6-4, 12-10)
     expect(confrontLeft(p, VR)).toBe(0); // finished
     expect(confrontLeft(confrontProgress(c, createInitialGameState(c)), GR)).toBe(6);
+  });
+
+  it("case two's caps (4 per pair, 16 in total): 16 is reachable, beyond the default 12", () => {
+    const two = { ...c, confrontation: { perPair: 4, total: 16 } };
+    const g = createInitialGameState(c);
+    expect(confrontLeft(confrontProgress(two, g), GR)).toBe(4);
+    g.pairTurns = { [VR]: 4, [VA]: 4, [pairKey("gregory", "archibald")]: 4, [pairKey("victoria", "gregory")]: 2 };
+    g.confrontedPairs = [VR, VA, pairKey("gregory", "archibald")];
+    expect(confrontLeft(confrontProgress(two, g), GR)).toBe(2); // 14 of 16 spent
+    const caps = confrontationCaps(two);
+    expect(openConfrontation(g, "gregory", "reginald", caps).ok).toBe(true);
+    expect(spendExchange(g, caps)).toEqual({ turnsUsed: 1, over: false, totalLeft: 1 });
+    expect(spendExchange(g, caps)).toEqual({ turnsUsed: 2, over: true, totalLeft: 0 });
+    expect(openConfrontation(g, "archibald", "reginald", caps)).toEqual({ ok: false, reason: "limit_reached" });
   });
 
   it("uses the case's caps", () => {
