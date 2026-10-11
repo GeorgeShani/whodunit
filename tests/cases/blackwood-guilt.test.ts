@@ -280,7 +280,8 @@ describe("testimony-triggered reveals (revealConditions.testimonyIds)", () => {
     expect(testimony).toEqual({
       "s-victoria-left-dining": ["s-archibald-false-alibi", "s-reginald-theft"],
       "s-victoria-new-will": ["s-reginald-overheard"],
-      "s-archibald-false-alibi": ["s-reginald-theft"],
+      // r7 M1: the cards that break his "together" story also crack the false alibi it covers
+      "s-archibald-false-alibi": ["s-gregory-saw-victoria", "s-reginald-theft", "s-victoria-left-dining"],
     });
     // Every such card also breaks a lie the secret supersedes (so the crack is a real contradiction, not a free reveal).
     for (const ch of c.characters) for (const s of ch.secrets) for (const card of s.revealConditions?.testimonyIds ?? []) {

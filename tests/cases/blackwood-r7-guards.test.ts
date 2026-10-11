@@ -5,39 +5,18 @@
  * Findings: cases/blackwood/docs/CONSISTENCY_AUDIT.md CA-27 onward.
  */
 import { beforeAll, describe, expect, it } from "vitest";
-import { checkReply } from "@/ai/guard";
-import { prepareTurn } from "@/ai/perform-turn";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
-import { createInitialGameState } from "@/engine/game-state";
+import { R7_ALL_EVIDENCE, R7_INNOCENT_SECRETS, r7Verdict, type R7Spec } from "../helpers/r7-guard";
 
 let c: LoadedCase;
 beforeAll(async () => {
   c = await loadCase("blackwood");
 });
-
-type Spec = { rev?: [string, string][]; ev?: string[]; shown?: Record<string, string[]> };
-export function verdict(ch: string, line: string, s: Spec = {}, q = "What do you make of it?") {
-  const g = createInitialGameState(c);
-  g.discoveredEvidenceIds.push(...(s.ev ?? []));
-  for (const [o, id] of s.rev ?? []) {
-    g.revealedSecretIds.push(id);
-    g.characters[o].revealedSecretIds.push(id);
-  }
-  for (const [o, v] of Object.entries(s.shown ?? {})) g.characters[o].evidenceShownIds.push(...v);
-  const p = prepareTurn({ caseData: c, game: g, characterId: ch, question: q, move: { allowReveal: false } as never });
-  return checkReply({ dialogue: line, admits: [] }, p.guard);
-}
+const verdict = (ch: string, line: string, s: R7Spec = {}, q?: string) => r7Verdict(c, ch, line, s, q);
 const INNOCENTS = ["reginald", "archibald", "gregory"] as const;
-const ALL_OUT: [string, string][] = [
-  ["reginald", "s-reginald-theft"],
-  ["reginald", "s-reginald-overheard"],
-  ["archibald", "s-archibald-false-alibi"],
-  ["archibald", "s-archibald-embezzlement"],
-  ["gregory", "s-gregory-in-hall"],
-  ["gregory", "s-gregory-saw-victoria"],
-];
-const ALL_EV = { ev: ["silver-candlestick", "library-key", "burned-letter", "muddy-footprint"] };
+const ALL_OUT = R7_INNOCENT_SECRETS;
+const ALL_EV = { ev: R7_ALL_EVIDENCE };
 
 describe("CA-27 (r7 H1): innocents never name Victoria as the killer or invent what only the killer did", () => {
   const fresh = [

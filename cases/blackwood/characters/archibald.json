@@ -172,7 +172,9 @@
           "library-key"
         ],
         "testimonyIds": [
-          "s-reginald-theft"
+          "s-reginald-theft",
+          "s-victoria-left-dining",
+          "s-gregory-saw-victoria"
         ],
         "mode": "any"
       },
@@ -460,6 +462,22 @@
       "text": "(?:\\b(?:when|as|once)\\s+the\\s+(?:lights?\\s+went\\s+out|blackout\\s+(?:came|struck|hit))\\b[^.!?]{0,40}?\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)\\s+(?:wasn['’]?t|was\\s+not|weren['’]?t|was\\s+nowhere)\\b|\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)\\s+(?:wasn['’]?t|was\\s+not|was\\s+nowhere)\\s+(?:in\\s+the\\s+dining[-\\s]room|by\\s+the\\s+fire|at\\s+the\\s+table|near\\s+the\\s+fire)\\b[^.!?]{0,30}?\\b(?:when|as)\\s+the\\s+lights?\\s+went\\s+out\\b)(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7-H1i] Gremlin r7 H1: 'when the lights went out she wasn't in the dining room' (false: Reginald lit the candles at 21:11 with her at the table)."
+    },
+    {
+      "text": "(?<!\\b(?:scream|screamed|screaming|shout|shouted|forced|shouldered|burst|half\\s+past\\s+nine)\\b[^.!?]{0,80})\\bI\\b[^.!?]{0,40}?\\b(?:went|walked|stepped|nipped|popped|slipped|tried|knocked|came|got)\\b[^.!?]{0,30}?\\b(?:to|at|along\\s+to|up\\s+to|round\\s+to|into)\\s+(?:the\\s+|his\\s+|Edmund['’]s\\s+)?library(?:\\s+door)?\\b(?![^.!?]*\\b(?:scream|screamed|screaming|shouted|forced|shouldered|burst|broke|half\\s+past\\s+nine|21[:.]3\\d|found\\s+him|the\\s+body)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M1a] Gremlin r7 M1: Archibald inventing a visit to the library (or its locked door) during the evening. He reached the library door only at 21:30-21:31, after the scream, and that stays sayable."
+    },
+    {
+      "text": "\\bI\\b[^.!?]{0,40}?\\b(?:went|walked|stepped|nipped|popped|slipped|was|sat|stayed|waited)\\b[^.!?]{0,20}?\\b(?:up\\s+to\\s+my\\s+room|to\\s+my\\s+room|in\\s+my\\s+room|upstairs|out\\s+(?:onto|on\\s+to|into)\\s+the\\s+(?:garden|lawn|grounds|drive)|outside\\s+for\\s+(?:a\\s+)?(?:cigar|smoke|air))\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M1b] Gremlin r7 M1: Archibald inventing where he went (his room, upstairs, outside for a cigar). His only absence was the servants' telephone, 21:13-21:22."
+    },
+    {
+      "text": "(?:\\bI\\s+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may|must)\\b)[\\w'’]+[\\s,]+){0,2}?(?:left|stepped\\s+out|slipped\\s+out|nipped\\s+out|popped\\s+out|went\\s+out)\\b[^.!?]{0,40}?\\b(?:dining[-\\s]room|few\\s+minutes|a\\s+minute|a\\s+moment|briefly|brandy|Victoria\\s+(?:was\\s+)?alone)\\b|\\b(?:went|go|gone|going)\\s+(?:to\\s+)?(?:fetch|find|get)\\s+(?:the|some|a)\\s+brandy\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "unlessRevealed": "s-archibald-false-alibi",
+      "note": "[r7-M1c] Gremlin r7 M1: before his false alibi is out, Archibald admits nothing about leaving the dining room (nor the brandy errand he gave as his excuse)."
     }
   ],
   "initialEmotion": {
