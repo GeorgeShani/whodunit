@@ -68,7 +68,7 @@ Victoria's alibi is: *"Archibald and I sat by the dining-room fire from the mome
 |---|---|---|---|
 | Reginald | `s-reginald-theft` | `burned-letter` (the solicitor's line about the butler) | Skimming the accounts. He spent the blackout counting cash in the pantry, heard Mr Crane on the servants' telephone 21:15–21:20 and called out to him at 21:18 (`ev-reginald-hears-phone`, `ev-pantry-exchange`). |
 | Reginald | `s-reginald-overheard` | `burned-letter`, **after** `s-reginald-theft` | The 20:54 quarrel: "Ten o'clock tomorrow… not a penny more" (`ev-reginald-overhears`). |
-| Archibald | `s-archibald-false-alibi` | `library-key` (found in "his" dining room) **or** Reginald's theft card (`testimonyIds`: he heard Crane on the telephone) | He left at 21:13 for the telephone (`ev-archibald-leaves-dining`, `loc-archibald-2113`–`2122`: on the servants' telephone, speaking low and urgently). What the call was about (`ev-archibald-phone`, the broker) is linked only to `s-archibald-embezzlement`. **Victoria asked him to say they were together** (`ev-alibi-pact`). |
+| Archibald | `s-archibald-false-alibi` | `library-key` (found in "his" dining room) or, since r7b (CA-44), `burned-letter` (it already broke his "together" lie) **or** Reginald's theft card (`testimonyIds`: he heard Crane on the telephone) | He left at 21:13 for the telephone (`ev-archibald-leaves-dining`, `loc-archibald-2113`–`2122`: on the servants' telephone, speaking low and urgently). What the call was about (`ev-archibald-phone`, the broker) is linked only to `s-archibald-embezzlement`. **Victoria asked him to say they were together** (`ev-alibi-pact`). |
 | Archibald | `s-archibald-embezzlement` | `library-key`, **after** `s-archibald-false-alibi` | Moving the embezzled money before midnight (`f-archibald-embezzlement`). |
 | Gregory | `s-gregory-in-hall` | `muddy-footprint` | In the hall alcove from just after the quarter chime. Heard the thud and saw the light under the door dim (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`). |
 | Gregory | `s-gregory-saw-victoria` | `library-key`, **after** `s-gregory-in-hall` | **Lady Victoria** stepped out, locked the door, pocketed the key and went to the dining room (`ev-gregory-sees-victoria`, `ev-victoria-locks-door`). |
@@ -439,6 +439,7 @@ The full leak-path audit (every reveal and break path, the worst admission the m
   - `s-victoria-new-will` ← `s-reginald-overheard`;
   - `s-archibald-false-alibi` ← `s-reginald-theft`, and since r7 (CA-28) also `s-victoria-left-dining` and `s-gregory-saw-victoria`, the two cards that break his "together" lie.
   - `s-reginald-theft` ← `s-archibald-false-alibi` (CA-28, Marvin): his telephone card breaks Reginald's "heard nothing".
+  - r7b (CA-44): `s-archibald-false-alibi.revealConditions.evidenceIds` = `library-key`, `burned-letter`. Both clues break `l-archibald-together`, so neither leaves the lie exposed with the truth locked.
 
   Each card also breaks a lie that the secret supersedes. No card can reveal a core-guilt secret. The fastest legal path is still 10.
 
@@ -446,7 +447,8 @@ The proof (§5) is unchanged: it never used a broken lie as a step. The validato
 
 ## r7 additions (Gremlin's offline review, `CONSISTENCY_AUDIT.md` §7)
 
-- Police: Reginald telephoned the police from the servants' telephone at 21:38 (`ev-reginald-telephones-police`). `ev-household-waits` says so too. Nobody can get through the flood before morning.
+- Police: Reginald telephoned the police from the servants' telephone at 21:38 (`ev-reginald-telephones-police`). Every suspect knows that event (r7b, CA-46). `ev-household-waits` (21:45) no longer restates the call, so a spoken time for the call binds to 21:38 only. Nobody can get through the flood before morning.
+- r7b (CA-45): Reginald no longer holds `f-archibald-embezzlement` as a fact. He knows only what he heard: his lordship's accusation at dinner (`ev-archibald-threat`) and, after his theft is out, Mr Crane's voice "moving it all before midnight".
 - Household: `f-household-tonight`, known by all four, says the only people in the house are Lord Blackwood, Victoria, Archibald, Reginald and Gregory. There are no other servants.
 - `f-reginald-saw-no-one` is scoped to 21:13–21:30 ("did not see Victoria at all in that time"). He did see her at 20:54, 20:57 and 21:11.
 - The new-will reveal admits the burning but never when. The 21:20 timing stays core guilt (`ev-letter-burned` in `s-victoria-murder`).

@@ -301,7 +301,7 @@
     {
       "id": "lead-fireplace",
       "title": "Where does the candlestick live?",
-      "hint": "The candlestick is one of a pair from the dining table, and its twin is still there. Somebody carried one away tonight. Perhaps the dining room kept something else of theirs, and fires keep their own counsel, but not for ever.",
+      "hint": "The candlestick is one of a pair from the dining table, and its twin is still there. Somebody carried one away tonight. Perhaps the dining room is keeping something else tonight, and fires keep their own counsel, but not for ever.",
       "opensWhen": {
         "mode": "all",
         "evidenceIds": [
