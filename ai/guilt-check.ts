@@ -20,6 +20,7 @@
  * retry in ai/grok.ts), then falls back to a canned in-character deflection. No extra model call.
  */
 import type { CulpritAct, GuiltProfile } from "@/engine/core-guilt";
+import { contentWords, sameWord } from "@/engine/memory";
 import { extractTimes } from "./canon-check";
 
 const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -139,6 +140,7 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     if (!places.length || places.some((p) => profile.sceneNames.length && p === profile.sceneNames[0])) return false;
     return minutes.every((m) => !places.some((p) => (profile.coreWhereabouts?.[m] ?? []).includes(p)));
   };
+  const anchored = (s: string) => windowAnchor(s, profile);
   const whileAway = /\bwhile\b[^.!?;]{0,40}\b(?:away|gone|out|off|telephon\w*|on\s+the\s+(?:tele)?phone)\b|\b(?:after|once|when)\s+\w+(?:\s+\w+)?\s+(?:left|had\s+gone|went\s+out|went\s+off|had\s+left|stepped\s+out|was\s+called\s+away|was\s+gone)\b/i;
   // "Passive" and possessive admissions about oneself: "he was struck by me", "the deed was mine", "by my own hand".
   const KILL_PP = String.raw`(?:killed|murdered|struck(?:\s+down)?|hit|bludgeoned|clubbed|bashed|brained|coshed|smashed|silenced|done\s+in|finished\s+off)`;
@@ -201,7 +203,7 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
       if (hit(s, neverMeant) || (selfDefence.test(s) && !/\b(?:not|never|no)\s+(?:\w+\s+){0,2}?self/i.test(s) && /\b(?:I|my|me|it\s+was)\b/i.test(s))) return { kind: "confession", text: s };
       if (cameAtMe.test(s) || hit(s, watchedFall) || bloodOnMe.test(s) || (weaponInHand && weaponInHand.test(s) && !/\b(?:never|not|no)\b/i.test(s)) || hit(s, wipedClean) || deadWhenI.test(s))
         return { kind: "confession", text: s };
-      if (leftScene && hit(s, leftScene) && (DARK.test(s) || LIGHTNING.test(s) || whileAway.test(s) || inWindowStrict(s).length > 0)) return { kind: "scene", text: s };
+      if (leftScene && hit(s, leftScene) && (DARK.test(s) || LIGHTNING.test(s) || whileAway.test(s) || inWindowStrict(s).length > 0 || anchored(s))) return { kind: "scene", text: s };
       if (sawMe && sawMe.test(s) && !/\b(?:never|not|couldn['’]?t|didn['’]?t|can['’]?t)\b/i.test(s)) return { kind: "confession", text: s };
       if (motive && hit(s, motive)) return { kind: "confession", text: s };
     }
@@ -211,12 +213,40 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     if (weapon && hit(s, weapon)) return { kind: "weapon", text: s };
     if (hit(s, lockDoor) || hit(s, key) || hit(s, lockBare)) return { kind: "key", text: s };
     if (objects && hit(s, objects)) return { kind: "object", text: s };
-    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || DARK.test(s) || DEAD.test(s))) return { kind: "scene", text: s };
-    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || DARK.test(s) || DEAD.test(s))) return { kind: "scene", text: s };
+    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || DARK.test(s) || DEAD.test(s) || anchored(s))) return { kind: "scene", text: s };
+    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || DARK.test(s) || DEAD.test(s) || anchored(s))) return { kind: "scene", text: s };
     const minutes = inWindowStrict(s);
     if (minutes.length && hit(s, actor) && !alibi(s, minutes)) return { kind: "window", text: s };
   }
   return null;
+}
+
+/** E15b: "after / once / when / while / before / until / by the time <event>" (the event phrase up to punctuation). */
+const ANCHOR = /\b(after|once|when|while|as\s+soon\s+as|by\s+the\s+time|before|until|till)\s+([^,.;:!?—–]{3,60})/gi;
+
+/**
+ * E15b: does a relative anchor put this sentence inside the murder window? The anchor phrase is matched to the case's
+ * timed events by id words (profile.anchorEvents; a shared stem counts). "after / once / when / while X": X ends in
+ * [window start - 10, window end]; "before / until / by the time X": X starts inside the window. Only the best-matching
+ * events count, and ALL of them must agree, so an anchor that could name an event outside the window (or none) is
+ * ambiguous and is not a leak: "before the scream" (after the window) and an exit with no anchor at all both pass.
+ */
+export function windowAnchor(sentence: string, profile: Pick<GuiltProfile, "anchorEvents" | "window">): boolean {
+  const events = profile.anchorEvents ?? [];
+  if (!events.length) return false;
+  const [lo, hi] = profile.window;
+  for (const m of sentence.matchAll(ANCHOR)) {
+    const said = [...contentWords(m[2]!)];
+    if (!said.length) continue;
+    const scored = events.map((e) => ({ e, n: e.words.filter((w) => said.some((x) => sameWord(x, w))).length }));
+    const best = Math.max(...scored.map((x) => x.n));
+    if (best < 1) continue;
+    const top = scored.filter((x) => x.n === best).map((x) => x.e);
+    const before = /^(?:before|until|till|by\s+the\s+time)$/i.test(m[1]!.replace(/\s+/g, " "));
+    const inside = (e: { range: [number, number] }) => (before ? e.range[0] >= lo && e.range[0] <= hi : e.range[1] >= lo - 10 && e.range[1] <= hi);
+    if (top.every(inside)) return true;
+  }
+  return false;
 }
 
 /** E8: words anywhere in a sentence that make a third-person claim a suspicion, a report or a hypothetical. */
@@ -276,7 +306,7 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       "scene",
       "scene",
       new RegExp(`${S}${g}\\b(?:${MOVE}|left|came\\s+out\\s+of|stepped\\s+out\\s+of|slipped\\s+out\\s+of)\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i"),
-      (s) => inWindow(s) || DARK.test(s) || DEAD.test(s),
+      (s) => inWindow(s) || DARK.test(s) || DEAD.test(s) || windowAnchor(s, profile),
     ]);
   /** A match counts unless the clause before the subject is a hedge or a negated frame ("Nobody saw X strike him"). */
   const hitOver = (s: string, re: RegExp) => {

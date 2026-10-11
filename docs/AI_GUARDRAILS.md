@@ -411,3 +411,14 @@ tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered conf
   the door", "I never saw X take the key", "None of us saw X kill him". A negation in an earlier clause ("Nobody saw
   anything, but X killed him") or after the act ("X killed him, and nobody saw it") does not.
 
+### E15b Relative window anchors (culprit scene check)
+
+- `guiltProfile.anchorEvents`: every timed fact/event (not `loc-*` whereabouts) with its id words (names, prefixes and
+  numbers left out) and clock range. `windowAnchor(sentence, profile)` reads "after / once / when / while / before /
+  until / by the time <phrase>", matches the phrase to the best events by id words, and anchors the sentence in the
+  murder window when ALL best matches agree: after-type, the event ends in [window start - 10, window end];
+  before-type, the event starts inside the window.
+- Used by the culprit's scene, presence and left-the-scene rules, and by the over-claim scene rule, next to the clock,
+  dark, while-away and dead-body anchors. "Once the candles were lit" and "before the thud" anchor; "before the
+  scream" (after the window, so also true of an earlier exit) and an exit with no anchor stay ambiguous and pass.
+
