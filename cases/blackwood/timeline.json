@@ -1554,7 +1554,7 @@
   },
   {
     "id": "ev-household-waits",
-    "statement": "Reginald has telephoned the police from the servants' telephone, but the flooded road means nobody can come or go before morning, and the household waits in the hall.",
+    "statement": "Reginald has telephoned the police, but the flooded road means nobody can come or go before morning, and the household waits in the hall.",
     "category": "timeline",
     "time": "21:45",
     "locationId": "hall",
