@@ -1,4 +1,4 @@
-/** E2: citation grading. "Supports" is data (key + supporting ids); a sloppy citation keeps the win but rates it. */
+/** E2: citation grading. "Supports" is data (key + supporting ids); a sloppy citation keeps the win but rates it. Losses never carry a rating or the remark. */
 import { createElement as h } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -100,22 +100,38 @@ describe("E2 grading", () => {
     expect(g.unsupportedCited).toEqual([redHerring()]);
   });
 
-  it("right person, wrong story: the authored wrong ending is unchanged; only the rating and the remark are added", async () => {
+  it("right person, wrong story: no rating, no remark, the authored wrong ending exactly as without extra citations", async () => {
     const wrongMotive = c.motives.find((m) => m.id !== sol().motiveId)!.id;
     const base = { ...cleanWin(), motiveId: wrongMotive };
     const clean = await accuse(base);
     const sloppy = await accuse({ ...base, keyEvidenceIds: [...base.keyEvidenceIds, redHerring()] });
-    expect(clean.body.outcome).toBe("lost");
-    expect(clean.body.rating).toBe("clean");
-    expect(sloppy.body.outcome).toBe("lost");
-    expect(sloppy.body.rating).toBe("sloppy");
-    expect(sloppy.body.solution).toBeUndefined();
+    for (const r of [clean, sloppy]) {
+      expect(r.body.outcome).toBe("lost");
+      expect(r.body).not.toHaveProperty("rating");
+      expect(r.body.solution).toBeUndefined();
+      expect(r.body.ending!.beats.some((b) => b.section === "remark")).toBe(false);
+      expect(JSON.stringify(r.body)).not.toContain(PLACEHOLDER);
+    }
     const authored = c.endings!.wrong[sol().murdererId]!.map((l) => `wrong:${l.text}`);
-    expect(texts(clean.body).slice(0, authored.length)).toEqual(authored);
-    const t = texts(sloppy.body);
-    expect(t.slice(0, authored.length)).toEqual(authored);
-    expect(t[authored.length]).toBe(`remark:${PLACEHOLDER}`);
-    expect(t.filter((x) => !x.startsWith("remark:"))).toEqual(texts(clean.body));
+    expect(texts(sloppy.body).slice(0, authored.length)).toEqual(authored);
+    expect(texts(sloppy.body)).toEqual(texts(clean.body));
+  });
+
+  it("no tell: a right-person/wrong-story loss and a wrong-person loss expose the same non-ending fields", async () => {
+    const wrongMotive = c.motives.find((m) => m.id !== sol().motiveId)!.id;
+    const innocent = c.characters.find((ch) => ch.id !== sol().murdererId)!.id;
+    const extra = [...cleanWin().keyEvidenceIds, redHerring()];
+    const right = await accuse({ ...cleanWin(), motiveId: wrongMotive, keyEvidenceIds: extra });
+    const wrong = await accuse({ ...cleanWin(), murdererId: innocent, motiveId: wrongMotive, keyEvidenceIds: extra });
+    const ENDING_FIELDS = new Set(["ending", "evidence", "stateToken", "accusation", "progress"]);
+    const shape = (b: Record<string, unknown>) => Object.fromEntries(Object.entries(b).filter(([k]) => !ENDING_FIELDS.has(k)));
+    expect(right.status).toBe(wrong.status);
+    expect(shape(right.body as never)).toEqual(shape(wrong.body as never));
+    expect(Object.keys(right.body).sort()).toEqual(Object.keys(wrong.body).sort());
+    for (const r of [right, wrong]) {
+      expect(r.body).not.toHaveProperty("rating");
+      expect(r.body.ending!.beats.some((b) => b.section === "remark")).toBe(false);
+    }
   });
 
   it("a wrong accusation: extra citations change nothing (no rating, same ending)", async () => {

@@ -49,7 +49,7 @@ export function engineRecapLine(c: LoadedCase): string {
   return `Case closed! At ${s.time}, in ${where}, ${who} struck with the ${weapon.replace(/^the /i, "")}.`;
 }
 
-/** E2: the one extra remark line for a sloppy rating (authored endings.sloppyRemark, else a generic narrator line). */
+/** E2: the one extra remark line for a sloppy WIN (never on a loss) (authored endings.sloppyRemark, else a generic narrator line). */
 function remarkBeats(c: LoadedCase, rating: AccusationGrade["rating"]): EndingBeat[] {
   if (rating !== "sloppy") return [];
   return [toBeat(c, c.endings?.sloppyRemark ?? { speaker: "narrator", text: DEFAULT_SLOPPY_REMARK }, "remark")];
@@ -67,7 +67,7 @@ export function buildEnding(c: LoadedCase, grade: Pick<AccusationGrade, "won"> &
       : [toBeat(c, { speaker: "narrator", text: engineRecapLine(c), evidenceIds: [c.solution.weaponId] }, "recap")];
     return { outcome: "won", headline: WON_HEADLINE, accusedId: accusation.murdererId, beats: [...confession, ...recap, ...remarkBeats(c, grade.rating)] };
   }
-  return { outcome: "lost", headline: escaped, accusedId: accusation.murdererId, beats: [...lossBeats(c, accusation), ...remarkBeats(c, grade.rating), ...unsolvedBeats(escaped)] };
+  return { outcome: "lost", headline: escaped, accusedId: accusation.murdererId, beats: [...lossBeats(c, accusation), ...unsolvedBeats(escaped)] };
 }
 
 /** Closing beats of every loss: the escaped line, then the plain fact that the case is unsolved. */
