@@ -4,6 +4,7 @@ import { Game } from "@/components/game/Game";
 import { getPublicCase } from "@/engine/case-registry";
 import { getPublicCaseView } from "@/engine/public-view";
 import { resolveCaseArt } from "./case-art";
+import { getManual } from "./how-to-play.server";
 
 export async function CaseGame({ caseId }: { caseId: string }) {
   const caseData = await getPublicCase(caseId);
@@ -14,5 +15,5 @@ export async function CaseGame({ caseId }: { caseId: string }) {
       return [key, availablePoses(key)];
     }),
   );
-  return <Game view={resolveCaseArt(getPublicCaseView(caseData, { portraitPoses }))} />;
+  return <Game view={resolveCaseArt(getPublicCaseView(caseData, { portraitPoses }))} manual={getManual()} />;
 }

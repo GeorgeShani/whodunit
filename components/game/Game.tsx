@@ -13,6 +13,8 @@ import { DiscoverySting } from "@/components/evidence/DiscoverySting";
 import { ContradictionBeat, type ContradictionBeatData } from "@/components/evidence/ContradictionBeat";
 import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
+import { HelpButton, HowToPlayDialog } from "@/components/help/HowToPlay";
+import type { Manual } from "@/lib/how-to-play";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
 import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
@@ -207,9 +209,11 @@ export interface AskInput {
 }
 
 /** Client-side game shell. The server holds the case; this holds UI state only. */
-export function Game({ view }: { view: PublicCaseView }) {
+export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (docs/HOW_TO_PLAY.md, parsed server-side). */ manual?: Manual }) {
   const caseId = view.meta.id;
   const [screen, setScreen] = useState<Screen>("title");
+  // How to Play overlay: UI state only, so opening it mid-case never touches the game.
+  const [helpOpen, setHelpOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Record<string, DialogueMessage[]>>({});
   const [emotions, setEmotions] = useState<Record<string, Emotion>>(() =>
@@ -772,7 +776,9 @@ export function Game({ view }: { view: PublicCaseView }) {
         }}
         data-screen={screen}
       >
-        {screen === "title" && <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} />}
+        {screen === "title" && (
+          <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} {...(manual ? { onHowToPlay: () => setHelpOpen(true) } : {})} />
+        )}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (
           <SuspectSelect
@@ -938,6 +944,12 @@ export function Game({ view }: { view: PublicCaseView }) {
     )}
     <ContradictionBeat beat={beats[0] ?? null} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
+    {/* "?" in the HUD on in-case screens, hidden while another overlay owns the corner. It stays mounted under its own
+        overlay so focus can return to it on close. */}
+    {manual && screen !== "title" && screen !== "ending" && !notebookOpen && !notReady && stingQueue.length === 0 && beats.length === 0 && (
+      <HelpButton onOpen={() => setHelpOpen(true)} />
+    )}
+    {manual && helpOpen && <HowToPlayDialog manual={manual} {...(view.meta.howToPlayTips ? { tips: view.meta.howToPlayTips } : {})} onClose={() => setHelpOpen(false)} />}
     </div>
     </ClueArtProvider>
   );
