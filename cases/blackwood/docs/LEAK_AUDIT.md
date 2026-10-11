@@ -42,7 +42,7 @@ How to read the tables:
 
 | Item | Paths | Unhides | Worst case (field quoted) | Verdict |
 |---|---|---|---|---|
-| `s-archibald-false-alibi` (serious) | ev `library-key`; card `s-reginald-theft` (new); mode `any`. In a confrontation he throws this card. | `ev-archibald-leaves-dining`, `ev-archibald-returns`, `ev-archibald-notices-pantry`, `ev-pantry-exchange`, `ev-alibi-pact`, `loc-archibald-2113..2122`. `ev-archibald-phone` stays withheld while the embezzlement is locked. | `testimonySummary`: "…left the dining room at 21:13 … back at 21:22. He used the servants' telephone 21:15-21:20; the butler called through the pantry door at 21:18. At 21:40 he backed Lady Victoria's story." | Within what he did and saw. `ev-archibald-notices-pantry` ("hears coins clinking") points at Reginald's theft. It is first-hand, so accepted (L2). |
+| `s-archibald-false-alibi` (serious) | ev `library-key`; card `s-reginald-theft` (new); mode `any`. In a confrontation he throws this card. | `ev-archibald-leaves-dining`, `ev-archibald-returns`, `ev-archibald-notices-pantry`, `ev-pantry-exchange`, `ev-alibi-pact`, `loc-archibald-2113..2122`. `ev-archibald-phone` (the broker) is linked only to the embezzlement. `loc-archibald-2115`–`2117` no longer name the broker. They said "to his broker" until the #52 PR, which made the false-alibi reveal turn trip his forbidden phrase after #51. | `testimonySummary`: "…left the dining room at 21:13 … back at 21:22. He used the servants' telephone 21:15-21:20; the butler called through the pantry door at 21:18. At 21:40 he backed Lady Victoria's story." | Within what he did and saw. `ev-archibald-notices-pantry` ("hears coins clinking") points at Reginald's theft. It is first-hand, so accepted (L2). |
 | `s-archibald-embezzlement` (serious) | ev `library-key` **after** `s-archibald-false-alibi` | `f-archibald-embezzlement`, `ev-archibald-phone`, `ev-archibald-threat` | `testimonySummary`: "…embezzled company money, and that between 21:15 and 21:20 he telephoned his broker…" | Own guilt only. |
 | `l-archibald-together` | ev `library-key`, `burned-letter`; card `s-reginald-theft`; sup `s-archibald-false-alibi` | none while the embezzlement is locked (aboutFact `ev-archibald-phone`) | "I left the room." The reason stays hidden until the embezzlement opens. | Kept. |
 | `l-archibald-racehorse` | sup `s-archibald-embezzlement` only. **Trimmed**: it was `library-key`, which contradicts nothing about the dinner row. | `ev-archibald-threat` after the confession | The threat at dinner | Fixed (L3). |
@@ -207,3 +207,9 @@ Rules followed:
 Known limits:
 - If a lie breaks on a clue one exchange before its superseding secret is revealed, a legitimate line can be deflected once. This applies to Reginald's will quarrel (`l-reginald-few-words`).
 - Archibald saying he saw Victoria go to the library with no window marker passes. He did see her set off at 20:45.
+
+## Cross-secret sweep (after #51)
+
+Since #51, a reveal turn's context includes the revealed secret's own facts. A fact unlocked by secret A that carries a phrase gated on secret B is therefore shown on A's reveal turn, the model repeats it, and the guard deflects. `tests/cases/blackwood-cross-secret.test.ts` checks every character and every revealable secret, both on the reveal turn and after it.
+
+The sweep found one case: `loc-archibald-2115`–`2117` said "to his broker". They were reworded to "on the servants' telephone, speaking low and urgently", and `ev-archibald-phone` was unlinked from `s-archibald-false-alibi`. There were no other hits.

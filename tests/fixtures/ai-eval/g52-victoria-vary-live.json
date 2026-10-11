@@ -1,34 +1,34 @@
 {
   "scenarioId": "g52-victoria-vary-live",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:51:59.111Z",
+  "recordedAt": "2026-10-11T13:49:32.008Z",
   "calls": [
     {
-      "promptHash": "28efe7c7d10d9d66",
+      "promptHash": "226e256b380be122",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "ac8b0bd7-8f3b-90bd-b5aa-4e9f06b5dbe8",
+        "id": "bb8267ed-00f4-969e-8890-b561ba58bc40",
         "object": "chat.completion",
-        "created": 1791460317,
+        "created": 1791726570,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I really couldn't say, detective. The storm was making such a frightful racket, and I was quite absorbed by the fire with Mr. Crane.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"twists her rings when the library door is mentioned\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":2,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"One hates to be dull, but I heard nothing from the library at all during that time. Archibald and I were quite absorbed by the fire until the scream startled us both.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"sinks into an armchair and arranges her gown into a perfect tragic heap\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4070,
-          "completion_tokens": 82,
-          "total_tokens": 4152,
+          "prompt_tokens": 4128,
+          "completion_tokens": 92,
+          "total_tokens": 4220,
           "prompt_tokens_details": {
-            "text_tokens": 4070,
+            "text_tokens": 4128,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51581000
+          "cost_in_usd_ticks": 52556000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4070,
-        "completion_tokens": 82,
-        "total_tokens": 4152,
+        "prompt_tokens": 4128,
+        "completion_tokens": 92,
+        "total_tokens": 4220,
         "prompt_tokens_details": {
-          "text_tokens": 4070,
+          "text_tokens": 4128,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51581000
+        "cost_in_usd_ticks": 52556000
       },
-      "costUsd": 0.0051581000000000005
+      "costUsd": 0.0052556
     }
   ]
 }
