@@ -13,7 +13,7 @@ const ch = (id: string) => c.characters.find((x) => x.id === id)!;
 const fact = (id: string) => [...c.facts, ...c.timeline].find((f) => f.id === id)!;
 const SUSPECTS = ["victoria", "reginald", "archibald", "gregory"] as const;
 
-describe("CA-32 (r7 M6): invented mud, scuttle, telephone, gin, keys, staff and rooms are blocked", () => {
+describe("CA-32 (r7 M6): invented mud, scuttle, telephone, keys, staff and rooms are blocked", () => {
   const inHall: R7Spec = { ev: ["muddy-footprint"], rev: [["gregory", "s-gregory-in-hall"]], shown: { gregory: ["muddy-footprint"] } };
   it.each([
     ["gregory", "I tracked mud all through the hall and into the library, sir, I'll own that.", {}],
@@ -23,7 +23,6 @@ describe("CA-32 (r7 M6): invented mud, scuttle, telephone, gin, keys, staff and 
     ["victoria", "The telephone is dead, detective. The storm took the line.", {}],
     ["gregory", "The police'll be here within the hour, sir, mark my words.", {}],
     ["archibald", "The telephone lines are down, old boy. We're cut off.", {}],
-    ["gregory", "I'd had a nip of gin in the shed, sir, I'll not lie.", {}],
     ["reginald", "There is a spare key on my ring, sir, though I never use it.", {}],
     ["victoria", "Edmund kept a second library key in his desk, darling.", {}],
     ["reginald", "Only the cook and the scullery maid, sir, and they were abed.", {}],
@@ -46,6 +45,8 @@ describe("CA-32 (r7 M6): invented mud, scuttle, telephone, gin, keys, staff and 
     ["reginald", "We have no billiard room, sir.", {}],
     ["reginald", "There is no cook tonight, sir. Only Gregory and myself.", {}],
     ["gregory", "His lordship sacked me for the drink, sir, this very morning.", {}],
+    // George's pick 4 (2026-10-11): a nip or two in the shed is canon (f-gregory-nip), so r7-M6-gin is gone.
+    ["gregory", "I'd had a nip of gin in the shed, sir, I'll not lie.", {}],
   ] as [string, string, R7Spec][])("passes: %s: %s", (who, line, s) => {
     expect(r7Verdict(c, who, line, s)).toBeNull();
   });

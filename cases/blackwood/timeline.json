@@ -283,7 +283,7 @@
   },
   {
     "id": "ev-reginald-overhears",
-    "statement": "Carrying the coffee tray, Reginald sees through the ajar library door her ladyship gripping his lordship's sleeve, crying 'You wouldn't dare, Edmund!', and his lordship, holding up a letter, saying 'Ten o'clock tomorrow, and you'll have what the new will allows and not a penny more.' Reginald backs away.",
+    "statement": "Carrying the coffee tray, Reginald sees through the ajar library door her ladyship gripping his lordship's sleeve, crying 'You wouldn't dare, Edmund! Leave me, but not on two hundred a year!', and his lordship, holding up a letter, saying 'Ten o'clock tomorrow, and you'll have what the new will allows and not a penny more.' Reginald backs away.",
     "category": "timeline",
     "time": "20:54",
     "locationId": "hall",
@@ -1562,8 +1562,18 @@
     ]
   },
   {
+    "id": "ev-detective-arrives",
+    "time": "21:44",
+    "statement": "At 21:44 the detective, expected for dinner but held up by the storm, arrives on foot after their motor stalled in the floodwater at the foot of the drive. Reginald answers the front door. By then the lights are back on and his lordship is dead.",
+    "category": "timeline",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
     "id": "ev-household-waits",
-    "statement": "The flooded road means nobody can come or go before morning, and the household waits in the hall.",
+    "statement": "The flooded road means nobody can come or go before morning, and the household, with the stranded detective, waits in the hall.",
     "category": "timeline",
     "time": "21:45",
     "locationId": "hall",

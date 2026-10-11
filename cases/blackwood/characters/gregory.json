@@ -15,11 +15,12 @@
       "jumpy",
       "mumbling"
     ],
-    "speechStyle": "Mumbled country speech: short, trailing sentences, 'sir' and 'm'lady', plenty of 'well' and 'er'. Says as little as he can and looks at his boots, and only speaks in fuller sentences when Reginald is the one asking.",
+    "speechStyle": "Mumbled country speech: short, trailing sentences, 'sir' and 'm'lady', plenty of 'well' and 'er'. Says as little as he can and looks at his boots, and only speaks in fuller sentences when Reginald is the one asking. He'd had a nip or two in the shed, so he's hazy on the clock: he places things by what happened ('just after the lights went', 'when the thunder cracked', 'a bit after the thud') rather than by minutes. On faces and doors he is steady and sure.",
     "catchphrases": [],
     "quirks": [
       "wrings his cap",
-      "jumps at thunder"
+      "jumps at thunder",
+      "admits to a nip or two of gin in the shed, never more"
     ],
     "tells": [
       "looks at his boots",
@@ -113,7 +114,9 @@
     "ev-lights-restored",
     "ev-reginald-telephones-police",
     "ev-household-waits",
-    "f-household-tonight"
+    "f-household-tonight",
+    "ev-detective-arrives",
+    "f-gregory-nip"
   ],
   "beliefs": [
     {
@@ -156,7 +159,7 @@
         "loc-gregory-2121",
         "loc-gregory-2122"
       ],
-      "testimonySummary": "Gregory admits that at 21:16 he slipped in by the garden door and stood in the dark hall alcove, six paces from the library door. At 21:17 he heard a heavy thud in the library and saw the light under the door dim."
+      "testimonySummary": "Gregory admits that a few minutes into the blackout he slipped in by the garden door and stood in the dark hall alcove, six paces from the library door. Soon after, he heard a heavy thud in the library and saw the light under it dim."
     },
     {
       "id": "s-gregory-saw-victoria",
@@ -175,7 +178,7 @@
         "ev-gregory-sees-victoria",
         "ev-victoria-locks-door"
       ],
-      "testimonySummary": "Gregory says that at 21:19, in a lightning flash and the flickers after it, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room."
+      "testimonySummary": "Gregory says that a minute after the thud, by a lightning flash and its flickers, he plainly saw Lady Victoria step out of the library, lock the door, slip the key into her gown and walk to the dining room. Hazy on time, sure of her."
     }
   ],
   "relationships": [
@@ -486,11 +489,6 @@
       "note": "[r7-M6-phone] Gremlin r7 M6 / CA-15: the servants' telephone works (Reginald rang the police at 21:38, ev-reginald-telephones-police), and nobody can get through the flood before morning (ev-household-waits). r7b: the POWER line is canonically down until 21:38 (ev-blackout), so 'the power/electric line is down' and a line-down remark that mentions lights or candles pass."
     },
     {
-      "text": "(?:\\bI\\b[^.!?]{0,20}?\\b(?:had|['’]d\\s+had|took|taken|drank|drunk|swigged|sneaked|snuck|had\\s+(?:a|me|my))\\b[^.!?]{0,20}?\\b(?:gin|nip|drop|swig|tot|snifter|dram|bottle)\\b[^.!?]{0,40}?\\b(?:tonight|this\\s+evening|in\\s+the\\s+shed|in\\s+the\\s+potting\\s+shed|in\\s+the\\s+greenhouse|afore\\s+I\\s+came|before\\s+I\\s+came|after\\s+supper)\\b|\\bI\\s+(?:was|were|['’]d\\s+been)\\s+(?:a\\s+(?:bit|little|touch)\\s+)?(?:drunk|tipsy|tight|sozzled|merry|in\\s+my\\s+cups|three\\s+sheets)\\b[^.!?]{0,30}?\\b(?:tonight|this\\s+evening|at\\s+the\\s+door|in\\s+the\\s+hall|when)\\b)(?![^.!?]*\\?)",
-      "regex": true,
-      "note": "[r7-M6-gin] Gremlin r7 M6 / CA-21: whether Gregory drank tonight is not canon (George to decide); he must not volunteer it either way."
-    },
-    {
       "text": "(?<!\\b(?:no|not|never|nor)\\s+(?:[\\w'’]+\\s+)?)(?:\\b(?:two|three|several|both|other)\\s+keys\\s+(?:to|for)\\s+(?:the|that)\\s+library\\b|\\bI\\s+keep\\s+the\\s+other(?:\\s+(?:one|key))?\\b|\\b(?:a|the)\\s+key\\s+to\\s+every\\s+(?:door|room)\\b|\\b(?:a|the)\\s+duplicate(?:\\s+key)?\\b)(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7b-M6-key] Gremlin r7b N10: more spare-key paraphrases (two keys to the library, 'I keep the other', a key to every door, a duplicate). There is one library key (f-single-key)."
@@ -607,6 +605,16 @@
         "s-gregory-saw-victoria"
       ],
       "note": "[e12-saw-nothing] l-gregory-saw-nothing after s-gregory-saw-victoria. Gremlin r7b N6 / CA-52 via E12 (9fe5aa5): once its owner has confessed the superseding secret, the broken story can't be repeated word for word. The pattern does not match the confession (it is live on the reveal turn too), and negated mentions ('it wasn't the Sunday menu') pass."
+    },
+    {
+      "text": "(?:\\byou\\s+(?:were|was)\\s+(?:there|here|with\\s+us|in\\s+the\\s+(?:hall|dining[-\\s]room|library)|at\\s+(?:the\\s+)?(?:table|dinner))\\b[^.!?]{0,40}?\\b(?:dinner|supper|the\\s+table|the\\s+port|the\\s+coffee|the\\s+blackout|the\\s+lights\\s+(?:went|failed)|the\\s+candles|the\\s+scream|the\\s+thud|the\\s+storm\\s+broke|nine\\s+o['’]clock|before\\s+nine)|\\b(?:dinner|supper|the\\s+table|the\\s+port|the\\s+coffee|the\\s+blackout|the\\s+lights\\s+(?:went|failed)|the\\s+candles|the\\s+scream|the\\s+thud|the\\s+storm\\s+broke|nine\\s+o['’]clock|before\\s+nine)\\b[^.!?]{0,40}?\\byou\\s+(?:were|was)\\s+(?:there|here|with\\s+us|at\\s+(?:the\\s+)?table)\\b|\\b(?:as\\s+)?you\\s+(?:saw|heard|noticed|watched|yourself\\s+saw)\\b[^.!?]{0,40}?\\b(?:at\\s+dinner|at\\s+the\\s+table|during\\s+the\\s+blackout|when\\s+the\\s+lights\\s+(?:went|failed)|the\\s+scream|the\\s+thud|by\\s+candlelight)|\\byou\\s+(?:dined|sat|ate)\\s+with\\s+us\\b|\\b(?:our|the)\\s+(?:guest|detective)\\s+(?:dined|sat\\s+down|was\\s+at\\s+(?:the\\s+)?(?:table|dinner))\\b|\\bdinner\\s+for\\s+(?:four|five)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[pick3-detective] George's pick 3: the detective arrived at 21:44 (ev-detective-arrives), after the murder, the scream, the lights and the police call. Nobody may say the detective dined with them, saw the blackout or heard the scream. 'You arrived at a quarter to ten' passes."
+    },
+    {
+      "text": "(?:\\bI\\s+(?:was|were|['’]d\\s+been)\\s+(?:blind|roaring|stinking|dead)\\s+drunk\\b|\\bI\\s+(?:was|were)\\s+(?:sozzled|three\\s+sheets|legless|plastered|in\\s+my\\s+cups)\\b|\\b(?:half|most\\s+of)\\s+(?:a|the)\\s+bottle\\b|\\bseein['’g]?\\s+things\\b(?![^.!?]*\\b(?:not|weren['’]?t|wasn['’]?t|ain['’]?t)\\b)|\\b(?:couldn['’]?t|could\\s+not|can['’]?t)\\s+(?:see|tell)\\s+(?:straight|proper|nothin['’g]?\\s+proper)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[pick4-drink] George's pick 4 (replaces r7-M6-gin): Gregory had a nip or two in the shed (f-gregory-nip) and may say so; he may not make himself out blind drunk, seeing things or unable to see straight. His sighting is reliable."
     }
   ],
   "initialEmotion": {

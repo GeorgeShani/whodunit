@@ -2,7 +2,7 @@
   "id": "blackwood",
   "title": "Murder at Blackwood Manor",
   "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
-  "intro": "Thunder rattles the windows of Blackwood Manor. The lights have gone out, the road has flooded, and nobody is going anywhere tonight.\n\nSomewhere between the coffee and the coal, Lord Blackwood was struck down in his own locked library, and the key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+  "intro": "Thunder rattles the windows of Blackwood Manor. The lights failed at ten past nine, the road has flooded, and nobody is going anywhere tonight.\n\nYou were expected for dinner, but the storm had other ideas. Your motor stalled in the floodwater at the foot of the drive, and by the time you squelched up to the front door, at a quarter to ten, the lights were back on, the police had been telephoned and could not get through, and Lord Blackwood lay dead in his own locked library. The key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
   "knowledgeGate": "explicit",
   "systemLines": {
     "caseClosed": "The case is closed, detective. Nobody leaves until the floodwater drops, and the police will hear all of it come morning.",
@@ -223,13 +223,21 @@
     },
     {
       "id": "f-household-tonight",
-      "statement": "Tonight the only people at Blackwood Manor are Lord Blackwood, Lady Victoria, Mr Crane, Reginald the butler and Gregory the gardener. There are no other servants in the house.",
+      "statement": "Until the detective arrived at 21:44, the only people at Blackwood Manor tonight were Lord Blackwood, Lady Victoria, Mr Crane, Reginald the butler and Gregory the gardener. There are no other servants in the house.",
       "category": "background",
       "involvesCharacterIds": [
         "lord-blackwood",
         "victoria",
         "archibald",
         "reginald",
+        "gregory"
+      ]
+    },
+    {
+      "id": "f-gregory-nip",
+      "statement": "After supper Gregory had a nip or two of gin in the potting shed. He was a little merry but steady on his feet: hazy on the clock, clear on what he saw.",
+      "category": "background",
+      "involvesCharacterIds": [
         "gregory"
       ]
     }
@@ -254,6 +262,11 @@
       "id": "stolen-money",
       "label": "Stolen money",
       "description": "Someone had been quietly helping themselves, and his lordship was getting close."
+    },
+    {
+      "id": "unhappy-marriage",
+      "label": "Unhappy marriage",
+      "description": "Someone wanted to be free of Lord Blackwood, whatever it cost."
     }
   ],
   "leads": [

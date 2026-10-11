@@ -125,7 +125,9 @@
     "ev-household-waits",
     "f-reginald-saw-no-one",
     "f-letter-gone",
-    "f-household-tonight"
+    "f-household-tonight",
+    "ev-detective-arrives",
+    "f-gregory-nip"
   ],
   "beliefs": [
     {
@@ -205,7 +207,7 @@
         "loc-reginald-2054",
         "f-new-will"
       ],
-      "testimonySummary": "At 20:54, through the ajar library door, Reginald saw her ladyship clutch his lordship's sleeve crying 'You wouldn't dare, Edmund!' as he held up a letter: 'Ten o'clock tomorrow... what the new will allows.'"
+      "testimonySummary": "At 20:54, through the ajar library door, Reginald saw her ladyship clutch his lordship's sleeve: 'You wouldn't dare, Edmund! Leave me, but not on two hundred a year!' He held up a letter: 'Ten o'clock tomorrow... the new will.'"
     }
   ],
   "relationships": [
@@ -654,6 +656,16 @@
         "s-reginald-overheard"
       ],
       "note": "[e12-few-words] l-reginald-few-words after s-reginald-overheard. Gremlin r7b N6 / CA-52 via E12 (9fe5aa5): once its owner has confessed the superseding secret, the broken story can't be repeated word for word. The pattern does not match the confession (it is live on the reveal turn too), and negated mentions ('it wasn't the Sunday menu') pass."
+    },
+    {
+      "text": "(?:\\byou\\s+(?:were|was)\\s+(?:there|here|with\\s+us|in\\s+the\\s+(?:hall|dining[-\\s]room|library)|at\\s+(?:the\\s+)?(?:table|dinner))\\b[^.!?]{0,40}?\\b(?:dinner|supper|the\\s+table|the\\s+port|the\\s+coffee|the\\s+blackout|the\\s+lights\\s+(?:went|failed)|the\\s+candles|the\\s+scream|the\\s+thud|the\\s+storm\\s+broke|nine\\s+o['’]clock|before\\s+nine)|\\b(?:dinner|supper|the\\s+table|the\\s+port|the\\s+coffee|the\\s+blackout|the\\s+lights\\s+(?:went|failed)|the\\s+candles|the\\s+scream|the\\s+thud|the\\s+storm\\s+broke|nine\\s+o['’]clock|before\\s+nine)\\b[^.!?]{0,40}?\\byou\\s+(?:were|was)\\s+(?:there|here|with\\s+us|at\\s+(?:the\\s+)?table)\\b|\\b(?:as\\s+)?you\\s+(?:saw|heard|noticed|watched|yourself\\s+saw)\\b[^.!?]{0,40}?\\b(?:at\\s+dinner|at\\s+the\\s+table|during\\s+the\\s+blackout|when\\s+the\\s+lights\\s+(?:went|failed)|the\\s+scream|the\\s+thud|by\\s+candlelight)|\\byou\\s+(?:dined|sat|ate)\\s+with\\s+us\\b|\\b(?:our|the)\\s+(?:guest|detective)\\s+(?:dined|sat\\s+down|was\\s+at\\s+(?:the\\s+)?(?:table|dinner))\\b|\\bdinner\\s+for\\s+(?:four|five)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[pick3-detective] George's pick 3: the detective arrived at 21:44 (ev-detective-arrives), after the murder, the scream, the lights and the police call. Nobody may say the detective dined with them, saw the blackout or heard the scream. 'You arrived at a quarter to ten' passes."
+    },
+    {
+      "text": "(?:\\b(?:Gregory|the\\s+gardener|he)\\b[^.!?]{0,30}?\\b(?:blind|roaring|stinking|dead)\\s+drunk\\b|\\b(?:Gregory|the\\s+gardener)\\b[^.!?]{0,30}?\\b(?:sozzled|legless|plastered|three\\s+sheets|seeing\\s+things|too\\s+drunk\\s+to)\\b|\\b(?:Gregory|the\\s+gardener)\\b[^.!?]{0,40}?\\b(?:couldn['’]?t|could\\s+not|can['’]?t)\\s+(?:have\\s+)?(?:seen|see)\\s+(?:a\\s+thing|anything|straight|his\\s+own\\s+hand)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[pick4-witness] George's pick 4: Gregory had a nip or two but was steady and his sighting is reliable (f-gregory-nip). Nobody may cast him as too drunk to see. 'He'd had a nip, I dare say' passes."
     }
   ],
   "initialEmotion": {
