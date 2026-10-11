@@ -1,37 +1,37 @@
 {
   "scenarioId": "conf-13-victoria-vs-archibald",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:47:48.751Z",
+  "recordedAt": "2026-10-11T13:49:41.858Z",
   "calls": [
     {
-      "promptHash": "4e8ef825154b6ee9",
+      "promptHash": "ee8841e2113031c7",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "d695332c-3111-90d0-985e-0f787153c1fd",
+        "id": "a33d6637-6dcf-986f-838f-f0570b14a71c",
         "object": "chat.completion",
-        "created": 1791460062,
+        "created": 1791726575,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I say, Victoria old thing, I left the dining room at twenty-one thirteen after the candles were lit and was back at twenty-one twenty-two; used the servants' telephone from twenty-one fifteen to twenty-one twenty while Reginald called through the pantry door at eighteen minutes past; at twenty-one forty I backed your story. And dash it all, I embezzled from the company and rang my broker in the blackout to shift the money before midnight.\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops brow with enormous handkerchief while biting through his cigar\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-archibald-embezzlement\",\"s-archibald-false-alibi\"]}",
+              "content": "{\"dialogue\":\"What I told you, Victoria? Very well: I left the dining room at twenty-one thirteen after the candles were lit, used the servants' telephone from quarter past nine to twenty past, and was back by twenty-two minutes past nine. Reginald called through the pantry door at eighteen minutes past nine, and at twenty forty I backed your story that we were together the whole time.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"mops brow with handkerchief, cigar clenched in teeth\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[\"s-archibald-false-alibi\",\"s-archibald-embezzlement\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5134,
-          "completion_tokens": 157,
-          "total_tokens": 5291,
+          "prompt_tokens": 5142,
+          "completion_tokens": 143,
+          "total_tokens": 5285,
           "prompt_tokens_details": {
-            "text_tokens": 5134,
+            "text_tokens": 5142,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 66084000
+          "cost_in_usd_ticks": 66506000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5134,
-        "completion_tokens": 157,
-        "total_tokens": 5291,
+        "prompt_tokens": 5142,
+        "completion_tokens": 143,
+        "total_tokens": 5285,
         "prompt_tokens_details": {
-          "text_tokens": 5134,
+          "text_tokens": 5142,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 66084000
+        "cost_in_usd_ticks": 66506000
       },
-      "costUsd": 0.0066084
+      "costUsd": 0.0066506000000000004
     },
     {
-      "promptHash": "f14188212ae5762e",
+      "promptHash": "b3246bdb73cfd723",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "e961a775-3e72-9dba-8473-762d136710dd",
+        "id": "2271df3e-f914-999c-aa66-b9ad14e53882",
         "object": "chat.completion",
-        "created": 1791460064,
+        "created": 1791726577,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Detective, you asked what I told you, so here it is for her ladyship: I left the dining room at twenty-one thirteen, after the candles were lit, and returned at twenty-one twenty-two. I used the servants' telephone from twenty-one fifteen to twenty-one twenty; Reginald called through the pantry door at twenty-one eighteen. At twenty-one forty I backed Lady Victoria's story. And yes, old girl, I embezzled from the company and rang my broker during the blackout to shift the funds before midnight.\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"chomps cigar and mops brow with handkerchief, face turning beetroot red\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-archibald-embezzlement\",\"s-archibald-false-alibi\"]}",
+              "content": "{\"dialogue\":\"What are you on about, old boy? As for you, Victoria, I left the dining room at 21:13 after the candles were lit, returned at 21:22, used the servants' telephone from 21:15 to 21:20 while Reginald called through the pantry door at 21:18, and at 21:40 I backed your story. Blast it all, I embezzled from the company and rang my broker in the blackout to shift the funds before midnight!\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"mops brow with handkerchief, beetroot red, cigar bitten clean through\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"l-archibald-together\",\"l-archibald-racehorse\",\"s-archibald-false-alibi\",\"s-archibald-embezzlement\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5230,
-          "completion_tokens": 180,
-          "total_tokens": 5410,
+          "prompt_tokens": 5235,
+          "completion_tokens": 184,
+          "total_tokens": 5419,
           "prompt_tokens_details": {
-            "text_tokens": 5230,
+            "text_tokens": 5235,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 4672
+            "cached_tokens": 1664
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 20819000
+          "cost_in_usd_ticks": 52565500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5230,
-        "completion_tokens": 180,
-        "total_tokens": 5410,
+        "prompt_tokens": 5235,
+        "completion_tokens": 184,
+        "total_tokens": 5419,
         "prompt_tokens_details": {
-          "text_tokens": 5230,
+          "text_tokens": 5235,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 4672
+          "cached_tokens": 1664
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,39 +125,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 20819000
+        "cost_in_usd_ticks": 52565500
       },
-      "costUsd": 0.0020819000000000002
+      "costUsd": 0.0052565500000000005
     },
     {
-      "promptHash": "da4695e9fb8de2c6",
+      "promptHash": "a6ca4cd5b3d95252",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "e6f320d2-21bb-9ab9-8af2-e4f01cf8eb3e",
+        "id": "4416be77-2952-9f32-9b60-6e1b190d2143",
         "object": "chat.completion",
-        "created": 1791460066,
+        "created": 1791726580,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Archibald, you do go such a delightful shade of red when you are frightened. It rather clashes with the curtains. And whose house do you imagine this is, to be bandying about such tales?\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"twists her rings while glancing toward the dining-room fireplace\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -3,\n  \"admits\": []\n}",
+              "content": "{\n  \"dialogue\": \"Archibald, I do wish you would speak plainly yourself rather than hiding behind the detective's skirts. Across my own dinner table you told Edmund he would not live to see his auditors; say it again for the constable, I should like to watch your face.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"twists her rings while glancing toward the dining-room fireplace\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -3,\n  \"admits\": []\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4342,
-          "completion_tokens": 120,
-          "total_tokens": 4462,
+          "prompt_tokens": 4276,
+          "completion_tokens": 131,
+          "total_tokens": 4407,
           "prompt_tokens_details": {
-            "text_tokens": 4342,
+            "text_tokens": 4276,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -166,20 +166,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 55259000
+          "cost_in_usd_ticks": 55381000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4342,
-        "completion_tokens": 120,
-        "total_tokens": 4462,
+        "prompt_tokens": 4276,
+        "completion_tokens": 131,
+        "total_tokens": 4407,
         "prompt_tokens_details": {
-          "text_tokens": 4342,
+          "text_tokens": 4276,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -188,9 +188,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 55259000
+        "cost_in_usd_ticks": 55381000
       },
-      "costUsd": 0.0055259
+      "costUsd": 0.005538100000000001
     }
   ]
 }
