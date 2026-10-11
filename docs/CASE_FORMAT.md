@@ -80,9 +80,18 @@ cases/<caseId>/
     "suspects": "/assets/backgrounds/manor.webp",     // suspect selection (ART_BIBLE §7.2)
     "interrogation": "/assets/backgrounds/….webp",   // interrogation scene
     "investigate": "/assets/backgrounds/….webp"      // Investigate screen behind the room cards
-  }
+  },
+  "howToPlayTips": [                    // optional, PUBLIC: 1–8 tips, 1–200 chars each (How to Play → "Tips for this case")
+    "Spoiler-free advice for this case only, e.g. how its clock or its house works."
+  ]
 }
 ```
+
+### How to Play tips (optional)
+
+- **`howToPlayTips`**: case-specific advice shown in the in-game How to Play manual under **Tips for this case**, after the general manual (`docs/HOW_TO_PLAY.md`, which stays case-agnostic). Omitted or empty: the section is not shown.
+- Limits: at most 8 tips, each 1–200 characters (trimmed). Longer or more fails `validate:case`.
+- Spoiler-free: never name the culprit, the weapon or the true motive. `validate:case` warns on duplicate tips and on a tip that mentions the murderer's name, the weapon's name or the true motive's label.
 
 ### Art fields (optional, additive)
 
@@ -369,7 +378,7 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
 ## What the AI and the player can see
 
 - **The player** (`getPublicCaseView`) sees:
-  - the case id, title, tagline and intro;
+  - the case id, title, tagline and intro (and `howToPlayTips`, when present);
   - the victim;
   - the locations (including `searchFlavor` and `background`) and the case `backdrops`;
   - the motive **options**;
@@ -420,4 +429,5 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
 - reveal-order cycles in `afterSecretIds`;
 - secrets used as testimony without a `testimonySummary`;
 - `hiddenUntil` on a fact nobody knows, or pointing at a secret that can never be revealed;
-- `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere.
+- `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere;
+- `howToPlayTips` that repeat each other or mention the culprit's name, the weapon or the true motive.

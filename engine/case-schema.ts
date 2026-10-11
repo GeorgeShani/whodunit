@@ -66,6 +66,10 @@ export const CaseBackdropsSchema = z.strictObject({
 });
 export type CaseBackdrops = z.infer<typeof CaseBackdropsSchema>;
 
+/** One case-specific tip for the How to Play manual (PUBLIC, spoiler-free; shown under "Tips for this case"). */
+export const HowToPlayTipSchema = z.string().trim().min(1).max(200);
+export const MAX_HOW_TO_PLAY_TIPS = 8;
+
 export const CaseEnvelopeSchema = z.strictObject({
   /** Must equal the case folder name. */
   id: CaseIdSchema,
@@ -94,6 +98,11 @@ export const CaseEnvelopeSchema = z.strictObject({
   leads: z.array(LeadSchema).optional(),
   /** Progression (optional): when ACCUSE unlocks. Omitted: today's behaviour (a single clue is enough). */
   accuseGate: AccuseGateSchema.optional(),
+  /**
+   * Optional PUBLIC tips for this case, shown in the How to Play manual under "Tips for this case" (1-8 tips of
+   * 1-200 characters). Omitted or empty: the section is not shown. Never name the culprit, the weapon or the motive.
+   */
+  howToPlayTips: z.array(HowToPlayTipSchema).max(MAX_HOW_TO_PLAY_TIPS).optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 
