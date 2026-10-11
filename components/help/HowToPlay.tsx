@@ -36,7 +36,9 @@ export function HowToPlayDialog({
     initialFocus: () => {
       const summary = target ? ref.current?.querySelector<HTMLElement>(`[data-htp-section="${target}"] > summary`) : null;
       if (summary) {
-        summary.scrollIntoView?.({ block: "start" });
+        // Scroll only the manual's own body (scrollIntoView could also move the game screen behind the overlay).
+        const body = ref.current?.querySelector<HTMLElement>("[data-htp-body]");
+        if (body) body.scrollTop = Math.max(0, summary.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 8);
         return summary;
       }
       return ref.current?.querySelector<HTMLElement>("[data-htp-close]");
@@ -71,7 +73,7 @@ export function HowToPlayDialog({
             <span className="max-sm:hidden"> Close</span>
           </button>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5">
+        <div data-htp-body className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5">
           <ManualContent manual={manual} tips={tips} level={3} collapsible openIds={target ? [target] : [manual.sections[0]!.id]} />
         </div>
         <footer className="flex justify-end border-t-4 border-black bg-amber-100 px-4 py-2">
@@ -84,22 +86,31 @@ export function HowToPlayDialog({
   );
 }
 
-/** The "?" in the HUD, next to the mute toggle (in-case screens). */
-export function HelpButton({ onOpen }: { onOpen: () => void }) {
+/**
+ * The labelled HOW TO PLAY pill (📖 + text, the display font, the HUD's yellow): always reachable in a case.
+ * - `fixed`: top right, next to the mute toggle (Game renders it on every in-case screen but the ending); the
+ *   screens' headers leave room for it (HUD_RESERVE).
+ * - `inline`: placed in a screen's own controls where the header has no room (phone interrogation / confrontation)
+ *   and in the Notebook, so it never covers a Close button.
+ * Opens the same manual overlay; nothing in the game changes. Focus returns here on close (useModal).
+ */
+export function HowToPlayButton({ onOpen, variant = "fixed", className = "" }: { onOpen: () => void; variant?: "fixed" | "inline"; className?: string }) {
   return (
     <button
       type="button"
       aria-haspopup="dialog"
       aria-label="How to Play"
-      title="How to Play"
-      data-help-button
+      data-help-button={variant}
       onClick={() => {
         getAudio().play("ui_paper");
         onOpen();
       }}
-      className="absolute right-[calc(max(0.5rem,env(safe-area-inset-right))+3.25rem)] top-[max(0.5rem,env(safe-area-inset-top))] z-[57] flex size-11 cursor-pointer items-center justify-center rounded-full border-[3px] border-black bg-yellow-300 font-display text-2xl text-black shadow-[3px_3px_0_#000] hover:bg-yellow-200"
+      className={`${variant === "fixed" ? "absolute right-[calc(max(0.5rem,env(safe-area-inset-right))+3.25rem)] top-[max(0.5rem,env(safe-area-inset-top))] z-[57]" : ""} inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-[3px] border-black bg-yellow-300 px-3 font-display text-lg leading-none tracking-wider text-black shadow-[3px_3px_0_#000] hover:bg-yellow-200 ${className}`}
     >
-      <span aria-hidden>?</span>
+      <span aria-hidden className="text-base">
+        📖
+      </span>
+      <span>How to Play</span>
     </button>
   );
 }

@@ -7,7 +7,7 @@ import { CartoonButton } from "./CartoonButton";
 export function IntroScreen({ view, onContinue }: { view: PublicCaseView; onContinue: () => void }) {
   const foundIn = view.locations.find((l) => l.id === view.victim.foundAtLocationId)?.name;
   return (
-    <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-6 bg-[repeating-linear-gradient(45deg,#2a1650_0_24px,#1b1035_24px_48px)] px-6 py-10">
+    <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-6 bg-[repeating-linear-gradient(45deg,#2a1650_0_24px,#1b1035_24px_48px)] px-6 pb-10 pt-16">
       <motion.h1
         data-autofocus
         tabIndex={-1}

@@ -9,7 +9,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { getAudio } from "@/components/effects/audio";
-import { FirstTimePrompt, HelpButton, HowToPlayDialog } from "@/components/help/HowToPlay";
+import { FirstTimePrompt, HowToPlayButton, HowToPlayDialog } from "@/components/help/HowToPlay";
 import { TitleScreen } from "@/components/game/TitleScreen";
 import { getManual } from "@/lib/how-to-play.server";
 import { HOW_TO_PLAY_SEEN_KEY, markFirstTimePromptSeen, shouldShowFirstTimePrompt } from "@/lib/first-visit";
@@ -42,7 +42,7 @@ const q = <T extends Element = HTMLElement>(sel: string) => document.querySelect
 const key = (k: string, opts: KeyboardEventInit = {}) => act(() => void document.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true, ...opts })));
 const click = (el: HTMLElement | null) => act(() => el!.click());
 
-/** A screen with a HUD "?" and the overlay, like Game: the "game" state (a counter) must survive open/close. */
+/** A screen with the HOW TO PLAY pill and the overlay, like Game: the "game" state (a counter) must survive open/close. */
 function Harness({ tips }: { tips?: string[] }) {
   const [open, setOpen] = useState(false);
   const [n, setN] = useState(0);
@@ -50,14 +50,14 @@ function Harness({ tips }: { tips?: string[] }) {
     "div",
     null,
     h("button", { type: "button", "data-game-action": true, onClick: () => setN(n + 1) }, `asked ${n}`),
-    // Like Game: the ? stays mounted under the overlay, so focus can return to it.
-    h(HelpButton, { onOpen: () => setOpen(true) }),
+    // Like Game: the pill stays mounted under the overlay, so focus can return to it.
+    h(HowToPlayButton, { onOpen: () => setOpen(true) }),
     open && h(HowToPlayDialog, { manual, ...(tips ? { tips } : {}), onClose: () => setOpen(false) }),
   );
 }
 
 describe("HowToPlayDialog", () => {
-  it("opens from the HUD ?, is a labelled modal dialog with headings, and focus moves inside", () => {
+  it("opens from the labelled HOW TO PLAY pill, is a labelled modal dialog with headings, and focus moves inside", () => {
     render(h(Harness));
     const btn = q("[data-help-button]")!;
     expect(btn.getAttribute("aria-label")).toBe("How to Play");

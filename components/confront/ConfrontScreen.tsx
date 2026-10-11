@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { DialogueLog, type DialogueMessage } from "@/components/dialogue/DialogueLog";
 import { ThinkingIndicator } from "@/components/dialogue/ThinkingIndicator";
+import { HowToPlayButton } from "@/components/help/HowToPlay";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
 import { StressMeter } from "@/components/stress/StressMeter";
@@ -34,6 +35,7 @@ export function ConfrontScreen({
   onBack,
   onRetry,
   retryWait = 0,
+  onHowToPlay,
 }: {
   pair: [PublicSuspect, PublicSuspect];
   emotions: Record<string, Emotion>;
@@ -59,6 +61,8 @@ export function ConfrontScreen({
   onRetry?: () => void;
   /** #49: seconds before AGAIN can succeed (a breather): AGAIN stays disabled with this countdown. */
   retryWait?: number;
+  /** Phones: an inline HOW TO PLAY pill by the controls (sm+ uses the fixed one). */
+  onHowToPlay?: () => void;
 }) {
   const [a, b] = pair;
   const setTarget = onTarget;
@@ -72,10 +76,10 @@ export function ConfrontScreen({
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#5b1d1d_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
-      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-24 sm:mb-3 sm:gap-3">
+      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-14 sm:mb-3 sm:gap-3 sm:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
-          ← <span className="max-sm:hidden">Back to suspects</span>
-          <span className="sm:hidden">Back</span>
+          ← <span className="max-lg:hidden">Back to suspects</span>
+          <span className="lg:hidden">Back</span>
         </CartoonButton>
         <h1 data-autofocus tabIndex={-1} className="min-w-0 text-balance font-display text-xl leading-[0.95] tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl sm:leading-tight">
           {first(a)} <span className="text-red-500">VS</span> {first(b)}
@@ -99,9 +103,12 @@ export function ConfrontScreen({
             footer={pending ? <ThinkingIndicator name={first(addressed)} seed={messages.length} /> : null}
           />
           {over ? (
-            <p role="status" className="rounded-xl border-[3px] border-black bg-yellow-100 px-3 py-2 text-center font-bold text-black">
-              The confrontation is over. They&apos;ve said all they&apos;ll say to each other tonight.
-            </p>
+            <>
+              <p role="status" className="rounded-xl border-[3px] border-black bg-yellow-100 px-3 py-2 text-center font-bold text-black">
+                The confrontation is over. They&apos;ve said all they&apos;ll say to each other tonight.
+              </p>
+              {onHowToPlay && <HowToPlayButton variant="inline" onOpen={onHowToPlay} className="self-start sm:hidden" />}
+            </>
           ) : (
             <>
               <div className="flex flex-wrap items-center gap-2" role="radiogroup" aria-label="Who are you questioning?">
@@ -153,6 +160,8 @@ export function ConfrontScreen({
                 <p id={hintId} className="min-w-0 flex-1 basis-40 px-1 text-sm font-bold text-yellow-100/70">
                   {first(other)} will react to {first(addressed)}&apos;s answer.
                 </p>
+                {/* Phones: the HOW TO PLAY pill sits here (the header has no room); sm+: fixed, top right. */}
+                {onHowToPlay && <HowToPlayButton variant="inline" onOpen={onHowToPlay} className="min-h-12 sm:hidden" />}
                 {onOpenNotebook && (
                   <CartoonButton tone="yellow" disabled={locked} data-confront-present onClick={onOpenNotebook} className="min-h-12 short:min-h-11 shrink-0 px-3 text-base">
                     📓 Present to {first(addressed)}

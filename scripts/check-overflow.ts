@@ -14,6 +14,10 @@
  * searches rooms until a clue turns up (data-* hooks), so it works on
  * /case/<id> for any case (pass the full URL as baseUrl).
  *
+ * HOW TO PLAY audit: on every in-case screen it visits (not the ending) exactly one labelled HOW TO PLAY pill is
+ * visible, at least 44x44, not covered and not overlapping another control or the screen title; it opens the manual
+ * and Esc brings focus and the screen's scroll position back exactly.
+ *
  * Defaults: http://localhost:3000, /usr/bin/google-chrome (or $CHROME_PATH).
  * Exits 1 on any overflow sample. Interrogation talks to /api/interrogate, so
  * against a server with a model key it makes a couple of live calls.
@@ -126,6 +130,74 @@ async function label(p: Page, l: string) {
   }
 }
 
+/** Plain JS source (see SAMPLER): exactly one visible pill, labelled, 44px+, on top, overlapping nothing. */
+const helpAudit = (scrolled: boolean) => `
+(() => {
+  const scrolled = ${scrolled};
+  const onTop = (el) => { const b = el.getBoundingClientRect(); const t = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return Boolean(t && el.contains(t)); };
+  const vis = (el) => {
+    const b = el.getBoundingClientRect();
+    if (!b.width || !b.height || b.right <= 0 || b.bottom <= 0 || b.left >= innerWidth || b.top >= innerHeight) return false;
+    for (let n = el; n; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === "none" || cs.visibility === "hidden") return false; }
+    return true;
+  };
+  // Visible AND on top: a screen's own pill under the Notebook's backdrop does not count.
+  const pills = [...document.querySelectorAll("[data-help-button]")].filter((el) => vis(el) && onTop(el));
+  if (pills.length !== 1) return { error: pills.length + " visible, uncovered HOW TO PLAY buttons" };
+  const el = pills[0];
+  document.querySelectorAll("[data-audit-target]").forEach((x) => x.removeAttribute("data-audit-target"));
+  el.setAttribute("data-audit-target", "");
+  const b = el.getBoundingClientRect();
+  const problems = [];
+  if (el.getAttribute("aria-label") !== "How to Play") problems.push("aria-label " + el.getAttribute("aria-label"));
+  if (!/How to Play/.test(el.innerText)) problems.push("label not visible: " + JSON.stringify(el.innerText));
+  if (el.offsetWidth < 44 || el.offsetHeight < 44) problems.push("size " + el.offsetWidth + "x" + el.offsetHeight);
+  if (b.left < 0 || b.right > innerWidth || b.top < 0 || b.bottom > innerHeight) problems.push("off screen");
+  // Crowding: nothing it overlaps in the same layer (inside its modal, if any). Skipped once the screen is scrolled:
+  // content then passes under the fixed HUD, as it does under the mute toggle.
+  const layer = el.closest("[aria-modal=true]") || document;
+  for (const o of scrolled ? [] : layer.querySelectorAll("button, a[href], input, textarea, select, h1, h2, [data-confront-left]")) {
+    if (o === el || el.contains(o) || o.contains(el) || !vis(o)) continue;
+    if (layer === document && o.closest("[aria-modal=true]")) continue;
+    // The part of it actually shown: clipped by every scrolling / overflow-hidden ancestor (a card scrolled out of
+    // the Notebook's list sits under the footer but is not drawn there).
+    const r = { left: 0, top: 0, right: 0, bottom: 0, ...JSON.parse(JSON.stringify(o.getBoundingClientRect())) };
+    for (let n = o.parentElement; n; n = n.parentElement) {
+      if (getComputedStyle(n).overflow === "visible") continue;
+      const c = n.getBoundingClientRect();
+      r.left = Math.max(r.left, c.left); r.top = Math.max(r.top, c.top); r.right = Math.min(r.right, c.right); r.bottom = Math.min(r.bottom, c.bottom);
+    }
+    const ox = Math.min(b.right, r.right) - Math.max(b.left, r.left), oy = Math.min(b.bottom, r.bottom) - Math.max(b.top, r.top);
+    if (ox > 1 && oy > 1) problems.push("overlaps " + o.tagName.toLowerCase() + " " + (o.getAttribute("aria-label") || o.textContent || "").trim().replace(/\\s+/g, " ").slice(0, 30));
+  }
+  return { problems, variant: el.getAttribute("data-help-button"), w: el.offsetWidth, h: el.offsetHeight };
+})()
+`;
+const SCROLLS = `[...document.querySelectorAll(".screen-scroll, .scroll-area")].map((e) => e.scrollTop).join(",")`;
+const helpIssues: string[] = [];
+const helpSeen: string[] = [];
+
+/** Audit the pill on this screen, then open the manual with it and close with Esc: focus and scroll come back. */
+async function checkHelp(p: Page, where: string, scrolled = false) {
+  await p.waitForTimeout(500);
+  const r = (await p.evaluate(helpAudit(scrolled))) as { error?: string; problems?: string[]; variant?: string; w?: number; h?: number };
+  if (r.error) return void helpIssues.push(`${shotVp} ${where}: ${r.error}`);
+  for (const x of r.problems ?? []) helpIssues.push(`${shotVp} ${where}: ${x}`);
+  helpSeen.push(`${where} (${r.variant} ${r.w}x${r.h})`);
+  const before = await p.evaluate(SCROLLS);
+  const pill = p.locator("[data-audit-target]");
+  await pill.focus();
+  await pill.press("Enter");
+  await p.waitForSelector("[data-how-to-play]", { timeout: 5_000 }).catch(() => helpIssues.push(`${shotVp} ${where}: the manual did not open`));
+  await p.waitForTimeout(300);
+  await p.keyboard.press("Escape");
+  await p.waitForSelector("[data-how-to-play]", { state: "detached", timeout: 5_000 }).catch(() => helpIssues.push(`${shotVp} ${where}: Esc did not close the manual`));
+  await p.waitForTimeout(200);
+  if (!(await p.evaluate(`document.activeElement?.hasAttribute("data-help-button")`))) helpIssues.push(`${shotVp} ${where}: focus did not return to the pill`);
+  const after = await p.evaluate(SCROLLS);
+  if (after !== before) helpIssues.push(`${shotVp} ${where}: scroll moved (${before} -> ${after})`);
+}
+
 async function clickButton(p: Page, text: string | RegExp) {
   try {
     await p.getByRole("button", { name: text }).first().click({ force: true, timeout: 15_000 });
@@ -188,14 +260,18 @@ async function run(): Promise<number> {
     await clickButton(p, /START CASE/);
     await wait(1500);
     await label(p, "intro→suspects");
+    await checkHelp(p, "intro");
     await clickButton(p, /MEET THE SUSPECTS/);
     await wait(1500);
+    await checkHelp(p, "suspects");
     await label(p, "suspects (scrolled)");
     await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
     await wait(500);
+    await checkHelp(p, "suspects (scrolled)", true);
     await label(p, "suspects→interrogation");
     await p.locator("[data-suspect-id]").first().click({ force: true });
     await wait(1500);
+    await checkHelp(p, "interrogation");
     await label(p, "interrogation reply (emotion)");
     await clickButton(p, /The victim/);
     await waitReply(p);
@@ -218,6 +294,7 @@ async function run(): Promise<number> {
       if (await p.locator("[data-confront-with]").count()) {
         await p.locator("[data-confront-with]").first().click({ force: true });
         await wait(1200);
+        await checkHelp(p, "confront");
         await label(p, "confront screen");
         const box = p.locator("form input, form textarea").first();
         if (await box.count()) {
@@ -231,6 +308,7 @@ async function run(): Promise<number> {
             await label(p, "confront notebook");
             await present.first().click({ force: true });
             await wait(900);
+            await checkHelp(p, "confront notebook");
             await p.keyboard.press("Escape");
             await wait(500);
           }
@@ -245,7 +323,11 @@ async function run(): Promise<number> {
       await label(p, "investigate");
       await investigate.first().click({ force: true });
       await wait(2500);
+      await checkHelp(p, "investigate");
       await label(p, "investigate: search + discovery sting");
+      await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 600 }));
+      await wait(500);
+      await checkHelp(p, "investigate (scrolled)", true);
       await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
       const rooms = p.locator("[data-location-id]");
       for (let i = 0; i < (await rooms.count()); i++) {
@@ -266,6 +348,7 @@ async function run(): Promise<number> {
       if (await notebook.count()) {
         await notebook.first().click({ force: true });
         await wait(1200);
+        await checkHelp(p, "notebook");
         const hintBtn = p.locator("[data-hint-ask]");
         if (await hintBtn.count()) {
           await label(p, "notebook hint");
@@ -349,6 +432,11 @@ async function run(): Promise<number> {
     smallFonts += smallText.length;
     if (errors.length) console.log(`  page errors: ${errors.join(" | ")}`);
     if (!ovf.length) console.log("  ✓ no document or sideways overflow on any frame");
+    const helpHere = helpIssues.filter((x) => x.startsWith(`${shotVp} `));
+    for (const x of helpHere) console.log(`  ✗ HOW TO PLAY: ${x.slice(shotVp.length + 1)}`);
+    if (!helpHere.length) console.log(`  ✓ HOW TO PLAY on ${helpSeen.length} screens, opens + Esc restores focus and scroll: ${helpSeen.join("; ")}`);
+    failures += helpHere.length;
+    helpSeen.length = 0;
     if (frames < 60) {
       console.log("  ✗ sampler did not run (too few frames)");
       failures += 1;

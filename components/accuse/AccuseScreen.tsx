@@ -97,7 +97,7 @@ export function AccuseScreen({
 
   return (
     <main className="screen-scroll relative flex scroll-pb-28 min-h-0 flex-1 flex-col items-center gap-5 bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)] px-4 pb-0 pt-3 sm:px-6 sm:py-6">
-      <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-2xl:pe-24">
+      <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
