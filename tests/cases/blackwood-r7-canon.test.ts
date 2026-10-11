@@ -81,12 +81,13 @@ describe("CA-33 (r7 L1): one lightning wording everywhere, and Victoria's guard 
 });
 
 describe("CA-34 (r7 L2): Reginald's police call has a time and a place", () => {
-  it("21:38, the servants' telephone; he knows it, and everyone knows the time from ev-household-waits", () => {
+  it("21:38, the servants' telephone; everyone knows it from that event alone (r7b N7: ev-household-waits does not restate it)", () => {
     const e = fact("ev-reginald-telephones-police");
     expect(e.time).toBe("21:38");
     expect(e.statement).toMatch(/servants' telephone/);
     expect(ch("reginald").knownFactIds).toContain("ev-reginald-telephones-police");
-    expect(fact("ev-household-waits").statement).toMatch(/at 21:38/);
+    for (const x of c.characters) expect(x.knownFactIds, x.id).toContain("ev-reginald-telephones-police");
+    expect(fact("ev-household-waits").statement).not.toMatch(/police|21:38/);
   });
 });
 

@@ -40,8 +40,12 @@ describe("CA-13 / CA-14 / CA-15 / CA-17 / CA-18: canon wording", () => {
   });
 
   it("the police were telephoned and cannot come before morning, and every suspect knows it", () => {
-    expect(fact("ev-household-waits").statement).toMatch(/telephoned the police/);
+    // r7b (Gremlin N7): the 21:45 waits entry no longer restates the call, so the call binds to 21:38 only; every
+    // suspect knows the call itself (Reginald told the household when he came back at 21:40).
+    expect(fact("ev-household-waits").statement).toMatch(/nobody can come or go before morning/);
+    expect(fact("ev-household-waits").statement).not.toMatch(/police|telephon|rang|call/i);
     for (const x of c.characters) expect(x.knownFactIds, x.id).toContain("ev-household-waits");
+    for (const x of c.characters) expect(x.knownFactIds, x.id).toContain("ev-reginald-telephones-police");
   });
 
   it("the sacked gardener is still on the estate because he was told to be gone by morning", () => {

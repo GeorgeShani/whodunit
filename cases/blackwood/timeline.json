@@ -1563,7 +1563,7 @@
   },
   {
     "id": "ev-household-waits",
-    "statement": "Reginald telephoned the police at 21:38, but the flooded road means nobody can come or go before morning, and the household waits in the hall.",
+    "statement": "The flooded road means nobody can come or go before morning, and the household waits in the hall.",
     "category": "timeline",
     "time": "21:45",
     "locationId": "hall",
