@@ -27,7 +27,7 @@ export interface EndingBeat {
   emotion?: Emotion;
   pauseMs: number;
   evidenceIds: string[];
-  section: "confession" | "recap" | "wrong" | "escaped";
+  section: "confession" | "recap" | "wrong" | "escaped" | "remark";
 }
 
 export interface EndingPayload {
@@ -63,6 +63,8 @@ export interface AccuseResponseBody {
   outcome?: "won" | "lost";
   accusation?: Accusation;
   verdict?: AccuseVerdict;
+  /** E2: "sloppy" when the right culprit was named with a citation that supports nothing; only when the accused is the murderer. */
+  rating?: "clean" | "sloppy";
   solution?: SolutionReveal;
   ending?: EndingPayload;
   /** Public cards for every clue the ending or the solution mentions. */
@@ -90,7 +92,15 @@ export const MAX_ACCUSE_TESTIMONY = 3;
 
 export function validateAccusationDraft(
   d: AccusationDraft,
-  options: { suspectIds: readonly string[]; evidenceIds: readonly string[]; motiveIds: readonly string[]; testimonyIds?: readonly string[]; requireTestimony?: boolean },
+  options: {
+    suspectIds: readonly string[];
+    evidenceIds: readonly string[];
+    motiveIds: readonly string[];
+    testimonyIds?: readonly string[];
+    requireTestimony?: boolean;
+    /** E2: the case's "Cite up to N" (progress.accuse.citeCap); absent = the absolute maxima. */
+    caps?: { evidence: number; testimony: number };
+  },
 ): { ok: true; accusation: Accusation } | { ok: false; errors: string[] } {
   const errors: string[] = [];
   if (!d.murdererId || !options.suspectIds.includes(d.murdererId)) errors.push("Pick the murderer.");
@@ -98,11 +108,13 @@ export function validateAccusationDraft(
   if (!d.motiveId || !options.motiveIds.includes(d.motiveId)) errors.push("Pick a motive.");
   const ids = [...new Set(d.keyEvidenceIds)];
   if (ids.length < 1) errors.push("Cite at least one clue as proof.");
-  if (ids.length > MAX_ACCUSE_EVIDENCE) errors.push(`Cite at most ${MAX_ACCUSE_EVIDENCE} clues.`);
+  const maxEvidence = Math.min(MAX_ACCUSE_EVIDENCE, options.caps?.evidence ?? MAX_ACCUSE_EVIDENCE);
+  const maxTestimony = Math.min(MAX_ACCUSE_TESTIMONY, options.caps?.testimony ?? MAX_ACCUSE_TESTIMONY);
+  if (ids.length > maxEvidence) errors.push(`Cite at most ${maxEvidence} clues.`);
   if (!ids.every((id) => options.evidenceIds.includes(id))) errors.push("You can only cite clues in your notebook.");
   const testimony = [...new Set(d.keyTestimonyIds ?? [])];
   if (options.requireTestimony && testimony.length < 1) errors.push("Cite a confession as proof: pick revealed testimony from your notebook.");
-  if (testimony.length > MAX_ACCUSE_TESTIMONY) errors.push(`Cite at most ${MAX_ACCUSE_TESTIMONY} confessions.`);
+  if (testimony.length > maxTestimony) errors.push(`Cite at most ${maxTestimony} confessions.`);
   if (!testimony.every((id) => (options.testimonyIds ?? []).includes(id))) errors.push("You can only cite confessions in your notebook.");
   if (errors.length) return { ok: false, errors };
   return {

@@ -44,6 +44,7 @@ export function AccuseScreen({
   testimonies = [],
   citeTestimony = false,
   weaponsMarked = false,
+  citeCap,
   onSubmit,
   onBack,
 }: {
@@ -58,10 +59,14 @@ export function AccuseScreen({
   citeTestimony?: boolean;
   /** E3: the case marks weapon candidates; the weapon picker lists only those (see weaponChoices). */
   weaponsMarked?: boolean;
+  /** E2: "Cite up to N" clues / confessions (progress.accuse.citeCap); absent = the absolute maxima. */
+  citeCap?: { evidence: number; testimony: number };
   onSubmit: (a: Accusation) => void;
   onBack: () => void;
 }) {
   const [draft, setDraft] = useState<AccusationDraft>({ keyEvidenceIds: [] });
+  const maxProof = Math.min(MAX_ACCUSE_EVIDENCE, citeCap?.evidence ?? MAX_ACCUSE_EVIDENCE);
+  const maxTestimony = Math.min(MAX_ACCUSE_TESTIMONY, citeCap?.testimony ?? MAX_ACCUSE_TESTIMONY);
   const weapons = weaponChoices(evidence, weaponsMarked);
   const [errors, setErrors] = useState<string[]>([]);
   const [confirming, setConfirming] = useState(false);
@@ -82,6 +87,7 @@ export function AccuseScreen({
       motiveIds: motives.map((m) => m.id),
       testimonyIds: testimonies.map((t) => t.id),
       requireTestimony: citeTestimony,
+      ...(citeCap ? { caps: citeCap } : {}),
     });
 
   return (
@@ -159,7 +165,7 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={4} title="Your proof" hint={`Cite 1 to ${MAX_ACCUSE_EVIDENCE} clues that prove it (${draft.keyEvidenceIds.length} chosen).`}>
+      <Section n={4} title="Your proof" hint={`Cite up to ${maxProof} clues that prove it (${draft.keyEvidenceIds.length} chosen). Only cite what supports your case.`}>
         <div className="flex flex-wrap gap-2">
           {evidence.map((e) => {
             const on = draft.keyEvidenceIds.includes(e.id);
@@ -170,7 +176,7 @@ export function AccuseScreen({
                 role="checkbox"
                 aria-checked={on}
                 data-accuse-proof={e.id}
-                disabled={busy || (!on && draft.keyEvidenceIds.length >= MAX_ACCUSE_EVIDENCE)}
+                disabled={busy || (!on && draft.keyEvidenceIds.length >= maxProof)}
                 onClick={() => toggleProof(e.id)}
                 className={`${pick(on)} min-h-12 px-4 py-2 text-base font-bold`}
               >
@@ -185,7 +191,7 @@ export function AccuseScreen({
         <Section
           n={5}
           title="A confession"
-          hint={`Clues alone won't do. Cite 1 to ${MAX_ACCUSE_TESTIMONY} confessions someone gave you (${(draft.keyTestimonyIds ?? []).length} chosen).`}
+          hint={`Clues alone won't do. Cite up to ${maxTestimony} confessions someone gave you (${(draft.keyTestimonyIds ?? []).length} chosen).`}
         >
           {testimonies.length === 0 ? (
             <p
@@ -209,8 +215,7 @@ export function AccuseScreen({
                     disabled={
                       busy ||
                       (!on &&
-                        (draft.keyTestimonyIds ?? []).length >=
-                          MAX_ACCUSE_TESTIMONY)
+                        (draft.keyTestimonyIds ?? []).length >= maxTestimony)
                     }
                     onClick={() => toggleTestimony(t.id)}
                     className={`${pick(on)} min-h-12 px-4 py-2 text-base`}

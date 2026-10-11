@@ -195,5 +195,10 @@
       }
     ]
   },
-  "escapedLine": "THE MURDERER ESCAPED!"
+  "escapedLine": "THE MURDERER ESCAPED!",
+  "sloppyRemark": {
+    "speaker": "narrator",
+    "text": "Case closed, detective, though a few of those exhibits had no business in the evidence bag.",
+    "pauseMs": 1600
+  }
 }

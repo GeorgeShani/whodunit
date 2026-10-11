@@ -196,6 +196,15 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   if (!locationIds.has(s.locationId)) issues.push({ file: SOL, path: "locationId", message: `location "${s.locationId}" is not a location in case.json` });
   if (!motiveIds.has(s.motiveId)) issues.push({ file: SOL, path: "motiveId", message: `motive "${s.motiveId}" is not one of case.json motives[].id` });
   s.keyEvidenceIds.forEach((id, k) => ref(evidenceIds, "evidence", id, SOL, `keyEvidenceIds.${k}`));
+  // E2: supporting citations exist and never overlap the key lists.
+  (s.supportingEvidenceIds ?? []).forEach((id, k) => {
+    ref(evidenceIds, "evidence", id, SOL, `supportingEvidenceIds.${k}`);
+    if (s.keyEvidenceIds.includes(id)) issues.push({ file: SOL, path: `supportingEvidenceIds.${k}`, message: `"${id}" is already in keyEvidenceIds (supporting ids must not overlap the key list)` });
+  });
+  (s.supportingTestimonyIds ?? []).forEach((id, k) => {
+    if (!allSecretIds.has(id)) issues.push({ file: SOL, path: `supportingTestimonyIds.${k}`, message: `unknown secret "${id}"` });
+    if ((s.keyTestimonyIds ?? []).includes(id)) issues.push({ file: SOL, path: `supportingTestimonyIds.${k}`, message: `"${id}" is already in keyTestimonyIds (supporting ids must not overlap the key list)` });
+  });
 
   if (murderer && locationIds.has(s.locationId) && !wasPresent(c, s.murdererId, s.locationId, s.time)) {
     issues.push({
@@ -223,6 +232,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       });
     checkLines(c.endings.correct.confession, "correct.confession");
     checkLines(c.endings.correct.recap, "correct.recap");
+    if (c.endings.sloppyRemark) checkLines([c.endings.sloppyRemark], "sloppyRemark");
     for (const [suspectId, lines] of Object.entries(c.endings.wrong)) {
       if (!characterIds.has(suspectId)) issues.push({ file: END, path: `wrong.${suspectId}`, message: `"${suspectId}" is not a suspect` });
       checkLines(lines, `wrong.${suspectId}`);
