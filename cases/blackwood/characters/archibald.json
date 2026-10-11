@@ -270,7 +270,9 @@
         "burned-letter"
       ],
       "breaksOnSecretIds": [
-        "s-reginald-theft"
+        "s-reginald-theft",
+        "s-gregory-saw-victoria",
+        "s-victoria-left-dining"
       ],
       "breakMode": "any",
       "supersededBySecretIds": [
@@ -378,6 +380,11 @@
       "regex": true,
       "unlessRevealed": "s-archibald-false-alibi",
       "note": "Locked secret (eval arch-16): the telephone is his false alibi's truth. If the 'together' lie breaks on the burned letter without the reveal, the call itself (ev-archibald-phone) is still withheld, so this stays banned until s-archibald-false-alibi."
+    },
+    {
+      "text": "(?:\\b(?:her|Lady\\s+Victoria['’]s|her\\s+ladyship['’]s|m['’]lady['’]s|the|a|that|lace)\\s+(?:lace\\s+)?handkerchief\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,40}\\b(?:blood|bloodied|blood-?stained|blood-red|stain(?:ed|s)?|red\\s+with\\s+blood)\\b|(?<!\\bno\\s)(?<!\\bnot\\s)(?<!\\bany\\s)\\b(?:blood|bloodied|blood-?stained|blood-red|stained)\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,20}\\bhandkerchief\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Audit CA-25: Victoria wiped the candlestick with her handkerchief at 21:18 (core, ev-victoria-takes-letter). Nobody saw it, so no witness may invent a stained handkerchief. Denials and questions pass."
     }
   ],
   "initialEmotion": {

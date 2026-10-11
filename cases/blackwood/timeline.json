@@ -1011,7 +1011,7 @@
   },
   {
     "id": "ev-gregory-sees-victoria",
-    "statement": "In a lightning flash through the hall windows Gregory sees Lady Victoria's face as she steps out of the library, locks the door, slips the key into her gown and walks towards the dining room.",
+    "statement": "In a lightning flash through the hall windows, and the flickers that follow it, Gregory sees Lady Victoria's face as she steps out of the library, locks the door, slips the key into her gown and walks towards the dining room.",
     "category": "timeline",
     "time": "21:19",
     "locationId": "hall",
@@ -1205,7 +1205,7 @@
   },
   {
     "id": "loc-reginald-2130",
-    "statement": "At 21:30 Reginald is in the hall, at the locked library door with the coal scuttle, screaming.",
+    "statement": "At 21:30 Reginald is in the hall, at the locked library door with a fresh scuttle of coal from the kitchen, screaming.",
     "category": "location",
     "time": "21:30",
     "locationId": "hall",
@@ -1375,7 +1375,7 @@
   },
   {
     "id": "loc-gregory-2135",
-    "statement": "At 21:35 Gregory is in the kitchen and servants' quarters, coming in through the kitchen door.",
+    "statement": "At 21:35 Gregory is in the kitchen and servants' quarters, coming in through the kitchen door and scraping the mud off his boots on the scraper beside it.",
     "category": "location",
     "time": "21:35",
     "locationId": "kitchen",
@@ -1445,7 +1445,7 @@
   },
   {
     "id": "ev-gregory-arrives",
-    "statement": "Gregory comes to the library from the kitchen, soaked, and sees his lordship's body.",
+    "statement": "Gregory comes to the library from the kitchen, soaked but with his boots scraped clean at the kitchen door, and sees his lordship's body.",
     "category": "timeline",
     "time": "21:36",
     "locationId": "library",
@@ -1554,7 +1554,7 @@
   },
   {
     "id": "ev-household-waits",
-    "statement": "The flooded road means nobody can come or go before morning, and the household waits in the hall.",
+    "statement": "Reginald has telephoned the police from the servants' telephone, but the flooded road means nobody can come or go before morning, and the household waits in the hall.",
     "category": "timeline",
     "time": "21:45",
     "locationId": "hall",

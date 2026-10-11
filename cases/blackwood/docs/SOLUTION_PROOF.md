@@ -143,7 +143,7 @@ Stress (the 70 on `s-victoria-left-dining`) only adds a shortcut. Nothing in the
 ### Eliminating the others (each alibi is plausible but imperfect)
 
 **12. Gregory** (red herring: sacked that morning `f-gregory-dismissed`; muddy print by the library)
-- The print stops in the alcove and there is no mud in the library (`f-no-mud-beyond-alcove`).
+- The print stops in the alcove and there is no mud in the library (`f-no-mud-beyond-alcove`). Gregory's own walk to the library at 21:36 leaves none, because he scraped his boots at the kitchen door (`loc-gregory-2135`, audit CA-10).
 - The killer carried the key and letter into the dining room. Gregory went back out to the garden at 21:20 (`loc-gregory-2120`) and only came in through the kitchen at 21:35.
 - *Imperfect:* nobody saw him in the hall or garden. Only the print and his own word place him.
 
@@ -279,7 +279,7 @@ Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discove
 `endings.json` is server-only. It holds:
 - `correct.confession`: Victoria's confession, with an Archibald cameo that breaks the alibi.
 - `correct.recap`: narrator prose covering who, how, why and 21:17 in the library, and the proof. Lines cite `evidenceIds`.
-- `wrong.<suspectId>`: one ending for each of the four suspects. `wrong.victoria` is "right lady, no case" (wrong weapon, wrong motive or no key evidence).
+- `wrong.<suspectId>`: one ending for each of the four suspects. `wrong.victoria` is "right lady, no case" (wrong weapon, wrong motive or no key evidence). **The engine never plays it** (`engine/ending-payload.ts` `lossBeats()`, #22). It also drops Victoria's cameo lines from the other three wrong endings, so accusing her on a loss plays the generic two beats. See `CONSISTENCY_AUDIT.md` CA-05 / E4.
 - `escapedLine`.
 
 ## 11. Round 2 data fixes (Gremlins #26 and #27, Dexter's data notes)

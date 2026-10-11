@@ -141,7 +141,7 @@
         "ev-gregory-sees-victoria",
         "ev-victoria-locks-door"
       ],
-      "testimonySummary": "Gregory says that at 21:19, in a lightning flash, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room."
+      "testimonySummary": "Gregory says that at 21:19, in a lightning flash and the flickers after it, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room."
     }
   ],
   "relationships": [
@@ -367,6 +367,11 @@
       "regex": true,
       "unlessRevealed": "s-gregory-in-hall",
       "note": "Locked secret: being in the hall in the blackout. 'in the hall when they broke the door' passes."
+    },
+    {
+      "text": "(?:\\b(?:her|Lady\\s+Victoria['’]s|her\\s+ladyship['’]s|m['’]lady['’]s|the|a|that|lace)\\s+(?:lace\\s+)?handkerchief\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,40}\\b(?:blood|bloodied|blood-?stained|blood-red|stain(?:ed|s)?|red\\s+with\\s+blood)\\b|(?<!\\bno\\s)(?<!\\bnot\\s)(?<!\\bany\\s)\\b(?:blood|bloodied|blood-?stained|blood-red|stained)\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,20}\\bhandkerchief\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Audit CA-25: Victoria wiped the candlestick with her handkerchief at 21:18 (core, ev-victoria-takes-letter). Nobody saw it, so no witness may invent a stained handkerchief. Denials and questions pass."
     }
   ],
   "initialEmotion": {

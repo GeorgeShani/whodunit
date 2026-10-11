@@ -194,7 +194,7 @@
       "description": "Wary deference: she holds his position in her hands now. He will never accuse her of anything, and under pressure his courtesy turns stiff and exact.",
       "jabs": [
         {
-          "text": "I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and it was striking at the time.",
+          "text": "I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and I had glanced at the hall clock not a moment before.",
           "aboutFactId": "ev-victoria-passes-reginald",
           "when": "confrontation"
         }
@@ -386,6 +386,11 @@
       "regex": true,
       "unlessRevealed": "s-reginald-overheard",
       "note": "Locked secret (evals reg-07, reg-15): seeing her at the library door is his 20:54 eavesdrop, and he saw no one in the blackout."
+    },
+    {
+      "text": "(?:\\b(?:her|Lady\\s+Victoria['’]s|her\\s+ladyship['’]s|m['’]lady['’]s|the|a|that|lace)\\s+(?:lace\\s+)?handkerchief\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,40}\\b(?:blood|bloodied|blood-?stained|blood-red|stain(?:ed|s)?|red\\s+with\\s+blood)\\b|(?<!\\bno\\s)(?<!\\bnot\\s)(?<!\\bany\\s)\\b(?:blood|bloodied|blood-?stained|blood-red|stained)\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,20}\\bhandkerchief\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "Audit CA-25: Victoria wiped the candlestick with her handkerchief at 21:18 (core, ev-victoria-takes-letter). Nobody saw it, so no witness may invent a stained handkerchief. Denials and questions pass."
     }
   ],
   "initialEmotion": {

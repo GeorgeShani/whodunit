@@ -170,7 +170,7 @@
     },
     {
       "id": "f-gregory-dismissed",
-      "statement": "Lord Blackwood dismissed Gregory that morning for drinking on duty.",
+      "statement": "Lord Blackwood dismissed Gregory that morning for drinking on duty and told him to be gone by morning.",
       "category": "background",
       "involvesCharacterIds": [
         "gregory",

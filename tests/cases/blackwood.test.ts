@@ -508,7 +508,8 @@ describe("Blackwood testimony", () => {
       "l-victoria-locked-in": ["s-gregory-saw-victoria"],
       "l-victoria-never-in-hall": ["s-gregory-saw-victoria"],
       "l-victoria-menu": ["s-reginald-overheard"],
-      "l-archibald-together": ["s-reginald-theft"],
+      // Audit CA-22: Gregory's sighting and Victoria's own admission both put her outside the dining room.
+      "l-archibald-together": ["s-gregory-saw-victoria", "s-reginald-theft", "s-victoria-left-dining"],
       "l-reginald-heard-nothing": ["s-archibald-false-alibi"],
     });
     // The canon behind each break is inside the breaking secret (what the card says the witness knows).
