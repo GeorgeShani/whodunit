@@ -158,7 +158,7 @@ Tap **⚔️ Confront…** to bring two suspects face to face.
 - Each exchange, you question **one** of them (pick whose turn it is) and the other **reacts** in front of them.
 - If the person you're questioning has already confessed something that undercuts the other's story, they'll **throw it in their face**, and that counts as the other person hearing it.
 - You can **📓 Present** clues and cards during a confrontation too.
-- Each exchange counts as questioning **both** suspects.
+- Each exchange counts as questioning **only the one you addressed** (that is what moves their *"questioned"* badge). The other is just reacting.
 
 **Limits**
 

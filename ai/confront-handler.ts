@@ -2,7 +2,7 @@
  * SERVER-ONLY. One confrontation exchange (MASTER_PLAN §32-33): the detective
  * speaks to A in front of B; A answers (engine turn + model), then B reacts to
  * A (engine turn + model). Exactly two model calls, then control returns to
- * the player. The engine caps a pair at MAX_CONFRONTATION_TURNS exchanges.
+ * the player. The engine caps a pair (and the whole game) at the case's confrontationCaps.
  *
  * Engine rules on top of an interrogation turn:
  *  - both sides take CONFRONTATION_PRESSURE stress per exchange;
@@ -13,7 +13,8 @@
  *    in the same exchange (the ordinary present rules; it still counts as one).
  */
 import type { LoadedCase } from "@/engine/case-schema";
-import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TURNS, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
+import { confrontationCaps } from "@/engine/confront-caps";
+import { CONFRONTATION_PRESSURE, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
 import { clampStress } from "@/engine/stress";
 import { attachProgress } from "@/engine/route-progress";
 import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
@@ -94,7 +95,8 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
   if (presentError) return { status: 400, body: base({ lines: [], line: CONFRONT_LINES[presentError], error: presentError, stateToken: saveSession(game, env) }) };
   // The state to hand back if the model cannot answer: exactly what the client sent (taken before anything below touches `game`).
   const heldToken = notice ? saveSession(game, env) : (stateToken ?? saveSession(game, env));
-  const gate = openConfrontation(game, aId, bId);
+  const caps = confrontationCaps(caseData);
+  const gate = openConfrontation(game, aId, bId, caps);
   if (!gate.ok) return { status: gate.reason === "same_character" ? 400 : 409, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
 
   const gatedExchange = async (): Promise<{ status: number; body: ConfrontResponseBody }> => {
@@ -168,7 +170,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
 
       if (isTurnUnavailable(second)) return down(second.kind, second.reason);
 
-      const spent = spendExchange(game);
+      const spent = spendExchange(game, caps);
       const line = (id: string, name: string, t: typeof first): ConfrontLine => ({
         characterId: id,
         characterName: name,
@@ -181,7 +183,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
         status: 200,
         body: base({
           lines: [line(aId, a.name, first), line(bId, b.name, second)],
-          confrontation: { characterIds: [aId, bId], turnsUsed: spent.turnsUsed, max: MAX_CONFRONTATION_TURNS, over: spent.over, totalLeft: spent.totalLeft },
+          confrontation: { characterIds: [aId, bId], turnsUsed: spent.turnsUsed, max: caps.perPair, over: spent.over, totalLeft: spent.totalLeft },
           stateToken: saveSession(game, env),
           testimonies: publicTestimonies(caseData, game),
         }),
