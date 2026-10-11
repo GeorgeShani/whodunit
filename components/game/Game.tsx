@@ -863,6 +863,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             pendingId={searchingId}
             otherBusy={pendingId !== null}
             lockedLocationIds={progress.lockedLocationIds}
+            freshLocationIds={progress.freshLocationIds}
             onSearch={onSearch}
             onBack={() => go("suspects")}
           />
