@@ -18,7 +18,7 @@ This audit builds on `SOLUTION_PROOF.md` and `LEAK_AUDIT.md` (leak paths, card m
 
 **Status key:**
 - **fixed (PR #55)**: data fix in PR #55, with a regression test.
-- **queued (PR B)**: data fix written and tested on `agatha/blackwood-audit-data`. It is held because it touches `characters/*.json` or `timeline.json`, which #53 also changes. The PR opens once #53 is on main.
+- **queued (PR B)**: data fix written and tested on `agatha/blackwood-audit-data` (pushed, no PR yet; it merges cleanly with #53 and #55). It is held because it touches `characters/*.json` or `timeline.json`, which #53 also changes. The PR opens once #53 is on main.
 - **Dexter**: engine or UI work, written up below to forward.
 - **decision**: needs George or Marvin.
 - **accepted**: deliberate, with the reason given.
@@ -212,7 +212,7 @@ He was sacked for drinking (`f-gregory-dismissed`), and the endings and Reginald
 
 ## 3. Testimony edges and sequence breaks
 
-### CA-22 · Medium · Cards that plainly contradict a lie but don't break it: queued (PR B)
+### CA-22 · Medium · Cards that plainly contradict a lie but don't break it: queued (PR B, Archibald side) / accepted (Victoria side)
 
 **Evidence:**
 - `l-archibald-together` ("with Victoria … until the scream") breaks only on `s-reginald-theft`. Two other cards say the opposite:
@@ -223,12 +223,17 @@ He was sacked for drinking (`f-gregory-dismissed`), and the endings and Reginald
 
 **Effect:** the player presents an obvious contradiction, nothing happens, and the hint system never flags it.
 
-**Fix:**
-- `l-archibald-together.breaksOnSecretIds` += `s-gregory-saw-victoria`, `s-victoria-left-dining`.
-- `l-victoria-letter.breaksOnSecretIds` = [`s-reginald-overheard`] (mode `any`).
-- `s-victoria-left-dining.revealConditions.testimonyIds` += `s-gregory-saw-victoria`.
+**Fix (Archibald side):** `l-archibald-together.breaksOnSecretIds` += `s-gregory-saw-victoria`, `s-victoria-left-dining`. The fastest path stays 10.
 
-The fastest path stays 10. No card reveals core guilt.
+**Accepted (Victoria side).** These two edges stay out:
+- `l-victoria-letter` breaking on Reginald's overheard card;
+- `s-victoria-left-dining` revealing on Gregory's card.
+
+The reason is #47 ("a card reveals only the secret mapped to it", `tests/engine/card-reveal.test.ts`, `blackwood-guilt.test.ts`):
+- Gregory's eyewitness card shows Victoria the core-guilt moment itself. It must crack nothing of hers, so that her answer never starts from that scene.
+- Breaking "never seen that letter" would steer her towards the letter she burned (`ev-letter-burned`, core).
+
+The cost is that those two contradictions earn the player nothing from Victoria. The cards still break `l-victoria-locked-in`, `l-victoria-never-in-hall` and `l-victoria-menu`.
 
 ### CA-23 · Low · No dead rooms, leads, clues or secrets: accepted (verified)
 
