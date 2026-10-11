@@ -17,6 +17,7 @@
  * facts it covers (relatedFactIds) out of the owner's prompt even if another
  * revealed secret also lists them (engine/knowledge-gate.ts).
  */
+import { contentWords, nameWords } from "./memory";
 import { keepNameToken } from "./name-tokens";
 import type { LoadedCase } from "./case-schema";
 import { gameMinutes } from "./time";
@@ -109,6 +110,12 @@ export interface GuiltProfile {
    * its facts describe. Holding that secret (own revealed, or its card shown/presented) covers saying those acts.
    */
   coverActs?: Record<string, CulpritAct[]>;
+  /**
+   * E15b: timed events a speaker can use as a relative anchor ("once the candles were lit", "before the thud"): the
+   * event's id words (people's names, prefixes and numbers left out) and its clock range. Whereabouts entries (loc-*)
+   * are left out.
+   */
+  anchorEvents?: { words: string[]; range: [number, number] }[];
 }
 
 /** E8: the culprit-act families of the over-claim check. */
@@ -242,11 +249,22 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
       }
     }
   }
+  const people = nameWords(c);
+  const anchorEvents: { words: string[]; range: [number, number] }[] = [];
+  for (const f of allFacts(c)) {
+    if (/^loc-/.test(f.id)) continue;
+    const from = f.time ?? f.from;
+    const to = f.time ?? f.to;
+    if (!from || !to) continue;
+    const words = [...contentWords(f.id.replace(/^(?:ev|f|fact|evt)-/, "").replace(/-/g, " "), people)].filter((w) => !/\d/.test(w));
+    if (words.length) anchorEvents.push({ words, range: [clock(from), clock(to)] });
+  }
   const murdererPronoun = murderer ? pronounOf(murderer as Character & { pronoun?: "she" | "he" | "they" }) : undefined;
   return {
     murdererNames: [...murdererNames],
     ...(murdererPronoun ? { murdererPronoun } : {}),
     coverActs,
+    anchorEvents,
     witnessNames: [...witnessNames],
     motiveActs: [...motiveActs],
     murdererId: sol.murdererId,

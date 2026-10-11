@@ -21,15 +21,17 @@
  *  - Otherwise the nearest clause with a cue is tried (the previous one first after "until"/"till", which close a
  *    range; else the next: "between 21:13, when he stepped away, and ..."), then the whole sentence (the pre-clause
  *    behaviour). If none of those fit, the time is still accepted when it fits SOME event the speaker knows or is in
- *    (their WHAT YOU KNOW, or an event involving them): unattributed is not wrong. Only a time that fits none of
- *    these is a miss.
+ *    (their WHAT YOU KNOW, or an event involving them): unattributed is not wrong. E14: a clause that clearly names an
+ *    event but has no time of its own claims the loose time ("I rang the police, sir, at half past nine"): it must
+ *    fit that event, with no speaker fallback. Only a time that fits none of these is a miss.
  * A sentence whose best event scores below 3 is not event-bound at all and is left to ai/canon-check.ts.
  * Fitting uses a tolerance that depends on how the time was said:
  *  - a precise clock time ("21:17", "nine-seventeen", "seventeen minutes past nine", "twenty to nine"): +-1 minute;
  *  - a rounded form ("a quarter past nine", "half past eight") or an hour ("nine o'clock"): +-5 minutes;
  *  - hedged with "around / about / roughly / nearly / approximately / or so": +-10 minutes;
  *  - "just / shortly / a little / soon after T": the event lies in [T, T+15]; "... before T": in [T-15, T].
- * Times in the speaker's own stories (maintained lies) and beliefs are exempt: a lie may carry its own time.
+ * Times in the speaker's own stories (maintained lies) and beliefs are exempt: a lie may carry its own time. E14: in a
+ * clause that clearly names an event, only a story or belief about THAT event excuses the time.
  * Unbound sentences are left to the existing subject-bound check (ai/canon-check.ts).
  */
 import type { LoadedCase } from "@/engine/case-schema";
@@ -182,8 +184,6 @@ export interface EventTimeMiss {
 export function checkEventTimes(text: string, c: EventCase, ctx?: EventTimeSpeaker): EventTimeMiss[] {
   const events = eventTimeMap(c);
   if (!events.length) return [];
-  const exempt = new Set<number>();
-  for (const s of [...(ctx?.intendedLies ?? []).map((l) => l.claim), ...(ctx?.beliefs ?? []).map((b) => b.statement)]) for (const m of extractTimes(s)) m.candidates.forEach((x) => exempt.add(x));
   const d = df(events);
   const speakerId = ctx?.persona?.id;
   // The speaker's own canon: events they know (WHAT YOU KNOW) or are in. Used only for times no clause can attribute.
@@ -209,6 +209,19 @@ export function checkEventTimes(text: string, c: EventCase, ctx?: EventTimeSpeak
     const best = Math.max(...scored.map((x) => x.total));
     return { top, bound: scored.filter((x) => x.total === best).map((x) => x.e), touched: scored.filter((x) => x.base >= 2).map((x) => x.e) };
   };
+  // Times in the speaker's own stories and beliefs, with the events each such statement is about (E14: a story's time
+  // excuses a clause about THAT story's events, or a clause naming no event; not a clause about another event).
+  const exempt = new Map<number, Set<string>>();
+  for (const s of [...(ctx?.intendedLies ?? []).map((l) => l.claim), ...(ctx?.beliefs ?? []).map((b) => b.statement)]) {
+    const about = scoreText(s).touched.map((e) => e.id);
+    for (const m of extractTimes(s))
+      for (const x of m.candidates) {
+        const set = exempt.get(x) ?? new Set<string>();
+        about.forEach((id) => set.add(id));
+        exempt.set(x, set);
+      }
+  }
+  const exemptFor = (m: TimeMention, events: EventEntry[] | null) => m.candidates.some((x) => exempt.has(x) && (events === null || events.some((e) => exempt.get(x)!.has(e.id))));
 
   const misses: EventTimeMiss[] = [];
   for (const sentence of text.split(/(?<=[.!?;])\s+|\n+/)) {
@@ -218,12 +231,23 @@ export function checkEventTimes(text: string, c: EventCase, ctx?: EventTimeSpeak
     if (whole.top < 3) continue;
     const parts = clauses(sentence);
     const partScores = parts.map((p) => scoreText(p.text));
+    // E14: a clause that clearly names an event but carries no time of its own claims the sentence's loose times
+    // ("I rang the police, sir, at half past nine"): such a time must fit THAT event, with no speaker fallback.
+    const spans: [number, number][] = [];
+    for (let at = 0, i = 0; i < mentions.length; i++) {
+      const f = sentence.indexOf(mentions[i]!.text, at);
+      const s0 = f >= 0 ? f : sentence.indexOf(mentions[i]!.text);
+      spans.push([s0, s0 + mentions[i]!.text.length]);
+      at = s0 + mentions[i]!.text.length;
+    }
+    const timed = parts.map((p) => spans.some(([a, b]) => a < Math.max(p.end, p.start + 1) && b > p.start));
+    const claimers = partScores.filter((p, i) => p.top >= 3 && !timed[i]);
+    const claimed = claimers.flatMap((p) => p.touched);
     let cursor = 0;
     for (const m of mentions) {
       const found = sentence.indexOf(m.text, cursor);
       const at = found >= 0 ? found : sentence.indexOf(m.text);
       cursor = at + m.text.length;
-      if (m.candidates.some((x) => exempt.has(x))) continue;
       const { lo, hi } = tolerance(m, sentence.slice(Math.max(0, at - 30), at), sentence.slice(at + m.text.length, at + m.text.length + 12));
       // T fits an event when the event's range overlaps [T+lo, T+hi] (directional forms: the event is after/before T).
       const fits = (es: EventEntry[]) => es.some((e) => m.candidates.some((t) => e.range[1] >= t + lo && e.range[0] <= t + hi));
@@ -231,15 +255,25 @@ export function checkEventTimes(text: string, c: EventCase, ctx?: EventTimeSpeak
       if (k < 0) k = parts.length - 1;
       const own = partScores[k]!;
       if (own.top >= 3) {
-        // Confident: the clause names its event. Strict.
-        if (!fits(own.touched)) misses.push({ text: m.text, eventIds: own.bound.map((e) => e.id) });
+        // Confident: the clause names its event. Strict: the time fits THAT event, or comes from the speaker's own
+        // story or belief about it (E14: "I rang the police at half past nine" is not excused by "took up the coal at
+        // half past nine").
+        if (!fits(own.touched) && !exemptFor(m, own.bound)) misses.push({ text: m.text, eventIds: own.bound.map((e) => e.id) });
         continue;
       }
+      // A time that fits an event its own clause touches (below the confident score) is that event's.
+      if (fits(own.touched)) continue;
+      if (claimers.length) {
+        if (!fits(claimed) && !exemptFor(m, claimers.flatMap((p) => p.bound))) misses.push({ text: m.text, eventIds: claimers.flatMap((p) => p.bound.map((e) => e.id)) });
+        continue;
+      }
+      if (exemptFor(m, null)) continue;
       // Not attributable in its own clause: the nearest clause with a cue, then the sentence, then the speaker's canon.
       const order = parts[k]!.closesRange ? [k - 1, k + 1] : [k + 1, k - 1];
       const neighbour = order.filter((n) => n >= 0 && n < parts.length).map((n) => partScores[n]!).find((p) => p.top >= 3);
       if (neighbour && fits(neighbour.touched)) continue;
       if (fits(whole.touched)) continue;
+      // The speaker fallback: only for a time no event-naming clause can claim (every such clause has its own time).
       if (fits(speakerEvents)) continue;
       misses.push({ text: m.text, eventIds: (neighbour ?? whole).bound.map((e) => e.id) });
     }

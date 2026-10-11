@@ -384,3 +384,41 @@ tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered conf
 
 - `systemLines: { caseClosed?, caseClosedSearch?, recordDown? }` in case.json; neutral engine defaults
   (`engine/session.ts` `SYSTEM_LINES`, no constable, police, Yard or telephone).
+
+## 7. Consistency audit engine items (E12-E15)
+
+### E12 / E13 Forbidden-phrase switches and lifts
+
+- `onlyAfterRevealed: [secretId]`: the entry applies only once one of those secrets (any character's) is revealed.
+- `unlessRevealed`: may name any character's secret (lifted once it is revealed anywhere in the game).
+- `unlessShown: evidenceId | secretId`: lifted once that card has been shown to the speaker (the item presented this
+  exchange included). The guard's state is `forbiddenStateOf(guard)`: game-wide revealed secrets (core guilt never),
+  this exchange's reveal, and the speaker's shown evidence and testimony.
+
+### E14 Event-bound times (CA-46)
+
+- A clause that names an event (score 3 or more) is strict: its time must fit that event. A time from the speaker's own
+  story or belief excuses it only when that story is about the same event (Reginald's "took up the coal at half past
+  nine" no longer excuses "I rang the police at half past nine").
+- A loose time in a cueless clause ("I rang the police, sir, at half past nine") is claimed by an event-naming clause
+  that has no time of its own: it must fit that event, with no speaker fallback. The speaker fallback remains only for
+  a time no event-naming clause can claim (every such clause already has its own time, as in "The lights went out at
+  ten past nine, and by twenty-two minutes past nine I was sitting quietly again").
+
+### E15a over_claim negation
+
+- A negation in the same clause before the murderer-subject passes: "Nobody saw X strike him", "No one heard her lock
+  the door", "I never saw X take the key", "None of us saw X kill him". A negation in an earlier clause ("Nobody saw
+  anything, but X killed him") or after the act ("X killed him, and nobody saw it") does not.
+
+### E15b Relative window anchors (culprit scene check)
+
+- `guiltProfile.anchorEvents`: every timed fact/event (not `loc-*` whereabouts) with its id words (names, prefixes and
+  numbers left out) and clock range. `windowAnchor(sentence, profile)` reads "after / once / when / while / before /
+  until / by the time <phrase>", matches the phrase to the best events by id words, and anchors the sentence in the
+  murder window when ALL best matches agree: after-type, the event ends in [window start - 10, window end];
+  before-type, the event starts inside the window.
+- Used by the culprit's scene, presence and left-the-scene rules, and by the over-claim scene rule, next to the clock,
+  dark, while-away and dead-body anchors. "Once the candles were lit" and "before the thud" anchor; "before the
+  scream" (after the window, so also true of an earlier exit) and an exit with no anchor stay ambiguous and pass.
+
