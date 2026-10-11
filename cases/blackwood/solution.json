@@ -15,5 +15,14 @@
     "s-archibald-false-alibi",
     "s-gregory-saw-victoria"
   ],
-  "minKeyTestimony": 1
+  "minKeyTestimony": 1,
+  "supportingEvidenceIds": [
+    "silver-candlestick"
+  ],
+  "supportingTestimonyIds": [
+    "s-gregory-in-hall",
+    "s-victoria-left-dining",
+    "s-victoria-new-will",
+    "s-reginald-overheard"
+  ]
 }
