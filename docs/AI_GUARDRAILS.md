@@ -111,6 +111,9 @@ the line concedes, or `"killing"`.
 
 How a rejection is handled:
 - **Retry**: once, with a corrective note. The note never contains locked content, only ids the model already has.
+  On a turn with a planned reveal (`directives.revealSecret`), every note drops "admit nothing new" and ends with
+  "this turn still REQUIRES your confession (<id>): keep that confession and fix only the problem above" (C2,
+  `withPlannedReveal`), so a breakdown that is also a reveal is not told to confess nothing.
 - **Then**: `safeDeflection` (`ai/guard.ts:188`). For guilt it uses the guilt deflection. For other contract
   breaks it picks a line by stress band and uses the character's own quirks (calm) or tells (rattled) as the
   action. Performance slips keep the existing canned lines.

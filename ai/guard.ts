@@ -102,6 +102,30 @@ export function findUnknownName(text: string, vocabulary: string): string | null
 
 /** Check one reply against the contract; null = accepted. */
 export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
+  const v = checkReplyRules(r, g);
+  return v && withPlannedReveal(v, g.directives);
+}
+
+/** Phrases that tell the model to confess nothing; wrong on a turn whose directive REQUIRES a confession. */
+const ADMIT_NOTHING = /\s*Still admit nothing new\.?/g;
+
+/**
+ * C2: on a turn with a planned reveal (directives.revealSecret: a deferred stress reveal, a breakdown that is also a
+ * reveal, a clue or testimony that cracks a story), a retry note must never tell the model to admit nothing: that
+ * contradicts the directive and costs the beat. Any "admit nothing new" is dropped, and the note ends by keeping the
+ * confession this turn requires and fixing only the flagged problem. General: applies to every reason.
+ */
+export function withPlannedReveal(v: GuardVerdict, d: Pick<TurnDirectives, "revealSecret">): GuardVerdict {
+  if (!d.revealSecret) return v;
+  const note = v.note.replace(ADMIT_NOTHING, "").trim();
+  return { ...v, note: `${note} ${plannedRevealNote(d.revealSecret.id)}` };
+}
+
+export function plannedRevealNote(secretId: string): string {
+  return `This turn still REQUIRES your confession ("${secretId}", as your ENGINE DIRECTIVE says): keep that confession in your reply and fix only the problem above.`;
+}
+
+function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   const said = `${r.dialogue} ${r.action ?? ""}`;
   const victim = g.caseData.victim.name;
 
