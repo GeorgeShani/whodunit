@@ -19,7 +19,7 @@ const P = (text: string, extra: Partial<ForbiddenPhrase> = {}): ForbiddenPhrase 
 const issuesAt = (c: LoadedCase, key: string) => validateCase(c).filter((i) => (i.path ?? "").includes(key));
 
 /** A Marlow turn with his own revealed secrets, other characters' revealed secrets and shown items. */
-function turn(c: LoadedCase, o: { own?: string[]; others?: string[]; reveal?: boolean } = {}) {
+function turn(c: LoadedCase, o: { own?: string[]; others?: string[]; evidenceShown?: string[]; testimonyShown?: string[]; move?: Record<string, string> } = {}) {
   const g = createInitialGameState(c);
   g.discoveredEvidenceIds = c.evidence.map((e) => e.id);
   g.characters["cook-marlow"].revealedSecretIds = o.own ?? [];
@@ -28,7 +28,9 @@ function turn(c: LoadedCase, o: { own?: string[]; others?: string[]; reveal?: bo
     g.characters[owner.id].revealedSecretIds.push(id);
   }
   g.revealedSecretIds = [...(o.own ?? []), ...(o.others ?? [])];
-  return prepareTurn({ caseData: c, game: g, characterId: "cook-marlow", question: "Where were you?" });
+  g.characters["cook-marlow"].evidenceShownIds = o.evidenceShown ?? [];
+  g.characters["cook-marlow"].testimonyShownIds = o.testimonyShown ?? [];
+  return prepareTurn({ caseData: c, game: g, characterId: "cook-marlow", question: "Where were you?", move: o.move ?? {} });
 }
 function withPhrase(fp: ForbiddenPhrase): LoadedCase {
   const c = structuredClone(hl);
@@ -68,5 +70,40 @@ describe("E12 onlyAfterRevealed", () => {
     const core = [...coreGuiltSecretIds(hl)][0]!;
     const w = checkCaseWarnings(withPhrase(P("x", { onlyAfterRevealed: [core] })));
     expect(w.some((x) => (x.path ?? "").includes("onlyAfterRevealed") && /never applies/.test(x.message))).toBe(true);
+  });
+});
+
+describe("E13 lifts beyond the speaker's own secrets", () => {
+  it("unlessRevealed: another character's secret lifts the entry once revealed (validator accepts it)", () => {
+    const c = withPhrase(P("scrubbing pots", { unlessRevealed: "finch-secret" }));
+    expect(issuesAt(c, "forbiddenPhrases")).toEqual([]);
+    expect(checkReply(LINE, turn(c).guard)?.reason).toBe("forbidden_phrase");
+    expect(checkReply(LINE, turn(c, { others: ["finch-secret"] }).guard)?.reason).not.toBe("forbidden_phrase");
+  });
+  it("unlessShown: an evidence card shown earlier, or presented now, lifts the entry", () => {
+    const ev = hl.evidence[0]!.id;
+    const c = withPhrase(P("scrubbing pots", { unlessShown: ev }));
+    expect(checkReply(LINE, turn(c).guard)?.reason).toBe("forbidden_phrase");
+    expect(checkReply(LINE, turn(c, { evidenceShown: [ev] }).guard)?.reason).not.toBe("forbidden_phrase");
+    const now = turn(c, { move: { presentedEvidenceId: ev } });
+    expect(forbiddenStateOf(now.guard).shownIds).toContain(ev);
+    expect(checkReply(LINE, now.guard)?.reason).not.toBe("forbidden_phrase");
+  });
+  it("unlessShown: another character's testimony card shown to the speaker lifts it; merely revealed elsewhere does not", () => {
+    const c = withPhrase(P("scrubbing pots", { unlessShown: "finch-secret" }));
+    expect(checkReply(LINE, turn(c, { others: ["finch-secret"] }).guard)?.reason).toBe("forbidden_phrase");
+    const shown = turn(c, { others: ["finch-secret"], testimonyShown: ["finch-secret"] });
+    expect(shown.guard.ctx.testimonyShown.map((t) => t.id)).toContain("finch-secret");
+    expect(checkReply(LINE, shown.guard)?.reason).not.toBe("forbidden_phrase");
+    const presented = turn(c, { others: ["finch-secret"], move: { presentedTestimonyId: "finch-secret" } });
+    expect(checkReply(LINE, presented.guard)?.reason).not.toBe("forbidden_phrase");
+  });
+  it("validator: unlessShown must be evidence or another character's secret; core guilt is a warning", () => {
+    expect(issuesAt(withPhrase(P("x", { unlessShown: "nope" })), "unlessShown").some((i) => /unknown evidence or testimony/.test(i.message))).toBe(true);
+    expect(issuesAt(withPhrase(P("x", { unlessShown: "marlow-secret" })), "unlessShown").some((i) => /own secret/.test(i.message))).toBe(true);
+    expect(issuesAt(withPhrase(P("x", { unlessShown: hl.evidence[0]!.id })), "forbiddenPhrases")).toEqual([]);
+    const core = [...coreGuiltSecretIds(hl)].find((id) => !hl.characters.find((ch) => ch.id === "cook-marlow")!.secrets.some((s) => s.id === id))!;
+    const w = checkCaseWarnings(withPhrase(P("x", { unlessShown: core })));
+    expect(w.some((x) => (x.path ?? "").includes("unlessShown") && /core guilt/.test(x.message))).toBe(true);
   });
 });

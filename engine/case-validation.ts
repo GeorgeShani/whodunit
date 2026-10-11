@@ -166,9 +166,15 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       });
       s.relatedFactIds.forEach((id, k) => ref(factIds, "fact", id, f, `${p}.relatedFactIds.${k}`));
     });
-    // #46: a forbidden phrase lifts only on the speaker's OWN secret being revealed.
+    // #46 forbidden phrases: switches and lifts reference real ids.
     ch.forbiddenPhrases.forEach((fp, j) => {
-      if (fp.unlessRevealed) ref(ownSecretIds, "own secret", fp.unlessRevealed, f, `forbiddenPhrases.${j}.unlessRevealed`);
+      // E13: any character's secret may lift an entry; a card shown to the speaker may too (evidence, or another's testimony).
+      if (fp.unlessRevealed) ref(allSecretIds, "secret", fp.unlessRevealed, f, `forbiddenPhrases.${j}.unlessRevealed`);
+      if (fp.unlessShown) {
+        const sp = `forbiddenPhrases.${j}.unlessShown`;
+        if (!evidenceIds.has(fp.unlessShown) && !allSecretIds.has(fp.unlessShown)) issues.push({ file: f, path: sp, message: `unknown evidence or testimony (secret) id "${fp.unlessShown}"` });
+        else if (ownSecretIds.has(fp.unlessShown)) issues.push({ file: f, path: sp, message: `"${fp.unlessShown}" is ${ch.id}'s own secret; a testimony card is shown to someone else (use unlessRevealed)` });
+      }
       // E12: switched on by any character's secret; never by the one that also lifts it.
       fp.onlyAfterRevealed?.forEach((id, k) => {
         ref(allSecretIds, "secret", id, f, `forbiddenPhrases.${j}.onlyAfterRevealed.${k}`);
@@ -339,6 +345,8 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
     ch.forbiddenPhrases.forEach((fp, j) => {
       if (fp.onlyAfterRevealed?.length && fp.onlyAfterRevealed.every((id) => core.has(id)))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.onlyAfterRevealed`, message: "every listed secret is core guilt and is never revealed, so this phrase never applies" });
+      if (fp.unlessShown && core.has(fp.unlessShown))
+        warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessShown`, message: `"${fp.unlessShown}" is core guilt: its card is never shown, so this phrase is always forbidden` });
       if (fp.unlessRevealed && core.has(fp.unlessRevealed))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
     });

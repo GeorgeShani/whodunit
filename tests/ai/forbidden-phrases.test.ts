@@ -28,10 +28,10 @@ describe("schema", () => {
     expect(ForbiddenPhraseSchema.safeParse({ text: "x", bogus: 1 }).success).toBe(false);
     expect(CharacterSchema.shape.forbiddenPhrases).toBeDefined();
   });
-  it("validator: unlessRevealed must be the speaker's own secret", () => {
+  it("validator: unlessRevealed must be a real secret (any character's since E13)", () => {
     const bad = structuredClone(hl);
-    bad.characters.find((c) => c.id === "finch")!.forbiddenPhrases.push({ text: "rum", regex: false, unlessRevealed: "marlow-secret" });
-    expect(validateCase(bad).some((i) => /forbiddenPhrases\.\d+\.unlessRevealed/.test(i.path ?? "") && /unknown own secret/.test(i.message))).toBe(true);
+    bad.characters.find((c) => c.id === "finch")!.forbiddenPhrases.push({ text: "rum", regex: false, unlessRevealed: "no-such-secret" });
+    expect(validateCase(bad).some((i) => /forbiddenPhrases\.\d+\.unlessRevealed/.test(i.path ?? "") && /unknown secret/.test(i.message))).toBe(true);
     expect(validateCase(hl).filter((i) => (i.path ?? "").includes("forbiddenPhrases"))).toEqual([]);
   });
 });

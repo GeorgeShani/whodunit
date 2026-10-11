@@ -438,6 +438,11 @@ export const ForbiddenPhraseSchema = z
      * current exchange. For a story that breaks when a secret comes out: the exposed lie can't be repeated word for word.
      */
     onlyAfterRevealed: z.array(IdSchema).min(1).optional(),
+    /**
+     * E13: lifted once this item has been shown to the speaker: an evidence id (in their evidenceShownIds) or another
+     * character's secret id (its testimony card, in their testimonyShownIds), the item presented this exchange included.
+     */
+    unlessShown: IdSchema.optional(),
     note: z.string().optional(),
   })
   .superRefine((p, ctx) => {
