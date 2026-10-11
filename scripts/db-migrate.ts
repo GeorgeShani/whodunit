@@ -10,11 +10,12 @@ import { loadEnvConfig } from "@next/env";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
+import { classifyDbError, diagnoseDatabaseUrl, normalizeDatabaseUrl } from "../lib/db-diagnostic";
 
 async function main(): Promise<number> {
   // Same env files as `next dev` (.env.local etc.); an already-exported DATABASE_URL wins. Values are never printed.
   loadEnvConfig(process.cwd(), false, { info: () => {}, error: (...a: unknown[]) => console.error(...a) });
-  const url = process.env.DATABASE_URL?.trim();
+  const url = normalizeDatabaseUrl(process.env.DATABASE_URL);
   if (!url) {
     console.error(
       "db:migrate: DATABASE_URL is not set. Set it to the Supabase transaction-pooler URI (port 6543), in .env.local\n" +
@@ -29,9 +30,8 @@ async function main(): Promise<number> {
     console.log(`db:migrate: up to date (${n} migration${n === 1 ? "" : "s"} recorded).`);
     return 0;
   } catch (e) {
-    const err = e as { name?: string; code?: string; message?: string };
-    // Postgres errors carry a SQLSTATE code and a message without credentials; connection errors are named only.
-    console.error(`db:migrate: failed (${err.code ?? err.name ?? "error"})${err.code ? `: ${err.message}` : ""}`);
+    // The class only (errno / SQLSTATE / fixed label): driver messages can carry the host or user.
+    console.error(`db:migrate: failed (${classifyDbError(e)}); URL shape: ${JSON.stringify(diagnoseDatabaseUrl(process.env.DATABASE_URL ?? ""))}`);
     return 1;
   } finally {
     await sql.end({ timeout: 5 });

@@ -51,7 +51,8 @@ write-then-read-back check narrows the race; a region change or cache eviction f
   **closed**: the row is committed before any verdict leaves the server, and it does not expire or get evicted.
 - **Without it (fallback):** the record lives only in the Runtime Cache (`lib/accused-store.ts`, **30 days**, per region,
   evictable), as before: best effort, with the residual risk above. The server logs one warning per process.
-- `GET /api/health` returns `{ ok, runtimeCache: "vercel" | "memory", db: "ok" | "unreachable" | "unconfigured" }`.
+- `GET /api/health` returns `{ ok, runtimeCache: "vercel" | "memory", db: "ok" | "unreachable" | "unconfigured", dbDiagnostic? }`
+  (`dbDiagnostic` only when `DATABASE_URL` is set; see "Diagnosing `db: unreachable`" below).
   `runtimeCache: "memory"` means the runtime gave the function no shared cache, so the limits, the turn claims and the
   accusation cache record are per instance only.
 
@@ -109,6 +110,27 @@ comes back (409 `case_closed`). Otherwise the accusation is graded and the row i
 creates the row gets a fresh verdict; a concurrent duplicate gets the stored outcome. A stored **win** replays the win with
 the solution. A stored **loss** replays only "lost" and the accused's reaction: no solution, no verdict, no cited clues,
 and the token comes back unchanged (it still can never accuse again).
+
+### Diagnosing `db: "unreachable"`
+
+When `DATABASE_URL` is set, `/api/health` includes `dbDiagnostic`, the URL's non-secret SHAPE plus the connection
+error class (lib/db-diagnostic.ts). It never contains the URL, host name, user name or password, nor any raw driver
+message. Each failure (health probe or accusation) also logs one line, `[db] {"event":"db_unreachable",...}`, with
+the same fields.
+
+| Field | Expected | If not |
+| --- | --- | --- |
+| `hostKind` | `"pooler"` (`*.pooler.supabase.com`) | `"direct"` = `db.<ref>.supabase.co`, IPv6-only, which Vercel can't reach (errorClass is usually `ENOTFOUND` / `ENETUNREACH` / `CONNECT_TIMEOUT`) |
+| `port` | `6543` (transaction pooler) | `5432` on the pooler host = session pooler |
+| `userShape` | `"postgres.<ref>"` | plain `"postgres"` on the pooler gets `XX000 Tenant or user not found` |
+| `poolerHost` | the region shown in Supabase Connect, e.g. `aws-0-<region>` | a wrong region (or `aws-0` vs `aws-1`) also gets `Tenant or user not found` |
+| `placeholderPassword` | `false` | the `[YOUR-PASSWORD]` placeholder (or brackets) was pasted literally |
+| `passwordNeedsEncoding` | `false` | the password has `@ # / ? :` or similar unencoded: URL-encode it |
+| `surroundingQuotes`, `surroundingWhitespace` | `false` | harmless now (trimmed and one pair of quotes stripped before connecting), but fix the value |
+| `parseFailed` | `false` | the value is not a URL at all |
+| `errorClass` | `null` | `28P01` wrong password, `3D000` wrong database, `CONNECT_TIMEOUT` / `timeout` nothing answering, `ENOTFOUND` DNS |
+
+Changing an env var on Vercel only applies to NEW deployments: redeploy after editing it.
 
 ### Supabase free projects pause when idle
 
