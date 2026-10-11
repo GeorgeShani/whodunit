@@ -196,6 +196,15 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   if (!locationIds.has(s.locationId)) issues.push({ file: SOL, path: "locationId", message: `location "${s.locationId}" is not a location in case.json` });
   if (!motiveIds.has(s.motiveId)) issues.push({ file: SOL, path: "motiveId", message: `motive "${s.motiveId}" is not one of case.json motives[].id` });
   s.keyEvidenceIds.forEach((id, k) => ref(evidenceIds, "evidence", id, SOL, `keyEvidenceIds.${k}`));
+  // E2: supporting citations exist and never overlap the key lists.
+  (s.supportingEvidenceIds ?? []).forEach((id, k) => {
+    ref(evidenceIds, "evidence", id, SOL, `supportingEvidenceIds.${k}`);
+    if (s.keyEvidenceIds.includes(id)) issues.push({ file: SOL, path: `supportingEvidenceIds.${k}`, message: `"${id}" is already in keyEvidenceIds (supporting ids must not overlap the key list)` });
+  });
+  (s.supportingTestimonyIds ?? []).forEach((id, k) => {
+    if (!allSecretIds.has(id)) issues.push({ file: SOL, path: `supportingTestimonyIds.${k}`, message: `unknown secret "${id}"` });
+    if ((s.keyTestimonyIds ?? []).includes(id)) issues.push({ file: SOL, path: `supportingTestimonyIds.${k}`, message: `"${id}" is already in keyTestimonyIds (supporting ids must not overlap the key list)` });
+  });
 
   if (murderer && locationIds.has(s.locationId) && !wasPresent(c, s.murdererId, s.locationId, s.time)) {
     issues.push({
@@ -204,6 +213,11 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
         `murderer "${s.murdererId}" had no opportunity: no timeline entry (point or window) places them in ` +
         `"${s.locationId}" within ${OPPORTUNITY_WINDOW_MINUTES} min of ${s.time}`,
     });
+  }
+
+  // E3: when the case marks weapon candidates, the real weapon must be one, or the picker hides the answer.
+  if (c.evidence.some((e) => e.weapon) && !c.evidence.find((e) => e.id === s.weaponId)?.weapon) {
+    issues.push({ file: "evidence.json", path: s.weaponId, message: `evidence marks weapon candidates ("weapon": true) but the solution's weapon "${s.weaponId}" is not one, so the accuse form would not offer it` });
   }
 
   // endings.json (optional)
@@ -218,6 +232,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       });
     checkLines(c.endings.correct.confession, "correct.confession");
     checkLines(c.endings.correct.recap, "correct.recap");
+    if (c.endings.sloppyRemark) checkLines([c.endings.sloppyRemark], "sloppyRemark");
     for (const [suspectId, lines] of Object.entries(c.endings.wrong)) {
       if (!characterIds.has(suspectId)) issues.push({ file: END, path: `wrong.${suspectId}`, message: `"${suspectId}" is not a suspect` });
       checkLines(lines, `wrong.${suspectId}`);

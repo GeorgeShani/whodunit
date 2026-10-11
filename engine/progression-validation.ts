@@ -217,7 +217,87 @@ export function progressionWarnings(c: LoadedCase): CaseIssue[] {
   if (c.accuseGate && c.accuseGate.minEvidence < 2) w.push({ file: "case.json", path: "accuseGate.minEvidence", message: "is below 2: a single clue unlocks ACCUSE, which is the easy mode this gate exists to prevent" });
   for (const e of c.evidence) if (e.requires && !e.lockedLine) w.push({ file: "evidence.json", path: `evidence(${e.id})`, message: "is gated by requires but has no lockedLine (searches skip it silently)" });
   for (const l of c.locations) if (l.requires && !l.lockedLine) w.push({ file: "case.json", path: `locations(${l.id})`, message: "is gated by requires but has no lockedLine (the card shows a generic padlock line)" });
+  // E1: ACCUSE must never open while the win is impossible (key clues / key testimony not yet obtainable).
+  const open = accuseOpenWithoutWin(c);
+  if (open && open !== "budget") {
+    const g = open;
+    w.push({
+      file: "case.json",
+      path: "accuseGate",
+      message: `ACCUSE can open while winning is impossible: e.g. clues [${g.discoveredEvidenceIds.join(", ")}], secrets [${g.revealedSecretIds.join(", ")}] unlock the gate but hold fewer than the solution's minKeyEvidence/minKeyTestimony; tighten the gate (e.g. closedLeadIds on a lead that needs the key clue/testimony)`,
+    });
+  }
   return w;
+}
+
+export const ACCUSE_AUDIT_BUDGET = 300_000;
+
+/**
+ * E1: a reachable state where the accuse gate is open but the player cannot yet hold the win (fewer key clues than
+ * minKeyEvidence, or fewer key testimonies than minKeyTestimony), or null if none; "budget" when the search ran out.
+ * Exhaustive over searching, talking and cracking, adversarially: a secret with a stress threshold counts as
+ * revealable at any time (pressure alone can get there). Exchange counts are capped as in fastestPath.
+ */
+export function accuseOpenWithoutWin(c: LoadedCase): GameState | null | "budget" {
+  if (!usesProgression(c) || !c.accuseGate) return null;
+  const sol = c.solution;
+  const cap = exchangeCap(c);
+  const ids = c.characters.map((ch) => ch.id);
+  const core = coreGuiltSecretIds(c);
+  const key = (g: GameState) =>
+    [[...g.discoveredEvidenceIds].sort(), [...g.searchedLocationIds].sort(), [...g.revealedSecretIds].sort(), ids.map((id) => g.characters[id].interrogationCount)].map((x) => x.join(",")).join("|");
+  const clone = (g: GameState): GameState => ({
+    ...g,
+    discoveredEvidenceIds: [...g.discoveredEvidenceIds],
+    searchedLocationIds: [...g.searchedLocationIds],
+    revealedSecretIds: [...g.revealedSecretIds],
+    characters: Object.fromEntries(ids.map((id) => [id, { ...g.characters[id] }])),
+  });
+  const revealable = (sec: LoadedCase["characters"][number]["secrets"][number], g: GameState) => {
+    const rc = sec.revealConditions;
+    if (!rc || core.has(sec.id) || g.revealedSecretIds.includes(sec.id) || !rc.afterSecretIds.every((x) => g.revealedSecretIds.includes(x))) return false;
+    return rc.stressThreshold !== undefined || crackable(sec, core, g.discoveredEvidenceIds, g.revealedSecretIds);
+  };
+  const impossible = (g: GameState) =>
+    sol.keyEvidenceIds.filter((id) => g.discoveredEvidenceIds.includes(id)).length < (sol.minKeyEvidence ?? 1) ||
+    (sol.keyTestimonyIds ?? []).filter((id) => g.revealedSecretIds.includes(id)).length < (sol.minKeyTestimony ?? 0);
+  const start = emptyGame(c);
+  const seen = new Set([key(start)]);
+  const queue = [start];
+  for (let i = 0; i < queue.length; i++) {
+    const g = queue[i]!;
+    if (impossible(g) && accuseProgress(c, g).unlocked) return g;
+    const states = leadStates(c, g);
+    const next: GameState[] = [];
+    for (const loc of c.locations) {
+      if (!isUnlocked(loc, g, states)) continue;
+      const n = clone(g);
+      if (!n.searchedLocationIds.includes(loc.id)) n.searchedLocationIds.push(loc.id);
+      for (const e of c.evidence) if (e.locationId === loc.id && !n.discoveredEvidenceIds.includes(e.id) && isUnlocked(e, g, states)) n.discoveredEvidenceIds.push(e.id);
+      next.push(n);
+    }
+    for (const id of ids) {
+      const n = clone(g);
+      n.characters[id].interrogationCount = Math.min(cap, n.characters[id].interrogationCount + 1);
+      next.push(n);
+    }
+    for (const ch of c.characters)
+      for (const sec of ch.secrets) {
+        if (!revealable(sec, g)) continue;
+        const n = clone(g);
+        n.revealedSecretIds.push(sec.id);
+        n.characters[ch.id].interrogationCount = Math.min(cap, n.characters[ch.id].interrogationCount + 1);
+        next.push(n);
+      }
+    for (const n of next) {
+      const k = key(n);
+      if (seen.has(k)) continue;
+      seen.add(k);
+      queue.push(n);
+    }
+    if (seen.size > ACCUSE_AUDIT_BUDGET) return "budget";
+  }
+  return null;
 }
 
 /** Largest exchange count any condition or the accuse gate ever looks at (counts above it change nothing). */

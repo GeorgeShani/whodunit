@@ -99,13 +99,13 @@ describe("the accuse gate failing solely on the alibi lead (closedLeadIds)", () 
     const g = ready();
     expect(accuseProgress(c, g)).toMatchObject({
       unlocked: false,
-      line: "One of tonight's stories hasn't been put to the test yet. Somebody is still telling it with a straight face.",
+      line: "Loose ends, detective. Either somebody's story hasn't been put to the test, or the why of it all is still hiding somewhere in this house.",
       checklist: { clues: { have: 4, need: 3 }, suspects: { have: 3, need: 3 }, secrets: { have: 2, need: 2 } },
     });
     const r = await accuse(g);
     expect(r.status).toBe(403);
     expect(r.body.error).toBe("accuse_locked");
-    expect(r.body.line).toMatch(/stories hasn't been put to the test/);
+    expect(r.body.line).toMatch(/story hasn't been put to the test/);
     expect(r.body.outcome).toBeUndefined();
     expect(JSON.stringify(r.body)).not.toMatch(/s-archibald-false-alibi|s-gregory-saw-victoria|closedLeadIds|closesWhen/);
   });

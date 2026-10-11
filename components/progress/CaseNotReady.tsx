@@ -24,7 +24,11 @@ export function CaseNotReady({
     ["Clues", c.clues],
     ["Suspects", c.suspects],
     ["Cracks", c.secrets],
+    ...(c.leads
+      ? ([["Leads", c.leads]] as [string, { have: number; need: number }][])
+      : []),
   ];
+  const shown = rows.filter(([, v]) => v.need > 0);
   return (
     <div
       className="absolute inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
@@ -45,23 +49,27 @@ export function CaseNotReady({
           CASE NOT READY
         </h2>
         <p className="mt-2 text-lg font-semibold">{accuse.line}</p>
-        <ul className="mt-4 grid grid-cols-3 gap-2" aria-label="Case progress">
-          {rows
-            .filter(([, v]) => v.need > 0)
-            .map(([label, v]) => (
-              <li
-                key={label}
-                className={`rounded-xl border-[3px] border-black p-2 text-center ${v.have >= v.need ? "bg-lime-200" : "bg-white"}`}
-              >
-                <span className="block text-sm font-black uppercase">
-                  {label}
-                </span>
-                <span className="block font-display text-2xl">
-                  {Math.min(v.have, v.need)}/{v.need}
-                  {v.have >= v.need && <span aria-label="done"> ✓</span>}
-                </span>
-              </li>
-            ))}
+        <ul
+          className="mt-4 grid gap-2"
+          style={{
+            gridTemplateColumns: `repeat(${Math.max(1, shown.length)}, minmax(0, 1fr))`,
+          }}
+          aria-label="Case progress"
+        >
+          {shown.map(([label, v]) => (
+            <li
+              key={label}
+              className={`rounded-xl border-[3px] border-black p-2 text-center ${v.have >= v.need ? "bg-lime-200" : "bg-white"}`}
+            >
+              <span className="block text-sm font-black uppercase">
+                {label}
+              </span>
+              <span className="block font-display text-2xl">
+                {Math.min(v.have, v.need)}/{v.need}
+                {v.have >= v.need && <span aria-label="done"> ✓</span>}
+              </span>
+            </li>
+          ))}
         </ul>
         <div className="mt-5 flex justify-end">
           <CartoonButton

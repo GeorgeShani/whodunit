@@ -154,6 +154,9 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
   {
     "id": "silver-candlestick", "name": "…", "description": "…",
     "kind": "physical | document | testimony | observation",
+    "weapon": true,                     // optional, PUBLIC (E3): a possible murder weapon, offered by the accuse form's
+                                        // weapon picker. Mark the real weapon and any decoys. If NO clue is marked, the
+                                        // picker lists every clue found. If any is marked, the solution's weapon must be.
     "locationId": "library",            // where it is FOUND when the player searches this location (Investigate).
                                         // No locationId and not initiallyAvailable = unreachable.
     "discoveryLine": "Aha! …",          // optional, PUBLIC; shown in the discovery sting
@@ -304,11 +307,15 @@ While a secret is locked or a lie unbroken, the character's context withholds th
   "murdererId": "victoria", "weaponId": "silver-candlestick", "locationId": "library", "time": "21:17",
   "motiveId": "inheritance",                        // one of case.json motives[].id
   "keyEvidenceIds": ["silver-candlestick", "…"],    // ≥ 1; the proof an accusation must cite
+  "supportingEvidenceIds": ["…"],                   // optional (E2): clues that also support the case
+  "supportingTestimonyIds": ["…"],                  // optional (E2): secrets that also support the case
   "explanation": "optional reveal write-up"
 }
 ```
 
-The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
+The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds, keyTestimonyIds? }`.
+
+**Citation grading (E2).** A cited clue *supports* the accusation if it is in `keyEvidenceIds` or `supportingEvidenceIds`; cited testimony supports it if it is in `keyTestimonyIds` or `supportingTestimonyIds` (absent field: only the key ids count). The form shows "Cite up to N" and won't let you pick more, with N = the win's minimum + 1, for clues (`minKeyEvidence ?? 1`) and testimony (`minKeyTestimony ?? 0`) separately; the server answers an over-cap submission with **400 `too_many_citations`** and nothing is consumed. When the accused IS the murderer, the response carries `rating`: `"sloppy"` if any citation supports nothing, else `"clean"`. A sloppy win is still a win (same ending, same solution reveal) plus one `endings.sloppyRemark` line at the end; "right person, wrong story" keeps its authored ending and adds the rating and the remark before the escaped line. A wrong accusation has no rating and extra citations change nothing. The rating lives in the response only: `closed_games` stores won/lost (so a replay served from the database alone shows the win as clean). `validate:case`: supporting ids must exist and must not overlap the key lists. These fields are server-only.
 
 ## endings.json (server-only, optional for now)
 
@@ -322,7 +329,8 @@ The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
     "reginald": [ Line, … ],          // including the murderer ("right culprit, couldn't prove it")
     "victoria": [ Line, … ]
   },
-  "escapedLine": "THE MURDERER ESCAPED!"
+  "escapedLine": "THE MURDERER ESCAPED!",
+  "sloppyRemark": Line                // optional (E2): one extra line after a sloppy (right culprit) ending
 }
 ```
 
@@ -330,7 +338,7 @@ The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds }`.
 
 Endings spell out the solution, so they never reach the public view, the character context or the model.
 
-**A loss must not confirm anything (one accusation per game).** The loss response carries no solution and no per-field right/wrong, so the engine plays a `wrong` ending only when it gives nothing away: the entry for the real murderer is never used (a generic "sent home for lack of proof" ending plays instead, so Victoria's "right lady, wrong story" is kept in the file but not shown), and in everyone else's `wrong` entry, lines **spoken by the real murderer** are dropped (a gloating killer cameo would name them). Write each innocent's entry so it works with no cameo from the killer, and note the player then sees `escapedLine` followed by "The case went unsolved."
+**A loss confirms as little as possible (one accusation per game).** The loss response carries no solution and no per-field right/wrong. Every loss plays the accused's own `wrong` entry (E4, Marvin's decision): accusing the real murderer with the wrong story plays THEIR entry (Victoria's "right lady, wrong story"), and the validator flags a missing one. In everyone else's `wrong` entry, lines **spoken by the real murderer** are dropped (a gloating killer cameo would name them). Write each innocent's entry so it works with no cameo from the killer, and note the player then sees `escapedLine` followed by "The case went unsolved."
 
 ## Progression (optional): gated rooms and clues, leads, the accuse gate
 
@@ -356,7 +364,7 @@ Every field below is optional and strict; a case that uses none of them plays ex
 
 Engine behaviour: a locked room answers with its `lockedLine` and is not marked searched; `/api/accuse` recomputes the gate from the signed token and answers **403 `accuse_locked`** with the line of the first unmet item (clues, suspects, secrets, leads; the token is unchanged, the one accusation is not spent); cited `keyTestimonyIds` must be revealed (`testimony_not_revealed`); a win needs the right murderer, weapon and motive plus `minKeyEvidence` key clues and `minKeyTestimony` key testimony. Every route that returns a `stateToken` also returns `progress` (`leads` that are open/closed, `newLeadIds` = changed in this action, `lockedLocationIds`, `accuse: {unlocked, checklist {clues,suspects,secrets: {have,need}}, line?, citeTestimony}`); counts only, never which clue, who or why. A lead whose `closesWhen` holds before its `opensWhen` ever did (e.g. a hall search finds the clue first) still counts as closed for the gate and for `leadIds` atoms, but is never shown or announced: it stays out of `progress.leads` until its `opensWhen` holds (then it appears already solved, without a toast), and `newLeadIds` only carries hidden→open and open→closed. `requires`, `opensWhen`, `closesWhen` and `accuseGate` never leave the server.
 
-`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues, testimony cards held and `afterSecretIds` only, stress-only counts as unreachable, core guilt never reveals): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`. It prints the fastest legal path in actions (exact, breadth-first).
+`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues, testimony cards held and `afterSecretIds` only, stress-only counts as unreachable, core guilt never reveals): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`, and (E1) **ACCUSE can open while winning is impossible**: an exhaustive search over reachable states (search, talk, crack; any secret with a `stressThreshold` counts as revealable at any time) finds a state where the gate is open but fewer than `minKeyEvidence` key clues or `minKeyTestimony` key testimonies can be held. It prints the fastest legal path in actions (exact, breadth-first).
 
 ## What the AI and the player can see
 

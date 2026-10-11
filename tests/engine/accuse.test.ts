@@ -62,10 +62,21 @@ describe("gradeAccusation branches through POST /api/accuse", () => {
     expect(r.body.ending!.beats.at(-1)).toMatchObject({ section: "escaped", text: "The case went unsolved." });
   });
 
-  it("a loss never gives away the real murderer: no authored 'right lady' line, no gloating killer cameo, no unrelated clues", async () => {
+  it("right person, wrong story: the murderer's own authored wrong ending plays (E4), never the generic loss lines", async () => {
+    const authored = c.endings!.wrong[c.solution.murdererId]!;
+    for (const over of [{ motiveId: "revenge" }, { weaponId: "library-key" }, { keyEvidenceIds: ["muddy-footprint", "silver-candlestick"] }]) {
+      const r = await accuse({ ...WIN, ...over });
+      expect(r.body.outcome).toBe("lost");
+      const beats = r.body.ending!.beats.filter((b) => b.section === "wrong");
+      expect(beats.map((b) => b.text)).toEqual(authored.map((l) => l.text));
+      expect(beats.every((b) => b.speaker === c.solution.murdererId || authored.some((l) => l.speaker === b.speaker))).toBe(true);
+      expect(beats.map((b) => b.text).join(" ")).not.toMatch(/You've got it all wrong, detective!|is sent home/);
+      expect(r.body.solution).toBeUndefined();
+    }
+  });
+
+  it("a loss never gives away the real murderer: no gloating killer cameo in an innocent's ending, no unrelated clues", async () => {
     const right = await accuse({ ...WIN, motiveId: "revenge" }); // the real killer, wrong motive
-    const texts = right.body.ending!.beats.map((b) => b.text).join(" ");
-    expect(texts).not.toMatch(/right lady|wrong story|solicitor/i);
     const wrong = await accuse({ ...WIN, murdererId: "reginald" });
     expect(wrong.body.ending!.beats.some((b) => b.speaker === "victoria")).toBe(false); // her cameo gloats
     expect(wrong.body.ending!.beats[0].speaker).toBe("reginald");

@@ -4,6 +4,7 @@
  * a failing one; route-level runs use the real route with DATABASE_URL unset (cache-only fallback) and pointed at a
  * closed port (the real postgres-js client failing: fail closed).
  */
+import { citeCaps } from "@/engine/accusation";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/accuse/route";
 import { closeDb } from "@/db/client";
@@ -171,8 +172,8 @@ const realWin = () => ({
   murdererId: real.solution.murdererId,
   weaponId: real.solution.weaponId,
   motiveId: real.solution.motiveId,
-  keyEvidenceIds: real.solution.keyEvidenceIds.slice(0, 5),
-  ...(real.solution.keyTestimonyIds?.length ? { keyTestimonyIds: real.solution.keyTestimonyIds.slice(0, 3) } : {}),
+  keyEvidenceIds: real.solution.keyEvidenceIds.slice(0, citeCaps(real.solution).evidence),
+  ...(real.solution.keyTestimonyIds?.length ? { keyTestimonyIds: real.solution.keyTestimonyIds.slice(0, citeCaps(real.solution).testimony) } : {}),
 });
 const post = (body: unknown) => POST(new Request("http://t/api/accuse", { method: "POST", body: JSON.stringify(body) }));
 

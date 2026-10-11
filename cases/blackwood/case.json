@@ -2,7 +2,7 @@
   "id": "blackwood",
   "title": "Murder at Blackwood Manor",
   "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
-  "intro": "Thunder rattles the windows of Blackwood Manor. The lights have gone out, the road has flooded, and nobody is going anywhere tonight.\n\nSomewhere between the port and the coffee, Lord Blackwood was found dead in his own locked library, and the key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+  "intro": "Thunder rattles the windows of Blackwood Manor. The lights have gone out, the road has flooded, and nobody is going anywhere tonight.\n\nSomewhere between the coffee and the coal, Lord Blackwood was struck down in his own locked library, and the key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
   "knowledgeGate": "explicit",
   "victim": {
     "id": "lord-blackwood",
@@ -36,10 +36,10 @@
       "description": "Long table, a pair of silver candlesticks and a roaring hearth.",
       "searchFlavor": {
         "lines": [
-          "Dinner for four, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
+          "Dinner for three, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
           "The fire has sulked down to embers, and the hearth wears the smug look of a fireplace that knows something."
         ],
-        "emptyLine": "You count the pudding bowls again. Still four. Still nobody finished the trifle. Nothing new here."
+        "emptyLine": "You count the pudding bowls again. Still three. Still nobody finished the trifle. Nothing new here."
       },
       "requires": {
         "evidenceIds": [
@@ -414,13 +414,14 @@
     },
     "minRevealedSecrets": 2,
     "closedLeadIds": [
-      "lead-alibi"
+      "lead-alibi",
+      "lead-motive"
     ],
     "lockedLines": {
       "evidence": "A hunch and a hat don't close a case, detective. Keep looking.",
       "suspects": "You've barely spoken to the household! Everyone has something to say, and somebody is fibbing.",
       "secrets": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
-      "leads": "One of tonight's stories hasn't been put to the test yet. Somebody is still telling it with a straight face.",
+      "leads": "Loose ends, detective. Either somebody's story hasn't been put to the test, or the why of it all is still hiding somewhere in this house.",
       "default": "Not so fast, detective! The case isn't ready for the gavel."
     }
   }

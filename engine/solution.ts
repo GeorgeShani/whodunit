@@ -27,6 +27,13 @@ export const CaseSolutionSchema = z.strictObject({
   keyTestimonyIds: z.array(IdSchema).optional(),
   /** How many of keyTestimonyIds an accusation must cite to win (default 0). */
   minKeyTestimony: z.number().int().min(0).optional(),
+  /**
+   * E2: clues that also SUPPORT the accusation without being key (citing them is never sloppy). Absent: only
+   * keyEvidenceIds support. Must exist and must not overlap keyEvidenceIds.
+   */
+  supportingEvidenceIds: z.array(IdSchema).optional(),
+  /** E2: the same for testimony (secret ids), alongside keyTestimonyIds. */
+  supportingTestimonyIds: z.array(IdSchema).optional(),
   /** Optional server-only write-up for the reveal screen. */
   explanation: z.string().trim().min(1).optional(),
 });

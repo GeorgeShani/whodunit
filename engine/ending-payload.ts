@@ -6,8 +6,9 @@
  * Won:  endings.correct.confession, then endings.correct.recap (Agatha's text
  *       as-is). Without authored endings: a generic confession plus the
  *       engine's time/place line.
- * Lost: endings.wrong[accusedId] (minus anything that would give the solution
- *       away, see lossBeats), then endings.escapedLine and "The case went unsolved."
+ * Lost: endings.wrong[accusedId] (the real murderer's own entry included: right person,
+ *       wrong story), minus the real murderer's cameos in SOMEONE ELSE's ending, then
+ *       endings.escapedLine and "The case went unsolved."
  */
 import type { AccuseVerdict, EndingBeat, EndingPayload, SolutionReveal } from "./accuse-schema";
 import type { AccusationGrade } from "./accusation";
@@ -19,6 +20,8 @@ import type { Accusation } from "./types";
 export const DEFAULT_ESCAPED_LINE = "THE MURDERER ESCAPED!";
 export const WON_HEADLINE = "CASE CLOSED!";
 export const UNSOLVED_LINE = "The case went unsolved.";
+/** E2: played when a case has no endings.sloppyRemark. */
+export const DEFAULT_SLOPPY_REMARK = "Not everything you cited had any business in the evidence bag, detective.";
 const DEFAULT_PAUSE_MS = 1200;
 
 function speakerName(c: LoadedCase, speaker: string): string {
@@ -46,7 +49,13 @@ export function engineRecapLine(c: LoadedCase): string {
   return `Case closed! At ${s.time}, in ${where}, ${who} struck with the ${weapon.replace(/^the /i, "")}.`;
 }
 
-export function buildEnding(c: LoadedCase, grade: Pick<AccusationGrade, "won">, accusation: Accusation): EndingPayload {
+/** E2: the one extra remark line for a sloppy rating (authored endings.sloppyRemark, else a generic narrator line). */
+function remarkBeats(c: LoadedCase, rating: AccusationGrade["rating"]): EndingBeat[] {
+  if (rating !== "sloppy") return [];
+  return [toBeat(c, c.endings?.sloppyRemark ?? { speaker: "narrator", text: DEFAULT_SLOPPY_REMARK }, "remark")];
+}
+
+export function buildEnding(c: LoadedCase, grade: Pick<AccusationGrade, "won"> & Partial<Pick<AccusationGrade, "rating">>, accusation: Accusation): EndingPayload {
   const e = c.endings;
   const escaped = e?.escapedLine ?? DEFAULT_ESCAPED_LINE;
   if (grade.won) {
@@ -56,9 +65,9 @@ export function buildEnding(c: LoadedCase, grade: Pick<AccusationGrade, "won">, 
     const recap = e?.correct.recap.length
       ? e.correct.recap.map((l) => toBeat(c, l, "recap"))
       : [toBeat(c, { speaker: "narrator", text: engineRecapLine(c), evidenceIds: [c.solution.weaponId] }, "recap")];
-    return { outcome: "won", headline: WON_HEADLINE, accusedId: accusation.murdererId, beats: [...confession, ...recap] };
+    return { outcome: "won", headline: WON_HEADLINE, accusedId: accusation.murdererId, beats: [...confession, ...recap, ...remarkBeats(c, grade.rating)] };
   }
-  return { outcome: "lost", headline: escaped, accusedId: accusation.murdererId, beats: [...lossBeats(c, accusation), ...unsolvedBeats(escaped)] };
+  return { outcome: "lost", headline: escaped, accusedId: accusation.murdererId, beats: [...lossBeats(c, accusation), ...remarkBeats(c, grade.rating), ...unsolvedBeats(escaped)] };
 }
 
 /** Closing beats of every loss: the escaped line, then the plain fact that the case is unsolved. */
@@ -70,15 +79,18 @@ function unsolvedBeats(escaped: string): EndingBeat[] {
 }
 
 /**
- * The accused's reaction on a LOSS. It must say nothing about how close the
- * guess was (#22): the authored ending for the real murderer ("right lady,
- * wrong story") is never used, and cameos by the real murderer in somebody
- * else's wrong ending are dropped, because them gloating would name the killer.
+ * The accused's reaction on a LOSS: their authored `endings.wrong[accusedId]`, for every suspect (Marvin's decision
+ * on E4): accusing the real murderer with the wrong story, or losing on the gate's sequence against them, plays
+ * THEIR authored ending, so every loss has the same shape (an authored scene by the accused) and the generic lines
+ * only cover a case without one. Cameos by the real murderer in somebody ELSE's wrong ending are still dropped
+ * (#22): them gloating over an innocent's arrest would name the killer. The weapon/key evidence are never flashed
+ * unless the player cited them.
  */
 function lossBeats(c: LoadedCase, accusation: Accusation): EndingBeat[] {
   const accusedName = speakerName(c, accusation.murdererId);
-  const authored = accusation.murdererId === c.solution.murdererId ? undefined : c.endings?.wrong[accusation.murdererId];
-  const kept = authored?.filter((l) => l.speaker !== c.solution.murdererId);
+  const authored = c.endings?.wrong[accusation.murdererId];
+  const accusedIsMurderer = accusation.murdererId === c.solution.murdererId;
+  const kept = accusedIsMurderer ? authored : authored?.filter((l) => l.speaker !== c.solution.murdererId);
   const mine = new Set([accusation.weaponId, ...accusation.keyEvidenceIds]);
   if (kept?.length) return kept.map((l) => ({ ...toBeat(c, l, "wrong"), evidenceIds: toBeat(c, l, "wrong").evidenceIds.filter((id) => mine.has(id)) }));
   return [

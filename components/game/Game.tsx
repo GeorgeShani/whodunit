@@ -863,6 +863,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             pendingId={searchingId}
             otherBusy={pendingId !== null}
             lockedLocationIds={progress.lockedLocationIds}
+            freshLocationIds={progress.freshLocationIds}
             onSearch={onSearch}
             onBack={() => go("suspects")}
           />
@@ -876,6 +877,8 @@ export function Game({ view }: { view: PublicCaseView }) {
             error={accuseError}
             testimonies={testimonies}
             citeTestimony={progress.accuse.citeTestimony}
+            weaponsMarked={view.weaponsMarked}
+            citeCap={progress.accuse.citeCap}
             onSubmit={onAccuse}
             onBack={() => go("suspects")}
           />

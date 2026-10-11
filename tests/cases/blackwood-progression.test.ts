@@ -49,7 +49,7 @@ describe("Blackwood progression: the data validates", () => {
   });
 
   it("the gate is the approved one", () => {
-    expect(c.accuseGate).toMatchObject({ minEvidence: 3, minSuspectsQuestioned: { count: 3, minExchanges: 2 }, minRevealedSecrets: 2, closedLeadIds: ["lead-alibi"] });
+    expect(c.accuseGate).toMatchObject({ minEvidence: 3, minSuspectsQuestioned: { count: 3, minExchanges: 2 }, minRevealedSecrets: 2, closedLeadIds: ["lead-alibi", "lead-motive"] });
     for (const line of Object.values(c.accuseGate!.lockedLines!)) expect(line.length).toBeLessThanOrEqual(160);
   });
 
