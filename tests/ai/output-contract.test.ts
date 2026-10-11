@@ -117,7 +117,7 @@ describe("output contract: names", () => {
     expect(r.body.source).toBe("fallback");
     expect(r.body.response.dialogue).not.toContain("Mustard");
     const v = c.characters.find((x) => x.id === "victoria")!;
-    expect([...v.personality.quirks, ...v.personality.tells]).toContain(r.body.response.action);
+    expect([...v.voice.actions, ...v.personality.quirks, ...v.personality.tells]).toContain(r.body.response.action);
   });
 
   it("safeDeflection is keyed to stress: calm quirks vs rattled tells", () => {
@@ -128,7 +128,17 @@ describe("output contract: names", () => {
     const rattled = safeDeflection(ctx, "unknown_name", 0);
     expect(calm.emotion).toBe("defensive");
     expect(rattled.emotion).toBe("nervous");
-    expect(calm.dialogue).not.toBe(rattled.dialogue);
+    // Authored voice.deflections come first whatever the stress (#52); the generic fallback is what stress keys.
+    const v = c.characters.find((x) => x.id === "victoria")!;
+    expect(v.voice.deflections).toContain(calm.dialogue);
+    const bare = { ...ctx, voice: { openers: [], actions: [], deflections: [] } };
+    bare.state = { ...ctx.state, stress: 0 };
+    const bareCalm = safeDeflection(bare, "unknown_name", 0);
+    bare.state = { ...ctx.state, stress: 90 };
+    const bareRattled = safeDeflection(bare, "unknown_name", 0);
+    expect(bareCalm.dialogue).not.toBe(bareRattled.dialogue);
+    expect(v.personality.quirks).toContain(bareCalm.action);
+    expect(v.personality.tells).toContain(bareRattled.action);
   });
 });
 

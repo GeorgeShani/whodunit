@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-archibald-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:46:23.808Z",
+  "recordedAt": "2026-10-11T14:06:29.203Z",
   "calls": [
     {
-      "promptHash": "525bb06b46bae51f",
+      "promptHash": "0818eb4b6fbadf4a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "d6aba684-f56f-940e-a70f-d3e394174c14",
+        "id": "1974fba1-fe0d-9d67-a7c9-326978e40d8d",
         "object": "chat.completion",
-        "created": 1791459980,
+        "created": 1791727583,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Blast you, detective, stop badgering a man! I... I wasn't with Victoria the whole time after all. I left at thirteen minutes past nine, used the servants' telephone from a quarter past nine till twenty minutes past nine, and was back at twenty-two minutes past nine. I only agreed to her story later to hide the call to my broker!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"Goes beetroot red, mops his brow frantically with a huge handkerchief while biting clean through his cigar, then wails and slumps into a chair.\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"library-key\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-archibald-together\", \"s-archibald-false-alibi\"]\n}",
+              "content": "{\n  \"dialogue\": \"Blast you, detective! I wasn't with Victoria the whole time after all! I left at thirteen minutes past nine, was on the servants' telephone from a quarter past nine to twenty minutes past nine, and back by twenty-two minutes past nine. I agreed to her story later to hide the call!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"Goes beetroot red, mops his brow frantically with a huge handkerchief, and bites clean through his cigar while wailing loudly.\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"library-key\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": -5,\n  \"trustDelta\": -8,\n  \"admits\": [\"l-archibald-together\", \"s-archibald-false-alibi\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4501,
-          "completion_tokens": 210,
-          "total_tokens": 4711,
+          "prompt_tokens": 4509,
+          "completion_tokens": 191,
+          "total_tokens": 4700,
           "prompt_tokens_details": {
-            "text_tokens": 4501,
+            "text_tokens": 4509,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 4480
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 60168500
+          "cost_in_usd_ticks": 14097500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4501,
-        "completion_tokens": 210,
-        "total_tokens": 4711,
+        "prompt_tokens": 4509,
+        "completion_tokens": 191,
+        "total_tokens": 4700,
         "prompt_tokens_details": {
-          "text_tokens": 4501,
+          "text_tokens": 4509,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 4480
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 60168500
+        "cost_in_usd_ticks": 14097500
       },
-      "costUsd": 0.006016850000000001
+      "costUsd": 0.00140975
     },
     {
-      "promptHash": "4b083e6d89e1edfb",
+      "promptHash": "a14a2df1ce14aea4",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "5534aa42-90d5-9c4b-8c1c-bbaab63a9256",
+        "id": "f08dc01d-c682-9b41-a931-606841587845",
         "object": "chat.completion",
-        "created": 1791459982,
+        "created": 1791727586,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"What are you on about, old boy? I was in the dining room with Victoria the whole time after the candles were lit until the scream!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"mops his beetroot-red brow with a huge handkerchief while biting clean through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"l-archibald-together\"]}",
+              "content": "{\"dialogue\":\"WHAT ARE YOU ON ABOUT, OLD BOY? My alibi's solid as a rock!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"turns beetroot red, mops brow furiously with handkerchief while biting clean through his cigar\",\"evidenceReactions\":[{\"evidenceId\":\"library-key\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-archibald-false-alibi\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4580,
-          "completion_tokens": 105,
-          "total_tokens": 4685,
+          "prompt_tokens": 4564,
+          "completion_tokens": 97,
+          "total_tokens": 4661,
           "prompt_tokens_details": {
-            "text_tokens": 4580,
+            "text_tokens": 4564,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 4480
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 58531000
+          "cost_in_usd_ticks": 12435000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4580,
-        "completion_tokens": 105,
-        "total_tokens": 4685,
+        "prompt_tokens": 4564,
+        "completion_tokens": 97,
+        "total_tokens": 4661,
         "prompt_tokens_details": {
-          "text_tokens": 4580,
+          "text_tokens": 4564,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 4480
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 58531000
+        "cost_in_usd_ticks": 12435000
       },
-      "costUsd": 0.0058531
+      "costUsd": 0.0012435
     }
   ]
 }
