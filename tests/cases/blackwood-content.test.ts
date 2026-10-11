@@ -84,11 +84,17 @@ describe("Blackwood endings", () => {
     for (const id of proof()) expect(cited, id).toContain(id);
   });
 
-  it("each wrong ending opens with the accused and closes with the murderer's gloat", () => {
+  it("r7 M3: every wrong ending has the same shape (two lines, spoken by the accused alone) and gives nothing away", () => {
     for (const ch of c.characters) {
       const lines = endings.wrong[ch.id];
-      expect(lines[0].speaker, ch.id).toBe(ch.id);
-      expect(lines[lines.length - 1].speaker, ch.id).toBe(c.solution.murdererId);
+      expect(lines.map((l) => l.speaker), ch.id).toEqual([ch.id, ch.id]);
+      expect(lines.map((l) => [l.pauseMs, l.emotion === "shocked"]), ch.id).toEqual([
+        [1000, true],
+        [1400, false],
+      ]);
+      const text = lines.map((l) => l.text).join(" ");
+      // no secret, alibi or verdict: the transfer, the accounts, the sighting, "right lady", the how and why
+      expect(text, ch.id).not.toMatch(/transfer|midnight|money|accounts|borrowed|telephone|see nothin|DO nothin|right lady|wrong story|how and the why|fortune|inherit|monte carlo|letter|new will|candlestick|\bkey\b|library|\bshed\b|\bgin\b/i);
     }
   });
 });
