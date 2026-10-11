@@ -24,7 +24,7 @@ import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
 import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
-import { DEFLECT_CALM, DEFLECT_RATTLED, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
+import { findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
 import { freshPick, recentReplies, repeatsRecentReply, sameAction, saidRecently } from "./delivery";
 import type { ConfrontDirective, TurnDirectives } from "./prompts/interrogation";
@@ -267,32 +267,35 @@ const RATTLED = [
   "I... I need a moment. And then I'll still not answer that.",
 ];
 
-const GUILT_ACTIONS_CALM = ["folds arms and looks away", "lifts chin and stares at the far wall", "smooths a sleeve with great care"];
-const GUILT_ACTIONS_RATTLED = ["turns away, trembling", "grips the back of a chair", "presses a hand to the forehead"];
-
 /**
  * The safe in-character line when a reply broke the contract twice: keyed to the character's stress, quirks/tells and
  * authored `voice` (#52). Lines rotate by turn and never repeat one said in the character's recent replies; authored
  * voice.deflections come first, but only those `isSafe` accepts (the caller runs them through the guard's own checks).
+ *
+ * E9 (CA-37): the REASON never changes the pool. A guilt-path rejection (guilt_leak, admits_core_guilt) draws from the
+ * same authored deflections, actions, quirks and tells, the same generic lines and the same emotions as any other
+ * rejection. Only the culprit really hits the guilt path, so a separate guilt-only pool was a tell. Actions are
+ * filtered by `isSafeAction` (the caller runs the guilt and era checks on them) for every reason alike.
  */
 export function safeDeflection(
   ctx: CharacterContext,
   reason: GuardReason,
   turn: number,
   isSafe: (line: string) => boolean = () => true,
+  isSafeAction: (action: string) => boolean = () => true,
 ): { dialogue: string; action: string; emotion: "defensive" | "panicked" | "nervous" } {
-  const guilt = reason === "guilt_leak" || reason === "admits_core_guilt";
+  void reason; // kept for logging callers; deliberately not used to pick the pool (E9)
   const rattled = ctx.state.stress >= 61;
-  const generic = guilt ? (rattled ? DEFLECT_RATTLED : DEFLECT_CALM) : rattled ? RATTLED : CALM;
+  const generic = rattled ? RATTLED : CALM;
   const authored = (ctx.voice?.deflections ?? []).filter(isSafe);
   const lines = [...authored, ...generic];
   const i = Math.abs(turn);
   const dialogue = freshPick(lines, i, (l) => !saidRecently(l, ctx)) ?? lines[i % lines.length]!;
   const p = ctx.persona.personality;
   const own = rattled ? [...(p.tells ?? []), ...(p.quirks ?? [])] : [...(p.quirks ?? []), ...(p.tells ?? [])];
-  // After a guilt leak the action stays neutral (an authored tic could touch the scene); otherwise the character's own.
-  const pool = guilt ? (rattled ? GUILT_ACTIONS_RATTLED : GUILT_ACTIONS_CALM) : [...(ctx.voice?.actions ?? []), ...own];
+  // The character's own actions for every reason; any that could touch the scene are dropped by isSafeAction.
+  const pool = [...(ctx.voice?.actions ?? []), ...own].filter(isSafeAction);
   const recentActions = recentReplies(ctx).map((r) => r.action).filter((x): x is string => Boolean(x));
   const action = pool.length ? (freshPick(pool, i, (a) => !recentActions.some((x) => sameAction(x, a))) ?? pool[i % pool.length]!) : rattled ? "looks away, flustered" : "folds arms";
-  return { dialogue, action, emotion: guilt ? (rattled ? "panicked" : "defensive") : rattled ? "nervous" : "defensive" };
+  return { dialogue, action, emotion: rattled ? "nervous" : "defensive" };
 }

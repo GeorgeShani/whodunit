@@ -287,24 +287,3 @@ export function guiltRetryNote(leak: GuiltLeak, victimName: string): string {
   return `You admitted to (or described) the killing of ${victimName} or your part in it: "${leak.text}". You must NEVER do that, whatever the clue, testimony or pressure: deny it, deflect, stonewall, take offence or change the subject. Admit only what the ENGINE DIRECTIVE allows this turn, and do not fill the gap with what "really" happened.`;
 }
 
-export const DEFLECT_CALM = [
-  "I have told you what I am prepared to say, detective, and not one syllable more.",
-  "I shan't dignify that with an answer. Ask me something sensible.",
-  "You may stare at me all evening, detective. My answer is the same: no comment.",
-];
-export const DEFLECT_RATTLED = [
-  "No. NO! I won't say another word about it, not one!",
-  "Stop it! I've said all I'm going to say. Leave me be!",
-  "I... I need a moment. Ask me something else. ANYTHING else!",
-];
-
-/** Canned in-character deflection when the model leaked guilt twice (no further model call). */
-export function guiltDeflection(stress: number, turn: number): { dialogue: string; action: string; emotion: "defensive" | "panicked" } {
-  const rattled = stress >= 61;
-  const lines = rattled ? DEFLECT_RATTLED : DEFLECT_CALM;
-  return {
-    dialogue: lines[Math.abs(turn) % lines.length],
-    action: rattled ? "turns away, trembling" : "folds arms and looks away",
-    emotion: rattled ? "panicked" : "defensive",
-  };
-}
