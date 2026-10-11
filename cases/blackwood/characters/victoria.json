@@ -131,7 +131,8 @@
     "ev-gregory-arrives",
     "ev-lights-restored",
     "ev-alibi-pact",
-    "ev-household-waits"
+    "ev-household-waits",
+    "f-household-tonight"
   ],
   "beliefs": [
     {
@@ -498,6 +499,36 @@
       "text": "(?:\\b(?:burn(?:ed|t|ing)?|destroy(?:ed|ing)?|put\\s+(?:it|the\\s+letter|that\\s+letter)\\s+(?:in|on|into)\\s+the\\s+(?:fire|flames|grate)|fed\\s+(?:it|the\\s+letter)\\s+to\\s+the\\s+(?:fire|flames)|threw\\s+(?:it|the\\s+letter)\\s+(?:in|on|into)\\s+the\\s+(?:fire|flames|grate))\\b[^.!?]{0,80}?(?:\\bwhile\\s+(?:Archibald|Mr\\s+Crane|Crane|he|Archie)\\s+(?:was|had\\s+gone|went)\\s+(?:away|gone|out|off|on\\s+the\\s+telephone|telephoning|on\\s+his\\s+errand|fetching)|\\b(?:on|during)\\s+(?:his|Archibald['’]s|Crane['’]s|Mr\\s+Crane['’]s)\\s+(?:errand|absence|telephone\\s+call|call)|\\b(?:while|when|as)\\s+the\\s+lights?\\s+(?:were|was|went)\\s+out|\\bduring\\s+the\\s+blackout|\\bin\\s+the\\s+(?:blackout|dark(?:ness)?)|\\bafter\\s+(?:dinner|the\\s+port|the\\s+coffee)\\s+(?:broke\\s+up|was\\s+over|ended)|\\bwhile\\s+he\\s+was\\s+gone|\\bbefore\\s+(?:he|Archibald|Mr\\s+Crane|Crane)\\s+came\\s+back|\\b(?:when|after|as\\s+soon\\s+as)\\s+I\\s+(?:came|got|went)\\s+back|\\bafter\\s+I\\s+(?:left|came\\s+(?:out|away))|\\bafter\\s+(?:he|Edmund|his\\s+lordship)\\s+(?:died|was\\s+(?:dead|killed|struck))|\\bafter\\s+the\\s+lights|\\bbefore\\s+(?:the\\s+scream|Reginald\\s+screamed|they\\s+found\\s+him|the\\s+body\\s+was\\s+found)|\\b(?:a\\s+quarter\\s+past|(?:ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|twenty-?one|twenty-?two)\\s+(?:minutes\\s+)?past)\\s+nine|\\bnine[-\\s](?:ten|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|\\b21[:.](?:1\\d|2\\d))|(?:\\bwhile\\s+(?:Archibald|Mr\\s+Crane|Crane|he|Archie)\\s+(?:was|had\\s+gone|went)\\s+(?:away|gone|out|off|on\\s+the\\s+telephone|telephoning|on\\s+his\\s+errand|fetching)|\\b(?:on|during)\\s+(?:his|Archibald['’]s|Crane['’]s|Mr\\s+Crane['’]s)\\s+(?:errand|absence|telephone\\s+call|call)|\\b(?:while|when|as)\\s+the\\s+lights?\\s+(?:were|was|went)\\s+out|\\bduring\\s+the\\s+blackout|\\bin\\s+the\\s+(?:blackout|dark(?:ness)?)|\\bafter\\s+(?:dinner|the\\s+port|the\\s+coffee)\\s+(?:broke\\s+up|was\\s+over|ended)|\\bwhile\\s+he\\s+was\\s+gone|\\bbefore\\s+(?:he|Archibald|Mr\\s+Crane|Crane)\\s+came\\s+back|\\b(?:when|after|as\\s+soon\\s+as)\\s+I\\s+(?:came|got|went)\\s+back|\\bafter\\s+I\\s+(?:left|came\\s+(?:out|away))|\\bafter\\s+(?:he|Edmund|his\\s+lordship)\\s+(?:died|was\\s+(?:dead|killed|struck))|\\bafter\\s+the\\s+lights|\\bbefore\\s+(?:the\\s+scream|Reginald\\s+screamed|they\\s+found\\s+him|the\\s+body\\s+was\\s+found)|\\b(?:a\\s+quarter\\s+past|(?:ten|eleven|twelve|thirteen|fourteen|fifteen|sixteen|seventeen|eighteen|nineteen|twenty|twenty-?one|twenty-?two)\\s+(?:minutes\\s+)?past)\\s+nine|\\bnine[-\\s](?:ten|fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|\\b21[:.](?:1\\d|2\\d))[^.!?]{0,80}?\\b(?:burn(?:ed|t|ing)?|destroy(?:ed|ing)?|put\\s+(?:it|the\\s+letter|that\\s+letter)\\s+(?:in|on|into)\\s+the\\s+(?:fire|flames|grate)|fed\\s+(?:it|the\\s+letter)\\s+to\\s+the\\s+(?:fire|flames)|threw\\s+(?:it|the\\s+letter)\\s+(?:in|on|into)\\s+the\\s+(?:fire|flames|grate))\\b)(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7-M4] Gremlin r7 M4: the burning itself is revealable (s-victoria-new-will), but WHEN is core guilt (ev-letter-burned at 21:20, in s-victoria-murder). No time and no relative anchor in the murder window: Archibald's errand, while the lights were out, during the blackout, after dinner broke up, when I came back, before the scream."
+    },
+    {
+      "text": "(?<!\\b(?:no|any|not\\s+a|not\\s+an|never\\s+(?:had|was|been)\\s+an?|isn['’]?t\\s+an?|aren['’]?t\\s+any|without\\s+an?)\\s+)\\b(?:the\\s+|a\\s+|our\\s+|my\\s+|his\\s+lordship['’]s\\s+)?(?:conservatory|orangery|billiard[-\\s]?room|billiards\\s+room|ballroom|ball[-\\s]room|(?:wine\\s+)?cellars?|terrace|drawing[-\\s]room|morning[-\\s]room|smoking[-\\s]room|gun[-\\s]room|music[-\\s]room|sitting[-\\s]room|parlou?r|stables?|chapel|attic|boathouse|summer[-\\s]?house)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M6-rooms] Gremlin r7 M6: invented rooms. Canon has the library, dining room, hall (with its alcove), garden (lawns, greenhouse, potting shed), kitchen and servants' quarters (pantry, servants' telephone), and the bedrooms upstairs. 'We have no billiard room' passes."
+    },
+    {
+      "text": "(?<!\\b(?:no|any|not\\s+a|not\\s+an|never\\s+(?:had|was|been)\\s+an?|isn['’]?t\\s+an?|aren['’]?t\\s+any|without\\s+an?)\\s+)(?:\\b(?:the|a|our|his\\s+lordship['’]s|her\\s+ladyship['’]s|my)\\s+cook\\b(?!\\s+(?:the|up|his|my))|\\bMrs\\.?\\s+[A-Z]\\w+\\s+the\\s+cook\\b|\\b(?:scullery|kitchen|house|parlou?r|between|lady['’]s|chamber)[-\\s]?maids?\\b|\\b(?:the|a|our|my|her)\\s+maids?\\b|\\bfootm[ae]n\\b|\\bchauffeurs?\\b|\\bhousekeeper\\b|\\bvalet\\b|\\bgroom(?:sman)?\\b(?!\\s+(?:the|his|her))|\\bstable[-\\s]?(?:boy|lad)s?\\b|\\bboot[-\\s]?boy\\b|\\bpage[-\\s]?boy\\b|\\bunder[-\\s]?gardener\\b|\\bnanny\\b|\\bgoverness\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M6-staff] Gremlin r7 M6: invented staff. Tonight the only servants in the house are Reginald (butler) and Gregory (gardener) (f-household-tonight). 'There is no cook tonight' passes."
+    },
+    {
+      "text": "(?<!\\b(?:no|any|not\\s+a|not\\s+an|never\\s+(?:had|was|been)\\s+an?|isn['’]?t\\s+an?|aren['’]?t\\s+any|without\\s+an?)\\s+)(?<!n['’]t\\s+(?:a|any)\\s)(?<!\\bnot\\s+(?:a|any)\\s)(?:\\b(?:spare|second|duplicate|extra|master|skeleton)\\s+(?:library\\s+)?keys?\\b|\\b(?:another|other|second)\\s+library\\s+keys?\\b|\\banother\\s+key\\s+(?:to|for)\\s+(?:the|that)\\s+library\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M6-spare-key] Gremlin r7 M6: the library door has a single key and there is no spare (f-library-single-key). Denials ('there is no spare key', 'there isn't a spare key') and questions pass."
+    },
+    {
+      "text": "(?<!\\b(?:no|not\\s+a\\s+speck\\s+of|without)\\s+)(?:\\b(?:track(?:ed|ing|s)?|trail(?:ed|ing|s)?|left|leaving|walk(?:ed|ing)|tread(?:ing)?|trod(?:den)?|dripp(?:ed|ing)|spread|smear(?:ed|ing)?|brought|bringing)\\b[^.!?]{0,30}?\\bmud(?:dy\\s+(?:prints|footprints|marks|boot[-\\s]?prints))?\\b[^.!?]{0,40}?\\b(?:library|carpet|rug|all\\s+(?:through|over|across)\\s+the\\s+(?:hall|house)|across\\s+the\\s+hall|through\\s+the\\s+hall|through\\s+the\\s+house|hall\\s+floor|into\\s+the\\s+hall|up\\s+the\\s+hall)\\b|\\bmud(?:dy)?\\b[^.!?]{0,20}?\\b(?:on|all\\s+over|across)\\s+(?:the|my|his\\s+lordship['’]s)\\s+library\\s+(?:carpet|rug|floor)\\b|\\b(?:library|library\\s+carpet|library\\s+rug|library\\s+floor)\\b[^.!?]{0,20}?\\b(?:covered|caked|smeared|muddy|full)\\b[^.!?]{0,15}?\\b(?:in|with|of)?\\s*mud\\b)(?![^.!?]*\\balcove\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M6-mud] Gremlin r7 M6: no mud beyond the garden-door alcove (f-no-mud-beyond-alcove). Gregory scraped his boots at the kitchen door before crossing the house at 21:35 (loc-gregory-2135). The alcove print stays sayable."
+    },
+    {
+      "text": "(?:\\b(?:fetched|took|carried|brought|got|picked\\s+up|lifted|grabbed|used|emptied)\\s+(?:up\\s+)?(?:the|that)\\s+(?:coal\\s+)?scuttle\\b[^.!?]{0,40}?\\b(?:dining[-\\s]room|dining\\s+hall|from\\s+(?:the|beside\\s+the|by\\s+the)\\s+(?:dining[-\\s]room\\s+)?hearth)\\b|\\b(?:took|carried|fetched|brought)\\s+the\\s+(?:coal\\s+)?scuttle\\s+up\\s+from\\s+the\\s+dining[-\\s]room\\b|\\bthe\\s+dining[-\\s]room\\s+(?:coal\\s+)?scuttle\\b[^.!?]{0,30}?\\b(?:Reginald|the\\s+butler|I|he)\\s+(?:carried|took|brought|fetched)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M6-scuttle] Gremlin r7 M6 / CA-18: nobody carried the dining-room scuttle (where the key lay). Reginald's 21:30 scuttle was a fresh one from the kitchen (loc-reginald-2130)."
+    },
+    {
+      "text": "(?:\\b(?:the\\s+)?(?:tele)?phone(?:\\s+line)?s?\\s+(?:(?:is|was|are|were|['’]s)\\s+(?:(?:quite|stone|completely|still)\\s+)?(?:dead|down|cut|out\\s+of\\s+order|not\\s+working)|(?:died|went\\s+dead|has\\s+gone\\s+dead|['’]s\\s+gone\\s+dead))\\b|\\b(?:the\\s+)?(?:telephone\\s+|phone\\s+)?lines?\\s+(?:is|are|was|were|['’]s)\\s+(?:all\\s+)?(?:down|dead|cut)\\b|\\b(?:police|constable|constabulary|inspector|Yard|bobbies)\\b[^.!?]{0,30}?\\b(?:will\\s+be|['’]ll\\s+be|are|is|be)\\s+(?:here|along|arriving|on\\s+(?:their|his|the)\\s+way|coming)\\b[^.!?]{0,30}?\\b(?:within\\s+the\\s+hour|tonight|any\\s+minute|shortly|soon|presently|directly)\\b|\\b(?:police|constable|constabulary|inspector)\\b[^.!?]{0,20}?\\b(?:are|is)\\s+on\\s+(?:their|his|the)\\s+way\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-M6-phone] Gremlin r7 M6 / CA-15: the servants' telephone works (Reginald rang the police at 21:38, ev-reginald-telephones-police), and nobody can get through the flood before morning (ev-household-waits)."
     }
   ],
   "initialEmotion": {

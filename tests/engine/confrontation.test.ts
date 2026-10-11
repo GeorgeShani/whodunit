@@ -111,7 +111,7 @@ describe("confrontation rules (MASTER_PLAN §32-33)", () => {
 
 const DISTINCT_LINES = [
   "The brandy was already low when I came in, and that is all I know.",
-  "Ask the butler about the cellar door; he keeps the keys.",
+  "Ask the butler about the pantry door; he keeps the keys.",
   "Rain on the glass, sir, and a draught under the stairs.",
   "My cousin sulks whenever the will is mentioned, ask anyone.",
   "Nobody thanked me for staying up past midnight, I might add.",
@@ -122,9 +122,9 @@ const DISTINCT_LINES = [
   "I distinctly remember a cold wind from the garden door.",
   "Quite a few guests left their gloves lying about tonight.",
   "Enough, enough; my head is pounding like a drum.",
-  "Somebody ought to fetch more firewood before the cellar floods.",
+  "Somebody ought to fetch more firewood before the kitchen floods.",
   "I wouldn't know a candlestick from a coat hook, honestly.",
-  "The telephone line died around supper, so nobody rang for help.",
+  "The rain started around supper and has not let up since.",
   "Heavens, what a dreadful draught creeping under that portrait.",
   "Cook burnt the pudding again, which tells you the mood downstairs.",
   "Perhaps his lordship simply wished to be left in peace.",

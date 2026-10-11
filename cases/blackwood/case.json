@@ -215,6 +215,18 @@
       ],
       "source": "witnessed",
       "confidence": 0.8
+    },
+    {
+      "id": "f-household-tonight",
+      "statement": "Tonight the only people at Blackwood Manor are Lord Blackwood, Lady Victoria, Mr Crane, Reginald the butler and Gregory the gardener. There are no other servants in the house.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "lord-blackwood",
+        "victoria",
+        "archibald",
+        "reginald",
+        "gregory"
+      ]
     }
   ],
   "motives": [
