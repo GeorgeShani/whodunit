@@ -6,8 +6,9 @@
  * Won:  endings.correct.confession, then endings.correct.recap (Agatha's text
  *       as-is). Without authored endings: a generic confession plus the
  *       engine's time/place line.
- * Lost: endings.wrong[accusedId] (minus anything that would give the solution
- *       away, see lossBeats), then endings.escapedLine and "The case went unsolved."
+ * Lost: endings.wrong[accusedId] (the real murderer's own entry included: right person,
+ *       wrong story), minus the real murderer's cameos in SOMEONE ELSE's ending, then
+ *       endings.escapedLine and "The case went unsolved."
  */
 import type { AccuseVerdict, EndingBeat, EndingPayload, SolutionReveal } from "./accuse-schema";
 import type { AccusationGrade } from "./accusation";
@@ -70,15 +71,18 @@ function unsolvedBeats(escaped: string): EndingBeat[] {
 }
 
 /**
- * The accused's reaction on a LOSS. It must say nothing about how close the
- * guess was (#22): the authored ending for the real murderer ("right lady,
- * wrong story") is never used, and cameos by the real murderer in somebody
- * else's wrong ending are dropped, because them gloating would name the killer.
+ * The accused's reaction on a LOSS: their authored `endings.wrong[accusedId]`, for every suspect (Marvin's decision
+ * on E4): accusing the real murderer with the wrong story, or losing on the gate's sequence against them, plays
+ * THEIR authored ending, so every loss has the same shape (an authored scene by the accused) and the generic lines
+ * only cover a case without one. Cameos by the real murderer in somebody ELSE's wrong ending are still dropped
+ * (#22): them gloating over an innocent's arrest would name the killer. The weapon/key evidence are never flashed
+ * unless the player cited them.
  */
 function lossBeats(c: LoadedCase, accusation: Accusation): EndingBeat[] {
   const accusedName = speakerName(c, accusation.murdererId);
-  const authored = accusation.murdererId === c.solution.murdererId ? undefined : c.endings?.wrong[accusation.murdererId];
-  const kept = authored?.filter((l) => l.speaker !== c.solution.murdererId);
+  const authored = c.endings?.wrong[accusation.murdererId];
+  const accusedIsMurderer = accusation.murdererId === c.solution.murdererId;
+  const kept = accusedIsMurderer ? authored : authored?.filter((l) => l.speaker !== c.solution.murdererId);
   const mine = new Set([accusation.weaponId, ...accusation.keyEvidenceIds]);
   if (kept?.length) return kept.map((l) => ({ ...toBeat(c, l, "wrong"), evidenceIds: toBeat(c, l, "wrong").evidenceIds.filter((id) => mine.has(id)) }));
   return [
