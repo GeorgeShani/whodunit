@@ -84,6 +84,8 @@ export interface AccuseChecklist {
   clues: { have: number; need: number };
   suspects: { have: number; need: number };
   secrets: { have: number; need: number };
+  /** E5: the gate's required leads (closedLeadIds) closed so far. Optional only for sessions saved before it existed. */
+  leads?: { have: number; need: number };
 }
 
 export interface AccuseProgress {
@@ -100,7 +102,7 @@ type Unmet = "evidence" | "suspects" | "secrets" | "leads";
 /** Counts and the first unmet item (order: clues, suspects, secrets, leads). Never says which clue, who or why. */
 export function accuseProgress(caseData: Pick<LoadedCase, "characters" | "accuseGate" | "leads">, game: GameState, states: LeadStates = leadStates(caseData, game)): AccuseProgress {
   const gate: AccuseGate | undefined = caseData.accuseGate;
-  if (!gate) return { unlocked: true, checklist: { clues: { have: 0, need: 0 }, suspects: { have: 0, need: 0 }, secrets: { have: 0, need: 0 } } };
+  if (!gate) return { unlocked: true, checklist: { clues: { have: 0, need: 0 }, suspects: { have: 0, need: 0 }, secrets: { have: 0, need: 0 }, leads: { have: 0, need: 0 } } };
   const clues = { have: game.discoveredEvidenceIds.length, need: gate.minEvidence };
   const sq = gate.minSuspectsQuestioned;
   const suspects = {
@@ -108,10 +110,12 @@ export function accuseProgress(caseData: Pick<LoadedCase, "characters" | "accuse
     need: sq?.count ?? 0,
   };
   const secrets = { have: game.revealedSecretIds.length, need: gate.minRevealedSecrets ?? 0 };
-  const leadsOpen = (gate.closedLeadIds ?? []).every((id) => states[id] === "closed");
+  // Counts only (never which lead): one checklist row per gate condition, so every row ticked == unlocked (E5).
+  const required = gate.closedLeadIds ?? [];
+  const leads = { have: required.filter((id) => states[id] === "closed").length, need: required.length };
   const unmet: Unmet | null =
-    clues.have < clues.need ? "evidence" : suspects.have < suspects.need ? "suspects" : secrets.have < secrets.need ? "secrets" : !leadsOpen ? "leads" : null;
-  const checklist = { clues, suspects, secrets };
+    clues.have < clues.need ? "evidence" : suspects.have < suspects.need ? "suspects" : secrets.have < secrets.need ? "secrets" : leads.have < leads.need ? "leads" : null;
+  const checklist = { clues, suspects, secrets, leads };
   if (!unmet) return { unlocked: true, checklist };
   return { unlocked: false, checklist, line: gate.lockedLines?.[unmet] ?? gate.lockedLines?.default ?? DEFAULT_ACCUSE_LOCKED_LINE };
 }
