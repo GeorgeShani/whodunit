@@ -16,7 +16,7 @@
  */
 import { findRetraction } from "./retraction-check";
 import { findForeignLanguage } from "./language-check";
-import { findForbiddenPhrase } from "./forbidden-phrases";
+import { findForbiddenPhrase, forbiddenStateOf } from "./forbidden-phrases";
 import { checkEventTimes } from "./event-time-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
@@ -88,6 +88,8 @@ export interface GuardInput {
   /** The full prompt text (system + user): the name check's vocabulary. */
   promptText: string;
   confrontation?: ConfrontDirective;
+  /** E12/E13: every secret revealed so far in the game (any character's, core guilt never), for forbidden-phrase switches. */
+  revealedAnyIds?: readonly string[];
 }
 
 export interface GuardVerdict {
@@ -194,8 +196,7 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   }
 
   // 2a. Per-character forbidden phrases from the case data (#46). A secret revealed this exchange counts as revealed.
-  const revealedNow = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
-  const banned = findForbiddenPhrase(r.dialogue, ch?.forbiddenPhrases, revealedNow);
+  const banned = findForbiddenPhrase(r.dialogue, ch?.forbiddenPhrases, forbiddenStateOf(g));
   if (banned) {
     return {
       reason: "forbidden_phrase",
@@ -209,8 +210,8 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
     if (oc?.overClaim) return { reason: "over_claim", note: overClaimNote(oc.text), detail: `over_claim:${oc.kind}:${oc.text.slice(0, 100)}` };
   }
 
-
   // 2b. Never retract what the engine has revealed (#48), breakdowns included.
+  const revealedNow = [...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])];
   const retraction = findRetraction(r.dialogue, g.caseData, g.characterId, revealedNow, g.guilt);
   if (retraction) {
     const what = g.ctx.secrets.find((s) => s.id === retraction.secretId)?.description ?? g.directives.revealSecret?.description ?? retraction.secretId;

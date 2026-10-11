@@ -13,7 +13,7 @@ import { DiscoverySting } from "@/components/evidence/DiscoverySting";
 import { ContradictionBeat, type ContradictionBeatData } from "@/components/evidence/ContradictionBeat";
 import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
-import { HelpButton, HowToPlayDialog } from "@/components/help/HowToPlay";
+import { HowToPlayButton, HowToPlayDialog } from "@/components/help/HowToPlay";
 import { GRADING_SECTION_ID, type Manual } from "@/lib/how-to-play";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
@@ -216,6 +216,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
   const [helpOpen, setHelpOpen] = useState(false);
   /** Deep link into the manual (e.g. the accuse form's "How am I graded?"); undefined = from the top. */
   const [helpSection, setHelpSection] = useState<string | undefined>(undefined);
+  const openHelp = useCallback(() => setHelpOpen(true), []);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Record<string, DialogueMessage[]>>({});
   const [emotions, setEmotions] = useState<Record<string, Emotion>>(() =>
@@ -779,7 +780,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
         data-screen={screen}
       >
         {screen === "title" && (
-          <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} {...(manual ? { onHowToPlay: () => setHelpOpen(true) } : {})} />
+          <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} {...(manual ? { onHowToPlay: openHelp } : {})} />
         )}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (
@@ -813,6 +814,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
         )}
         {screen === "interrogation" && active && (
           <InterrogationScreen
+            {...(manual ? { onHowToPlay: openHelp } : {})}
             stage={view.stage}
             suspect={active}
             emotion={emotions[active.id] ?? active.emotion.emotion}
@@ -844,6 +846,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
           const counter = confrontCounter(progress.confront, key, confrontStatus[key]);
           return (
             <ConfrontScreen
+              {...(manual ? { onHowToPlay: openHelp } : {})}
               pair={pair as [PublicSuspect, PublicSuspect]}
               emotions={emotions}
               stress={stress}
@@ -946,6 +949,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
           onClose={closeNotebook}
           leads={progress.leads}
           newLeadIds={unseenLeadIds}
+          {...(manual ? { onHowToPlay: openHelp } : {})}
         />
       )}
     </AnimatePresence>
@@ -955,10 +959,11 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
     )}
     <ContradictionBeat beat={beats[0] ?? null} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
-    {/* "?" in the HUD on in-case screens, hidden while another overlay owns the corner. It stays mounted under its own
-        overlay so focus can return to it on close. */}
+    {/* HOW TO PLAY pill, top right, on every in-case screen but the ending; hidden while another overlay owns the corner
+        (the Notebook has its own). Phone interrogation / confrontation put it with their controls instead (no header
+        room). It stays mounted under its own overlay so focus can return to it on close. */}
     {manual && screen !== "title" && screen !== "ending" && !notebookOpen && !notReady && stingQueue.length === 0 && beats.length === 0 && (
-      <HelpButton onOpen={() => setHelpOpen(true)} />
+      <HowToPlayButton onOpen={openHelp} {...(screen === "interrogation" || screen === "confront" ? { className: "max-sm:hidden" } : {})} />
     )}
     {manual && helpOpen && (
       <HowToPlayDialog

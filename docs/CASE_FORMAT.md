@@ -267,15 +267,26 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
 **Retiring a lie by confession (`supersededBySecretIds`).** A character who confesses a secret can't keep telling the story it contradicts (e.g. admitting "I was alone in the dining room" retires "Archibald and I were together"). List those secrets, which must be the lie owner's own (the validator rejects anyone else's), in `supersededBySecretIds`. When any of them is revealed, the lie counts as broken in that same turn, whatever the `breakMode`. The prompt then lists it under DROPPED STORIES and never as MAINTAIN THIS STORY, so the model is never told both to confess and to keep the lie. Retiring a lie adds no stress and doesn't trigger the contradiction beat, because no clue broke it.
 
 **Forbidden phrases (`forbiddenPhrases`, #46).** Optional on every character, default `[]`:
-`[{ "text": "...", "regex": false, "unlessRevealed": "<own secret id>", "note": "..." }]`. The guard rejects any reply
+`[{ "text": "...", "regex": false, "unlessRevealed": "<secret id>", "unlessShown": "<evidence or secret id>", "onlyAfterRevealed": ["<secret id>"], "note": "..." }]`. The guard rejects any reply
 from that character whose dialogue matches a live entry (reason `forbidden_phrase`: retry once, then the in-character
 deflection). A plain `text` matches case-insensitively as whole words, with any whitespace between words; with
 `"regex": true` it is compiled as `new RegExp(text, "i")` (native JavaScript, lookbehind allowed; an invalid regex fails
 loading). `unlessRevealed` lifts the entry once that secret of the speaker's is revealed, counting a secret revealed
-in the current exchange (so the turn that confesses it is not deflected). It must be the character's own secret (an
-error otherwise); a core-guilt id is a warning, since core guilt is never revealed. `note` is for authors and never
+in the current exchange (so the turn that confesses it is not deflected). Since E13 it may be ANY character's secret
+(lifted once that secret is revealed anywhere in the game: "may name the broker once Archibald's embezzlement is
+out"); an unknown id is an error and a core-guilt id is a warning, since core guilt is never revealed. `unlessShown`
+(E13) lifts the entry once that card has been shown to the speaker: an evidence id (their evidence-shown list) or
+another character's secret id (that testimony card), the item presented in the current exchange included ("may
+repeat Gregory's sighting once shown his card"). It must be evidence or someone else's secret (an error otherwise);
+a core-guilt id is a warning. `note` is for authors and never
 reaches the model. Typical uses: an innocent over-claiming what they perceived ("I saw her strike him"), and a locked
 secret's tell-tale wording before it is revealed.
+`onlyAfterRevealed` (E12, optional, a non-empty list of secret ids, any character's) does the opposite: the entry
+applies only once one of those secrets is revealed (this exchange included). Use it for a story that breaks when a
+secret comes out, so the broken story can't be repeated word for word ("polishing silver ... heard nothing at all").
+Write the pattern so the confession itself doesn't match it (on the reveal turn the entry is already on). Unknown ids
+are errors; an id that both switches the entry on and lifts it (`unlessRevealed`) is an error; a list of only
+core-guilt ids is a warning (the entry would never apply).
 
 **Voice variety (`voice`, #52).** Optional on every character; every list defaults to `[]`:
 `{ "openers": ["My dear detective,", ...], "actions": ["twists her rings", ...], "deflections": ["I shan't dignify that.", ...] }`.

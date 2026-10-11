@@ -6,6 +6,7 @@ import { MAX_QUESTION_CHARS } from "@/ai/interrogate-schema";
 import { formatRetryWait } from "@/ai/model-down";
 import { EmotionBadge } from "@/components/characters/EmotionBadge";
 import { usePreloadPoses } from "@/components/characters/Portrait";
+import { HowToPlayButton } from "@/components/help/HowToPlay";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AskInput } from "@/components/game/Game";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
@@ -36,6 +37,7 @@ export function InterrogationScreen({
   onBack,
   onRetry,
   retryWait = 0,
+  onHowToPlay,
 }: {
   suspect: PublicSuspect;
   emotion: Emotion;
@@ -63,6 +65,8 @@ export function InterrogationScreen({
   onRetry?: () => void;
   /** #49: seconds before AGAIN can succeed (a breather): AGAIN stays disabled with this countdown. */
   retryWait?: number;
+  /** Phones: an inline HOW TO PLAY pill by the controls (sm+ uses the fixed one). */
+  onHowToPlay?: () => void;
 }) {
   const [menu, setMenu] = useState<Menu>(null);
   const [text, setText] = useState("");
@@ -87,11 +91,11 @@ export function InterrogationScreen({
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
-      {/* pe-24 leaves room for the fixed mute toggle and the How to Play button; the name truncates instead of wrapping (#12). */}
-      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-24 sm:mb-3 sm:gap-3">
+      {/* Room for the fixed mute toggle (phones) plus the HOW TO PLAY pill (sm+); the name truncates instead of wrapping (#12). */}
+      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-14 sm:mb-3 sm:gap-3 sm:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
-          ← <span className="max-sm:hidden">Back to suspects</span>
-          <span className="sm:hidden">Back</span>
+          ← <span className="max-lg:hidden">Back to suspects</span>
+          <span className="lg:hidden">Back</span>
         </CartoonButton>
         <h1
           className="min-w-0 truncate font-display text-2xl tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl sm:[-webkit-text-stroke:1.5px_#000] sm:drop-shadow-[3px_3px_0_#000]"
@@ -137,10 +141,12 @@ export function InterrogationScreen({
                 ⚔️ Confront…
               </CartoonButton>
             )}
-            <CartoonButton className="col-span-2 min-h-12 short:min-h-11 px-2 short:col-span-1 md:col-auto" disabled={locked} onClick={onOpenNotebook} aria-haspopup="dialog">
+            <CartoonButton className={`min-h-12 short:min-h-11 px-2 short:col-span-1 md:col-auto ${onHowToPlay ? "col-span-1 sm:col-span-2" : "col-span-2"}`} disabled={locked} onClick={onOpenNotebook} aria-haspopup="dialog">
               🔍 Present evidence
               {evidence.length + testimonies.length > 0 ? ` (${evidence.length + testimonies.length})` : ""}
             </CartoonButton>
+            {/* Phones: the header has no room for the HOW TO PLAY pill, so it sits with the controls (sm+: fixed, top right). */}
+            {onHowToPlay && <HowToPlayButton variant="inline" onOpen={onHowToPlay} className="min-h-12 sm:hidden" />}
           </div>
 
           <AnimatePresence>

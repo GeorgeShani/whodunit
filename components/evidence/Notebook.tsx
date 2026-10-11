@@ -1,5 +1,6 @@
 "use client";
 
+import { HowToPlayButton } from "@/components/help/HowToPlay";
 import { motion } from "framer-motion";
 import { useId, useRef, useState } from "react";
 import { LeadsPanel } from "@/components/progress/LeadsPanel";
@@ -34,6 +35,7 @@ export function Notebook({
   onClose,
   leads = [],
   newLeadIds = [],
+  onHowToPlay,
 }: {
   evidence: PublicEvidence[];
   testimonies: PublicTestimony[];
@@ -53,6 +55,8 @@ export function Notebook({
   /** Progression leads (engine/progress.ts). The Leads tab only exists when the case has any. */
   leads?: PublicProgress["leads"];
   newLeadIds?: string[];
+  /** HOW TO PLAY inside the notebook (the fixed pill is hidden under it): in the header on sm+, in a footer on phones. */
+  onHowToPlay?: () => void;
 }) {
   const [tab, setTab] = useState<"evidence" | "leads">("evidence");
   const showLeads = leads.length > 0 && tab === "leads";
@@ -122,14 +126,17 @@ export function Notebook({
           <h2 id={titleId} className="font-display text-3xl tracking-wider">
             📓 Notebook{presentTo ? `: present to ${presentTo.name.split(" ")[0]}` : ""}
           </h2>
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            className="cursor-pointer min-h-11 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 font-bold shadow-[3px_3px_0_#000]"
-          >
-            ✕ Close
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            {onHowToPlay && <HowToPlayButton variant="inline" onOpen={onHowToPlay} className="max-sm:hidden" />}
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              className="cursor-pointer min-h-11 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 font-bold shadow-[3px_3px_0_#000]"
+            >
+              ✕ Close
+            </button>
+          </div>
         </header>
         {leads.length > 0 && (
           <div role="tablist" aria-label="Notebook sections" className="flex gap-2 border-b-4 border-black bg-amber-100 px-4 py-2">
@@ -225,6 +232,11 @@ export function Notebook({
             )}
           </section>
         </div>
+        {onHowToPlay && (
+          <footer className="flex justify-start border-t-4 border-black bg-amber-100 px-3 py-1.5 sm:hidden">
+            <HowToPlayButton variant="inline" onOpen={onHowToPlay} />
+          </footer>
+        )}
       </div>
     </motion.div>
   );

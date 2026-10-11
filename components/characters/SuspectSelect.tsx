@@ -52,7 +52,7 @@ export function SuspectSelect({
       style={backdropStyle(backdrop)}
     >
       {/* Phones: back link (the mute toggle and the How to Play button own the top-right corner), then the title, then a two-button action bar. */}
-      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:flex-nowrap sm:gap-2 sm:max-2xl:pe-24">
+      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to the case file" className="order-1 min-h-12 shrink-0 text-base">
           <span aria-hidden>←</span> Case file
         </CartoonButton>
