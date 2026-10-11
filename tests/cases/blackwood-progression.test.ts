@@ -17,6 +17,9 @@ import { encodeStateToken } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { TEST_ENV } from "../helpers/grok-mock";
 
+/** These run the validator's exhaustive state search (fastestPath / checkCaseWarnings): unchanged, just slow under a loaded runner. */
+const EXHAUSTIVE_SEARCH_TIMEOUT = 30_000;
+
 let c: LoadedCase;
 beforeAll(async () => {
   c = await loadCase("blackwood");
@@ -36,7 +39,7 @@ const reveal = (g: GameState, owner: string, secretId: string) => {
 const found = (r: { newlyFound: { id: string }[] }) => r.newlyFound.map((e) => e.id);
 
 describe("Blackwood progression: the data validates", () => {
-  it("references resolve, zero design warnings, and the fastest legal path is 10 actions", () => {
+  it("references resolve, zero design warnings, and the fastest legal path is 10 actions", { timeout: EXHAUSTIVE_SEARCH_TIMEOUT }, () => {
     expect(checkCaseReferences(c)).toEqual([]);
     expect(checkCaseWarnings(c)).toEqual([]);
     expect(fastestPath(c)).toBe(10);
