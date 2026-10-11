@@ -169,6 +169,11 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     // #46: a forbidden phrase lifts only on the speaker's OWN secret being revealed.
     ch.forbiddenPhrases.forEach((fp, j) => {
       if (fp.unlessRevealed) ref(ownSecretIds, "own secret", fp.unlessRevealed, f, `forbiddenPhrases.${j}.unlessRevealed`);
+      // E12: switched on by any character's secret; never by the one that also lifts it.
+      fp.onlyAfterRevealed?.forEach((id, k) => {
+        ref(allSecretIds, "secret", id, f, `forbiddenPhrases.${j}.onlyAfterRevealed.${k}`);
+        if (id === fp.unlessRevealed) issues.push({ file: f, path: `forbiddenPhrases.${j}.onlyAfterRevealed.${k}`, message: `"${id}" both switches this phrase on and lifts it, so it never applies` });
+      });
     });
     ch.intendedLies.forEach((l, j) => {
       const p = `intendedLies.${j}(${l.id})`;
@@ -332,6 +337,8 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   // #46: a forbidden phrase gated on a core-guilt secret never lifts (core guilt is never revealed): say so.
   for (const ch of c.characters)
     ch.forbiddenPhrases.forEach((fp, j) => {
+      if (fp.onlyAfterRevealed?.length && fp.onlyAfterRevealed.every((id) => core.has(id)))
+        warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.onlyAfterRevealed`, message: "every listed secret is core guilt and is never revealed, so this phrase never applies" });
       if (fp.unlessRevealed && core.has(fp.unlessRevealed))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
     });

@@ -433,6 +433,11 @@ export const ForbiddenPhraseSchema = z
     text: NonEmptyText,
     regex: z.boolean().default(false),
     unlessRevealed: IdSchema.optional(),
+    /**
+     * E12 (DX7): the entry applies only ONCE any of these secrets (any character's) is revealed, including in the
+     * current exchange. For a story that breaks when a secret comes out: the exposed lie can't be repeated word for word.
+     */
+    onlyAfterRevealed: z.array(IdSchema).min(1).optional(),
     note: z.string().optional(),
   })
   .superRefine((p, ctx) => {

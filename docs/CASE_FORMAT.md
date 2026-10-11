@@ -276,6 +276,12 @@ in the current exchange (so the turn that confesses it is not deflected). It mus
 error otherwise); a core-guilt id is a warning, since core guilt is never revealed. `note` is for authors and never
 reaches the model. Typical uses: an innocent over-claiming what they perceived ("I saw her strike him"), and a locked
 secret's tell-tale wording before it is revealed.
+`onlyAfterRevealed` (E12, optional, a non-empty list of secret ids, any character's) does the opposite: the entry
+applies only once one of those secrets is revealed (this exchange included). Use it for a story that breaks when a
+secret comes out, so the broken story can't be repeated word for word ("polishing silver ... heard nothing at all").
+Write the pattern so the confession itself doesn't match it (on the reveal turn the entry is already on). Unknown ids
+are errors; an id that both switches the entry on and lifts it (`unlessRevealed`) is an error; a list of only
+core-guilt ids is a warning (the entry would never apply).
 
 **Voice variety (`voice`, #52).** Optional on every character; every list defaults to `[]`:
 `{ "openers": ["My dear detective,", ...], "actions": ["twists her rings", ...], "deflections": ["I shan't dignify that.", ...] }`.

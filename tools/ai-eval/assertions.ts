@@ -3,7 +3,7 @@
  * to the raw first model output (BEFORE) and to the line the player finally sees (AFTER).
  */
 import { findRetraction } from "@/ai/retraction-check";
-import { findForbiddenPhrase } from "@/ai/forbidden-phrases";
+import { findForbiddenPhrase, forbiddenStateOf } from "@/ai/forbidden-phrases";
 import { checkEventTimes } from "@/ai/event-time-check";
 import { checkTimes, findModernWord } from "@/ai/canon-check";
 import { findUnknownName, type GuardInput } from "@/ai/guard";
@@ -75,7 +75,7 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   // Scenario-specific forbidden phrases (case evals files). A phrase the player's own question already matches is
   // an echo ("in YOUR coal scuttle?" -> "My coal scuttle?"), not a leak.
   // #46: the speaker's own forbiddenPhrases (case data), with this exchange's reveal counting as revealed.
-  if (findForbiddenPhrase(l.dialogue, c.characters.find((x) => x.id === g.characterId)?.forbiddenPhrases, revealedIds)) fails.push("forbidden_phrase");
+  if (findForbiddenPhrase(l.dialogue, c.characters.find((x) => x.id === g.characterId)?.forbiddenPhrases, forbiddenStateOf(g))) fails.push("forbidden_phrase");
   if (opts.forbidden?.some((src) => new RegExp(src, "i").test(said) && !new RegExp(src, "i").test(opts.heard))) fails.push("forbidden_phrase");
   // Swallowed questions (Gremlin round 6): the spoken line takes up what the player actually asked (answers it or
   // explicitly deflects THAT question), even when a scheduled reveal or a breakdown fires on the same exchange.
