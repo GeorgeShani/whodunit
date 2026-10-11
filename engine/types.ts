@@ -473,6 +473,12 @@ export const CharacterSchema = z.strictObject({
   role: NonEmptyText,
   /** Other ways people refer to them ("her ladyship", "the old salt"). Used by the canon check to spot who a sentence is about. */
   aliases: z.array(NonEmptyText).default([]),
+  /**
+   * E8 (optional): the subject pronoun others use for this character. The guard reads "she struck him" as a claim about
+   * the murderer when this is the murderer's pronoun. Absent: guessed from titles in the name and aliases
+   * (Lady/Mrs/Miss/her ladyship -> she; Lord/Mr/Sir/his lordship -> he), else no pronoun is matched.
+   */
+  pronoun: z.enum(["she", "he", "they"]).optional(),
   /** Short public bio shown to the player. */
   bio: NonEmptyText,
   personality: PersonalitySchema,

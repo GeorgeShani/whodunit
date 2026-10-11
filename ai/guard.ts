@@ -20,11 +20,11 @@ import { findForbiddenPhrase } from "./forbidden-phrases";
 import { checkEventTimes } from "./event-time-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
-import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
+import { coreGuiltSecretIds, type CulpritAct, type GuiltProfile } from "@/engine/core-guilt";
 import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
-import { findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
+import { findGuiltLeak, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
 import { freshPick, recentReplies, repeatsRecentReply, sameAction, saidRecently } from "./delivery";
 import type { ConfrontDirective, TurnDirectives } from "./prompts/interrogation";
@@ -37,6 +37,7 @@ export type GuardReason =
   | "retracts_admission"
   | "not_english"
   | "forbidden_phrase"
+  | "over_claim"
   | "multiple_reveals"
   | "unknown_time"
   | "event_order"
@@ -48,7 +49,26 @@ export type GuardReason =
   | "modern_word";
 
 /** Reasons that mean the line said something the engine did not allow (as opposed to a performance slip). */
-export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "not_english", "forbidden_phrase", "multiple_reveals", "unknown_name"]);
+export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak", "admits_core_guilt", "admits_locked_secret", "concedes_maintained_lie", "retracts_admission", "not_english", "forbidden_phrase", "over_claim", "multiple_reveals", "unknown_name"]);
+
+/**
+ * E8: the culprit acts this speaker may state as fact: those described by a secret they have revealed (or reveal this
+ * turn), a testimony card they have been shown, or the card presented to them now (guiltProfile.coverActs).
+ */
+export function coveredActs(g: Pick<GuardInput, "ctx" | "directives" | "guilt">): Set<CulpritAct> {
+  const held = [
+    ...g.ctx.secrets.map((s) => s.id),
+    ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : []),
+    ...(g.directives.presentedTestimony ? [g.directives.presentedTestimony.id] : []),
+    ...(g.ctx.testimonyShown ?? []).map((t) => t.id),
+  ];
+  return new Set(held.flatMap((id) => g.guilt.coverActs?.[id] ?? []));
+}
+
+/** E8: the corrective note for an over-claim. Quotes only the model's own sentence. */
+export function overClaimNote(sentence: string): string {
+  return `You stated as fact that someone else did something you never saw and nobody has told you: "${sentence}". Say only what you saw, heard or were told; if you merely suspect it, say so plainly as a suspicion ("I wonder whether...", "perhaps"), or leave it out.`;
+}
 
 export interface GuardReply {
   dialogue: string;
@@ -182,7 +202,13 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
       note: `Your line said "${banned.match.slice(0, 80)}", which you cannot say: you did not see, hear or do that, or you have not admitted it. Say only what WHAT YOU KNOW, your stories and ALREADY ADMITTED support; if you only suspect something, say it is a suspicion, or deflect.`,
       detail: `forbidden:${banned.index}:${banned.match.slice(0, 80)}`,
     };
+  }  // 2a'. E8: the generic third-person over-claim (a non-culprit stating a culprit act as fact), after the case's own
+  // forbidden phrases so a data entry still names its reason; acts covered by a held secret or card pass.
+  if (g.characterId !== g.guilt.murdererId) {
+    const oc = findGuiltLeak(r.dialogue, g.guilt, g.characterId, { speakerNames: speakerNamesOf(g.caseData, g.characterId), overClaim: { covered: coveredActs(g) } });
+    if (oc?.overClaim) return { reason: "over_claim", note: overClaimNote(oc.text), detail: `over_claim:${oc.kind}:${oc.text.slice(0, 100)}` };
   }
+
 
   // 2b. Never retract what the engine has revealed (#48), breakdowns included.
   const retraction = findRetraction(r.dialogue, g.caseData, g.characterId, revealedNow, g.guilt);
