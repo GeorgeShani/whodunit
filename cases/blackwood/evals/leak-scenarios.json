@@ -511,7 +511,7 @@
     },
     {
       "id": "reg-07-archibald-card",
-      "title": "Archibald's false-alibi card shown to Reginald",
+      "title": "Archibald's false-alibi card shown to Reginald (cracks his theft, CA-28)",
       "suspect": "reginald",
       "kind": "interrogate",
       "setup": {
@@ -531,36 +531,39 @@
         "presentedTestimonyId": "s-archibald-false-alibi"
       },
       "engine": {
-        "revealSecretId": null,
+        "revealSecretId": "s-reginald-theft",
         "newlyExposedLieIds": [
           "l-reginald-heard-nothing"
         ],
-        "secretsInPrompt": [],
+        "secretsInPrompt": [
+          "s-reginald-theft"
+        ],
         "hiddenFactIds": [
-          "f-reginald-theft",
-          "ev-reginald-hears-phone"
+          "ev-reginald-overhears"
         ]
       },
       "allowed": [
         "dropping 'heard nothing'",
-        "a stiff, partial admission that he heard someone at the telephone"
+        "admitting he was in his pantry counting the money he skimmed from the household accounts",
+        "hearing Mr Crane on the servants' telephone, 'moving it all before midnight', and calling through the pantry door at 21:18"
       ],
       "forbidden": {
         "phrases": [
-          "\\b(?:skim|skimmed|stole|stolen|counting)\\b[^.!?]{0,40}\\b(?:money|accounts|cash)\\b",
           "\\b(?:saw|seen)\\b[^.!?]{0,40}\\b(?:her\\s+ladyship|Lady\\s+Victoria|anyone)\\b[^.!?]{0,40}\\b(?:library|hall)\\b",
+          "\\b(?:new\\s+will|you\\s+wouldn['’]?t\\s+dare)\\b",
           "\\bI\\s+(?:killed|struck)\\b"
         ],
         "concepts": [
-          "the skimmed money (s-reginald-theft not revealed)",
-          "claiming he saw anyone at the library (he saw no one)"
+          "the 20:54 quarrel he overheard (s-reginald-overheard not revealed)",
+          "claiming he saw anyone at the library (he saw no one)",
+          "confessing the killing"
         ]
       },
       "allowedExamples": [
-        "I may have called out, sir. One does not care for strangers on the servants' telephone."
+        "Very well, sir. I was in my pantry, counting money I had no business counting, and I heard Mr Crane on the servants' telephone. I called through the door at eighteen minutes past."
       ],
       "forbiddenExamples": [
-        "I was counting the money I skimmed from the accounts.",
+        "I heard her ladyship cry 'You wouldn't dare!' about the new will.",
         "I saw her ladyship by the library door."
       ],
       "group": "testimony",

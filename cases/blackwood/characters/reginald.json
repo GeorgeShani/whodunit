@@ -166,6 +166,9 @@
         "evidenceIds": [
           "burned-letter"
         ],
+        "testimonyIds": [
+          "s-archibald-false-alibi"
+        ],
         "mode": "any"
       },
       "relatedFactIds": [

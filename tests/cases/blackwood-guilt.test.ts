@@ -282,6 +282,8 @@ describe("testimony-triggered reveals (revealConditions.testimonyIds)", () => {
       "s-victoria-new-will": ["s-reginald-overheard"],
       // r7 M1: the cards that break his "together" story also crack the false alibi it covers
       "s-archibald-false-alibi": ["s-gregory-saw-victoria", "s-reginald-theft", "s-victoria-left-dining"],
+      // CA-28 (Marvin): his telephone card breaks Reginald's "heard nothing", so it also cracks the theft behind it
+      "s-reginald-theft": ["s-archibald-false-alibi"],
     });
     // Every such card also breaks a lie the secret supersedes (so the crack is a real contradiction, not a free reveal).
     for (const ch of c.characters) for (const s of ch.secrets) for (const card of s.revealConditions?.testimonyIds ?? []) {

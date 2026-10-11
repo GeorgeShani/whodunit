@@ -43,7 +43,7 @@ Each finding is counted once, under its primary status. Some also carry a second
 | Low | 7 | 5 (+ engine strings E10) | | 1 | 1 |
 | **Total** | **14** | **11** | **1** | **1** | **1** |
 
-Some r7 fixes leave a part accepted: Reginald's card gap in CA-28, and the innocent stress crack in CA-36.
+CA-36 leaves one part accepted, and Marvin approved it: no innocent gets a stress-only crack. Reginald's card gap in CA-28 is fixed, per Marvin's decision.
 
 ## 1. Logic and fairness
 
@@ -305,7 +305,7 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 4. **E4, endings: the murderer's loss is generic while innocents get authored lines, so the shape of the loss names the killer (CA-05, HOW_TO_PLAY #1).** `ending-payload.ts` `lossBeats()` skips `wrong[<murderer>]` and strips the murderer's cameos (#22). Make every loss the same shape: either all generic, or all authored with the murderer's entry written not to confirm. Until then, `wrong.victoria` and Victoria's cameo lines are dead data.
 5. **E5, UI: no Leads row in `CaseNotReady.tsx` (CA-07, HOW_TO_PLAY #3).** Add "Leads n/m" with counts only. Blackwood now has two required leads.
 6. **E6, loss reveal (CA-06, HOW_TO_PLAY #9).** If George wants it: an explicit post-loss "what happened" view, served only for a closed game.
-7. **E7, re-record (PR B / #57).** #57 changes prompts. Every suspect knows `ev-household-waits` and `f-household-tonight`, so all 69 recorded Blackwood scenarios are stale. They are listed in `tools/ai-eval/pending-rerecord.json`. One of them, `t-archibald-victoria-left`, now *behaves* differently: under CA-28 it is a false-alibi reveal turn, so its recorded calm reply is retried and the replay runs out of recorded calls. It keeps the "replays are current" check red until the paid re-record. Do one combined pass after #57.
+7. **E7, re-record (PR B / #57).** #57 changes prompts. Every suspect knows `ev-household-waits` and `f-household-tonight`, so all 69 recorded Blackwood scenarios are stale. They are listed in `tools/ai-eval/pending-rerecord.json`. Two of them now *behave* differently. Under CA-28, `t-archibald-victoria-left` is a false-alibi reveal turn and `t-reginald-archibald-card` is a theft reveal turn, so their recorded replies are retried and the replays run out of recorded calls. It keeps the "replays are current" check red until the paid re-record. Do one combined pass after #57.
 8. **E8, guard: generic third-person culprit-act check for non-culprit speakers (CA-27).** `ai/guilt-check.ts` `findGuiltLeak` runs its culprit-act patterns (struck, killed, the candlestick in hand, went into the library in the window, locked the door, hid the key) only with a first-person subject, and several rules return early for non-culprits (`if (!culprit) continue;`). Proposal: when the speaker is not the murderer, run the same act patterns with the subject set to the murderer's names and pronouns, "she" or "he" from the murderer's gender, contractions included (`she'd`, `she's`, `her ladyship's`). Hedged, negated and questioning lines should pass, as the first-person versions already do. A hit should be treated as an over-claim unless the act is covered by a revealed secret or a testimony card in the speaker's context. Gregory's eyewitness content is the example: it stays sayable once `s-gregory-saw-victoria` is out. Blackwood now does this by hand in data (`[r7-H1*]` entries on Reginald, Archibald and Gregory). A second case would need its own list unless the engine does it.
 9. **E9, guard: the guilt-path fallback is a culprit tell (CA-37).** `ai/guard.ts` `safeDeflection`: when `reason` is `guilt_leak` or `admits_core_guilt`, the generic lines come from `DEFLECT_CALM`/`DEFLECT_RATTLED` (`ai/guilt-check.ts`), for example "You may stare at me all evening, detective. My answer is the same: no comment." The action **always** comes from `GUILT_ACTIONS_CALM`/`_RATTLED` ("smooths a sleeve with great care", "grips the back of a chair") instead of the character's own voice actions, quirks and tells. The emotion is `defensive` or `panicked`. Several guilt rules run only for the murderer, so in practice this signature, and the extra retry latency before it, shows up almost only for Victoria. Proposal: route guilt-path fallbacks through the same authored deflection and action pool as every other fallback, filtered by the existing `isSafe` check. Or give every suspect the guilt-path pool, so it can't tell them apart.
 10. **E10, engine strings that contradict canon (CA-34).** The canon (`ev-household-waits`, `ev-reginald-telephones-police`) is that the servants' telephone works, Reginald rang the police at 21:38, and nobody can get through the flood before morning. Three engine lines contradict it:
@@ -327,10 +327,10 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 4. CA-16: how the detective comes to be in the house.
 5. CA-21: is Gregory sober tonight, or is a shaky witness intended?
 6. PR B forces a paid replay re-record (E7). Do it together with #53's re-record if possible.
-7. r7 (CA-28): Reginald's "heard nothing" is still exposed by Archibald's telephone card with his theft locked. Leak scenario `reg-07-archibald-card` pins that as deliberate: a stiff partial admission. Keep it, or let that card crack `s-reginald-theft`? It is a key testimony, so the gate and the E1 search would need rechecking.
-8. r7 (CA-32): confirm the new canon fact `f-household-tonight` ("no other servants in the house tonight").
-9. r7 (CA-34): confirm 21:38 and the servants' telephone for Reginald's police call.
-10. r7 (CA-36): confirm the new fireplace lead trigger (the candlestick found, and the dining room searched). Also confirm that Victoria stays the only suspect with a stress-only crack (accepted, with reasons).
+7. ~~r7 (CA-28): Reginald's card gap.~~ **Decided by Marvin, 2026-10-11:** Archibald's telephone card also cracks `s-reginald-theft`. Fixed.
+8. ~~r7 (CA-32): "no other servants" (`f-household-tonight`).~~ **Approved by Marvin.**
+9. ~~r7 (CA-34): the police call at 21:38 on the servants' telephone.~~ **Approved by Marvin.**
+10. r7 (CA-36): the new fireplace lead trigger (the candlestick found, and the dining room searched) still needs confirming. ~~Victoria as the only stress-only crack~~ is **approved by Marvin**.
 11. r7 (CA-39): approve the one combined paid re-record of the 69 listed fixtures.
 
 ## 7. Gremlin's r7 offline review (CA-27 onward)
@@ -373,7 +373,7 @@ Hedges pass: "she could have…", "did she…?", "I don't think she…". Gregory
 
 **Engine:** E8, the generic version for every case.
 
-### CA-28 · Medium · An exposed "together" lie with the truth still locked (PR B's CA-22 regression): fixed (#57); Reginald's twin case is a decision
+### CA-28 · Medium · An exposed "together" lie with the truth still locked (PR B's CA-22 regression): fixed (#57)
 
 **Evidence (r7 M1):** after CA-22, Victoria's stress-only left-dining card (no clues needed) or Gregory's eyewitness card exposed `l-archibald-together`, but `s-archibald-false-alibi` stayed locked. His prompt had no whereabouts for 21:13–21:22 and told him to stop insisting, so he invented alibis:
 - the library door was locked;
@@ -396,7 +396,16 @@ The hint system and the confrontation card picker then steered players into that
 
 The fastest path stays 10.
 
-**Decision:** the generic test found one more gap: Archibald's telephone card exposes Reginald's `l-reginald-heard-nothing` with `s-reginald-theft` locked. Leak scenario `reg-07-archibald-card` pins that as deliberate (a stiff partial admission). Letting the card crack the theft broke that scenario's replay. Theft is a key testimony, so it would also change the gate. It is left as it is, allow-listed in the test, for George (§6.7).
+**Reginald's twin gap: fixed (#57, decided by Marvin).** The generic test found one more gap: Archibald's telephone card exposed Reginald's `l-reginald-heard-nothing` while `s-reginald-theft` stayed locked. Marvin's ruling is that one card never exposes a lie while the secret behind it stays locked. So `s-reginald-theft.revealConditions.testimonyIds` = [`s-archibald-false-alibi`], alongside `burned-letter`.
+- Leak scenario `reg-07-archibald-card` now expects the theft reveal. The overheard quarrel stays hidden.
+- The generic test has no allow-list.
+- The pinned card map in `blackwood-guilt.test.ts` gains the edge.
+
+Knock-on effects, checked:
+- The gate stays sound. The E1 validator search raises no warning. The theft is a key testimony, but `lead-alibi` was already closed by the false alibi that the card needs. The gate still needs both key clues through `lead-motive`.
+- The fastest path stays **10**.
+- Earlier unlock: the theft no longer needs the letter. The earliest route is now Victoria at stress 70, then her left-dining card to Archibald, then his card to Reginald, with **zero clues**. On that route Reginald's prompt gains `ev-reginald-hears-phone` (Mr Crane "moving it all before midnight") and his pantry track, while `s-archibald-embezzlement` is still locked, because it needs `library-key`. Before this change the theft implied the letter, and so the key. This is Reginald's own hearsay, which points at Archibald's red herring. It reveals nothing of Victoria's, and Archibald's own phrases stay gated. Accepted, and noted here for Marvin.
+- `s-reginald-overheard` still needs `burned-letter` after the theft, so it doesn't move.
 
 ### CA-29 · Medium · The handkerchief rule blocked tears and was easy to get round: fixed (#57)
 
@@ -480,7 +489,7 @@ Victoria's cameo lines in the innocents' endings were never played (#22) and are
 
 Gregory only, `[r7-M6-gin]`: volunteering that he drank tonight, in the shed or before he came in. Talking about being sacked for drink passes.
 
-A new public fact, `f-household-tonight`, known by all four, says who is in the house and that there are no other servants.
+A new public fact, `f-household-tonight`, known by all four, says who is in the house and that there are no other servants. Marvin approved it.
 
 Three filler lines in `tests/engine/confrontation.test.ts` named a cellar and a dead line. The guard now rightly rejects them, so they were reworded. That is test data, not engine code.
 
@@ -498,7 +507,7 @@ Three filler lines in `tests/engine/confrontation.test.ts` named a cellar and a 
 - Archibald's true "Your butler rang the police from the servants' telephone" tripped his own false-alibi phrase.
 
 **Fix:**
-- New `ev-reginald-telephones-police`: 21:38, servants' telephone, known by Reginald. It has no `locationId`, because his location checkpoints are library at 21:36 and hall at 21:40, and the place is in the statement.
+- New `ev-reginald-telephones-police` (approved by Marvin): 21:38, servants' telephone, known by Reginald. It has no `locationId`, because his location checkpoints are library at 21:36 and hall at 21:40, and the place is in the statement.
 - `ev-household-waits` (everyone) says "at 21:38".
 - Archibald's bare "servants' telephone" rule now lets a sentence about the butler or the police through.
 
@@ -529,7 +538,7 @@ Three filler lines in `tests/engine/confrontation.test.ts` named a cellar and a 
 - Motives are in neutral alphabetical order: Business ruin, Inheritance, Revenge, Stolen money. Inheritance now reads "Someone stood to gain from Lord Blackwood's fortune."
 - Suspect order is alphabetical by file, which is already neutral.
 
-**Accepted:** an innocent stress-only crack. I tried `stressThreshold: 70` on `s-gregory-in-hall`, the natural candidate. It broke Dexter's E1 invariant: a non-key secret reached by pressure counts toward `minRevealedSecrets`, so the gate could open in states with too few key testimonies to win (`tests/engine/accuse-gate-audit.test.ts`). It also changed confrontation pressure behaviour. Any innocent secret that is not key has the same problem, and a key one (Reginald's theft, Archibald's alibi) would hand out key proof for pressure. So Victoria stays the only stress crack. The mitigation is that it is not key testimony, does not close `lead-alibi`, and E1 covers it.
+**Accepted (approved by Marvin):** an innocent stress-only crack. I tried `stressThreshold: 70` on `s-gregory-in-hall`, the natural candidate. It broke Dexter's E1 invariant: a non-key secret reached by pressure counts toward `minRevealedSecrets`, so the gate could open in states with too few key testimonies to win (`tests/engine/accuse-gate-audit.test.ts`). It also changed confrontation pressure behaviour. Any innocent secret that is not key has the same problem, and a key one (Reginald's theft, Archibald's alibi) would hand out key proof for pressure. So Victoria stays the only stress crack. The mitigation is that it is not key testimony, does not close `lead-alibi`, and E1 covers it.
 
 ### CA-37 · Medium · The guilt-path fallback is a culprit tell: Dexter (E9)
 
@@ -547,7 +556,7 @@ All are corrected above.
 
 ### CA-39 · Low · Eval staleness: pending (re-record needs approval)
 
-All 69 recorded Blackwood scenarios are stale, because every suspect's prompt changed. They are listed in `tools/ai-eval/pending-rerecord.json`, so the stale-set assertion is exact. `t-archibald-victoria-left` also behaves differently (CA-28 makes its turn a reveal), so its replay runs out of recorded calls. That keeps "replays are current" red until the combined paid re-record (E7). Nothing was re-recorded.
+All 69 recorded Blackwood scenarios are stale, because every suspect's prompt changed. They are listed in `tools/ai-eval/pending-rerecord.json`, so the stale-set assertion is exact. `t-archibald-victoria-left` and `t-reginald-archibald-card` also behave differently (CA-28 makes both turns reveals), so their replays run out of recorded calls. That keeps "replays are current" red until the combined paid re-record (E7). Nothing was re-recorded.
 
 ### CA-40 · Low · Reginald's overheard and theft secrets relate facts he doesn't know: accepted
 

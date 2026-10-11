@@ -438,6 +438,7 @@ The full leak-path audit (every reveal and break path, the worst admission the m
   - `s-victoria-left-dining` ← `s-archibald-false-alibi`, `s-reginald-theft`;
   - `s-victoria-new-will` ← `s-reginald-overheard`;
   - `s-archibald-false-alibi` ← `s-reginald-theft`, and since r7 (CA-28) also `s-victoria-left-dining` and `s-gregory-saw-victoria`, the two cards that break his "together" lie.
+  - `s-reginald-theft` ← `s-archibald-false-alibi` (CA-28, Marvin): his telephone card breaks Reginald's "heard nothing".
 
   Each card also breaks a lie that the secret supersedes. No card can reveal a core-guilt secret. The fastest legal path is still 10.
 

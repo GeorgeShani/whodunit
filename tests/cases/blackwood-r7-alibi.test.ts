@@ -43,9 +43,7 @@ describe("CA-28 (r7 M1): no 'exposed lie, truth still locked' gap", () => {
           if (plan.exposedLieIds.includes(lie.id) && !(plan.revealSecretId && lie.supersededBySecretIds.includes(plan.revealSecretId)))
             gaps.push(`${ch.id}:${lie.id} <- ${card} (reveal=${plan.revealSecretId ?? "-"})`);
         }
-    // Accepted by design, pending George (CA-28): Archibald's telephone card makes Reginald drop "heard nothing" with a
-    // stiff partial admission while his theft stays locked (leak scenario reg-07-archibald-card pins this).
-    expect(gaps).toEqual(["reginald:l-reginald-heard-nothing <- s-archibald-false-alibi (reveal=-)"]);
+    expect(gaps).toEqual([]);
   });
 });
 
