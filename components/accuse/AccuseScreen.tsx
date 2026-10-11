@@ -4,6 +4,7 @@ import { weaponChoices } from "./weapon-choices";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { Portrait } from "@/components/characters/Portrait";
+import { getAudio } from "@/components/effects/audio";
 import { ClueArt } from "@/components/evidence/ClueArt";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { useModal } from "@/components/ui/use-modal";
@@ -12,6 +13,7 @@ import type { MotiveOption } from "@/engine/case-schema";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Accusation } from "@/engine/types";
+import { GRADING_HREF } from "@/lib/how-to-play";
 
 const pick = (on: boolean) =>
   `cursor-pointer rounded-2xl border-[3px] border-black text-left text-black shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:opacity-50 ${
@@ -47,6 +49,7 @@ export function AccuseScreen({
   citeCap,
   onSubmit,
   onBack,
+  onHowGraded,
 }: {
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
@@ -63,6 +66,8 @@ export function AccuseScreen({
   citeCap?: { evidence: number; testimony: number };
   onSubmit: (a: Accusation) => void;
   onBack: () => void;
+  /** Opens How to Play at "How accusations are graded" (absent: no link). */
+  onHowGraded?: () => void;
 }) {
   const [draft, setDraft] = useState<AccusationDraft>({ keyEvidenceIds: [] });
   const maxProof = Math.min(MAX_ACCUSE_EVIDENCE, citeCap?.evidence ?? MAX_ACCUSE_EVIDENCE);
@@ -102,6 +107,25 @@ export function AccuseScreen({
         </h1>
         <span className="order-3 hidden w-40 sm:block" />
       </div>
+      {onHowGraded && (
+        <p className="-mt-2 text-center">
+          {/* A real link (works without JS and in a new tab); a plain click opens the manual over the form instead. */}
+          <a
+            href={GRADING_HREF}
+            data-how-graded
+            aria-haspopup="dialog"
+            onClick={(e) => {
+              if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+              e.preventDefault();
+              getAudio().play("ui_paper");
+              onHowGraded();
+            }}
+            className="inline-flex min-h-11 items-center gap-1 rounded-full border-[3px] border-black bg-white px-4 py-1 font-bold text-black underline decoration-2 underline-offset-2 shadow-[3px_3px_0_#000] hover:bg-yellow-100"
+          >
+            <span aria-hidden>❓</span> How am I graded?
+          </a>
+        </p>
+      )}
 
       <Section n={1} title="Who did it?">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4" role="radiogroup" aria-labelledby="accuse-1">

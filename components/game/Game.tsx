@@ -14,7 +14,7 @@ import { ContradictionBeat, type ContradictionBeatData } from "@/components/evid
 import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
 import { HelpButton, HowToPlayDialog } from "@/components/help/HowToPlay";
-import type { Manual } from "@/lib/how-to-play";
+import { GRADING_SECTION_ID, type Manual } from "@/lib/how-to-play";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
 import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
@@ -214,6 +214,8 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
   const [screen, setScreen] = useState<Screen>("title");
   // How to Play overlay: UI state only, so opening it mid-case never touches the game.
   const [helpOpen, setHelpOpen] = useState(false);
+  /** Deep link into the manual (e.g. the accuse form's "How am I graded?"); undefined = from the top. */
+  const [helpSection, setHelpSection] = useState<string | undefined>(undefined);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Record<string, DialogueMessage[]>>({});
   const [emotions, setEmotions] = useState<Record<string, Emotion>>(() =>
@@ -888,6 +890,14 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
             citeCap={progress.accuse.citeCap}
             onSubmit={onAccuse}
             onBack={() => go("suspects")}
+            {...(manual
+              ? {
+                  onHowGraded: () => {
+                    setHelpSection(GRADING_SECTION_ID);
+                    setHelpOpen(true);
+                  },
+                }
+              : {})}
           />
         )}
         {screen === "ending" && result?.ending && endingPart === "scene" && (
@@ -950,7 +960,17 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
     {manual && screen !== "title" && screen !== "ending" && !notebookOpen && !notReady && stingQueue.length === 0 && beats.length === 0 && (
       <HelpButton onOpen={() => setHelpOpen(true)} />
     )}
-    {manual && helpOpen && <HowToPlayDialog manual={manual} {...(view.meta.howToPlayTips ? { tips: view.meta.howToPlayTips } : {})} onClose={() => setHelpOpen(false)} />}
+    {manual && helpOpen && (
+      <HowToPlayDialog
+        manual={manual}
+        {...(view.meta.howToPlayTips ? { tips: view.meta.howToPlayTips } : {})}
+        {...(helpSection ? { section: helpSection } : {})}
+        onClose={() => {
+          setHelpOpen(false);
+          setHelpSection(undefined);
+        }}
+      />
+    )}
     </div>
     </ClueArtProvider>
   );

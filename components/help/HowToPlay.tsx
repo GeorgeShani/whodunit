@@ -12,14 +12,36 @@ import { ManualContent } from "./ManualContent";
  * The How to Play manual as a modal (role="dialog", aria-modal): focus trap, Esc closes, focus returns to the button
  * that opened it (useModal). It sits on top of whatever screen is open, so the game underneath keeps its state.
  */
-export function HowToPlayDialog({ manual, tips, onClose }: { manual: Manual; tips?: readonly string[]; onClose: () => void }) {
+export function HowToPlayDialog({
+  manual,
+  tips,
+  section,
+  onClose,
+}: {
+  manual: Manual;
+  tips?: readonly string[];
+  /** Deep link: open with this section expanded, scrolled to and focused (e.g. GRADING_SECTION_ID). */
+  section?: string;
+  onClose: () => void;
+}) {
+  const target = section && manual.sections.some((s) => s.id === section) ? section : undefined;
   const titleId = useId();
   const ref = useRef<HTMLDivElement>(null);
   const close = () => {
     getAudio().play("ui_paper");
     onClose();
   };
-  useModal(ref, { onClose: close, initialFocus: () => ref.current?.querySelector<HTMLElement>("[data-htp-close]") });
+  useModal(ref, {
+    onClose: close,
+    initialFocus: () => {
+      const summary = target ? ref.current?.querySelector<HTMLElement>(`[data-htp-section="${target}"] > summary`) : null;
+      if (summary) {
+        summary.scrollIntoView?.({ block: "start" });
+        return summary;
+      }
+      return ref.current?.querySelector<HTMLElement>("[data-htp-close]");
+    },
+  });
   return (
     <div
       className="absolute inset-0 z-[58] flex items-stretch justify-center bg-black/70 p-2 sm:items-center sm:p-6"
@@ -50,7 +72,7 @@ export function HowToPlayDialog({ manual, tips, onClose }: { manual: Manual; tip
           </button>
         </header>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5">
-          <ManualContent manual={manual} tips={tips} level={3} collapsible openIds={[manual.sections[0]!.id]} />
+          <ManualContent manual={manual} tips={tips} level={3} collapsible openIds={target ? [target] : [manual.sections[0]!.id]} />
         </div>
         <footer className="flex justify-end border-t-4 border-black bg-amber-100 px-4 py-2">
           <CartoonButton tone="red" sound={false} onClick={close} className="min-h-12 px-6 text-lg">
