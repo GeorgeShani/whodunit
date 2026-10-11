@@ -14,6 +14,7 @@ import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Accusation } from "@/engine/types";
 import { GRADING_HREF } from "@/lib/how-to-play";
+import { CTA_BAR } from "@/components/game/cta-bar";
 
 const pick = (on: boolean) =>
   `cursor-pointer rounded-2xl border-[3px] border-black text-left text-black shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:opacity-50 ${
@@ -96,7 +97,8 @@ export function AccuseScreen({
     });
 
   return (
-    <main className="screen-scroll relative flex scroll-pb-28 min-h-0 flex-1 flex-col items-center gap-5 bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)] px-4 pb-0 pt-3 sm:px-6 sm:py-6">
+    <main className="relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)]">
+      <div className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-6 pt-3 sm:px-6 sm:pt-6">
       <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
           ← <span className="max-sm:hidden">Back to suspects</span>
@@ -267,17 +269,20 @@ export function AccuseScreen({
         </div>
       )}
 
-      {/* Sticky on phones: the submit button stays under the thumb however far the form is scrolled. */}
-      <div className="sticky bottom-0 z-10 -mx-4 flex w-[calc(100%+2rem)] justify-center bg-gradient-to-t from-[#1b1035] via-[#1b1035]/90 to-transparent px-4 pb-3 pt-6 pointer-events-none sm:pointer-events-auto sm:static sm:mx-0 sm:w-auto sm:bg-none sm:p-0">
+      </div>
+
+      {/* The submit button stays in reach however far the form is scrolled, in a bar BELOW the scroll area (CTA_BAR):
+          nothing scrolls under it, so it never covers the form. */}
+      <div data-cta-bar className={CTA_BAR}>
         <CartoonButton
           tone="red"
-          className="pointer-events-auto min-h-14 w-full max-w-md font-display text-3xl tracking-widest sm:w-auto"
+          className="min-h-14 w-full max-w-md font-display text-3xl tracking-widest short:min-h-12 short:text-2xl sm:w-auto"
           disabled={busy}
           onClick={() => {
             const r = check();
             if (!r.ok) {
               setErrors(r.errors);
-              // The sticky submit bar sits over the bottom of the form: bring the list of problems into view.
+              // Bring the list of problems into view.
               requestAnimationFrame(() => document.querySelector("[data-accuse-errors]")?.scrollIntoView({ block: "center", behavior: "smooth" }));
             } else setConfirming(true);
           }}

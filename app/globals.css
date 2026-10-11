@@ -37,6 +37,21 @@ body {
   --safe-r: env(safe-area-inset-right, 0px);
   --safe-b: env(safe-area-inset-bottom, 0px);
   --safe-l: env(safe-area-inset-left, 0px);
+  /*
+   * Top-right HUD (mute toggle + HOW TO PLAY pill): one set of numbers for every screen. Clear of the edges by
+   * --hud-edge (more on bigger screens) or of the notch / rounded corner by a little more than the safe area,
+   * whichever is larger; --hud-gap between the two controls; --hud-btn is the mute toggle's size (44px).
+   */
+  --hud-edge: 0.75rem;
+  --hud-gap: 0.625rem;
+  --hud-btn: 2.75rem;
+  --hud-top: max(var(--hud-edge), calc(var(--safe-t) + 0.25rem));
+  --hud-right: max(var(--hud-edge), calc(var(--safe-r) + 0.25rem));
+}
+@media (min-width: 640px) {
+  :root {
+    --hud-edge: 1rem;
+  }
 }
 @supports (height: 100dvh) {
   :root {

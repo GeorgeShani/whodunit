@@ -122,7 +122,7 @@ export function Notebook({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-[#fff8e7] text-black shadow-[8px_8px_0_#000]">
-        <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16 sm:pe-4">
+        <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16">
           <h2 id={titleId} className="font-display text-3xl tracking-wider">
             📓 Notebook{presentTo ? `: present to ${presentTo.name.split(" ")[0]}` : ""}
           </h2>

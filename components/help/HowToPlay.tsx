@@ -58,7 +58,7 @@ export function HowToPlayDialog({
         data-how-to-play
         className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-[#fff8e7] text-black shadow-[8px_8px_0_#000]"
       >
-        <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16 sm:pe-4">
+        <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16">
           <h2 id={titleId} className="font-display text-3xl tracking-wider -rotate-1">
             <span aria-hidden>❓</span> HOW TO PLAY
           </h2>
@@ -105,7 +105,7 @@ export function HowToPlayButton({ onOpen, variant = "fixed", className = "" }: {
         getAudio().play("ui_paper");
         onOpen();
       }}
-      className={`${variant === "fixed" ? "absolute right-[calc(max(0.5rem,env(safe-area-inset-right))+3.25rem)] top-[max(0.5rem,env(safe-area-inset-top))] z-[57]" : ""} inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-[3px] border-black bg-yellow-300 px-3 font-display text-lg leading-none tracking-wider text-black shadow-[3px_3px_0_#000] hover:bg-yellow-200 ${className}`}
+      className={`${variant === "fixed" ? "absolute right-[calc(var(--hud-right)+var(--hud-btn)+var(--hud-gap))] top-(--hud-top) z-[57] max-sm:px-2.5 max-sm:text-base" : ""} inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-[3px] border-black bg-yellow-300 px-3 font-display text-lg leading-none tracking-wider text-black shadow-[3px_3px_0_#000] hover:bg-yellow-200 ${className}`}
     >
       <span aria-hidden className="text-base">
         📖

@@ -18,6 +18,11 @@
  * visible, at least 44x44, not covered and not overlapping another control or the screen title; it opens the manual
  * and Esc brings focus and the screen's scroll position back exactly.
  *
+ * CTA audit: the screen-bottom call to action ([data-cta-bar], intro and accuse) never overlaps text, at the first
+ * view and at the end of scroll (the accuse form is reached by restoring a saved session, so no gate is needed).
+ * HUD audit: the mute toggle and the HOW TO PLAY pill keep at least 12px (16px from 640px wide) from the top and
+ * right edges, 8px+ between each other, and overlap no control or heading on the top layer.
+ *
  * Defaults: http://localhost:3000, /usr/bin/google-chrome (or $CHROME_PATH).
  * Exits 1 on any overflow sample. Interrogation talks to /api/interrogate, so
  * against a server with a model key it makes a couple of live calls.
@@ -45,6 +50,11 @@ const VIEWPORTS = [
   { name: "phone landscape 844x390", width: 844, height: 390, isMobile: true },
   { name: "tablet 768x1024", width: 768, height: 1024, isMobile: true },
   { name: "tablet landscape 1024x768", width: 1024, height: 768, isMobile: true },
+  // Short desktop / laptop windows (George's 1024x490 intro report) and the shortest common phone landscape.
+  { name: "desktop short 1024x490", width: 1024, height: 490, isMobile: false },
+  { name: "desktop short 1280x600", width: 1280, height: 600, isMobile: false },
+  { name: "laptop 1366x650", width: 1366, height: 650, isMobile: false },
+  { name: "phone landscape 667x375", width: 667, height: 375, isMobile: true },
 ];
 const onlyIdx = args.indexOf("--only");
 const only = onlyIdx >= 0 ? args[onlyIdx + 1].split(",") : null;
@@ -173,6 +183,97 @@ const helpAudit = (scrolled: boolean) => `
   return { problems, variant: el.getAttribute("data-help-button"), w: el.offsetWidth, h: el.offsetHeight };
 })()
 `;
+/** Plain JS: text under a [data-cta-bar] (visible part of every text line, clipped by its scroll containers). */
+const CTA_AUDIT = `
+(() => {
+  const out = [];
+  const bars = [...document.querySelectorAll("[data-cta-bar]")].filter((b) => b.getBoundingClientRect().height > 0);
+  if (!bars.length) return { bars: 0, out };
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let t = walker.nextNode(); t; t = walker.nextNode()) {
+    if (!t.textContent.trim()) continue;
+    const host = t.parentElement;
+    if (!host || bars.some((b) => b.contains(host)) || host.closest("[aria-hidden=true], [data-mute-toggle], [data-help-button]")) continue;
+    if (host.closest("[aria-modal=true]")) continue;
+    const range = document.createRange();
+    range.selectNodeContents(t);
+    for (const r0 of range.getClientRects()) {
+      const r = { left: r0.left, top: r0.top, right: r0.right, bottom: r0.bottom };
+      for (let n = host; n; n = n.parentElement) {
+        if (getComputedStyle(n).overflow === "visible") continue;
+        const c = n.getBoundingClientRect();
+        r.left = Math.max(r.left, c.left); r.top = Math.max(r.top, c.top); r.right = Math.min(r.right, c.right); r.bottom = Math.min(r.bottom, c.bottom);
+      }
+      if (r.right - r.left < 1 || r.bottom - r.top < 1) continue;
+      for (const b of bars) {
+        const q = b.getBoundingClientRect();
+        if (Math.min(r.right, q.right) - Math.max(r.left, q.left) > 1 && Math.min(r.bottom, q.bottom) - Math.max(r.top, q.top) > 1) {
+          out.push(JSON.stringify(t.textContent.trim().slice(0, 40)));
+          break;
+        }
+      }
+    }
+  }
+  return { bars: bars.length, out: [...new Set(out)] };
+})()
+`;
+/** Plain JS: top-right HUD edge spacing and overlap. */
+const HUD_AUDIT = `
+(() => {
+  const out = [];
+  const min = innerWidth >= 640 ? 16 : 12;
+  const vis = (el) => { const b = el.getBoundingClientRect(); if (!b.width || !b.height) return false; for (let n = el; n; n = n.parentElement) { const cs = getComputedStyle(n); if (cs.display === "none" || cs.visibility === "hidden" || Number(cs.opacity) < 0.05) return false; } return true; };
+  const mute = document.querySelector("[data-mute-toggle]");
+  const pill = [...document.querySelectorAll('[data-help-button="fixed"]')].find(vis);
+  if (!mute || !vis(mute)) return ["no mute toggle"];
+  const m = mute.getBoundingClientRect();
+  if (innerWidth - m.right < min - 0.5) out.push("mute " + Math.round(innerWidth - m.right) + "px from the right edge (min " + min + ")");
+  if (m.top < min - 0.5) out.push("mute " + Math.round(m.top) + "px from the top edge (min " + min + ")");
+  if (pill) {
+    const p = pill.getBoundingClientRect();
+    if (p.top < min - 0.5) out.push("pill " + Math.round(p.top) + "px from the top edge (min " + min + ")");
+    if (m.left - p.right < 8 - 0.5) out.push("pill and mute " + Math.round(m.left - p.right) + "px apart (min 8)");
+  }
+  const modals = [...document.querySelectorAll("[aria-modal=true]")].filter(vis);
+  const layer = modals[modals.length - 1] || document;
+  for (const hud of [mute, pill].filter(Boolean)) {
+    const h = hud.getBoundingClientRect();
+    for (const o of layer.querySelectorAll("button, a[href], input, textarea, select, h1, h2, [data-confront-left]")) {
+      if (o === hud || hud.contains(o) || o === mute || o === pill || !vis(o)) continue;
+      if (layer === document && o.closest("[aria-modal=true]")) continue;
+      const r = o.getBoundingClientRect();
+      if (Math.min(h.right, r.right) - Math.max(h.left, r.left) > 1 && Math.min(h.bottom, r.bottom) - Math.max(h.top, r.top) > 1)
+        out.push((hud === mute ? "mute" : "pill") + " overlaps " + o.tagName.toLowerCase() + " " + (o.getAttribute("aria-label") || o.textContent || "").trim().replace(/\\s+/g, " ").slice(0, 30));
+    }
+  }
+  return out;
+})()
+`;
+const ctaIssues: string[] = [];
+const ctaSeen: string[] = [];
+const hudIssues: string[] = [];
+let hudChecks = 0;
+
+/** CTA bar vs text, at the current scroll and at the end of scroll (then back). */
+async function checkCta(p: Page, where: string) {
+  await p.waitForTimeout(400);
+  const first = (await p.evaluate(CTA_AUDIT)) as { bars: number; out: string[] };
+  if (!first.bars) return;
+  for (const t of first.out) ctaIssues.push(`${shotVp} ${where} (first view): CTA covers ${t}`);
+  await p.evaluate(() => document.querySelectorAll(".screen-scroll").forEach((e) => e.scrollTo({ top: 99999 })));
+  await p.waitForTimeout(400);
+  const end = (await p.evaluate(CTA_AUDIT)) as { bars: number; out: string[] };
+  for (const t of end.out) ctaIssues.push(`${shotVp} ${where} (end of scroll): CTA covers ${t}`);
+  await p.evaluate(() => document.querySelectorAll(".screen-scroll").forEach((e) => e.scrollTo({ top: 0 })));
+  await p.waitForTimeout(200);
+  ctaSeen.push(where);
+}
+
+async function checkHud(p: Page, where: string) {
+  hudChecks++;
+  for (const x of (await p.evaluate(HUD_AUDIT)) as string[]) hudIssues.push(`${shotVp} ${where}: ${x}`);
+}
+
 const SCROLLS = `[...document.querySelectorAll(".screen-scroll, .scroll-area")].map((e) => e.scrollTop).join(",")`;
 const helpIssues: string[] = [];
 const helpSeen: string[] = [];
@@ -180,6 +281,7 @@ const helpSeen: string[] = [];
 /** Audit the pill on this screen, then open the manual with it and close with Esc: focus and scroll come back. */
 async function checkHelp(p: Page, where: string, scrolled = false) {
   await p.waitForTimeout(500);
+  if (!scrolled) await checkHud(p, where);
   const r = (await p.evaluate(helpAudit(scrolled))) as { error?: string; problems?: string[]; variant?: string; w?: number; h?: number };
   if (r.error) return void helpIssues.push(`${shotVp} ${where}: ${r.error}`);
   for (const x of r.problems ?? []) helpIssues.push(`${shotVp} ${where}: ${x}`);
@@ -256,10 +358,12 @@ async function run(): Promise<number> {
     await p.goto(base, { waitUntil: "networkidle" });
     await label(p, "title");
     await wait(2500); // title pulse + spring intro
+    await checkHud(p, "title");
     await label(p, "title→intro");
     await clickButton(p, /START CASE/);
     await wait(1500);
     await label(p, "intro→suspects");
+    await checkCta(p, "intro");
     await checkHelp(p, "intro");
     await clickButton(p, /MEET THE SUSPECTS/);
     await wait(1500);
@@ -380,6 +484,25 @@ async function run(): Promise<number> {
           await wait(600);
           await p.keyboard.press("Escape");
           await wait(600);
+          // The form itself (audited for the CTA bar): restore this session onto the accuse screen, no gate involved.
+          const restored = await p.evaluate(() => {
+            const k = Object.keys(sessionStorage).find((x) => x.startsWith("whodunit:game:"));
+            const raw = k ? sessionStorage.getItem(k) : null;
+            if (!k || !raw) return false;
+            sessionStorage.setItem(k, JSON.stringify({ ...JSON.parse(raw), screen: "accuse" }));
+            return true;
+          });
+          if (restored) {
+            await p.reload({ waitUntil: "networkidle" });
+            await wait(1800);
+            if (await p.locator("[data-accuse-suspect]").count()) {
+              await label(p, "accuse form (restored)");
+              await checkCta(p, "accuse");
+              await p.locator("[data-accuse-suspect]").first().click({ force: true });
+              await checkCta(p, "accuse (picked)");
+              await checkHelp(p, "accuse");
+            } else ctaIssues.push(`${shotVp} accuse: the restored session did not open the accuse form`);
+          }
         } else {
         await label(p, "accuse form");
         await p.locator("[data-accuse-suspect]").first().click({ force: true });
@@ -432,6 +555,20 @@ async function run(): Promise<number> {
     smallFonts += smallText.length;
     if (errors.length) console.log(`  page errors: ${errors.join(" | ")}`);
     if (!ovf.length) console.log("  ✓ no document or sideways overflow on any frame");
+    const ctaHere = ctaIssues.filter((x) => x.startsWith(`${shotVp} `));
+    for (const x of ctaHere) console.log(`  ✗ CTA: ${x.slice(shotVp.length + 1)}`);
+    if (!ctaHere.length) console.log(`  ✓ CTA bar covers no text (first view + end of scroll) on: ${ctaSeen.join(", ") || "none found"}`);
+    if (ctaSeen.length < 2) {
+      console.log("  ✗ CTA audit did not reach both the intro and the accuse form");
+      failures += 1;
+    }
+    failures += ctaHere.length;
+    ctaSeen.length = 0;
+    const hudHere = hudIssues.filter((x) => x.startsWith(`${shotVp} `));
+    for (const x of hudHere) console.log(`  ✗ HUD: ${x.slice(shotVp.length + 1)}`);
+    if (!hudHere.length) console.log(`  ✓ top-right HUD: edge spacing, gap and no overlap on ${hudChecks} screens`);
+    failures += hudHere.length;
+    hudChecks = 0;
     const helpHere = helpIssues.filter((x) => x.startsWith(`${shotVp} `));
     for (const x of helpHere) console.log(`  ✗ HOW TO PLAY: ${x.slice(shotVp.length + 1)}`);
     if (!helpHere.length) console.log(`  ✓ HOW TO PLAY on ${helpSeen.length} screens, opens + Esc restores focus and scroll: ${helpSeen.join("; ")}`);

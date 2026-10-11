@@ -3,11 +3,13 @@
 import { motion } from "framer-motion";
 import type { PublicCaseView } from "@/engine/public-view";
 import { CartoonButton } from "./CartoonButton";
+import { CTA_BAR } from "./cta-bar";
 
 export function IntroScreen({ view, onContinue }: { view: PublicCaseView; onContinue: () => void }) {
   const foundIn = view.locations.find((l) => l.id === view.victim.foundAtLocationId)?.name;
   return (
-    <main className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-6 bg-[repeating-linear-gradient(45deg,#2a1650_0_24px,#1b1035_24px_48px)] px-6 pb-10 pt-16">
+    <main className="flex min-h-0 flex-1 flex-col bg-[repeating-linear-gradient(45deg,#2a1650_0_24px,#1b1035_24px_48px)]">
+      <div className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center-safe gap-6 px-6 pb-6 pt-16">
       <motion.h1
         data-autofocus
         tabIndex={-1}
@@ -34,9 +36,11 @@ export function IntroScreen({ view, onContinue }: { view: PublicCaseView; onCont
           </p>
         </div>
       </motion.div>
-      {/* Sticky on phones: the card is taller than the screen, so the button must stay under the thumb (safe-area aware). */}
-      <div className="pointer-events-none sticky bottom-0 z-10 -mx-6 -mb-6 flex w-[calc(100%+3rem)] justify-center bg-gradient-to-t from-[#1b1035] via-[#1b1035]/90 to-transparent px-6 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-6 short:pt-3">
-        <CartoonButton tone="red" className="pointer-events-auto min-h-14 w-full max-w-md font-display text-2xl tracking-widest sm:w-auto" onClick={onContinue}>
+      </div>
+      {/* The card can be taller than the screen, so the button stays in reach, in a bar BELOW the scroll area (CTA_BAR):
+          nothing scrolls under it, so it never covers the story or the victim box. */}
+      <div data-cta-bar className={CTA_BAR}>
+        <CartoonButton tone="red" className="min-h-14 w-full max-w-md font-display text-2xl tracking-widest short:min-h-12 sm:w-auto" onClick={onContinue}>
           MEET THE SUSPECTS →
         </CartoonButton>
       </div>
