@@ -14,7 +14,7 @@ import type { Emotion } from "@/engine/types";
 /**
  * Confrontation (MASTER_PLAN §32 / Scene 6): two suspects split-screen, the
  * detective questions one in front of the other, the other reacts. The engine
- * caps it at `max` exchanges; the counter shows how many are left.
+ * caps it (per pair and per game); the counter shows how many are left, whichever cap runs out first.
  */
 export function ConfrontScreen({
   pair,
@@ -24,7 +24,7 @@ export function ConfrontScreen({
   messages,
   pending,
   speakingId,
-  turnsUsed,
+  left,
   max,
   over,
   onAsk,
@@ -42,7 +42,9 @@ export function ConfrontScreen({
   messages: DialogueMessage[];
   pending: boolean;
   speakingId: string | null;
-  turnsUsed: number;
+  /** Exchanges left: min(this pair's, the whole game's), from confrontCounter. */
+  left: number;
+  /** This pair's cap (screen-reader "of N"). */
   max: number;
   over: boolean;
   /** Returns false if not accepted. */
@@ -66,7 +68,6 @@ export function ConfrontScreen({
   const addressed = target === b.id ? b : a;
   const other = target === b.id ? a : b;
   const locked = pending || over;
-  const left = Math.max(0, max - turnsUsed);
   const tooLong = text.trim().length > MAX_QUESTION_CHARS;
 
   return (

@@ -214,6 +214,12 @@ export interface PerformanceOutcome {
   performed: boolean;
   /** The stage direction shown with the line (kept in memory for delivery variety, #52). */
   action?: string;
+  /**
+   * C4 (DX8): does this turn count as an exchange with this character (interrogationCount: the gate's "questioned",
+   * `interrogated` conditions, the n/2 badges)? Default true. In a confrontation only the ADDRESSED suspect's turn
+   * counts; the partner reacting is not being questioned.
+   */
+  countsAsExchange?: boolean;
 }
 
 const MEMORY_CAP = 12;
@@ -223,7 +229,7 @@ const STATEMENT_CAP = 8;
 export function commitTurn(game: GameState, plan: TurnPlan, out: PerformanceOutcome, mode: "interrogation" | "confrontation" = "interrogation") {
   const rt = game.characters[plan.characterId] as CharacterRuntimeState;
   game.turn += 1;
-  rt.interrogationCount += 1;
+  if (out.countsAsExchange !== false) rt.interrogationCount += 1;
 
   // The engine decided the reveal; it is committed once it has actually been performed.
   // (On a fallback turn it stays pending and the engine offers it again next turn.)

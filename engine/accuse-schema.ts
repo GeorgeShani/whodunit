@@ -63,7 +63,7 @@ export interface AccuseResponseBody {
   outcome?: "won" | "lost";
   accusation?: Accusation;
   verdict?: AccuseVerdict;
-  /** E2: "sloppy" when the right culprit was named with a citation that supports nothing; only when the accused is the murderer. */
+  /** E2: "sloppy" when a WIN cited something that supports nothing; never on a loss. */
   rating?: "clean" | "sloppy";
   solution?: SolutionReveal;
   ending?: EndingPayload;

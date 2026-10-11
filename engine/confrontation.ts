@@ -6,6 +6,7 @@
  * ever talks to another on its own.
  */
 import type { LoadedCase } from "./case-schema";
+import { DEFAULT_CONFRONTATION_CAPS, type ConfrontationCaps } from "./confront-caps";
 import { MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 import { RELIEF } from "./memory";
 import { liesTouchedByTestimony, revealedSecretIds } from "./testimony";
@@ -31,11 +32,11 @@ export const totalExchanges = (game: GameState) => Object.values(game.pairTurns)
  * coming back resumes the count (#24), and the whole game is capped at
  * MAX_CONFRONTATION_TOTAL exchanges. Mutates game.activeConfrontation.
  */
-export function openConfrontation(game: GameState, addressedId: string, partnerId: string): ConfrontGate {
+export function openConfrontation(game: GameState, addressedId: string, partnerId: string, caps: ConfrontationCaps = DEFAULT_CONFRONTATION_CAPS): ConfrontGate {
   if (addressedId === partnerId) return { ok: false, reason: "same_character" };
   const key = pairKey(addressedId, partnerId);
-  if (game.confrontedPairs.includes(key) || (game.pairTurns[key] ?? 0) >= MAX_CONFRONTATION_TURNS) return { ok: false, reason: "pair_finished" };
-  if (totalExchanges(game) >= MAX_CONFRONTATION_TOTAL) return { ok: false, reason: "limit_reached" };
+  if (game.confrontedPairs.includes(key) || (game.pairTurns[key] ?? 0) >= caps.perPair) return { ok: false, reason: "pair_finished" };
+  if (totalExchanges(game) >= caps.total) return { ok: false, reason: "limit_reached" };
   const used = game.pairTurns[key] ?? 0;
   const active = game.activeConfrontation;
   if (!active || pairKey(...active.characterIds) !== key) game.activeConfrontation = { characterIds: [addressedId, partnerId], turnsUsed: used };
@@ -49,19 +50,19 @@ export function relieveBystanders(game: GameState, pair: readonly [string, strin
 }
 
 /** Count one exchange; at the pair cap the pair is finished for good. `over` also covers the whole-game cap. */
-export function spendExchange(game: GameState): { turnsUsed: number; over: boolean; totalLeft: number } {
+export function spendExchange(game: GameState, caps: ConfrontationCaps = DEFAULT_CONFRONTATION_CAPS): { turnsUsed: number; over: boolean; totalLeft: number } {
   const active = game.activeConfrontation;
-  if (!active) return { turnsUsed: 0, over: true, totalLeft: Math.max(0, MAX_CONFRONTATION_TOTAL - totalExchanges(game)) };
+  if (!active) return { turnsUsed: 0, over: true, totalLeft: Math.max(0, caps.total - totalExchanges(game)) };
   const key = pairKey(...active.characterIds);
-  const turnsUsed = Math.min(MAX_CONFRONTATION_TURNS, (game.pairTurns[key] ?? 0) + 1);
+  const turnsUsed = Math.min(caps.perPair, (game.pairTurns[key] ?? 0) + 1);
   game.pairTurns[key] = turnsUsed;
   active.turnsUsed = turnsUsed;
-  const totalLeft = Math.max(0, MAX_CONFRONTATION_TOTAL - totalExchanges(game));
-  if (turnsUsed >= MAX_CONFRONTATION_TURNS) {
+  const totalLeft = Math.max(0, caps.total - totalExchanges(game));
+  if (turnsUsed >= caps.perPair) {
     if (!game.confrontedPairs.includes(key)) game.confrontedPairs.push(key);
     game.activeConfrontation = null;
   }
-  return { turnsUsed, over: turnsUsed >= MAX_CONFRONTATION_TURNS || totalLeft === 0, totalLeft };
+  return { turnsUsed, over: turnsUsed >= caps.perPair || totalLeft === 0, totalLeft };
 }
 
 /**

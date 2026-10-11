@@ -7,9 +7,9 @@
  * Extra non-key evidence never changes won/lost. Time and place are not graded, but are returned
  * for the ending recap. Pure; the LLM never judges accusations.
  *
- * E2 rating (only when the accused IS the murderer, won or "right person, wrong story"): "sloppy" when any cited
- * clue is outside keyEvidenceIds + supportingEvidenceIds, or any cited testimony is outside keyTestimonyIds +
- * supportingTestimonyIds; otherwise "clean". A wrong accusation has no rating.
+ * E2 rating (WINS ONLY): "sloppy" when any cited clue is outside keyEvidenceIds + supportingEvidenceIds, or any cited
+ * testimony is outside keyTestimonyIds + supportingTestimonyIds; otherwise "clean". No loss ever carries a rating,
+ * "right person, wrong story" included: a rating there would tell the player they had the culprit (E4's no-tell rule).
  */
 import type { CaseSolution } from "./solution";
 import type { Accusation } from "./types";
@@ -27,7 +27,7 @@ export interface AccusationGrade {
   /** Cited testimony (secret ids) that is key testimony (deduplicated, in citation order). */
   keyTestimonyCited: string[];
   hasKeyTestimony: boolean;
-  /** E2: present only when the murderer is right. */
+  /** E2: present only on a win. */
   rating?: Rating;
   /** E2: cited clue / testimony ids that support nothing (what made the rating sloppy). */
   unsupportedCited: string[];
@@ -61,9 +61,10 @@ export function gradeAccusation(solution: CaseSolution, accusation: Accusation):
   const keyTestimonyCited = [...new Set(accusation.keyTestimonyIds ?? [])].filter((id) => keyTestimony.has(id));
   const hasKeyTestimony = keyTestimonyCited.length >= (solution.minKeyTestimony ?? 0);
   const unsupportedCited = unsupportedCitations(solution, accusation);
+  const won = murdererCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence && hasKeyTestimony;
   return {
-    won: murdererCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence && hasKeyTestimony,
-    ...(murdererCorrect ? { rating: unsupportedCited.length ? ("sloppy" as const) : ("clean" as const) } : {}),
+    won,
+    ...(won ? { rating: unsupportedCited.length ? ("sloppy" as const) : ("clean" as const) } : {}),
     unsupportedCited,
     murdererCorrect,
     weaponCorrect,
