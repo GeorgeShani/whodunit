@@ -437,5 +437,13 @@
       "leads": "Loose ends, detective. Either somebody's story hasn't been put to the test, or the why of it all is still hiding somewhere in this house.",
       "default": "Not so fast, detective! The case isn't ready for the gavel."
     }
-  }
+  },
+  "howToPlayTips": [
+    "The road is flooded and nobody is leaving tonight. Whoever did it is still under this roof.",
+    "Question the staff as carefully as the family. Everyone at the manor is hiding something.",
+    "Not every secret here is about the murder. Plenty of people are lying for their own reasons.",
+    "The evening ran to the minute. Note every time you're given and check it against the others.",
+    "Search the rooms early, then come back: when a room shows ✨ Something new, search it again.",
+    "One suspect's confession can shake another's story loose. Show testimony to the others."
+  ]
 }

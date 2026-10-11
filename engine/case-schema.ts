@@ -11,7 +11,7 @@
  *   endings.json           -> EndingsSchema (SERVER-ONLY; optional for now)
  */
 import { z } from "zod";
-import { MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
+import { MAX_CASE_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 import { EndingsSchema } from "./endings";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
@@ -71,12 +71,12 @@ export type CaseBackdrops = z.infer<typeof CaseBackdropsSchema>;
 export const HowToPlayTipSchema = z.string().trim().min(1).max(200);
 export const MAX_HOW_TO_PLAY_TIPS = 8;
 
-/** Optional per-case confrontation caps (defaults and hard ceilings: MAX_CONFRONTATION_TURNS / MAX_CONFRONTATION_TOTAL). */
+/** Optional per-case confrontation caps (defaults 6 / 12; ceilings MAX_CONFRONTATION_TURNS / MAX_CASE_CONFRONTATION_TOTAL). */
 export const ConfrontationCapsSchema = z.strictObject({
   /** Exchanges one pair may have (1..MAX_CONFRONTATION_TURNS). */
   perPair: z.number().int().min(1).max(MAX_CONFRONTATION_TURNS).optional(),
-  /** Exchanges in the whole game, across every pair (1..MAX_CONFRONTATION_TOTAL). */
-  total: z.number().int().min(1).max(MAX_CONFRONTATION_TOTAL).optional(),
+  /** Exchanges in the whole game, across every pair (1..MAX_CASE_CONFRONTATION_TOTAL). */
+  total: z.number().int().min(1).max(MAX_CASE_CONFRONTATION_TOTAL).optional(),
 });
 
 export const CaseEnvelopeSchema = z.strictObject({
