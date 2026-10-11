@@ -42,7 +42,8 @@ Server-only truth (`solution.json`): `murdererId: "victoria"`, `weaponId: "silve
 | 21:36 | Gregory arrives from the kitchen (`ev-gregory-arrives`). |
 | 21:38 | Lights return (`ev-lights-restored`). |
 | 21:40 | Victoria murmurs to Archibald that they were "together the whole time" and he agrees (`ev-alibi-pact`). |
-| 21:45 | Flooded road; the household waits in the hall (`ev-household-waits`). |
+| 21:44 | **The detective arrives**: expected for dinner, held up by the storm, their motor stalled in the floodwater at the foot of the drive. Reginald answers the front door (`ev-detective-arrives`). The detective witnessed nothing before this. |
+| 21:45 | Flooded road; the household, with the stranded detective, waits in the hall (`ev-household-waits`). |
 
 Every suspect has a `loc-<id>-<HHMM>` point entry at each of the 28 checkpoints from 20:30 to 21:45, and the test asserts exactly one location per suspect per checkpoint. Time ranges are `from`/`to` windows: `ev-victoria-argument` 20:50–20:56, `ev-archibald-phone` and `ev-reginald-hears-phone` 21:15–21:20. The test checks that everyone a window involves is at its location at every checkpoint inside it.
 
@@ -114,7 +115,7 @@ A revealed secret becomes a notebook card (`testimonySummary`, public) that the 
 ### WHEN: 21:17
 1. The Lord was alive at 21:12, and Reginald fitted a **fresh** candle then (`ev-candlestick-delivered`; Reginald volunteers this, it is not a secret).
 2. That candle burned only about 5 minutes before it fell while lit (`silver-candlestick`, `f-candle-burn`). **Death ≈ 21:17.**
-3. Cross-check: Gregory came in just after the quarter chime, heard the thud and saw the light under the door dim a minute or so later (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`), consistent with 21:17. The door was already locked with no key inside by 21:30 (`ev-reginald-scream`).
+3. Cross-check: Gregory came in a few minutes into the blackout, heard the thud and saw the light under the door dim soon after (`ev-gregory-enters-hall`, `ev-gregory-hears-thud`), consistent with 21:17. Gregory had a nip or two in the shed and is hazy on the clock (`f-gregory-nip`, George's pick 4), so **no step of this proof rests on his minutes**: 21:17 comes from steps 1 and 2 alone, and his sighting matters for *who* and *what* (the face, the lock, the key), not *when*. The door was already locked with no key inside by 21:30 (`ev-reginald-scream`).
 
 ### HOW: the silver candlestick
 4. The body has a head wound (`ev-body-discovered`). The candlestick's base is dented and bloody with wipe marks, and it fell while lit (`silver-candlestick`).
@@ -129,6 +130,7 @@ A revealed secret becomes a notebook card (`testimonySummary`, public) that the 
 
 ### WHY: inheritance
 11. The burned letter says the new will leaves Lady Victoria £200 a year and was to be signed at ten tomorrow (`burned-letter`, `f-new-will`). Reginald saw the Lord brandish that letter at her at 20:54: "Ten o'clock tomorrow… not a penny more" (`ev-reginald-overhears`). **She knew before 21:17.** Killing him first keeps the old will, under which she inherits nearly everything (`f-inheritance-motive`). Only she loses under the new will, and she is the one who burned the letter.
+12. **The decoy, "Unhappy marriage", is ruled out** (George's pick 1). The 20:54 row Reginald saw looks like a marital quarrel, and "You wouldn't dare, Edmund!" invites the reading that she wanted to be rid of him. But Reginald's overheard testimony (`s-reginald-overheard`, unlocked by the burned letter) gives her next words: "Leave me, but not on two hundred a year!" She would let him go; what she would not accept was the money. The burned letter (`burned-letter`) confirms the £200 is the new will, signed at ten tomorrow, and killing him the night before only makes sense for the fortune. So the motive is inheritance, and accusing Victoria with "Unhappy marriage" is graded wrong: right person, wrong story, a loss whose ending is Victoria's ordinary non-confirming loss and reveals nothing.
 
 ### Proof without any confession
 
@@ -267,7 +269,8 @@ All eleven gaps from the first draft are closed by contract v2 (commit 3608125).
 - **Reason for Gregory's dismissal:** drinking on duty. No named off-stage characters (no solicitor or broker names).
 - **`solution.json` sits in the case folder**; it must only ever be read server-side.
 - **No `portrait` or `image` keys.** Portraits default to the character id (`assets/characters/<id>/`), and evidence art doesn't exist yet.
-- **Motive options:** four, one per suspect, with spoiler-free descriptions.
+- **Motive options:** five, alphabetical, with spoiler-free descriptions: one per suspect plus Victoria's decoy, "Unhappy marriage" (George's pick 1, §5 step 12), so naming her no longer gives away the motive.
+- **The detective** (George's pick 3) was expected for dinner but arrived at 21:44, after the murder, the scream, the lights and the 21:38 police call (`ev-detective-arrives`). Dinner was three (Lord Blackwood, Victoria, Archibald), so the detective is nobody's alibi witness. Every suspect knows the arrival; a guard stops anyone saying the detective dined with them or saw the blackout or the scream.
 - **Relationship numbers** are my own proposals. Suspicion follows beliefs: Reginald suspects Archibald most, Archibald suspects Gregory, and Gregory suspects Victoria.
 
 ## 10. Location search and endings

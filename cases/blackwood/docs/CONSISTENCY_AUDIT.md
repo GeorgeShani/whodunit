@@ -108,7 +108,7 @@ Citing everything held always meets the key-evidence and key-testimony rules. Wi
 
 (b) is the smallest change.
 
-### CA-03 · Medium · Motives map one-to-one onto suspects: decision
+### CA-03 · Medium · Motives map one-to-one onto suspects: decided by George, fixed (#57, CA-63)
 
 **Evidence:** `case.json` `motives` are `inheritance` (Victoria), `business-ruin` (Archibald), `stolen-money` (Reginald) and `revenge` (Gregory), one each, as `SOLUTION_PROOF.md` §9 says.
 
@@ -141,7 +141,7 @@ There is also dead data: `endings.json` `wrong.victoria` (3 lines, the "right la
 
 **Update (r7).** Dexter's E4 (2fd33e4) now plays `wrong.victoria` when she is accused with the wrong story. That made its "right lady, wrong story" line a live verdict leak. CA-31 rewrites every wrong ending to one shape that gives nothing away.
 
-### CA-06 · Low · A loss never reveals the solution: decision (HOW_TO_PLAY #9)
+### CA-06 · Low · A loss never reveals the solution: decided by George (no reveal; investigation feedback instead, CA-64 / E20)
 
 By design (#22). Combined with a replay of the same solution, the learning loop is: lose, then replay with meta-knowledge. Options:
 - keep it;
@@ -217,7 +217,7 @@ The 21:16 print in the alcove was left when he came in by the garden door straig
 
 **Fix:** `ev-household-waits`, which every suspect already knows, now says Reginald telephoned the police **at 21:38**, but nobody can get through the flood before morning. r7 (CA-34) adds the call itself (`ev-reginald-telephones-police`, 21:38, servants' telephone, known by Reginald) and guards against "the line is dead" and "the police are coming tonight" (CA-32).
 
-### CA-16 · Low · Who is the detective, and how are they in a flooded house? Decision
+### CA-16 · Low · Who is the detective, and how are they in a flooded house? Decided by George, fixed (#57, CA-65)
 
 There is no canon. Suspects asked "when did I arrive?" will improvise. George or Marvin should choose: a guest at dinner? Arrived before the road flooded? Then I add one public fact everyone knows.
 
@@ -241,7 +241,7 @@ There is no canon. Suspects asked "when did I arrive?" will improvise. George or
 
 Reginald walks back at 21:13 and is in the pantry at 21:14. Archibald crosses the hall at 21:14. `f-reginald-saw-no-one` holds, because Reginald was already below stairs. The risk is the model improvising "I followed the butler's candle". Archibald's free text is gated by his false-alibi secret until it opens, and after that a candle glimpse contradicts nothing.
 
-### CA-21 · Low · Gregory's sobriety tonight is not canon: decision
+### CA-21 · Low · Gregory's sobriety tonight is not canon: decided by George, fixed (#57, CA-66)
 
 He was sacked for drinking (`f-gregory-dismissed`), and the endings and Reginald's jab joke about gin. Nothing says whether he was sober at 21:19. The model, or another suspect, can improvise "he was drunk", which undermines the key eyewitness, or "he was sober", which may be unintended.
 
@@ -298,7 +298,7 @@ New in this audit:
 | Gregory "tracking mud through the house" | CA-10 | fixed in data (#57), and guarded (CA-32) |
 | "The telephone is dead" or "the police are coming" | CA-15 | fixed in data (#57), and guarded (CA-32, CA-34) |
 | Reginald carrying the key up in the coal scuttle | CA-18 | fixed in data (#57), and guarded (CA-32) |
-| "He was drunk, sir" | CA-21 | decision. Meanwhile Gregory may not volunteer drinking tonight (CA-32) |
+| "He was drunk, sir" | CA-21 | decided (CA-66): a nip or two in the shed is canon (`f-gregory-nip`) and sayable; "blind drunk", "seeing things" and "too drunk to see" are guarded for everyone |
 | The bloodied handkerchief | Victoria wiped the candlestick with her handkerchief at 21:18 (`ev-victoria-takes-letter`, core). Her always-on quirk dabs dry eyes with a lace handkerchief. A witness could invent a stain. | CA-25 below, reworked in CA-29 |
 | Spare keys, invented staff, invented rooms | none in canon | guarded (CA-32), plus the canon fact `f-household-tonight` |
 | Two liars improvising different shared-alibi details | `l-victoria-together` and `l-archibald-together` agree on the time span but share no detail | accepted: realistic, and the claims never contradict canon. The engine cannot register a mismatch as a break, so the player can't earn anything from it either. |
@@ -350,13 +350,21 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 18. **E18, E8's hedge list is too wide (CA-62; Gremlin r7c R10).** `HEDGE_3P` exempts any sentence containing `would|could|should|if|surely|no doubt|I believe|I'd say|they say`, so "She killed him, and I would swear to it in any court.", "Surely she killed him, sir.", "No doubt about it, she killed him.", "If you ask me, she killed him." and "Mark my words: she killed him, and she'd do it again if she could." pass E8 (Blackwood's data blocks them all). Its subject list is name + aliases + pronoun only, so "the mistress / the missus / milady / his wife / the widow" also pass E8. On 72 fresh attack rows E8 caught 9, data 63. Proposal: match hedges only before the act clause or as the main verb (as `hit()` does), drop `would/could/should/surely/no doubt`, and let a case list extra subject titles. Related: E8's `hit()` treats a reporting verb (`says/said/told`) as a hedge, so relays of a locked sighting pass E8 (CA-55); do not treat it as a hedge unless the act is covered.
 19. **E19 (optional), prompt note for an exposed lie whose superseders are all locked (CA-56, CA-61; Gremlin r7c R4, R13).** An exposed lie with a superseder gets "stop insisting, bluster or backpedal" but not the "you admit NOTHING in its place" note the other exposed lies get. Blackwood no longer reaches that state for Victoria (CA-56), and Reginald's decision-12 state is the only one left. Proposal: emit the "admit NOTHING" note whenever all of a lie's superseders are still locked this turn.
 
+20. **E20, loss feedback: what the player found and missed, never whether they were right (CA-64; George's pick 2).** On a loss, after the accused's authored lines, show a short "your investigation" panel. Spec:
+    - **Inputs, investigation only:** the closed game state (discovered evidence, revealed secrets, searched locations, shown cards) and the case's `solution.keyEvidenceIds`, `keyTestimonyIds`, `minKeyEvidence`, `minKeyTestimony`. The panel never reads `murdererId`, `weaponId`, `motiveId`, `locationId` or `time`, and never reads the grade's `murdererCorrect`, `weaponCorrect` or `motiveCorrect`. A test should pass the same state with every accusation (each suspect, weapon and motive) and assert byte-identical feedback.
+    - **Lines, in this order, counts only:** (1) "You found N of the M key clues." (key evidence discovered, not cited, so citing never changes it); (2) "You uncovered N of the M key testimonies."; (3) only if the accusation cited fewer key clues or key testimonies than the case minimums: "Your accusation cited less proof than the case needed." with no names; (4) at most two "missed" hints from the categories below, chosen by a fixed order, never by which suspect is guilty.
+    - **Missed-hint categories (no names, no ids):** a room with a search tier never done ("There was a room you never searched thoroughly."); a suspect with an unrevealed non-core secret ("Someone still had a secret you never got out of them."); a key clue never found ("A clue that mattered never turned up."); a lie never broken ("At least one story you heard was never put to the test."). Secret counts use every suspect's non-core secrets; `coreGuilt` secrets are never counted (they never reveal, so counting them would point at the murderer).
+    - **Same shape for every loss:** identical line count, order and wording whether the accused is the murderer or not. No line mentions the accused, the weapon or the motive. No per-field verdict, as now (#22).
+    - **Copy:** case data has no field for it today (checked `engine/case-schema.ts`: no `lossFeedback` or similar), so nothing is pushed in `case.json`. Draft defaults above; if Dexter adds an optional `case.json` `lossFeedback` map (`foundClues`, `foundTestimony`, `citedTooFew`, `missedRoom`, `missedSecret`, `missedClue`, `untestedStory`, each up to 160 characters with `{n}` and `{m}` placeholders), Blackwood's lines would be: "You turned up {n} of the {m} clues that mattered." / "You coaxed {n} of {m} key confessions out of the household." / "Your accusation leaned on too little of it." / "One room never got a proper going-over." / "Somebody in this house kept a secret from you." / "A clue that mattered never surfaced." / "At least one story was never put to the test."
+    - **Docs:** `HOW_TO_PLAY.md`'s line on what a loss shows changes only when this ships (note left here, the guide is untouched).
+
 ## 6. Decisions for George or Marvin
 
 1. Confirm the gate change in CA-01 (`lead-motive` added to `closedLeadIds`).
-2. CA-03: add a decoy motive for Victoria ("a loveless marriage"), or accept the one-to-one map.
-3. CA-05 and CA-06: endings policy for a loss: all generic, or authored and non-confirming. And whether to offer a post-loss reveal.
-4. CA-16: how the detective comes to be in the house.
-5. CA-21: is Gregory sober tonight, or is a shaky witness intended?
+2. ~~CA-03: decoy motive for Victoria.~~ **Decided by George, 2026-10-11:** "Unhappy marriage", disproved by Reginald's overheard card. Fixed (CA-63).
+3. ~~CA-05 and CA-06: loss policy.~~ **Decided by George, 2026-10-11:** authored, non-confirming endings (CA-31) and no post-loss reveal; instead, investigation-only feedback (CA-64, spec E20 for Dexter).
+4. ~~CA-16: how the detective comes to be in the house.~~ **Decided by George, 2026-10-11:** a dinner guest who arrived late, at 21:44, after the murder. Fixed (CA-65).
+5. ~~CA-21: is Gregory sober tonight?~~ **Decided by George, 2026-10-11:** tipsy but truthful: hazy on times, sure of the sighting. Fixed (CA-66).
 6. PR B forces a paid replay re-record (E7). Do it together with #53's re-record if possible.
 7. ~~r7 (CA-28): Reginald's card gap.~~ **Decided by Marvin, 2026-10-11:** Archibald's telephone card also cracks `s-reginald-theft`. Fixed.
 8. ~~r7 (CA-32): "no other servants" (`f-household-tonight`).~~ **Approved by Marvin.**
@@ -804,3 +812,23 @@ Reginald's old over-claim rule [8] (her in the library in the dark or by candlel
 - R10 (E8's hedge list and subject list): **E18**.
 
 Plus E15d for the E8 discovery-scene false blocks (E15a/c, the negations, are done on main), and the optional E19. Each false block is pinned in `ENGINE_FALSE_BLOCKS`. R16 (the token-age flake on main) goes to Dexter as a test-infra note.
+
+## 10. George's four story picks (CA-63 onward)
+
+Relayed by Marvin, 2026-10-11. All four questions (§6 items 2 to 5) are now decided. Tests: `tests/cases/blackwood-george-picks.test.ts` (28 cases: 13 allow lines, 12 block lines, grading and canon checks).
+
+### CA-63 · Medium · Victoria's decoy motive: fixed (#57)
+
+`case.json` `motives` gains "Unhappy marriage" ("Someone wanted to be free of Lord Blackwood, whatever it cost."), kept alphabetical (it sorts last). **Suggested by** the 20:54 row Reginald saw (`ev-reginald-overhears`, his overheard card): a wife crying "You wouldn't dare, Edmund!" at her husband. **Disproved by** the same card, which now gives her next words, "Leave me, but not on two hundred a year!", and by the burned letter: she would let him go; the money is what she killed for (SOLUTION_PROOF §5 step 12). No new clue or fact. Grading is unchanged (`motiveId` must equal `inheritance`); a test grades Victoria + candlestick + both key clues + Gregory's card with "Unhappy marriage" as a loss and checks the ending equals her ordinary loss ending with no motive, weapon, time or will wording.
+
+### CA-64 · Medium · Loss feedback: spec to Dexter (E20)
+
+Data or copy side only: no schema field exists, so the draft copy is in E20 and nothing is pushed. `HOW_TO_PLAY.md` is unchanged until Dexter ships it.
+
+### CA-65 · Low · The detective's arrival: fixed (#57)
+
+New timeline entry `ev-detective-arrives` (21:44, hall, Reginald answers the door): the detective was expected for dinner, the motor stalled in the floodwater at the foot of the drive, and they arrived on foot after the murder (21:17), the scream (21:30), the lights and the police call (21:38) and the alibi pact (21:40). Dinner stays three (Lord Blackwood, Victoria, Archibald; `loc-*-2030`, CA-14), so the detective is nobody's alibi. `ev-household-waits` now includes "the stranded detective", `f-household-tonight` says "Until the detective arrived at 21:44", and the intro tells it. Every suspect knows the arrival. Guard `[pick3-detective]` (all four) blocks the detective at dinner, in the blackout or at the scream ("You dined with us", "As you saw at dinner", "You heard the scream yourself", "dinner for four"); "You arrived at a quarter to ten" and "You were expected for dinner" pass. The arrival text avoids restating the police call so the CA-46 time check ("telephoned the police at a quarter to ten") still blocks.
+
+### CA-66 · Low · Gregory is tipsy but truthful: fixed (#57)
+
+New background fact `f-gregory-nip` (known to Gregory and Reginald): a nip or two of gin in the potting shed after supper; a little merry, steady on his feet, hazy on the clock, clear on what he saw. His speech style now anchors on events ("just after the lights went", "when the thunder cracked", "a bit after the thud"), and both his cards drop clock times ("a few minutes into the blackout", "a minute after the thud") and end "Hazy on time, sure of her". The proof's 21:17 rests on the candle alone (§5 steps 1 and 2). `[r7-M6-gin]` is gone; `[pick4-drink]` (Gregory) blocks only "blind drunk", "half a bottle", "seeing things", "couldn't see straight", and `[pick4-witness]` (the other three) blocks casting him as too drunk to see. The fuzzy event-anchored lines pass the time check (allow tests).
