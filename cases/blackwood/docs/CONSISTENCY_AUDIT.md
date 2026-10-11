@@ -304,7 +304,7 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 
 ## 5. Engine and UI asks for Dexter (forward as written)
 
-**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b.
+**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b.
 
 1. **E1, validator: warn when ACCUSE can open while the win is impossible (CA-01).**
    - `progressionWarnings` should search reachable states, as `fastestPath` already does.

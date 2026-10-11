@@ -41,7 +41,7 @@ describe("E10 system lines", () => {
 
   for (const [label, lines] of [["default", undefined], ["case override", OWN]] as const) {
     it(`${label}: every closed-case route and the record-down 503 use systemLine()`, async () => {
-      const cs: LoadedCase = { ...c, ...(lines ? { systemLines: lines } : {}) };
+      const cs: LoadedCase = { ...c, systemLines: lines }; // "default" drops Blackwood's own lines
       const want = (k: keyof typeof SYSTEM_LINES) => (lines ? lines[k] : SYSTEM_LINES[k]);
       expect(systemLine(cs, "caseClosed")).toBe(want("caseClosed"));
       const t = closedToken(cs);
