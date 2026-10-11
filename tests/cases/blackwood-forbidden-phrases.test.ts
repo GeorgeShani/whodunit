@@ -39,6 +39,10 @@ const compile = (p: Phrase) => (p.regex ? new RegExp(p.text, "i") : new RegExp(`
 function blockedBy(who: Who, line: string, revealed: readonly string[] = []): Phrase | null {
   return chars[who].forbiddenPhrases.find((p) => !(p.unlessRevealed && revealed.includes(p.unlessRevealed)) && compile(p).test(line)) ?? null;
 }
+const EVIDENCE_IDS: string[] = (() => {
+  const raw = JSON.parse(readFileSync(join(DIR, "evidence.json"), "utf8")) as { id: string }[] | { evidence: { id: string }[] };
+  return (Array.isArray(raw) ? raw : raw.evidence).map((e) => e.id);
+})();
 const nonCore = (who: Who) => chars[who].secrets.filter((s) => !s.coreGuilt).map((s) => s.id);
 
 let profile: GuiltProfile;
@@ -55,14 +59,17 @@ beforeAll(async () => {
 });
 
 describe("blackwood forbiddenPhrases: shape", () => {
-  it("every character has a list; every regex compiles; unlessRevealed names one of the speaker's own non-core secrets", () => {
+  it("every character has a list; every regex compiles; unlessRevealed names a non-core secret (the speaker's own, or since E13 any character's); unlessShown names evidence or another's secret", () => {
+    const allNonCore = IDS.flatMap((w) => nonCore(w));
     for (const who of IDS) {
       const list = chars[who].forbiddenPhrases;
       expect(list.length, who).toBeGreaterThanOrEqual(10);
       for (const p of list) {
         expect(() => compile(p), `${who}: ${p.text}`).not.toThrow();
         expect(p.note, `${who}: ${p.text}`).toBeTruthy();
-        if (p.unlessRevealed) expect(nonCore(who), `${who}: ${p.text}`).toContain(p.unlessRevealed);
+        if (p.unlessRevealed) expect(allNonCore, `${who}: ${p.text}`).toContain(p.unlessRevealed);
+        const shown = (p as { unlessShown?: string }).unlessShown;
+        if (shown) expect([...EVIDENCE_IDS, ...allNonCore.filter((id) => !nonCore(who).includes(id))], `${who}: ${p.text}`).toContain(shown);
       }
     }
   });
