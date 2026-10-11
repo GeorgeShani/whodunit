@@ -131,7 +131,7 @@ export interface OrderResult {
  * movements: the window it describes must overlap when they really were away; "after X" needs a
  * movement at or after X, "before X" one at or before X (1 minute of slack).
  */
-export function checkOrder(dialogue: string, ctx: CharacterContext): OrderResult {
+export function checkOrder(dialogue: string, ctx: CharacterContext, revealing?: { description: string } | null): OrderResult {
   const landmarks = new Map(landmarksOf(ctx).map((l) => [l.id, l.minute]));
   const subjects = buildSubjects(ctx);
   const offending: string[] = [];
@@ -152,6 +152,13 @@ export function checkOrder(dialogue: string, ctx: CharacterContext): OrderResult
       .filter((k) => subjectMoves.test(k.statement))
       .flatMap((k) => [hm(k.time), hm(k.from), hm(k.to)])
       .filter((m): m is number => m !== null);
+    // R9: the speaker's own admitted timeline counts too. A revealed secret (or the one being revealed this turn) that
+    // describes them moving adds its times ("She left the dining room ... between 21:13 ... and 21:22"), so an
+    // admitted absence is not judged only against the knowledge entries that predate it.
+    if (who === ctx.persona.id)
+      for (const sec of [...ctx.secrets, ...(revealing ? [revealing] : [])])
+        for (const part of sec.description.split(/(?<=[.!?;])\s+/))
+          if (MOVEMENT.test(part)) for (const t of part.match(/\b\d{1,2}:\d{2}\b/g) ?? []) moves.push(hm(t)!);
     if (moves.length === 0) continue;
     const lo = Math.min(...moves);
     const hi = Math.max(...moves);

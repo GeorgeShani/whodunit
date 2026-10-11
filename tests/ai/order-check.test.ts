@@ -76,3 +76,17 @@ describe("canned evidence reaction", () => {
     expect(cannedCharacterResponse(ctx, "What is this?", "library-key", 3).dialogue).toMatch(/^The silver candlestick\?!/);
   });
 });
+
+describe("R9: the speaker's own revealed timeline", () => {
+  const line = "I left the dining room for a while after the candles were lit. I shan't say where.";
+  it("passes Victoria's revealed left-dining admission", () => {
+    expect(checkOrder(line, ctxOf("victoria", ["s-victoria-left-dining"])).ok).toBe(true);
+  });
+  it("passes it on the turn the secret is being revealed", () => {
+    const sec = c.characters.find((x) => x.id === "victoria")!.secrets.find((s) => s.id === "s-victoria-left-dining")!;
+    expect(checkOrder(line, ctxOf("victoria"), sec).ok).toBe(true);
+  });
+  it("still checks it against her knowledge while the secret is locked", () => {
+    expect(checkOrder(line, ctxOf("victoria")).ok).toBe(false);
+  });
+});
