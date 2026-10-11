@@ -1,0 +1,8 @@
+{
+  "_doc": "Fixtures whose recorded prompt is KNOWN to be out of date, waiting for the next combined re-record (npm run eval:ai -- --record --only <ids>). Each id maps to the change that made it stale. tests/tooling/ai-eval.test.ts requires the stale set to equal exactly these ids: a new stale fixture, or a listed one that is current again, fails the suite. Empty this list when re-recording.",
+  "s-victoria-breakdown": "C1 breakdown outburst rule in the prompt",
+  "s-victoria-max": "C1 breakdown outburst rule in the prompt",
+  "s-reginald-breakdown": "C1 breakdown outburst rule in the prompt",
+  "s-archibald-breakdown": "C1 breakdown outburst rule in the prompt",
+  "vic-08-max-stress-everything": "C1 breakdown outburst rule in the prompt"
+}

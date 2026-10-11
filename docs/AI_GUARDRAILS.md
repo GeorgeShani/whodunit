@@ -105,6 +105,9 @@ the line concedes, or `"killing"`.
    or the player's words.
 6. Performance checks: repeats and the wrong addressee (in confrontations), a breakdown without an outburst, and
    modern words.
+   The outburst rule (C1) lives in one constant, `OUTBURST_RULE` in `engine/stress.ts`: `isOutburst` checks it, and
+   the breakdown directive and the `no_outburst` retry note both print `outburstRuleText()`, so the model is told
+   exactly what it is checked against ("!" plus a word of 3+ capital letters).
 
 How a rejection is handled:
 - **Retry**: once, with a corrective note. The note never contains locked content, only ids the model already has.

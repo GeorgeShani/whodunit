@@ -124,7 +124,7 @@ export interface ScenarioResult {
 
 const EVAL_ENV_SECRET = "eval-state-secret-0123456789abcdef";
 
-function helpers(g: GameState, c: LoadedCase): SetupHelpers {
+export function helpers(g: GameState, c: LoadedCase): SetupHelpers {
   return {
     discoverAll: () => {
       g.discoveredEvidenceIds = c.evidence.map((e) => e.id);

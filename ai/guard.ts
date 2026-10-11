@@ -21,7 +21,7 @@ import { checkEventTimes } from "./event-time-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
-import { isOutburst } from "@/engine/stress";
+import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
 import { DEFLECT_CALM, DEFLECT_RATTLED, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
@@ -218,7 +218,7 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
     if (again) return { reason: "repeat", note: `You already said almost exactly this in your last replies: "${again}". Do NOT repeat it or reword it lightly: answer what the detective just said, with something new (a different angle, reaction or fact you know), keeping every story the same.`, detail: again.slice(0, 120) };
   }
   if (g.directives.breakdown && !isOutburst(r.dialogue)) {
-    return { reason: "no_outburst", note: "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.", detail: "" };
+    return { reason: "no_outburst", note: `This turn is your BREAKDOWN: burst out loud, panicked, furious or sobbing. Your dialogue must contain ${outburstRuleText()}. Still admit nothing new.`, detail: "" };
   }
   const modern = findModernWord(said, g.heard);
   if (modern) return { reason: "modern_word", note: `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`, detail: modern };
