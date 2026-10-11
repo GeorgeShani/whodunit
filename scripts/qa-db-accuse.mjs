@@ -12,6 +12,12 @@
  *    The gate needs 3 suspects with 2+ exchanges each and 2 revealed secrets, and exchanges/reveals only commit when
  *    the model answers, so this path makes SIX /api/interrogate model calls (about $0.03 at current prices; more if
  *    the guard asks for a retry). Without --allow-model-calls it stops before the first one.
+ *    Hard cap: at most MAX_MODEL_REQUESTS (8) /api/interrogate requests in total, retries included; it stops
+ *    (FAIL) rather than send a ninth.
+ *    Network errors (UND_ERR_SOCKET, ECONNRESET, "fetch failed", ...): each request is retried ONCE after a short
+ *    wait, with the SAME token. That is safe for model turns: the #40 turn lock spends a state on the model once, and
+ *    a duplicate gets 409 "already_answered" with the stored answer and the newest token, taken here as success
+ *    (409 "in_flight": wait and ask once more with the same token). A second network error stops the run.
  * 3. Saves the pre-accusation token, accuses (expects 200 "won"), then accuses again with the SAVED token and a
  *    different guess, expecting 409 "case_closed" with the stored outcome "won".
  * Prints the game id so the row can be checked in Supabase: select * from closed_games where game_id = '<id>';
@@ -23,7 +29,9 @@ const DRY_RUN = args.includes("--dry-run");
 const ALLOW_MODEL = args.includes("--allow-model-calls") && !DRY_RUN; // a dry run never spends model calls
 const DRY = args.includes("--dry-run");
 const CASE = "blackwood";
-let modelCalls = 0;
+let modelCalls = 0; // /api/interrogate requests sent (each may reach the model)
+const MAX_MODEL_REQUESTS = 8;
+const NETWORK_RETRY_WAIT_MS = 3000;
 
 const short = (t) => (typeof t === "string" ? `${t.slice(0, 12)}…(${t.length})` : String(t));
 const gameIdOf = (t) => {
@@ -39,12 +47,34 @@ function fail(msg, extra) {
   console.error(`model calls made: ${modelCalls}`);
   process.exit(1);
 }
-async function call(path, body) {
-  const res = await fetch(`${BASE}${path}`, {
-    method: body ? "POST" : "GET",
-    headers: body ? { "content-type": "application/json" } : {},
-    ...(body ? { body: JSON.stringify(body) } : {}),
-  });
+/** A transport failure (no HTTP response): the request may or may not have reached the server. */
+export function isNetworkError(e) {
+  const codes = [e?.code, e?.cause?.code, e?.cause?.cause?.code].filter(Boolean);
+  if (codes.some((c) => /^(UND_ERR_|ECONNRESET|ECONNREFUSED|ETIMEDOUT|EPIPE|ENOTFOUND|EAI_AGAIN|ENETUNREACH|EHOSTUNREACH)/.test(String(c)))) return true;
+  return e instanceof TypeError && /fetch failed/i.test(String(e?.message));
+}
+
+/**
+ * One HTTP request, retried ONCE (same body, so the same token) after a short wait on a network error.
+ * `beforeSend` runs before every send, retries included (the model-request cap counts there).
+ */
+async function call(path, body, beforeSend = () => {}) {
+  let res;
+  for (let attempt = 1; ; attempt++) {
+    beforeSend();
+    try {
+      res = await fetch(`${BASE}${path}`, {
+        method: body ? "POST" : "GET",
+        headers: body ? { "content-type": "application/json" } : {},
+        ...(body ? { body: JSON.stringify(body) } : {}),
+      });
+      break;
+    } catch (e) {
+      if (!isNetworkError(e) || attempt >= 2) fail(`${path}: ${attempt >= 2 ? "network error again after one retry" : "request error"} (${e?.cause?.code ?? e?.code ?? e?.name ?? "error"})`);
+      console.log(`${path}: network error (${e?.cause?.code ?? e?.code ?? "fetch failed"}); retrying once in ${NETWORK_RETRY_WAIT_MS / 1000}s with the same token`);
+      await new Promise((r) => setTimeout(r, NETWORK_RETRY_WAIT_MS));
+    }
+  }
   let json = null;
   try {
     json = await res.json();
@@ -74,17 +104,26 @@ async function ask(characterId, question, presentedEvidenceId, expectSecret) {
     console.log(`model calls made: ${modelCalls}`);
     process.exit(0);
   }
-  for (let attempt = 1; attempt <= 3; attempt++) {
-    const r = await call("/api/interrogate", { caseId: CASE, characterId, question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}), stateToken: token });
+  const countRequest = () => {
+    if (modelCalls >= MAX_MODEL_REQUESTS) fail(`model-request cap reached (${MAX_MODEL_REQUESTS}): not sending another /api/interrogate`);
     modelCalls++;
+  };
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    const r = await call("/api/interrogate", { caseId: CASE, characterId, question, ...(presentedEvidenceId ? { presentedEvidenceId } : {}), stateToken: token }, countRequest);
     keep(r);
+    if (r.status === 409 && r.json?.error === "already_answered") {
+      // The (retried) request had already been answered: the stored answer and the newest token. The reveal check
+      // is left to the accuse gate below (the 409 body carries no testimony list).
+      console.log(`ask ${characterId}: 409 already_answered (stored answer: ${r.json.answered ? "yes" : "no"}); continuing with the newest token`);
+      return;
+    }
     if (r.status === 200 && !r.json?.unavailable) {
       const cards = (r.json.testimonies ?? []).map((t) => t.id);
       console.log(`ask ${characterId}${presentedEvidenceId ? ` + ${presentedEvidenceId}` : ""}: ${r.json.source}; testimony now [${cards.join(", ")}]`);
       if (expectSecret && !cards.includes(expectSecret)) fail(`expected ${expectSecret} to be revealed`, { cards, dialogue: r.json.response?.dialogue });
       return;
     }
-    const wait = r.json?.unavailable?.retryAfter ? r.json.unavailable.retryAfter * 1000 : 8000;
+    const wait = r.json?.error === "in_flight" ? 5000 : r.json?.unavailable?.retryAfter ? r.json.unavailable.retryAfter * 1000 : 8000;
     console.log(`ask ${characterId}: ${r.status} ${r.json?.unavailable?.kind ?? r.json?.error ?? ""}; retrying in ${Math.round(wait / 1000)}s`);
     if (attempt === 3) fail(`ask ${characterId} never answered`, r.json);
     await new Promise((res) => setTimeout(res, Math.min(wait, 60_000)));

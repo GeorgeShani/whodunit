@@ -237,7 +237,21 @@ overhears, "into the fire" -> burned; weight 3 on an id token). A sentence with 
 - hedged ("around", "about", "roughly", "nearly", "approximately", "or so"): +-10 minutes;
 - "just / shortly / a little after T": the event lies in [T, T+15]; "... before T": in [T-15, T].
 Times in the speaker's own maintained stories and beliefs are exempt. It applies to every speaker, innocents
-included. This is a guard-only fix (no prompt change): when the event's time is not in the speaker's context (Reginald's
+included.
+
+**Multi-event replies (PR #53 follow-up).** One sentence often narrates several events ("I left at 21:13 to use the
+telephone until 21:20, then returned at 21:22"); binding every time to the sentence's single top event rejected
+correct breakdowns. Now each time is attributed in its own clause (split on , ; : dashes and then / until / till /
+and / while / but):
+- the clause's own word cues score 3+ (confident): the time must fit an event that clause touches, else `event_time`;
+- otherwise the nearest clause with a cue (the previous one after "until"/"till", else the next), then the whole
+  sentence; failing those, the time is accepted if it fits SOME event the speaker knows or is in (WHAT YOU KNOW, or
+  `involvesCharacterIds`). A time fitting none of these is still `event_time`; order is still the order check's job.
+- More cues from existing data: stems and compound endings match ("returned" ~ returns, "telephone" ~ phone); the
+  lexicon gained general phrasings for leaving, coming back, entering, telephoning and backing someone's story. Participants (a named person, or the speaker's "I"/"we") and the event's location name
+only RANK events a clause already touches (which event a miss is reported against); letting them widen what a clause
+touches let a wrong time through (g44: an incidental "confess" plus "his lordship" touched a 20:40 event).
+No case data field was needed (no `timeCues`). This is a guard-only fix (no prompt change): when the event's time is not in the speaker's context (Reginald's
 reveal turn has no 20:54 line), any clock time on it is rejected and the retry tells him not to put one on it. The
 order-check ABSENCE/MOVEMENT lists are untouched (deferred). Known limit: a sentence that names two events and one time
 is accepted if the time fits either ("after dinner I burned it at half past eight").
