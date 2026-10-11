@@ -80,10 +80,19 @@ export function extractTimes(text: string): TimeMention[] {
   // Order matters: most specific patterns first; later matches may not overlap earlier ones.
   // Clock times first, so the digits of "21:13 to 21:22" are never read as "13 minutes to 21" (#26 follow-up).
   add(new RegExp(`(?<![£$€\\d.])\\b(\\d{1,2})[:.](\\d{2})\\b(?!\\.\\d)`, "g"), (m) => ({ c: readings(Number(m[1]), Number(m[2])) }));
+  // Word-number hour, for the guard below ("one".."twenty-three"; NUM also allows digits, which are not this form).
+  const HOUR_WORD_BEFORE = new RegExp(`\\b(${NUM.replace("|\\d{1,2})", ")")})\\s+$`, "i");
   add(new RegExp(`\\b(quarter|half|${NUM})(?:\\s+minutes?)?\\s+(past|after|to|before|till|til)\\s+(${NUM})\\b`, "gi"), (m) => {
     const mins = minuteOf(m[1]);
     const h = num(m[3]);
     if (mins === null || h === null || mins > 59 || h > 24) return null;
+    // "twenty-one fifteen to twenty-one twenty" is two hour-minute times joined by "to", not "fifteen minutes to
+    // twenty-one": a minute word right after an hour word belongs to that hour (the hour-minute pattern reads it).
+    const before = HOUR_WORD_BEFORE.exec(text.slice(0, m.index ?? 0));
+    if (before && /^\d+$|^[a-z-]+$/i.test(m[1]) && !/^(quarter|half)$/i.test(m[1])) {
+      const bh = num(before[1]);
+      if (bh !== null && bh <= 23 && mins >= 10) return null;
+    }
     const back = /^(to|before|till|til)$/i.test(m[2]);
     const r = readings(h, 0).map((t) => (t + (back ? -mins : mins) + 1440) % 1440);
     return { c: r, rounded: /^(quarter|half)$/i.test(m[1]) };
