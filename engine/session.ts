@@ -44,8 +44,24 @@ export function saveSession(game: GameState, env?: Env): string {
   return encodeStateToken(game, env);
 }
 
-/** In-character replies once the case is closed (after the accusation). */
-export const CASE_CLOSED_LINE = "The case is closed, detective. The constable has everyone's statements, and I've nothing more to say.";
-export const CASE_CLOSED_SEARCH_LINE = "The constable has sealed the house. The case is closed, detective: there's nothing left to search.";
+/**
+ * E10: engine system lines. The defaults are neutral (no constable, police, Yard or telephone: a case's canon decides
+ * those); a case overrides any of them with case.json `systemLines`.
+ */
+export const SYSTEM_LINES = {
+  caseClosed: "The case is closed, detective. Everyone has said their piece, and I've nothing more to say.",
+  caseClosedSearch: "The case is closed, detective: there's nothing left to search.",
+  recordDown: "Your accusation can't be written down just now, detective. Your notes are safe: make your accusation again in a moment.",
+} as const;
+export type SystemLineKey = keyof typeof SYSTEM_LINES;
+
+/** The case's own wording for a system line, else the neutral default. */
+export function systemLine(c: { systemLines?: Partial<Record<SystemLineKey, string>> } | undefined, key: SystemLineKey): string {
+  return c?.systemLines?.[key] ?? SYSTEM_LINES[key];
+}
+
+/** Neutral defaults (kept as named exports for callers without case data). */
+export const CASE_CLOSED_LINE = SYSTEM_LINES.caseClosed;
+export const CASE_CLOSED_SEARCH_LINE = SYSTEM_LINES.caseClosedSearch;
 
 export const isCaseClosed = (game: GameState) => game.outcome !== "pending";

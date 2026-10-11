@@ -17,7 +17,7 @@ import { confrontationCaps } from "@/engine/confront-caps";
 import { CONFRONTATION_PRESSURE, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
 import { clampStress } from "@/engine/stress";
 import { attachProgress } from "@/engine/route-progress";
-import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "@/engine/session";
+import { isCaseClosed, systemLine, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import { ConfrontRequestSchema, type ConfrontLine, type ConfrontResponseBody } from "./confront-schema";
 import { isTurnUnavailable, performTurn, type AttemptHook } from "./perform-turn";
@@ -77,7 +77,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
 
   const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   const base = (b: ConfrontResponseBody): ConfrontResponseBody => ({ ...b, ...(notice ? { notice } : {}) });
-  if (isCaseClosed(game)) return { status: 409, body: base({ lines: [], line: CASE_CLOSED_LINE, error: "case_closed", stateToken: saveSession(game, env) }) };
+  if (isCaseClosed(game)) return { status: 409, body: base({ lines: [], line: systemLine(caseData, "caseClosed"), error: "case_closed", stateToken: saveSession(game, env) }) };
   const a = caseData.characters.find((c) => c.id === aId);
   const b = caseData.characters.find((c) => c.id === bId);
   if (!a || !b || !game.characters[aId] || !game.characters[bId]) {

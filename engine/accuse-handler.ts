@@ -13,7 +13,7 @@ import type { LoadedCase } from "./case-schema";
 import { buildEnding, buildSolutionReveal, endingEvidence, toVerdict } from "./ending-payload";
 import { accuseProgress } from "./progress";
 import { attachProgress } from "./route-progress";
-import { isCaseClosed, restoreSession, saveSession } from "./session";
+import { isCaseClosed, restoreSession, saveSession, SYSTEM_LINES, systemLine } from "./session";
 import { ensureGameId, type Env } from "./state-token";
 import type { Accusation, GameState } from "./types";
 
@@ -26,12 +26,11 @@ export const ACCUSE_LINES = {
   notDiscovered: "You can't cite a clue you haven't found, detective. Check your notebook.",
   testimonyNotRevealed: "You can't cite a confession nobody has made, detective. Check the testimony in your notebook.",
   /** E2: more citations than the case's "Cite up to N". */
-  tooManyCitations: "The inspector won't wade through a whole sack of exhibits, detective. Pick your best, and stay within the limit.",
+  tooManyCitations: "Nobody will wade through a whole sack of exhibits, detective. Pick your best, and stay within the limit.",
   locked: "The case isn't ready yet, detective.",
   caseClosed: "You've already named your culprit, detective. The case is closed.",
   /** The closed-games record could not be written (#39): nothing was decided, ask again shortly. */
-  recordDown:
-    "The telephone line to the Yard is down, detective, and the inspector won't hear an accusation he can't write down. Your notes are safe: make your accusation again in a moment.",
+  recordDown: SYSTEM_LINES.recordDown,
 } as const;
 
 export interface AccuseResult {
@@ -184,7 +183,7 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
     try {
       committed = await closed.closeGame({ gameId, caseId: caseData.id, outcome, accusedId: clean.murdererId });
     } catch {
-      return { status: 503, body: { error: "record_unavailable", line: ACCUSE_LINES.recordDown, stateToken } };
+      return { status: 503, body: { error: "record_unavailable", line: systemLine(caseData, "recordDown"), stateToken } };
     }
     if (!committed.inserted) return { status: 409, body: storedOutcomeBody(caseData, game, committed.record, stateToken, env) };
   }
