@@ -34,7 +34,7 @@ Server-only truth (`solution.json`): `murdererId: "victoria"`, `weaponId: "silve
 | 21:16 | Gregory, his lantern blown out, slips in by the garden door and stands in the dark hall alcove, leaving the **muddy footprint** (`ev-gregory-enters-hall`). |
 | **21:17** | **Victoria kills the Lord with the silver candlestick. The candle falls and goes out** (`ev-murder`). Gregory hears the thud and sees the light under the door dim (`ev-gregory-hears-thud`). |
 | 21:18 | Reginald calls through the pantry door, "Who's on that telephone?", and Archibald snaps back (`ev-pantry-exchange`). Victoria takes the letter, wipes the candlestick and stands it back on the desk (`ev-victoria-takes-letter`). |
-| 21:19 | Victoria steps out, **locks the door from outside and pockets the key** (`ev-victoria-locks-door`). A lightning flash shows Gregory her face (`ev-gregory-sees-victoria`). |
+| 21:19 | Victoria steps out, **locks the door from outside and pockets the key** (`ev-victoria-locks-door`). A lightning flash, and the flickers that follow it, show Gregory her face (`ev-gregory-sees-victoria`). |
 | 21:20 | Victoria **burns the letter** in the dining-room fire (`ev-letter-burned`) and **drops the key in the coal scuttle** (`ev-key-hidden`). Gregory flees to the garden and Archibald hangs up. |
 | 21:22 | Archibald returns to the dining room (`ev-archibald-returns`). |
 | 21:30 | Reginald brings the coal and finds the door locked with an **empty keyhole**. He sees the Lord's hand through it and **screams** (`ev-reginald-scream`). |
@@ -103,7 +103,7 @@ A revealed secret becomes a notebook card (`testimonySummary`, public) that the 
 | `s-archibald-false-alibi` | Mr Crane admits he left the dining room at 21:13, after the candles were lit, and was back at 21:22. He used the servants' telephone 21:15-21:20; the butler called through the pantry door at 21:18. At 21:40 he backed Lady Victoria's story. |
 | `s-archibald-embezzlement` | Mr Crane admits he embezzled company money, and that between 21:15 and 21:20 he telephoned his broker to move it before midnight. |
 | `s-gregory-in-hall` | Gregory admits that at 21:16 he slipped in by the garden door and stood in the dark hall alcove, six paces from the library door. At 21:17 he heard a heavy thud in the library and saw the light under the door dim. |
-| `s-gregory-saw-victoria` | Gregory says that at 21:19, in a lightning flash, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room. |
+| `s-gregory-saw-victoria` | Gregory says that at 21:19, in a lightning flash and the flickers after it, he saw Lady Victoria's face as she stepped out of the library, locked the door, slipped the key into her gown and walked towards the dining room. |
 | `s-victoria-left-dining` | Lady Victoria admits she left the dining room while Mr Crane was away, between 21:13 and 21:22, so they were not together all that time. At 21:40 she asked him to say they had been. |
 | `s-victoria-new-will` | Lady Victoria admits she knew before the murder that his lordship meant to sign a new will, and that she burned the solicitor's letter. |
 
@@ -190,7 +190,7 @@ Source and confidence now live on the facts themselves. By convention, a percept
 | `ev-lord-relocks` (hall, 21:13) | Reginald | heard | 0.9 |
 | `ev-archibald-notices-pantry` (kitchen, 21:15) | Archibald | witnessed (candlelight, coins) | 0.7 |
 | `ev-gregory-hears-thud` (hall, 21:17) | Gregory | heard | 0.8 |
-| `ev-gregory-sees-victoria` (hall, 21:19) | Gregory | witnessed (lightning flash, ~6 m) | 0.85 (also belief `b-gregory-it-was-her`) |
+| `ev-gregory-sees-victoria` (hall, 21:19) | Gregory | witnessed (lightning flash and flickers, ~6 m) | 0.85 (also belief `b-gregory-it-was-her`) |
 | `ev-scream-heard-dining` (dining room, 21:30) | Victoria, Archibald | heard | 0.95 |
 | `ev-shouting-heard-garden` (garden, 21:30) | Gregory | heard | 0.7 |
 
@@ -216,7 +216,7 @@ The engine (`engine/knowledge-gate.ts`) withholds a character's known facts whil
 | Archibald | `s-archibald-false-alibi` | `ev-archibald-returns`, `ev-archibald-notices-pantry`, `ev-pantry-exchange`, `loc-archibald-2113`–`2122` |
 | Archibald | `s-archibald-embezzlement` | `ev-archibald-threat` |
 | Reginald | `s-reginald-theft` | `loc-reginald-2115`–`2122` ("counting his hidden money", calling through the pantry door) |
-| Reginald | `s-reginald-overheard` | `loc-reginald-2054`, `f-new-will` (gates `b-reginald-will`) |
+| Reginald | `s-reginald-overheard` | `loc-reginald-2054`, `f-new-will` (gates `b-reginald-will`). Reginald does not *know* `f-new-will` (or `f-letter-accuses-butler`, related to `s-reginald-theft`): he heard the quarrel and never read the letter. The related ids are for the card and proof cross-links only (r7 L8, CA-40). |
 | Gregory | `s-gregory-in-hall` | `f-footprint-gregory`, `f-no-mud-beyond-alcove`, `loc-gregory-2115`–`2122` |
 
 `loc-reginald-2114` is not a direct link. Linking it would widen the old proximity window back to 21:13 and hide `ev-lord-relocks`. Since the case switched to the explicit gate, it is hidden with `hiddenUntil` instead (§7.2).
@@ -279,7 +279,7 @@ Search flavour (`case.json` `locations[].searchFlavor`) and each clue's `discove
 `endings.json` is server-only. It holds:
 - `correct.confession`: Victoria's confession, with an Archibald cameo that breaks the alibi.
 - `correct.recap`: narrator prose covering who, how, why and 21:17 in the library, and the proof. Lines cite `evidenceIds`.
-- `wrong.<suspectId>`: one ending for each of the four suspects. `wrong.victoria` is "right lady, no case" (wrong weapon, wrong motive or no key evidence). **The engine never plays it** (`engine/ending-payload.ts` `lossBeats()`, #22). It also drops Victoria's cameo lines from the other three wrong endings, so accusing her on a loss plays the generic two beats. See `CONSISTENCY_AUDIT.md` CA-05 / E4.
+- `wrong.<suspectId>`: one ending for each of the four suspects. Since E4 (2fd33e4) the engine plays `wrong.victoria` when she is accused with the wrong story, and still drops the murderer's cameos from the other endings. Since r7 (CA-31) every wrong ending has the same shape: two lines by the accused alone, which give away no secret, alibi or verdict. Victoria's cameo lines are gone. See `CONSISTENCY_AUDIT.md` CA-05 and CA-31.
 - `escapedLine`.
 
 ## 11. Round 2 data fixes (Gremlins #26 and #27, Dexter's data notes)
@@ -356,7 +356,7 @@ Implemented with Dexter's progression backend (docs/CASE_FORMAT.md "Progression"
 ### 12.1 The solve path
 1. **Library** (open from the start): `silver-candlestick`. The dining room is shut until it is found (`requires: silver-candlestick`, `lockedLine` "Crime scene first, detective! Procedure!").
 2. **Talk.** Two exchanges with a suspect open a lead (§12.2).
-3. **Dining room, first search:** `library-key` (coal scuttle). Needs `lead-keyhole` (Reginald x2 or Archibald x2) **or** `lead-fireplace` (Victoria x2). Nag until then: "The hearth is still holding out on you."
+3. **Dining room, first search:** `library-key` (coal scuttle). Needs `lead-keyhole` (Reginald x2 or Archibald x2) **or** `lead-fireplace` (the candlestick found **and** the dining room searched once, so the second visit at the earliest; r7 CA-36). Nag until then: "The hearth is still holding out on you."
 4. **Dining room, second search:** `burned-letter` (grate). Needs `library-key` already found **and** `lead-letter` (Reginald x2), checked against the state before the search, so key and letter are always two searches.
 5. **Garden / kitchen / hall:** the garden and kitchen give leads (§12.2) and no clue. `muddy-footprint` (hall) needs `lead-lantern` (garden searched) **or** `lead-boots` (Gregory x2).
 6. **Crack them.** Show `burned-letter` to Reginald (`s-reginald-theft`), `library-key` to Archibald (`s-archibald-false-alibi`), the footprint then the key to Gregory (`s-gregory-in-hall`, then `s-gregory-saw-victoria`). Showing a clue to Victoria also cracks her (`library-key` → `s-victoria-left-dining`, `burned-letter` → `s-victoria-new-will`).
@@ -368,7 +368,7 @@ Implemented with Dexter's progression backend (docs/CASE_FORMAT.md "Progression"
 | `lead-weapon` | start | `silver-candlestick` found | (the dining room opens on the clue itself) |
 | `lead-motive` | start | `burned-letter` found | tracking only |
 | `lead-keyhole` | Reginald >= 2 **or** Archibald >= 2 | `library-key` found | `library-key` |
-| `lead-fireplace` | Victoria >= 2 | `library-key` found | `library-key` |
+| `lead-fireplace` ("Where does the candlestick live?") | `silver-candlestick` found **and** dining room searched (r7 CA-36; was Victoria >= 2) | `library-key` found | `library-key` |
 | `lead-letter` | Reginald >= 2 | `burned-letter` found | `burned-letter` (with the key) |
 | `lead-lantern` | garden searched | `muddy-footprint` found | `muddy-footprint` |
 | `lead-boots` | Gregory >= 2 | `muddy-footprint` found | `muddy-footprint` |
@@ -437,8 +437,17 @@ The full leak-path audit (every reveal and break path, the worst admission the m
 - New `revealConditions.testimonyIds` (any-of, alongside the existing conditions):
   - `s-victoria-left-dining` ← `s-archibald-false-alibi`, `s-reginald-theft`;
   - `s-victoria-new-will` ← `s-reginald-overheard`;
-  - `s-archibald-false-alibi` ← `s-reginald-theft`.
+  - `s-archibald-false-alibi` ← `s-reginald-theft`, and since r7 (CA-28) also `s-victoria-left-dining` and `s-gregory-saw-victoria`, the two cards that break his "together" lie.
 
   Each card also breaks a lie that the secret supersedes. No card can reveal a core-guilt secret. The fastest legal path is still 10.
 
 The proof (§5) is unchanged: it never used a broken lie as a step. The validator still prints a fastest path of 10.
+
+## r7 additions (Gremlin's offline review, `CONSISTENCY_AUDIT.md` §7)
+
+- Police: Reginald telephoned the police from the servants' telephone at 21:38 (`ev-reginald-telephones-police`). `ev-household-waits` says so too. Nobody can get through the flood before morning.
+- Household: `f-household-tonight`, known by all four, says the only people in the house are Lord Blackwood, Victoria, Archibald, Reginald and Gregory. There are no other servants.
+- `f-reginald-saw-no-one` is scoped to 21:13–21:30 ("did not see Victoria at all in that time"). He did see her at 20:54, 20:57 and 21:11.
+- The new-will reveal admits the burning but never when. The 21:20 timing stays core guilt (`ev-letter-burned` in `s-victoria-murder`).
+- Motives are in alphabetical order on the accuse form, and the inheritance description no longer hints at the timing.
+- The proof (§5) is unchanged. The fastest path is still 10.
