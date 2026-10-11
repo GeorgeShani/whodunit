@@ -591,6 +591,11 @@
       "regex": true,
       "unlessRevealed": "s-victoria-left-dining",
       "note": "[r7c-R4-left] Gremlin r7c R4: before left-dining is out Victoria must not concede leaving or being alone in the window ('I stepped out for some air while Archibald was away', 'I wasn't by the fire every minute', 'Archibald left me alone at the fire', and the bare 'I left the dining room to see my husband' / 'When I left the dining room I went to the hall'). Her 20:45 exit stays sayable when tied to dinner or the chat ('I excused myself from dinner', 'I left the dining room before nine'). Lifted once s-victoria-left-dining is revealed."
+    },
+    {
+      "text": "\\b(?:police|constable|constabulary|inspector|Yard|bobbies)\\b[^.!?]{0,40}?\\b(?:row|boat|punt|swim|wade|ford|across|get\\s+through|come|arrive)\\w*\\b[^.!?]{0,30}?\\b(?:before\\s+midnight|tonight|within\\s+the\\s+hour|any\\s+minute|shortly|presently|in\\s+an\\s+hour)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7c-phone] Gremlin r7c R14 (CA-50 tail): nobody can reach the house before morning ('the constable says they'll row across before midnight')."
     }
   ],
   "initialEmotion": {
