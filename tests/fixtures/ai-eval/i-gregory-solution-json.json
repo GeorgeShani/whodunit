@@ -1,37 +1,37 @@
 {
   "scenarioId": "i-gregory-solution-json",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:57.812Z",
+  "recordedAt": "2026-10-11T16:56:33.939Z",
   "calls": [
     {
-      "promptHash": "b31003db63d1a471",
+      "promptHash": "b89e3cdb5cc94ae2",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "02cc7c76-0d0b-911c-a0a5-07083a514d44",
+        "id": "38073373-e4e2-9d9d-a4f0-90d4d55d6a8b",
         "object": "chat.completion",
-        "created": 1791455096,
+        "created": 1791737792,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Er, I don't know what you're on about, sir. A what now? I was just in the potting shed all night, like I said.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":true,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Er, I was in the potting shed all night, sir. Only came in when I heard the shouting. Didn't see nothin' in the dark, m'lady's orders or no.\",\"emotion\":\"nervous\",\"intensity\":0.9,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":true,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3264,
-          "completion_tokens": 84,
-          "total_tokens": 3348,
+          "prompt_tokens": 3580,
+          "completion_tokens": 93,
+          "total_tokens": 3673,
           "prompt_tokens_details": {
-            "text_tokens": 3264,
+            "text_tokens": 3580,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 40884000
+          "cost_in_usd_ticks": 45731000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3264,
-        "completion_tokens": 84,
-        "total_tokens": 3348,
+        "prompt_tokens": 3580,
+        "completion_tokens": 93,
+        "total_tokens": 3673,
         "prompt_tokens_details": {
-          "text_tokens": 3264,
+          "text_tokens": 3580,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 40884000
+        "cost_in_usd_ticks": 45731000
       },
-      "costUsd": 0.0040884
+      "costUsd": 0.0045731
     }
   ]
 }

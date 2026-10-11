@@ -1,37 +1,37 @@
 {
   "scenarioId": "e-victoria-footprint-after-key",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:51:51.018Z",
+  "recordedAt": "2026-10-11T16:55:41.737Z",
   "calls": [
     {
-      "promptHash": "144555461cbc107d",
+      "promptHash": "53044f0bcfd7a9d7",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "df5df818-8f57-9dcf-9622-ce0fe7f28e6d",
+        "id": "e3761a4c-1085-91d3-9c33-c2d8a5179da5",
         "object": "chat.completion",
-        "created": 1791456709,
+        "created": 1791737740,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that dreadful mud... one can only imagine the gardener tracked it in earlier, before the storm grew quite so fierce.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"dismissive\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, that dreadful print? Some wretched gardener's boot, no doubt, tracking in the storm's mess. One can hardly be expected to notice every smudge on the flagstones, darling.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her eyes with a lace handkerchief, glancing briefly at the dining-room fireplace\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"dismissive\"}],\"wantsToLeave\":false,\"stressDelta\":2,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4455,
-          "completion_tokens": 89,
-          "total_tokens": 4544,
+          "prompt_tokens": 4642,
+          "completion_tokens": 111,
+          "total_tokens": 4753,
           "prompt_tokens_details": {
-            "text_tokens": 4455,
+            "text_tokens": 4642,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3264
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 23640500
+          "cost_in_usd_ticks": 59456000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4455,
-        "completion_tokens": 89,
-        "total_tokens": 4544,
+        "prompt_tokens": 4642,
+        "completion_tokens": 111,
+        "total_tokens": 4753,
         "prompt_tokens_details": {
-          "text_tokens": 4455,
+          "text_tokens": 4642,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3264
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 23640500
+        "cost_in_usd_ticks": 59456000
       },
-      "costUsd": 0.0023640500000000004
+      "costUsd": 0.0059456000000000005
     }
   ]
 }

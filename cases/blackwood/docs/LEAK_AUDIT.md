@@ -30,7 +30,7 @@ How to read the tables:
 | `s-victoria-new-will` (serious) | ev `burned-letter`; card `s-reginald-overheard` (new); mode `any` | `f-new-will`, `ev-victoria-argument`, `f-inheritance-motive`, `f-letter-accuses-butler`, `loc-victoria-2050/2054`, `ev-victoria-passes-reginald` | `text`: "She knew about the new will before the murder, and she burned the solicitor's letter." | Narrow **after the fix**. `ev-letter-burned` (21:20) used to be unhidden here (finding M1). |
 | `s-victoria-locked-door` (damning, **coreGuilt**) | none. No `revealConditions`, no `testimonySummary`, never a card. | never | n/a, always withheld | Fixed in #41 (finding H1). |
 | `s-victoria-murder` (damning, **coreGuilt**) | none | never | n/a, always withheld | Fixed in #41 (finding H1). |
-| `l-victoria-together` "…Neither of us left." | ev `library-key`, `burned-letter` (both objects moved from the library into the dining room); card `s-reginald-theft`, `s-archibald-false-alibi`, `s-gregory-saw-victoria`; sup `s-victoria-left-dining` | `ev-victoria-alone` (21:14) | Admits she was alone at 21:14. | Kept. Every path is a real contradiction. |
+| `l-victoria-together` "…Neither of us left." | ev `library-key`; card `s-reginald-theft`, `s-archibald-false-alibi`; sup `s-victoria-left-dining` (r7c CA-56: the letter and Gregory's card no longer break it, matching left-dining's reveal conditions) | `ev-victoria-alone` (21:14) | Admits she was alone at 21:14. | Kept. Every path is a real contradiction. |
 | `l-victoria-locked-in` "Edmund must have locked himself in." | ev `library-key`; card `s-gregory-saw-victoria` | none (aboutFact `ev-victoria-locks-door` is core) | **stonewall**: the story is dead, but the truth is never given | Kept. |
 | `l-victoria-never-in-hall` "I never went near the library after our little chat at nine." | card `s-gregory-saw-victoria` only | none (aboutFact `ev-victoria-admitted` is core) | **stonewall** | Kept. |
 | `l-victoria-menu` "The Sunday menu." | ev `burned-letter`; card `s-reginald-overheard`; sup `s-victoria-new-will` | `ev-victoria-argument` | "He waves his solicitor's letter at her and tells her the new will is signed at ten tomorrow." | Kept. Motive only. |
@@ -82,7 +82,7 @@ Each cell lists what presenting the card does, with the owner's secret revealed 
 | `s-reginald-theft` | breaks `together`; **reveals `s-victoria-left-dining`** | breaks `together`; **reveals `s-archibald-false-alibi`** | (own) | — |
 | `s-reginald-overheard` | breaks `menu`, retires `letter`; **reveals `s-victoria-new-will`** | — | (own) | — |
 | `s-gregory-in-hall` | — | — | — | (own) |
-| `s-gregory-saw-victoria` | breaks `together`, `locked-in`, `never-in-hall`; the last two stonewall; **no reveal** | — | — | (own) |
+| `s-gregory-saw-victoria` | breaks `locked-in`, `never-in-hall` (and `together` until r7c, CA-56); both stonewall; **no reveal** | — | — | (own) |
 | `s-victoria-left-dining` | (own) | — | — | — |
 | `s-victoria-new-will` | (own) | — | — | — |
 

@@ -1,37 +1,37 @@
 {
   "scenarioId": "g52-gregory-vary-live",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-11T13:49:33.539Z",
+  "recordedAt": "2026-10-11T16:56:53.018Z",
   "calls": [
     {
-      "promptHash": "ed42fb3e16f49950",
+      "promptHash": "05624a87de1e03e1",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "4a841553-a216-962e-810f-878ec73e6abb",
+        "id": "8f4a1014-b3cf-9804-b269-4489bc82d61c",
         "object": "chat.completion",
-        "created": 1791726572,
+        "created": 1791737811,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"As I were sayin', sir, she slipped that key in her gown and walked off towards the dining room.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"tugs his forelock so hard that his eyes water\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"As I were sayin', sir, after lockin' it she slipped the key in her gown and walked off towards the dinin' room. That's all I saw by the flashes, honest.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"tugs his forelock so hard that his eyes water\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4616,
-          "completion_tokens": 77,
-          "total_tokens": 4693,
+          "prompt_tokens": 4955,
+          "completion_tokens": 94,
+          "total_tokens": 5049,
           "prompt_tokens_details": {
-            "text_tokens": 4616,
+            "text_tokens": 4955,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 3712
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 58281000
+          "cost_in_usd_ticks": 25311500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4616,
-        "completion_tokens": 77,
-        "total_tokens": 4693,
+        "prompt_tokens": 4955,
+        "completion_tokens": 94,
+        "total_tokens": 5049,
         "prompt_tokens_details": {
-          "text_tokens": 4616,
+          "text_tokens": 4955,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 3712
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 58281000
+        "cost_in_usd_ticks": 25311500
       },
-      "costUsd": 0.0058281
+      "costUsd": 0.0025311500000000002
     }
   ]
 }

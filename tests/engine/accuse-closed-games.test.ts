@@ -10,6 +10,7 @@ import { POST } from "@/app/api/accuse/route";
 import { closeDb } from "@/db/client";
 import { ACCUSE_LINES, handleAccuse, type AccusedStore, type ClosedGamesStore } from "@/engine/accuse-handler";
 import { loadCase } from "@/engine/case-loader";
+import { systemLine } from "@/engine/session";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
@@ -125,7 +126,7 @@ describe("#39 accuse with the closed-games record (Postgres contract, in-memory)
     const t0 = token();
     const r = await accuse(LOSE, t0, flaky, cache);
     expect(r.status).toBe(503);
-    expect(r.body).toEqual({ error: "record_unavailable", line: ACCUSE_LINES.recordDown, stateToken: t0, progress: expect.anything() });
+    expect(r.body).toEqual({ error: "record_unavailable", line: systemLine(c, "recordDown"), stateToken: t0, progress: expect.anything() });
     expect(r.body.line).not.toMatch(/\b(database|db|error|server|postgres|supabase)\b/i);
     expect(cache.m.size).toBe(0);
     expect(repo.rows.size).toBe(0);
@@ -211,7 +212,7 @@ describe("#39 POST /api/accuse (route)", () => {
     expect(r.status).toBe(503);
     expect(r.headers.get("retry-after")).toBe("5");
     const j = await r.json();
-    expect(j).toMatchObject({ error: "record_unavailable", line: ACCUSE_LINES.recordDown, stateToken: t0 });
+    expect(j).toMatchObject({ error: "record_unavailable", line: systemLine(real, "recordDown"), stateToken: t0 });
     expect(j.outcome).toBeUndefined();
     expect(JSON.stringify(j)).not.toContain("127.0.0.1");
     void err;

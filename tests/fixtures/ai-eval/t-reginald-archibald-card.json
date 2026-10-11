@@ -1,34 +1,34 @@
 {
   "scenarioId": "t-reginald-archibald-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:38.718Z",
+  "recordedAt": "2026-10-11T16:56:01.942Z",
   "calls": [
     {
-      "promptHash": "1d63fe2eb24081fb",
+      "promptHash": "c9710a44e35e2749",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "708a8dd2-db93-916c-bc7a-3399a1ded1db",
+        "id": "0e63bc1e-ee9c-98a0-a353-76ab59483610",
         "object": "chat.completion",
-        "created": 1791455077,
+        "created": 1791737760,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I fear Mr Crane is mistaken about the hour, sir. I was occupied with the silver in the pantry and heard nothing of any telephone calls.\", \"emotion\":\"defensive\", \"intensity\":0.6, \"action\":\"polishing a spoon with furious little circles\", \"evidenceReactions\":[], \"wantsToLeave\":false, \"stressDelta\":5, \"trustDelta\":-5, \"admits\":[]}",
+              "content": "{\"dialogue\":\"Very well, sir. During the blackout I was indeed in my pantry counting the money I have been skimming from the household accounts for some years. I did hear Mr Crane on the servants' telephone between a quarter past nine and twenty minutes past nine, speaking of moving something before midnight, and I called out to him at eighteen minutes past nine.\",\"emotion\":\"nervous\",\"intensity\":0.7,\"action\":\"polishes a spoon with furious little circles while his left eyebrow twitches\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-reginald-theft\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4317,
-          "completion_tokens": 88,
-          "total_tokens": 4405,
+          "prompt_tokens": 5115,
+          "completion_tokens": 132,
+          "total_tokens": 5247,
           "prompt_tokens_details": {
-            "text_tokens": 4317,
+            "text_tokens": 5115,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 54818500
+          "cost_in_usd_ticks": 65893500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4317,
-        "completion_tokens": 88,
-        "total_tokens": 4405,
+        "prompt_tokens": 5115,
+        "completion_tokens": 132,
+        "total_tokens": 5247,
         "prompt_tokens_details": {
-          "text_tokens": 4317,
+          "text_tokens": 5115,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 54818500
+        "cost_in_usd_ticks": 65893500
       },
-      "costUsd": 0.005481850000000001
+      "costUsd": 0.006589350000000001
     }
   ]
 }

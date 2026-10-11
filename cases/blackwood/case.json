@@ -2,8 +2,13 @@
   "id": "blackwood",
   "title": "Murder at Blackwood Manor",
   "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
-  "intro": "Thunder rattles the windows of Blackwood Manor. The lights have gone out, the road has flooded, and nobody is going anywhere tonight.\n\nSomewhere between the coffee and the coal, Lord Blackwood was struck down in his own locked library, and the key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+  "intro": "Thunder rattles the windows of Blackwood Manor. The lights failed at ten past nine, the road has flooded, and nobody is going anywhere tonight.\n\nYou were expected for dinner, but the storm had other ideas. Your motor stalled in the floodwater at the foot of the drive, and by the time you squelched up to the front door, at a quarter to ten, the lights were back on, the police had been telephoned and could not get through, and Lord Blackwood lay dead in his own locked library. The key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
   "knowledgeGate": "explicit",
+  "systemLines": {
+    "caseClosed": "The case is closed, detective. Nobody leaves until the floodwater drops, and the police will hear all of it come morning.",
+    "caseClosedSearch": "There's nothing left to find tonight. The house is quiet now; all that remains is to wait out the flood.",
+    "recordDown": "Your pen splutters and the ink smears. The record will have to wait a moment; your notes are safe. Make your accusation again."
+  },
   "victim": {
     "id": "lord-blackwood",
     "name": "Lord Blackwood",
@@ -170,7 +175,7 @@
     },
     {
       "id": "f-gregory-dismissed",
-      "statement": "Lord Blackwood dismissed Gregory that morning for drinking on duty.",
+      "statement": "Lord Blackwood dismissed Gregory that morning for drinking on duty and told him to be gone by morning.",
       "category": "background",
       "involvesCharacterIds": [
         "gregory",
@@ -195,7 +200,7 @@
     },
     {
       "id": "f-reginald-saw-no-one",
-      "statement": "After hearing the library lock turn at 21:13, Reginald went below stairs and stayed there until he carried the coal up at 21:30. In all that time he saw no one in the hall or at the library door, and he did not see Victoria at all.",
+      "statement": "After hearing the library lock turn at 21:13, Reginald went below stairs and stayed there until he carried the coal up at 21:30. In all that time he saw no one in the hall or at the library door, and he did not see Victoria at all in that time.",
       "category": "alibi",
       "locationId": "kitchen",
       "involvesCharacterIds": [
@@ -215,18 +220,43 @@
       ],
       "source": "witnessed",
       "confidence": 0.8
+    },
+    {
+      "id": "f-household-tonight",
+      "statement": "Until the detective arrived at 21:44, the only people at Blackwood Manor tonight were Lord Blackwood, Lady Victoria, Mr Crane, Reginald the butler and Gregory the gardener. There are no other servants in the house.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "lord-blackwood",
+        "victoria",
+        "archibald",
+        "reginald",
+        "gregory"
+      ]
+    },
+    {
+      "id": "f-gregory-nip",
+      "statement": "After supper Gregory had a nip or two of gin in the potting shed. He was a little merry but steady on his feet: hazy on the clock, clear on what he saw.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "gregory"
+      ]
     }
   ],
   "motives": [
     {
-      "id": "inheritance",
-      "label": "Inheritance",
-      "description": "Someone stood to gain from Lord Blackwood's fortune, but only if he died at the right moment."
-    },
-    {
       "id": "business-ruin",
       "label": "Business ruin",
       "description": "Someone faced disgrace, or prison, if Lord Blackwood talked."
+    },
+    {
+      "id": "inheritance",
+      "label": "Inheritance",
+      "description": "Someone stood to gain from Lord Blackwood's fortune."
+    },
+    {
+      "id": "revenge",
+      "label": "Revenge",
+      "description": "Someone had a score to settle with his lordship."
     },
     {
       "id": "stolen-money",
@@ -234,9 +264,9 @@
       "description": "Someone had been quietly helping themselves, and his lordship was getting close."
     },
     {
-      "id": "revenge",
-      "label": "Revenge",
-      "description": "Someone had a score to settle with his lordship."
+      "id": "unhappy-marriage",
+      "label": "Unhappy marriage",
+      "description": "Someone wanted to be free of Lord Blackwood, whatever it cost."
     }
   ],
   "leads": [
@@ -288,14 +318,15 @@
     },
     {
       "id": "lead-fireplace",
-      "title": "Her ladyship keeps eyeing the dining-room fireplace",
-      "hint": "Lady Victoria's gaze drifts to the dining-room hearth whenever you press her. Fires keep their own counsel, but not for ever.",
+      "title": "Where does the candlestick live?",
+      "hint": "The candlestick is one of a pair from the dining table, and its twin is still there. Somebody carried one away tonight. Perhaps the dining room is keeping something else tonight, and fires keep their own counsel, but not for ever.",
       "opensWhen": {
-        "interrogated": [
-          {
-            "characterId": "victoria",
-            "minExchanges": 2
-          }
+        "mode": "all",
+        "evidenceIds": [
+          "silver-candlestick"
+        ],
+        "searchedLocationIds": [
+          "dining-room"
         ]
       },
       "closesWhen": {
@@ -303,12 +334,12 @@
           "library-key"
         ]
       },
-      "closedLine": "Her ladyship's favourite fireplace gave up its first secret."
+      "closedLine": "The dining-room hearth gave up its first secret."
     },
     {
       "id": "lead-letter",
       "title": "A letter on the desk at 21:12, gone by 21:32",
-      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the desk was bare. Papers do not walk off either.",
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
       "opensWhen": {
         "interrogated": [
           {
@@ -403,7 +434,7 @@
           "s-gregory-saw-victoria"
         ]
       },
-      "closedLine": "A witness, at last, and a lightning flash to thank for it."
+      "closedLine": "A witness, at last, and a lightning flash and its flickers to thank for it."
     }
   ],
   "accuseGate": {

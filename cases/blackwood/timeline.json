@@ -283,7 +283,7 @@
   },
   {
     "id": "ev-reginald-overhears",
-    "statement": "Carrying the coffee tray, Reginald sees through the ajar library door her ladyship gripping his lordship's sleeve, crying 'You wouldn't dare, Edmund!', and his lordship, holding up a letter, saying 'Ten o'clock tomorrow, and you'll have what the new will allows and not a penny more.' Reginald backs away.",
+    "statement": "Carrying the coffee tray, Reginald sees through the ajar library door her ladyship gripping his lordship's sleeve, crying 'You wouldn't dare, Edmund! Leave me, but not on two hundred a year!', and his lordship, holding up a letter, saying 'Ten o'clock tomorrow, and you'll have what the new will allows and not a penny more.' Reginald backs away.",
     "category": "timeline",
     "time": "20:54",
     "locationId": "hall",
@@ -981,7 +981,7 @@
   },
   {
     "id": "loc-gregory-2119",
-    "statement": "At 21:19 Gregory is in the hall, in the alcove, watching the library door in a lightning flash.",
+    "statement": "At 21:19 Gregory is in the hall, in the alcove, watching the library door by a lightning flash and the flickers that follow it.",
     "category": "location",
     "time": "21:19",
     "locationId": "hall",
@@ -1011,7 +1011,7 @@
   },
   {
     "id": "ev-gregory-sees-victoria",
-    "statement": "In a lightning flash through the hall windows Gregory sees Lady Victoria's face as she steps out of the library, locks the door, slips the key into her gown and walks towards the dining room.",
+    "statement": "In a lightning flash through the hall windows, and the flickers that follow it, Gregory sees Lady Victoria's face as she steps out of the library, locks the door, slips the key into her gown and walks towards the dining room.",
     "category": "timeline",
     "time": "21:19",
     "locationId": "hall",
@@ -1205,7 +1205,7 @@
   },
   {
     "id": "loc-reginald-2130",
-    "statement": "At 21:30 Reginald is in the hall, at the locked library door with the coal scuttle, screaming.",
+    "statement": "At 21:30 Reginald is in the hall, at the locked library door with a fresh scuttle of coal from the kitchen, screaming.",
     "category": "location",
     "time": "21:30",
     "locationId": "hall",
@@ -1375,7 +1375,7 @@
   },
   {
     "id": "loc-gregory-2135",
-    "statement": "At 21:35 Gregory is in the kitchen and servants' quarters, coming in through the kitchen door.",
+    "statement": "At 21:35 Gregory is in the kitchen and servants' quarters, coming in through the kitchen door and scraping the mud off his boots on the scraper beside it.",
     "category": "location",
     "time": "21:35",
     "locationId": "kitchen",
@@ -1434,6 +1434,15 @@
     ]
   },
   {
+    "id": "ev-reginald-telephones-police",
+    "statement": "At 21:38 Reginald telephones the police from the servants' telephone. The constable says nobody can get through the flooded road before morning.",
+    "category": "timeline",
+    "time": "21:38",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
     "id": "loc-victoria-2136",
     "statement": "At 21:36 Victoria is in the library, beside the body as Gregory arrives.",
     "category": "location",
@@ -1445,7 +1454,7 @@
   },
   {
     "id": "ev-gregory-arrives",
-    "statement": "Gregory comes to the library from the kitchen, soaked, and sees his lordship's body.",
+    "statement": "Gregory comes to the library from the kitchen, soaked but with his boots scraped clean at the kitchen door, and sees his lordship's body.",
     "category": "timeline",
     "time": "21:36",
     "locationId": "library",
@@ -1553,8 +1562,18 @@
     ]
   },
   {
+    "id": "ev-detective-arrives",
+    "time": "21:44",
+    "statement": "At 21:44 the detective, expected for dinner but held up by the storm, arrives on foot after their motor stalled in the floodwater at the foot of the drive. Reginald answers the front door. By then the lights are back on and his lordship is dead.",
+    "category": "timeline",
+    "locationId": "hall",
+    "involvesCharacterIds": [
+      "reginald"
+    ]
+  },
+  {
     "id": "ev-household-waits",
-    "statement": "The flooded road means nobody can come or go before morning, and the household waits in the hall.",
+    "statement": "The flooded road means nobody can come or go before morning, and the household, with the stranded detective, waits in the hall.",
     "category": "timeline",
     "time": "21:45",
     "locationId": "hall",

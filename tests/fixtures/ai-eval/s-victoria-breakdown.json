@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-victoria-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:46:13.835Z",
+  "recordedAt": "2026-10-11T16:56:07.929Z",
   "calls": [
     {
-      "promptHash": "f168c369a12c547e",
+      "promptHash": "4e5d89e657ae4524",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "feb666a9-34cf-9689-b37c-56de0d629ed9",
+        "id": "be62ac6f-ae80-9407-8fef-60e5b1bad8db",
         "object": "chat.completion",
-        "created": 1791459970,
+        "created": 1791737766,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that dreadful candlestick! How can you thrust it under my nose with poor Edmund's blood still upon it?\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\n  \"dialogue\": \"Oh, that dreadful thing! How can you wave it at me when I am already in PIECES!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"sobs theatrically into her lace handkerchief, then swoons onto the chaise\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"silver-candlestick\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 5,\n  \"trustDelta\": -5,\n  \"admits\": []\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3935,
-          "completion_tokens": 95,
-          "total_tokens": 4030,
+          "prompt_tokens": 4170,
+          "completion_tokens": 132,
+          "total_tokens": 4302,
           "prompt_tokens_details": {
-            "text_tokens": 3935,
+            "text_tokens": 4170,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 3072
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 50218500
+          "cost_in_usd_ticks": 23169000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3935,
-        "completion_tokens": 95,
-        "total_tokens": 4030,
+        "prompt_tokens": 4170,
+        "completion_tokens": 132,
+        "total_tokens": 4302,
         "prompt_tokens_details": {
-          "text_tokens": 3935,
+          "text_tokens": 4170,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 3072
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,72 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 50218500
+        "cost_in_usd_ticks": 23169000
       },
-      "costUsd": 0.0050218500000000004
-    },
-    {
-      "promptHash": "34721215c6e9db59",
-      "attempt": 2,
-      "status": 200,
-      "body": {
-        "id": "57cb93cc-19a2-966a-861b-ed56d8740636",
-        "object": "chat.completion",
-        "created": 1791459972,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, the BLOOD! How perfectly ghastly! I can't bear to look at it a moment longer!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief while twisting her rings\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 3990,
-          "completion_tokens": 92,
-          "total_tokens": 4082,
-          "prompt_tokens_details": {
-            "text_tokens": 3990,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 2240
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 28655000
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 3990,
-        "completion_tokens": 92,
-        "total_tokens": 4082,
-        "prompt_tokens_details": {
-          "text_tokens": 3990,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 2240
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 28655000
-      },
-      "costUsd": 0.0028655
+      "costUsd": 0.0023169
     }
   ]
 }

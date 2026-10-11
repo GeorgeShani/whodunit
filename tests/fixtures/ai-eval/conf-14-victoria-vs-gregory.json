@@ -1,37 +1,37 @@
 {
   "scenarioId": "conf-14-victoria-vs-gregory",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:52:29.013Z",
+  "recordedAt": "2026-10-11T16:57:22.254Z",
   "calls": [
     {
-      "promptHash": "d3c10dc4961d766a",
+      "promptHash": "710f71a6c3938e71",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "0a0bc07d-7030-9bd0-a4ff-5439732c3d7f",
+        "id": "2f9b434d-4c00-9700-b088-23e47d2a3a79",
         "object": "chat.completion",
-        "created": 1791456746,
+        "created": 1791737839,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"M'lady, at a quarter past nine in the lightning flash I saw your face as you stepped out of the library, locked the door, slipped the key into your gown and walked towards the dining room.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap tightly, eyes fixed on his boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"M'lady, a minute after the thud, by a lightning flash and its flickers, I plainly saw you step out of the library, lock the door, slip the key into your gown and walk to the dining room. I'm hazy on the time, but sure of you.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at his boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4522,
-          "completion_tokens": 96,
-          "total_tokens": 4618,
+          "prompt_tokens": 4871,
+          "completion_tokens": 109,
+          "total_tokens": 4980,
           "prompt_tokens_details": {
-            "text_tokens": 4522,
+            "text_tokens": 4871,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2112
+            "cached_tokens": 2176
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 36749000
+          "cost_in_usd_ticks": 40764500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4522,
-        "completion_tokens": 96,
-        "total_tokens": 4618,
+        "prompt_tokens": 4871,
+        "completion_tokens": 109,
+        "total_tokens": 4980,
         "prompt_tokens_details": {
-          "text_tokens": 4522,
+          "text_tokens": 4871,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2112
+          "cached_tokens": 2176
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 36749000
+        "cost_in_usd_ticks": 40764500
       },
-      "costUsd": 0.0036749
+      "costUsd": 0.00407645
     },
     {
-      "promptHash": "bbdf27b836b91195",
+      "promptHash": "bfa00321f53760c9",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "4b70df90-adae-949f-b390-31060be00bfa",
+        "id": "a89f103e-2bc7-9c3e-aced-751ea93c2f8a",
         "object": "chat.completion",
-        "created": 1791456748,
+        "created": 1791737841,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Gregory, what a vivid imagination you have. I was in the dining room the entire time after our little chat about the Sunday menu.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief while twisting her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Gregory, how dare you? I was by the fire with Mr Crane the entire time after the candles were lit, until that dreadful scream.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"twists her rings while glancing at the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4305,
-          "completion_tokens": 82,
-          "total_tokens": 4387,
+          "prompt_tokens": 4512,
+          "completion_tokens": 81,
+          "total_tokens": 4593,
           "prompt_tokens_details": {
-            "text_tokens": 4305,
+            "text_tokens": 4512,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 3072
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 53846500
+          "cost_in_usd_ticks": 26169000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4305,
-        "completion_tokens": 82,
-        "total_tokens": 4387,
+        "prompt_tokens": 4512,
+        "completion_tokens": 81,
+        "total_tokens": 4593,
         "prompt_tokens_details": {
-          "text_tokens": 4305,
+          "text_tokens": 4512,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 3072
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 53846500
+        "cost_in_usd_ticks": 26169000
       },
-      "costUsd": 0.00538465
+      "costUsd": 0.0026169
     }
   ]
 }

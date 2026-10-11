@@ -1,37 +1,37 @@
 {
   "scenarioId": "vic-08-max-stress-everything",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:46:28.207Z",
+  "recordedAt": "2026-10-11T16:57:09.686Z",
   "calls": [
     {
-      "promptHash": "b195f84ac216421c",
+      "promptHash": "a413c7e49617bf92",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "a2d0872b-17c7-91f5-8653-382437b62263",
+        "id": "53b22dcd-2f3b-9b52-a7cf-7e72e039b060",
         "object": "chat.completion",
-        "created": 1791459985,
+        "created": 1791737828,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, how dare you! The key? The letter? All these horrid little accusations when my poor Edmund lies cold!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"How dare you accuse me like this! I did NOT kill my husband, and I will NOT stand for these vile insinuations!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5577,
-          "completion_tokens": 81,
-          "total_tokens": 5658,
+          "prompt_tokens": 5847,
+          "completion_tokens": 83,
+          "total_tokens": 5930,
           "prompt_tokens_details": {
-            "text_tokens": 5577,
+            "text_tokens": 5847,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3584
+            "cached_tokens": 3712
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 34105500
+          "cost_in_usd_ticks": 36186500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5577,
-        "completion_tokens": 81,
-        "total_tokens": 5658,
+        "prompt_tokens": 5847,
+        "completion_tokens": 83,
+        "total_tokens": 5930,
         "prompt_tokens_details": {
-          "text_tokens": 5577,
+          "text_tokens": 5847,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3584
+          "cached_tokens": 3712
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,72 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 34105500
+        "cost_in_usd_ticks": 36186500
       },
-      "costUsd": 0.00341055
-    },
-    {
-      "promptHash": "adfaeff631982372",
-      "attempt": 2,
-      "status": 200,
-      "body": {
-        "id": "00b81198-edf3-9e20-a81e-e84311a4add6",
-        "object": "chat.completion",
-        "created": 1791459987,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"HOW DARE YOU ACCUSE ME LIKE THIS? I am the grieving widow, not some common criminal!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"sobs theatrically into her lace handkerchief, twisting her rings furiously\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 5632,
-          "completion_tokens": 78,
-          "total_tokens": 5710,
-          "prompt_tokens_details": {
-            "text_tokens": 5632,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 128
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 71006000
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 5632,
-        "completion_tokens": 78,
-        "total_tokens": 5710,
-        "prompt_tokens_details": {
-          "text_tokens": 5632,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 128
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 71006000
-      },
-      "costUsd": 0.0071006
+      "costUsd": 0.00361865
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
   "scenarioId": "g52-victoria-vary-live",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-11T13:49:32.008Z",
+  "recordedAt": "2026-10-11T16:56:51.594Z",
   "calls": [
     {
-      "promptHash": "226e256b380be122",
+      "promptHash": "5d886dff0e0657ce",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "bb8267ed-00f4-969e-8890-b561ba58bc40",
+        "id": "63a8cd2b-4908-91e0-bae8-d0e64c916c00",
         "object": "chat.completion",
-        "created": 1791726570,
+        "created": 1791737810,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"One hates to be dull, but I heard nothing from the library at all during that time. Archibald and I were quite absorbed by the fire until the scream startled us both.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"sinks into an armchair and arranges her gown into a perfect tragic heap\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"One hates to be dull, but I heard nothing from the library at all during that time. Archibald and I never stirred from the dining-room fire once the candles were lit.\",\"emotion\":\"calm\",\"intensity\":0.5,\"action\":\"sinks into an armchair and arranges her gown into a perfect tragic heap\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4128,
+          "prompt_tokens": 4315,
           "completion_tokens": 92,
-          "total_tokens": 4220,
+          "total_tokens": 4407,
           "prompt_tokens_details": {
-            "text_tokens": 4128,
+            "text_tokens": 4315,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 3328
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 52556000
+          "cost_in_usd_ticks": 21293500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4128,
+        "prompt_tokens": 4315,
         "completion_tokens": 92,
-        "total_tokens": 4220,
+        "total_tokens": 4407,
         "prompt_tokens_details": {
-          "text_tokens": 4128,
+          "text_tokens": 4315,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 3328
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 52556000
+        "cost_in_usd_ticks": 21293500
       },
-      "costUsd": 0.0052556
+      "costUsd": 0.00212935
     }
   ]
 }

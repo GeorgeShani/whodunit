@@ -1,37 +1,37 @@
 {
   "scenarioId": "n-gregory-whereabouts",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:20.231Z",
+  "recordedAt": "2026-10-11T16:55:28.077Z",
   "calls": [
     {
-      "promptHash": "848e88859f8cf50d",
+      "promptHash": "583d0157c81d889a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "8fb754f7-ebd2-9366-92ea-072018040ecb",
+        "id": "2787b5cb-92a0-97a7-91a1-73a04854de75",
         "object": "chat.completion",
-        "created": 1791455059,
+        "created": 1791737726,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I was in the potting shed all night, sir. Only came in when I heard the shouting.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances towards the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"I was out in the garden, sir, securing the greenhouse against the storm. Then I stayed in the potting shed all night, only came in when I heard the shouting.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap, glancing at his boots\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3251,
-          "completion_tokens": 74,
-          "total_tokens": 3325,
+          "prompt_tokens": 3567,
+          "completion_tokens": 88,
+          "total_tokens": 3655,
           "prompt_tokens_details": {
-            "text_tokens": 3251,
+            "text_tokens": 3567,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 35767500
+          "cost_in_usd_ticks": 45443500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3251,
-        "completion_tokens": 74,
-        "total_tokens": 3325,
+        "prompt_tokens": 3567,
+        "completion_tokens": 88,
+        "total_tokens": 3655,
         "prompt_tokens_details": {
-          "text_tokens": 3251,
+          "text_tokens": 3567,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 35767500
+        "cost_in_usd_ticks": 45443500
       },
-      "costUsd": 0.00357675
+      "costUsd": 0.00454435
     }
   ]
 }

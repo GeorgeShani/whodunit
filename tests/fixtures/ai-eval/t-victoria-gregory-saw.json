@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-victoria-gregory-saw",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:20.642Z",
+  "recordedAt": "2026-10-11T16:55:57.067Z",
   "calls": [
     {
-      "promptHash": "efb5c0d6a1934e6f",
+      "promptHash": "1b2a45de87d7828e",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "9d0e1ece-e122-9e7c-bbd5-65cd965c5f34",
+        "id": "45de88fa-e17d-9c6b-bf32-fb053fb875f0",
         "object": "chat.completion",
-        "created": 1791454339,
+        "created": 1791737755,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Gregory, the sacked gardener? My dear detective, one really mustn't put too much faith in the word of a disgruntled drunkard peering through rain-streaked windows.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"twists her rings while dabbing at dry eyes with a lace handkerchief\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -3,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Gregory? The poor soaked creature must be quite beside himself after all that gin and lightning. How could he possibly have seen such a thing from the garden?\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while dabbing at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3956,
-          "completion_tokens": 118,
-          "total_tokens": 4074,
+          "prompt_tokens": 4148,
+          "completion_tokens": 88,
+          "total_tokens": 4236,
           "prompt_tokens_details": {
-            "text_tokens": 3956,
+            "text_tokens": 4148,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3904
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 11408000
+          "cost_in_usd_ticks": 52706000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3956,
-        "completion_tokens": 118,
-        "total_tokens": 4074,
+        "prompt_tokens": 4148,
+        "completion_tokens": 88,
+        "total_tokens": 4236,
         "prompt_tokens_details": {
-          "text_tokens": 3956,
+          "text_tokens": 4148,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3904
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 11408000
+        "cost_in_usd_ticks": 52706000
       },
-      "costUsd": 0.0011408000000000002
+      "costUsd": 0.0052706
     }
   ]
 }

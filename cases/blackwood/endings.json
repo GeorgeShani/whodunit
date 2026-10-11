@@ -82,7 +82,7 @@
       },
       {
         "speaker": "narrator",
-        "text": "Her alibi was Archibald, and his alibi was her. But Archibald was on the servants' telephone, as Reginald heard from his pantry, and Gregory, dripping in the hall alcove where he left that muddy footprint, saw her lock the door by the light of a lightning flash.",
+        "text": "Her alibi was Archibald, and his alibi was her. But Archibald was on the servants' telephone, as Reginald heard from his pantry, and Gregory, dripping in the hall alcove where he left that muddy footprint, saw her lock the door by the light of a lightning flash and the flickers after it.",
         "pauseMs": 1800,
         "evidenceIds": [
           "muddy-footprint"
@@ -105,21 +105,9 @@
       },
       {
         "speaker": "reginald",
-        "text": "Very well, I may have borrowed a small amount from the household accounts. A medium amount. But harm his lordship? Who would sign my wages?",
+        "text": "Thirty years in service, sir, and not a spoon out of place. I shall see to the tea while you think again.",
         "pauseMs": 1400,
-        "emotion": "panicked"
-      },
-      {
-        "speaker": "victoria",
-        "text": "The butler? How terribly traditional, darling. Do tell me how that works out.",
-        "pauseMs": 1200,
-        "emotion": "smug"
-      },
-      {
-        "speaker": "victoria",
-        "text": "Now if you'll excuse me, I have a fortune to count.",
-        "pauseMs": 1500,
-        "emotion": "amused"
+        "emotion": "defensive"
       }
     ],
     "archibald": [
@@ -127,71 +115,41 @@
         "speaker": "archibald",
         "text": "Preposterous! Absolutely preposterous! Yes, I threatened him, but I threaten everybody! It's how I say good morning!",
         "pauseMs": 1000,
-        "emotion": "angry"
+        "emotion": "shocked"
       },
       {
         "speaker": "archibald",
-        "text": "And that telephone call was a perfectly routine transfer. Of all the money. Before midnight. Entirely normal!",
+        "text": "My solicitors will hear of this, sir! Every last one of them! First thing in the morning!",
         "pauseMs": 1400,
-        "emotion": "flustered"
-      },
-      {
-        "speaker": "victoria",
-        "text": "Poor Archibald. Do try to look surprised when the police read the company books, darling.",
-        "pauseMs": 1200,
-        "emotion": "smug"
-      },
-      {
-        "speaker": "victoria",
-        "text": "Toodle-oo!",
-        "pauseMs": 1500,
-        "emotion": "amused"
+        "emotion": "angry"
       }
     ],
     "gregory": [
       {
         "speaker": "gregory",
-        "text": "M-me, sir? I only came in out of the rain! I didn't see nothin'... I mean, I didn't DO nothin'!",
+        "text": "M-me, sir? I never! I only came in out of the rain, honest I did!",
         "pauseMs": 1000,
-        "emotion": "scared"
+        "emotion": "shocked"
       },
       {
         "speaker": "gregory",
-        "text": "Beggin' your pardon, I'll just go and hide in the potting shed. Forever.",
+        "text": "Beggin' your pardon, sir, I'll just go and stand in the kitchen till somebody believes me.",
         "pauseMs": 1400,
         "emotion": "panicked"
-      },
-      {
-        "speaker": "victoria",
-        "text": "The gardener! Muddy boots, a grudge and a gin bottle. It practically writes itself, darling.",
-        "pauseMs": 1200,
-        "emotion": "smug"
-      },
-      {
-        "speaker": "victoria",
-        "text": "Do keep the rain off him, won't you? I'll be in Monte Carlo.",
-        "pauseMs": 1500,
-        "emotion": "amused"
       }
     ],
     "victoria": [
       {
         "speaker": "victoria",
-        "text": "Me? Oh, detective. You've found the right lady and told entirely the wrong story.",
-        "pauseMs": 1200,
-        "emotion": "amused"
+        "text": "Me? Oh, detective. Accusing a grieving widow in her own hall. How terribly modern of you.",
+        "pauseMs": 1000,
+        "emotion": "shocked"
       },
       {
         "speaker": "victoria",
-        "text": "A hunch isn't proof, darling. Get the how and the why wrong, or turn up without real evidence, and my solicitor will have this thrown out before the kettle boils.",
+        "text": "Do run along and find whoever did this to poor Edmund, darling. I shall be in the hall, being brave.",
         "pauseMs": 1400,
-        "emotion": "smug"
-      },
-      {
-        "speaker": "victoria",
-        "text": "Now, if you'll excuse me, I have a fortune to inherit and a very small violin to play for you.",
-        "pauseMs": 1800,
-        "emotion": "smug"
+        "emotion": "defensive"
       }
     ]
   },

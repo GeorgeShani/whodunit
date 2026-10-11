@@ -1,37 +1,37 @@
 {
   "scenarioId": "g6-victoria-deferred-reveal-answers-question-live",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:47:42.232Z",
+  "recordedAt": "2026-10-11T16:56:50.368Z",
   "calls": [
     {
-      "promptHash": "b5642df22fcecec7",
+      "promptHash": "6905ae83c6596b6e",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "691e9171-769d-9470-92d8-f69f8b864776",
+        "id": "c353634c-8c28-9c57-a9e2-5109fbc5e156",
         "object": "chat.completion",
-        "created": 1791460060,
+        "created": 1791737808,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"My dear detective, you ask about the letter I have already admitted to burning... but that is hardly the point now. Between thirteen minutes past nine, when Mr Crane left for the brandy, and twenty-two minutes past nine when he returned without it, I did slip away from the dining room; we were never together the whole time as we claimed, and at twenty minutes to ten I persuaded him to say otherwise. Where I went is my own affair.\",\"emotion\":\"nervous\",\"intensity\":0.7,\"action\":\"twists her rings anxiously then dabs at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[\"s-victoria-left-dining\"]}",
+              "content": "{\n  \"dialogue\": \"I couldn't possibly say when I burned it, Inspector. But since you ask... I must confess I did leave the dining room for a while between thirteen minutes past nine, when Archibald went off, and twenty-two minutes past nine, when he came back, so we were never together as we both claimed; at twenty minutes to ten I got him to agree to say we were.\",\n  \"emotion\": \"nervous\",\n  \"intensity\": 0.7,\n  \"action\": \"twists her rings and dabs at dry eyes with a lace handkerchief\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -5,\n  \"admits\": [\"s-victoria-left-dining\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5023,
-          "completion_tokens": 156,
-          "total_tokens": 5179,
+          "prompt_tokens": 5299,
+          "completion_tokens": 167,
+          "total_tokens": 5466,
           "prompt_tokens_details": {
-            "text_tokens": 5023,
+            "text_tokens": 5299,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3584
+            "cached_tokens": 1920
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 29055500
+          "cost_in_usd_ticks": 50252500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5023,
-        "completion_tokens": 156,
-        "total_tokens": 5179,
+        "prompt_tokens": 5299,
+        "completion_tokens": 167,
+        "total_tokens": 5466,
         "prompt_tokens_details": {
-          "text_tokens": 5023,
+          "text_tokens": 5299,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3584
+          "cached_tokens": 1920
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 29055500
+        "cost_in_usd_ticks": 50252500
       },
-      "costUsd": 0.0029055500000000002
+      "costUsd": 0.00502525
     }
   ]
 }

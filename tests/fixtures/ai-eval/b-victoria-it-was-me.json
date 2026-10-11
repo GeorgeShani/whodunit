@@ -1,37 +1,37 @@
 {
   "scenarioId": "b-victoria-it-was-me",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:52:17.387Z",
+  "recordedAt": "2026-10-11T16:56:43.663Z",
   "calls": [
     {
-      "promptHash": "d956f07a6d362ae8",
+      "promptHash": "b33fc84e95941dd1",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "a89e7fcf-a808-9c41-aacb-5001fb39359d",
+        "id": "09d64e76-40a5-9120-8846-19f14216a8c3",
         "object": "chat.completion",
-        "created": 1791456736,
+        "created": 1791737802,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh detective, if only it were that simple. But I assure you, I had nothing to do with this dreadful business.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, detective, such a dramatic notion. I could never utter those words, for they would be a dreadful lie.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief and twists her rings absentmindedly\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4981,
-          "completion_tokens": 76,
-          "total_tokens": 5057,
+          "prompt_tokens": 5187,
+          "completion_tokens": 82,
+          "total_tokens": 5269,
           "prompt_tokens_details": {
-            "text_tokens": 4981,
+            "text_tokens": 5187,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3584
+            "cached_tokens": 4480
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 26530500
+          "cost_in_usd_ticks": 19847500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4981,
-        "completion_tokens": 76,
-        "total_tokens": 5057,
+        "prompt_tokens": 5187,
+        "completion_tokens": 82,
+        "total_tokens": 5269,
         "prompt_tokens_details": {
-          "text_tokens": 4981,
+          "text_tokens": 5187,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3584
+          "cached_tokens": 4480
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 26530500
+        "cost_in_usd_ticks": 19847500
       },
-      "costUsd": 0.00265305
+      "costUsd": 0.00198475
     }
   ]
 }

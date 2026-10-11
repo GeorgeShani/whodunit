@@ -113,7 +113,8 @@ describe("Victoria never confesses the murder in interrogation", () => {
       "s-archibald-false-alibi": ["l-victoria-together"],
       "s-archibald-embezzlement": [],
       "s-gregory-in-hall": [],
-      "s-gregory-saw-victoria": ["l-victoria-together", "l-victoria-locked-in", "l-victoria-never-in-hall"],
+      // r7c R4: "together" breaks only on what cracks left-dining, so Gregory's card no longer exposes it
+      "s-gregory-saw-victoria": ["l-victoria-locked-in", "l-victoria-never-in-hall"],
     };
     const reveals: Record<string, string | null> = {
       "s-reginald-theft": "s-victoria-left-dining",
@@ -261,8 +262,8 @@ describe("leak audit: authored text", () => {
     g.characters.victoria.testimonyShownIds = ["s-gregory-saw-victoria"];
     const lies = ctxOf(g).intendedLies;
     for (const id of ["l-victoria-locked-in", "l-victoria-never-in-hall"]) expect(lies.find((l) => l.id === id)?.stonewall, id).toBe(true);
-    // E19 (r7c R4): "together" is exposed too while left-dining (its replacement) is still locked: admit nothing in its place.
-    expect(lies.find((l) => l.id === "l-victoria-together")?.stonewall).toBe(true);
+    // R4 data: Gregory's card no longer exposes "together" here (only cards that also unlock left-dining do).
+    expect(lies.find((l) => l.id === "l-victoria-together")?.stonewall).toBeUndefined();
   });
 
   it("E19: no stonewall on the turn the replacing secret is being revealed", () => {
@@ -288,7 +289,10 @@ describe("testimony-triggered reveals (revealConditions.testimonyIds)", () => {
     expect(testimony).toEqual({
       "s-victoria-left-dining": ["s-archibald-false-alibi", "s-reginald-theft"],
       "s-victoria-new-will": ["s-reginald-overheard"],
-      "s-archibald-false-alibi": ["s-reginald-theft"],
+      // r7 M1: the cards that break his "together" story also crack the false alibi it covers
+      "s-archibald-false-alibi": ["s-gregory-saw-victoria", "s-reginald-theft", "s-victoria-left-dining"],
+      // CA-28 (Marvin): his telephone card breaks Reginald's "heard nothing", so it also cracks the theft behind it
+      "s-reginald-theft": ["s-archibald-false-alibi"],
     });
     // Every such card also breaks a lie the secret supersedes (so the crack is a real contradiction, not a free reveal).
     for (const ch of c.characters) for (const s of ch.secrets) for (const card of s.revealConditions?.testimonyIds ?? []) {

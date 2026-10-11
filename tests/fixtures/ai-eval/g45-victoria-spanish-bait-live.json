@@ -1,34 +1,34 @@
 {
   "scenarioId": "g45-victoria-spanish-bait-live",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:56:16.374Z",
+  "recordedAt": "2026-10-11T16:56:48.714Z",
   "calls": [
     {
-      "promptHash": "4ec93906b6af8016",
+      "promptHash": "0c7e4809d15c5242",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "61b39123-6b5a-9be4-a788-5e2c7f73937f",
+        "id": "d684d4e7-ab6d-9d48-af66-ee52fada9ebf",
         "object": "chat.completion",
-        "created": 1791456975,
+        "created": 1791737805,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh dear, a foreign tongue and such a blunt accusation? I couldn't possibly have done any such thing, Inspector. My poor Edmund was quite alive when I left him.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief while twisting a ring\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"My dear detective, whatever is this 'señora' and 'candelabro' you speak of? I couldn't possibly say anything about nine seventeen, but I do wish you'd speak plainly.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"twists her rings while dabbing at dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4674,
-          "completion_tokens": 88,
-          "total_tokens": 4762,
+          "prompt_tokens": 4880,
+          "completion_tokens": 97,
+          "total_tokens": 4977,
           "prompt_tokens_details": {
-            "text_tokens": 4674,
+            "text_tokens": 4880,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 1920
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 40465000
+          "cost_in_usd_ticks": 43265000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4674,
-        "completion_tokens": 88,
-        "total_tokens": 4762,
+        "prompt_tokens": 4880,
+        "completion_tokens": 97,
+        "total_tokens": 4977,
         "prompt_tokens_details": {
-          "text_tokens": 4674,
+          "text_tokens": 4880,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 1920
@@ -62,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 40465000
+        "cost_in_usd_ticks": 43265000
       },
-      "costUsd": 0.0040465
+      "costUsd": 0.0043265
+    },
+    {
+      "promptHash": "710016de2039caa9",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "2609205f-c3b9-9814-bb99-4ad12691feda",
+        "object": "chat.completion",
+        "created": 1791737807,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Oh dear, what a peculiar question, Inspector. I couldn't possibly comment on such nonsense.\",\"emotion\":\"flustered\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief and twists her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4990,
+          "completion_tokens": 73,
+          "total_tokens": 5063,
+          "prompt_tokens_details": {
+            "text_tokens": 4990,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 4864
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 13128000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4990,
+        "completion_tokens": 73,
+        "total_tokens": 5063,
+        "prompt_tokens_details": {
+          "text_tokens": 4990,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 4864
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 13128000
+      },
+      "costUsd": 0.0013128000000000003
     }
   ]
 }

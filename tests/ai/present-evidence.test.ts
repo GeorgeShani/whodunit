@@ -64,7 +64,8 @@ describe("present evidence: deterministic contradictions (Phase 5)", () => {
       stateToken: token([], { gregory: ["s-gregory-in-hall", "s-gregory-saw-victoria"] }),
     });
     expect(r.body.contradiction).toMatchObject({ characterId: "victoria", item: { kind: "testimony", id: "s-gregory-saw-victoria" } });
-    expect(r.body.contradiction!.lieCount).toBeGreaterThanOrEqual(3);
+    // r7c R4 (CA-56): the card breaks her two door stories; "together" breaks only on what cracks left-dining
+    expect(r.body.contradiction!.lieCount).toBeGreaterThanOrEqual(2);
   });
 
   it("the verdict is the engine's, so it stands even when the model is unavailable (fallback reply)", async () => {

@@ -10,7 +10,7 @@ import { buildEnding, engineRecapLine } from "@/engine/ending-payload";
 import { createInitialGameState } from "@/engine/game-state";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { getPublicCaseView } from "@/engine/public-view";
-import { CASE_CLOSED_LINE, CASE_CLOSED_SEARCH_LINE } from "@/engine/session";
+import { systemLine } from "@/engine/session";
 import type { Accusation } from "@/engine/types";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
 import { deepScan } from "../helpers/leak-scan";
@@ -198,11 +198,11 @@ describe("after game over", () => {
     const i = await handleInterrogate({ characterId: "reginald", question: "Anything else?", stateToken: over }, { caseData: c, env: TEST_ENV });
     expect(i.status).toBe(409);
     expect(i.body.error).toBe("case_closed");
-    expect(i.body.response.dialogue).toBe(CASE_CLOSED_LINE);
+    expect(i.body.response.dialogue).toBe(systemLine(c, "caseClosed")); // Blackwood's own E10 line
     expect(fn).not.toHaveBeenCalled();
     const s = handleInvestigate({ locationId: "library", stateToken: over }, { caseData: c, env: TEST_ENV });
     expect(s.status).toBe(409);
-    expect(s.body.lines).toEqual([CASE_CLOSED_SEARCH_LINE]);
+    expect(s.body.lines).toEqual([systemLine(c, "caseClosedSearch")]);
     expect(s.body.found).toEqual([]);
   });
 

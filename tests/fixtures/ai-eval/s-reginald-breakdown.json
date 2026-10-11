@@ -1,37 +1,37 @@
 {
   "scenarioId": "s-reginald-breakdown",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:46:20.076Z",
+  "recordedAt": "2026-10-11T16:56:14.322Z",
   "calls": [
     {
-      "promptHash": "99704bd45fa62658",
+      "promptHash": "f9ef783b9f52df76",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "78a8f9a0-bab2-9ec0-ab1a-b59f1bfdc39d",
+        "id": "80a7607d-0e03-9267-9c98-553b1f3ecd93",
         "object": "chat.completion",
-        "created": 1791459976,
+        "created": 1791737771,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Sir, I... I have skimmed hundreds of pounds from the household accounts over the years, and during the blackout I was in my pantry at twenty-one fifteen counting every last note of it.\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"polishing the already-spotless silver tray with frantic, circular motions as his left eyebrow twitches violently\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 0,\n  \"trustDelta\": -5,\n  \"admits\": [\"s-reginald-theft\", \"l-reginald-heard-nothing\"]\n}",
+              "content": "{\n  \"dialogue\": \"I confess, sir! I have skimmed hundreds of pounds from the household accounts and spent the blackout counting it in my pantry at a quarter past nine! But I did not kill him!\",\n  \"emotion\": \"panicked\",\n  \"intensity\": 0.9,\n  \"action\": \"polishing the silver candlestick furiously while his left eyebrow twitches uncontrollably\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"burned-letter\",\n      \"reaction\": \"nervous\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 0,\n  \"trustDelta\": -5,\n  \"admits\": [\"s-reginald-theft\", \"l-reginald-heard-nothing\"]\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5076,
-          "completion_tokens": 167,
-          "total_tokens": 5243,
+          "prompt_tokens": 5361,
+          "completion_tokens": 162,
+          "total_tokens": 5523,
           "prompt_tokens_details": {
-            "text_tokens": 5076,
+            "text_tokens": 5361,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 4288
+            "cached_tokens": 2432
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 22601000
+          "cost_in_usd_ticks": 45526500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5076,
-        "completion_tokens": 167,
-        "total_tokens": 5243,
+        "prompt_tokens": 5361,
+        "completion_tokens": 162,
+        "total_tokens": 5523,
         "prompt_tokens_details": {
-          "text_tokens": 5076,
+          "text_tokens": 5361,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 4288
+          "cached_tokens": 2432
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 22601000
+        "cost_in_usd_ticks": 45526500
       },
-      "costUsd": 0.0022601
+      "costUsd": 0.00455265
     },
     {
-      "promptHash": "0fd4d2977e22410b",
+      "promptHash": "712a5180af789794",
       "attempt": 2,
       "status": 200,
       "body": {
-        "id": "06d01cc6-151d-96b5-97f9-f38c50d1313c",
+        "id": "18c4bb70-c2da-9e6a-b263-5bc90b8e8945",
         "object": "chat.completion",
-        "created": 1791459978,
+        "created": 1791737773,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"The accounts, sir? I... I have been SKIMMING from the household funds for years! I spent the blackout counting every last stolen note in my pantry at a quarter past nine!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"polishing the already-spotless sideboard with frantic, sobbing strokes, left eyebrow twitching wildly\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-reginald-theft\"]}",
+              "content": "{\"dialogue\":\"Sir, about the accounts... I have skimmed hundreds of pounds from the household and spent the blackout counting it in my pantry at a quarter past nine! I CANNOT bear this shame!\",\"emotion\":\"panicked\",\"intensity\":0.9,\"action\":\"polishing the already-spotless sideboard with frantic, sobbing strokes\",\"evidenceReactions\":[{\"evidenceId\":\"burned-letter\",\"reaction\":\"nervous\"}],\"wantsToLeave\":false,\"stressDelta\":-5,\"trustDelta\":-8,\"admits\":[\"s-reginald-theft\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5131,
-          "completion_tokens": 117,
-          "total_tokens": 5248,
+          "prompt_tokens": 5483,
+          "completion_tokens": 112,
+          "total_tokens": 5595,
           "prompt_tokens_details": {
-            "text_tokens": 5131,
+            "text_tokens": 5483,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 4544
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 19350500
+          "cost_in_usd_ticks": 69993500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5131,
-        "completion_tokens": 117,
-        "total_tokens": 5248,
+        "prompt_tokens": 5483,
+        "completion_tokens": 112,
+        "total_tokens": 5595,
         "prompt_tokens_details": {
-          "text_tokens": 5131,
+          "text_tokens": 5483,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 4544
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 19350500
+        "cost_in_usd_ticks": 69993500
       },
-      "costUsd": 0.0019350500000000002
+      "costUsd": 0.0069993500000000005
     }
   ]
 }

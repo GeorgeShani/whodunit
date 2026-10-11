@@ -92,7 +92,9 @@ describe("Blackwood progression: gated rooms and clues", () => {
   it.each([
     ["Reginald x2", (g: GameState) => talk(g, "reginald", 2)],
     ["Archibald x2", (g: GameState) => talk(g, "archibald", 2)],
-    ["Victoria x2", (g: GameState) => talk(g, "victoria", 2)],
+    // r7 L5 (CA-36): the fireplace lead no longer names Victoria or opens on any two exchanges with her; it opens once
+    // the candlestick is found and the dining room (where its twin stands) has been searched, so a second visit finds the key.
+    ["the dining room revisited", (g: GameState) => void searchLocation(c, g, "dining-room")],
   ])("the key has a route through %s, and the letter never comes in the same search", (_n, route) => {
     const g = fresh();
     searchLocation(c, g, "library");
@@ -106,7 +108,7 @@ describe("Blackwood progression: gated rooms and clues", () => {
   it("the letter needs Reginald's lead even once the key is found", () => {
     const g = fresh();
     searchLocation(c, g, "library");
-    talk(g, "victoria", 2);
+    searchLocation(c, g, "dining-room"); // nag; opens the fireplace lead
     searchLocation(c, g, "dining-room"); // key
     const r = searchLocation(c, g, "dining-room");
     expect(found(r)).toEqual([]);
@@ -150,7 +152,11 @@ describe("Blackwood progression: gated rooms and clues", () => {
     talk(g, "reginald", 2);
     expect(leadStates(c, g)).toMatchObject({ "lead-keyhole": "open", "lead-letter": "open", "lead-fireplace": "hidden" });
     talk(g, "victoria", 2);
-    expect(leadStates(c, g)).toMatchObject({ "lead-fireplace": "open", "lead-alibi": "open" });
+    expect(leadStates(c, g)).toMatchObject({ "lead-fireplace": "hidden", "lead-alibi": "open" });
+    searchLocation(c, g, "library");
+    expect(leadStates(c, g)["lead-fireplace"]).toBe("hidden");
+    searchLocation(c, g, "dining-room");
+    expect(leadStates(c, g)["lead-fireplace"]).not.toBe("hidden");
     talk(g, "gregory", 2);
     expect(leadStates(c, g)["lead-boots"]).toBe("open");
     searchLocation(c, g, "hall");
