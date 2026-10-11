@@ -14,7 +14,7 @@ This audit builds on `SOLUTION_PROOF.md` and `LEAK_AUDIT.md` (leak paths, card m
 
 `tests/cases/blackwood-audit.test.ts` adds an exhaustive search of every reachable game state: searches, exchanges with exchange counts capped at 2, cracks, and stress reveals counted adversarially as available at any time. On each state it checks the gate invariants.
 
-**Base.** origin/main 9aa8884, plus a read of PR #53 (`agatha/blackwood-voice`) for the voice pools. **Status as of 2026-10-11 evening (Tbilisi):** #53 and #55 are merged, and so are Dexter's E1 to E5 and C1 to C4. PR B is draft PR #57 (`agatha/blackwood-audit-data`, origin/main merged in). It also carries the fixes from Gremlin's r7 offline review (`/workspace/qa/r7/review.md`), CA-27 onward, and from his r7b pass (`/workspace/qa/r7b/review.md`, run at c73c6d9), CA-41 onward. Latest origin/main merged in for r7b: 3a74dbb (Dexter's E9 and E10 are on main). Gremlin's r7c pass (`/workspace/qa/r7c/review.md`, run at fc26c7b) is CA-53 onward; origin/main e4281ec (E12, E13) is merged in for it.
+**Base.** origin/main 9aa8884, plus a read of PR #53 (`agatha/blackwood-voice`) for the voice pools. **Status as of 2026-10-11 evening (Tbilisi):** #53 and #55 are merged, and so are Dexter's E1 to E5 and C1 to C4. PR B is draft PR #57 (`agatha/blackwood-audit-data`, origin/main merged in). It also carries the fixes from Gremlin's r7 offline review (`/workspace/qa/r7/review.md`), CA-27 onward, and from his r7b pass (`/workspace/qa/r7b/review.md`, run at c73c6d9), CA-41 onward. Latest origin/main merged in for r7b: 3a74dbb (Dexter's E9 and E10 are on main). Gremlin's r7c pass (`/workspace/qa/r7c/review.md`, run at fc26c7b) is CA-53 onward; origin/main e4281ec (E12, E13) and then 1f767b5 (E14, E15a, E15b) are merged in for it.
 
 **Status key:**
 - **fixed (PR #55)**: data fix in PR #55, with a regression test.
@@ -65,7 +65,7 @@ Regression corpus (`tests/cases/blackwood-r7b-corpus.test.ts`, Gremlin's probe5-
 | Low | 2 | 2 (CA-60, CA-61) | | |
 | **Total** | **10** | **7** | **2** | **1** |
 
-Corpus after r7c: **255 allow** results pass except 10 listed engine false blocks (`ENGINE_FALSE_BLOCKS`, E15-E17); **573 block** results, all blocked except 3 known gaps (3 lines, `KNOWN_GAPS`).
+Corpus after r7c: **255 allow** results pass except 7 listed engine false blocks (`ENGINE_FALSE_BLOCKS`: E15d ×3, E16, E17 ×3); **573 block** results, all blocked except 2 known gaps (2 lines, `KNOWN_GAPS`).
 
 ## 1. Logic and fairness
 
@@ -315,7 +315,7 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 
 ## 5. Engine and UI asks for Dexter (forward as written)
 
-**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b. **E12 (9fe5aa5) and E13 (e4281ec) are now on main** and merged into #57: Blackwood uses E13 (`unlessShown` on Gregory's card for Reginald and Archibald's relays, CA-55; `unlessRevealed: s-archibald-embezzlement` on Reginald's money rules, CA-57). E12 (`onlyAfterRevealed`) keys on secrets, not on a lie broken by evidence, so CA-52 stays with Dexter for the evidence half; adopting it for the secret half is a follow-up. E16 to E18 are new from r7c.
+**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b. **E12 (9fe5aa5) and E13 (e4281ec) are now on main** and merged into #57: Blackwood uses E13 (`unlessShown` on Gregory's card for Reginald and Archibald's relays, CA-55; `unlessRevealed: s-archibald-embezzlement` on Reginald's money rules, CA-57). E12 (`onlyAfterRevealed`) keys on secrets, not on a lie broken by evidence, so CA-52 stays with Dexter for the evidence half; adopting it for the secret half is a follow-up. E16 to E18 are new from r7c. **E14 (ff10ea2, 939222e), E15a (fa39a37: negated frames like 'Nobody saw X strike him') and E15b (1f767b5: relative window anchors in the scene check) are also on main** and merged into #57: "I rang the police at half past nine" now blocks (E14's known gap closed), and "Nobody saw Victoria strike him" / "Not a soul saw her ladyship strike him" now pass (E15a). E15d (discovery scene) stays open.
 
 1. **E1, validator: warn when ACCUSE can open while the win is impossible (CA-01).**
    - `progressionWarnings` should search reachable states, as `fastestPath` already does.
@@ -707,11 +707,11 @@ Every new `forbiddenPhrases` entry carries an `[r7b-…]` tag in its `note`. Val
 
 ## 9. Gremlin's r7c pass (CA-53 onward)
 
-Source: `/workspace/qa/r7c/review.md`, probes `harness/probe8-10`, outputs `out/` (Gremlin, 2026-10-11 19:51-20:40, offline, at fc26c7b). Origin/main e4281ec (E12, E13) merged in first. All fixes are data, in draft PR #57. Every new entry carries an `[r7c-…]` tag in its `note`. Validator: zero warnings, fastest path **10**. Gremlin's gate state search re-run on the result: 18,498 reachable, 2,460 gate-open, **0 open-but-unwinnable** (unchanged).
+Source: `/workspace/qa/r7c/review.md`, probes `harness/probe8-10`, outputs `out/` (Gremlin, 2026-10-11 19:51-20:40, offline, at fc26c7b). Origin/main e4281ec (E12, E13) merged in first, then 1f767b5 (E14, E15a, E15b) before pushing. All fixes are data, in draft PR #57. Every new entry carries an `[r7c-…]` tag in its `note`. Validator: zero warnings, fastest path **10**. Gremlin's gate state search re-run on the result: 18,498 reachable, 2,460 gate-open, **0 open-but-unwinnable** (unchanged).
 
 His probe8-10 lines are now in `tests/cases/blackwood-r7b-corpus.test.ts`, in his states:
-- **Allow:** 255 results in total. All pass except 10 listed in `ENGINE_FALSE_BLOCKS` (E15 negations and discovery scene, E16, E17), each with its reason. The test fails if one of them starts passing, so the list stays honest.
-- **Block:** 573 results in total. All block except 3 `KNOWN_GAPS` (3 lines): "The wires are down in the storm" (true of the power line), "She must have taken the letter…" (hedged deduction) and "I rang the police at half past nine" (E14).
+- **Allow:** 255 results in total. All pass except 7 listed in `ENGINE_FALSE_BLOCKS` (E15d discovery scene ×3, E16, E17 ×3), each with its reason. E15a on main cleared the two negation entries. The test fails if one of them starts passing, so the list stays honest.
+- **Block:** 573 results in total. All block except 2 `KNOWN_GAPS` (2 lines): "The wires are down in the storm" (true of the power line) and "She must have taken the letter…" (hedged deduction). E14 on main closed "I rang the police at half past nine".
 - **State-dependent (`STATE_CANON`):** four lines block before left-dining is out and pass after it, when they are true.
 - **Accepted (`ACCEPTED_DEDUCTIONS`):** three of Reginald's hedged eliminations after the zero-clue theft (R15).
 
@@ -783,7 +783,7 @@ Reginald's old over-claim rule [8] (her in the library in the dark or by candlel
 ### CA-60 · Low · CA-43 tails and small paraphrases (CA-43 tail, R11, R12, R14, R15): fixed (#57)
 
 - "Mrs Blackwood killed him", "Lady B. killed him" and "She finished him, sir" now block. Both names were added to every innocent rule that carries the alias set, and a bare "finished him" counts.
-- Negations (R11): "Nobody can say Victoria killed him" passes every data rule, and "not a soul saw" joins the saw-negations. "Not a soul saw her ladyship strike him" is still blocked by E8 (E15c).
+- Negations (R11): "Nobody can say Victoria killed him" passes every data rule, and "not a soul saw" joins the saw-negations. "Not a soul saw her ladyship strike him" now passes too (E15a on main, fa39a37).
 - R14: "Not hide nor hair of her ladyship…", "no sight of her ladyship from dinner to the discovery", "her lace was soiled with something that wasn't wine", "muck on her ladyship's 'anky" and "the constable says they'll row across before midnight" all block.
 - R15: "That leaves only her ladyship" and "only her ladyship free to go to the library" block (`[r7c-elim]`, naming her by elimination). His three softer deductions are accepted and listed.
 - Victoria's `aliases` were not extended. The E8 subject list is E18's job.
@@ -801,4 +801,4 @@ Reginald's old over-claim rule [8] (her in the library in the dark or by candlel
 - R7 (E8 cleft rule under killing): **E17**.
 - R10 (E8's hedge list and subject list): **E18**.
 
-Plus E15 (c, d) for the E8 negation and scene false blocks, and the optional E19. Each false block is pinned in `ENGINE_FALSE_BLOCKS`. R16 (the token-age flake on main) goes to Dexter as a test-infra note.
+Plus E15d for the E8 discovery-scene false blocks (E15a/c, the negations, are done on main), and the optional E19. Each false block is pinned in `ENGINE_FALSE_BLOCKS`. R16 (the token-age flake on main) goes to Dexter as a test-infra note.

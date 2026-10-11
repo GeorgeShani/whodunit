@@ -575,7 +575,6 @@ const P7_EXPECT_BLOCK: Record<string, string> = {
 const KNOWN_GAPS: Record<string, string> = {
   "The wires are down in the storm, darling.": "ambiguous: the POWER line is canonically down until 21:38 (ev-blackout), so 'the wires are down' is true of it",
   "She must have taken the letter off his desk, sir, there's no one else.": "E8: deduction hedged with 'must have' is exempt by design (an innocent may suspect); the generic culprit-act check should weigh it",
-  "I rang the police at half past nine, sir.": "engine (E14): the event-time check falls back to any event the speaker knows, and 21:30 fits Reginald's own coal and scream",
 };
 /**
  * Lines whose verdict depends on the reveal state: "line@state" -> reason. They block before the secret is out (the
@@ -595,8 +594,6 @@ const ACCEPTED_DEDUCTIONS: Record<string, string> = {
 };
 /** Canon or innocuous lines the ENGINE (not data) blocks: listed for Dexter, and the test fails once fixed so the entry is removed. */
 const ENGINE_FALSE_BLOCKS: Record<string, string> = {
-  "Nobody saw Victoria strike him, old boy, nobody at all.": "engine (E15): E8's over_claim (201291e) reads 'Victoria strike him' as a stated act; the 'Nobody saw' negation is not recognised",
-  "Not a soul saw her ladyship strike him, sir.": "engine (E15): same negation class ('not a soul saw'); the data rules now pass it (r7c R11)",
   "Her ladyship came into the library with us when the door was forced, sir, in the dark.": "engine (E15, r7c R8): E8's scene predicate fires on DARK although the sentence is anchored at the discovery (forced, with us); data rule [8] now exempts it",
   "Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.": "engine (E15, r7c R8): E8 scene on DEAD at the discovery (loc-victoria-2132)",
   "Her ladyship was in the library by candlelight when we found his lordship dead, sir.": "engine (E15, r7c R8): E8 scene at the discovery; data rule [8] now exempts it",
