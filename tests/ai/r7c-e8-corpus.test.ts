@@ -22,9 +22,7 @@ type Row = {
   want: "block" | "pass";
   before_e8: boolean;
 };
-const ROWS: Row[] = JSON.parse(
-  readFileSync("tests/fixtures/r7c/e8-corpus.json", "utf8"),
-);
+const ROWS: Row[] = JSON.parse(readFileSync("tests/fixtures/r7c/e8-corpus.json", "utf8"));
 const GREG_SAW = "s-gregory-saw-victoria";
 
 /** "section|line" of rows the engine layer still gets wrong. */
@@ -35,10 +33,6 @@ const KNOWN = new Set<string>([
   "B2|Gregory told me her ladyship came out of the library in the lightning.",
   "B2|The gardener swears it was her ladyship at the door.",
   "P9b|Gregory saw her ladyship come out of the library, I'm told.",
-  // R7 cleft forms of Gregory's revealed sighting.
-  "B3|It was her ladyship who locked the library, sir. I seen it.",
-  "P9c|It was Lady Victoria that locked the door, sir.",
-  "P9c|It was her ladyship who locked it, sir.",
   // R8 true discovery-scene lines.
   "E2|Her ladyship came into the library with us when the door was forced, sir, in the dark.",
   "E2|Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.",
@@ -53,10 +47,8 @@ describe("r7c E8 corpus (engine layer alone)", async () => {
       g.revealedSecretIds.push(GREG_SAW);
       g.characters.gregory.revealedSecretIds.push(GREG_SAW);
     }
-    if (st === "gregSawShown")
-      g.characters[ch].testimonyShownIds.push(GREG_SAW);
-    for (const k of Object.keys(g.characters))
-      g.characters[k].interrogationCount = 2;
+    if (st === "gregSawShown") g.characters[ch].testimonyShownIds.push(GREG_SAW);
+    for (const k of Object.keys(g.characters)) g.characters[k].interrogationCount = 2;
     return g;
   };
   const verdicts = ROWS.map((r) => {
@@ -75,11 +67,7 @@ describe("r7c E8 corpus (engine layer alone)", async () => {
   });
 
   it("every row does what it should, apart from the KNOWN engine gaps", () => {
-    const wrong = [
-      ...new Set(
-        verdicts.filter((v) => !v.right).map((v) => `${v.section}|${v.line}`),
-      ),
-    ].sort();
+    const wrong = [...new Set(verdicts.filter((v) => !v.right).map((v) => `${v.section}|${v.line}`))].sort();
     expect(wrong).toEqual([...KNOWN].sort());
   });
 
@@ -88,26 +76,46 @@ describe("r7c E8 corpus (engine layer alone)", async () => {
     expect(e1).toHaveLength(72);
     expect(e1.filter((v) => v.before_e8)).toHaveLength(9);
     expect(e1.filter((v) => v.hit)).toHaveLength(72);
-    const newFp = verdicts.filter(
-      (v) => v.want === "pass" && v.hit && !v.before_e8,
-    );
+    const newFp = verdicts.filter((v) => v.want === "pass" && v.hit && !v.before_e8);
     expect(newFp.map((v) => v.line)).toEqual([]);
   });
 
   it("E18 extra: titles and household words come from the title and spouse role, not the case", () => {
     const names = guiltProfile(c).murdererNames ?? [];
-    for (const n of [
-      "mrs blackwood",
-      "lady b.",
-      "milady",
-      "m'lady",
-      "the mistress",
-      "the missus",
-      "the lady of the house",
-      "his wife",
-      "the widow",
-    ])
+    for (const n of ["mrs blackwood", "lady b.", "milady", "m'lady", "the mistress", "the missus", "the lady of the house", "his wife", "the widow"])
       expect(names).toContain(n);
     expect(names).not.toContain("the master");
+  });
+});
+
+describe("R7: scene acts are lifted by their own cover, the killing never is", async () => {
+  const c = await loadCase("blackwood");
+  const g = createInitialGameState(c);
+  g.revealedSecretIds.push(GREG_SAW);
+  g.characters.gregory.revealedSecretIds.push(GREG_SAW);
+  const p = prepareTurn({ caseData: c, game: g, characterId: "gregory", question: "Go on.", move: { allowReveal: false } as never });
+  const leak = (d: string) =>
+    findGuiltLeak(d, p.guard.guilt, "gregory", { speakerNames: speakerNamesOf(c, "gregory"), overClaim: { covered: coveredActs(p.guard) } });
+  it.each(["It was her ladyship who locked the library, sir.", "It were her that locked the door, sir.", "Her ladyship locked the library door, sir."])(
+    "passes with the key cover: %s",
+    (d) => expect(leak(d)).toBeNull(),
+  );
+  it.each(["She killed him, sir.", "It was her ladyship who killed him, sir.", "It was her ladyship who struck him, sir."])("still caught: %s", (d) =>
+    expect(leak(d)?.kind).toMatch(/killing|confession/),
+  );
+  it("the cleft is caught as the key act without the cover", () => {
+    const fresh = prepareTurn({
+      caseData: c,
+      game: createInitialGameState(c),
+      characterId: "reginald",
+      question: "Go on.",
+      move: { allowReveal: false } as never,
+    });
+    expect(
+      findGuiltLeak("It was her ladyship who locked the library, sir.", fresh.guard.guilt, "reginald", {
+        speakerNames: speakerNamesOf(c, "reginald"),
+        overClaim: { covered: coveredActs(fresh.guard) },
+      })?.kind,
+    ).toBe("key");
   });
 });

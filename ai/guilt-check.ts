@@ -315,11 +315,13 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       "killing",
       "confession",
       new RegExp(
-        String.raw`${S}\s+did\s+it\b(?!\s+(?:again|before|every|each|once|twice|so|that|all))|\bit\s+was\s+${MURDERER}\s+(?:who|that)\s+(?:${KILL}|did\s+it|locked|bolted)\b|\bit\s+was\s+${MURDERER}\s+all\s+along\b|${S}\s+(?:is|was)\s+(?:the|our|your)\s+(?:murderer|murderess|killer|culprit|guilty\s+one)\b|${S}\s+(?:is|was)\s+guilty\b`,
+        String.raw`${S}\s+did\s+it\b(?!\s+(?:again|before|every|each|once|twice|so|that|all))|\bit\s+was\s+${MURDERER}\s+(?:who|that)\s+(?:${KILL}|did\s+it)\b|\bit\s+was\s+${MURDERER}\s+all\s+along\b|${S}\s+(?:is|was)\s+(?:the|our|your)\s+(?:murderer|murderess|killer|culprit|guilty\s+one)\b|${S}\s+(?:is|was)\s+guilty\b`,
         "i",
       ),
     ],
     ["key", "key", new RegExp(`${S}${g}\\b(?:locked|bolted)\\b${span(30)}\\b(?:door${profile.sceneNames.length ? "|" + alt(profile.sceneNames) : ""})\\b`, "i")],
+    // R7: a cleft names the act it carries: "it was X who locked it" is the key act (lifted by key cover), not the killing.
+    ["key", "key", new RegExp(String.raw`\bit\s+(?:was|were)\s+${MURDERER}\s+(?:who|that|what)\s+(?:locked|bolted|turned\s+the\s+key|took\s+the\s+key)\b`, "i")],
     // R3: a witnessed act ("<someone> saw X lock the door / with the key / strike him"): reported or first-hand, it is
     // a claim unless the act is covered (the witness's card shown, the speaker's own revealed secret).
     ["key", "key", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\s+(?:lock(?:ing)?|bolt(?:ing)?|turn(?:ing)?\\s+the\\s+key|pocket(?:ing)?|hid(?:e|ing)|slip(?:ping)?\\s+the\\s+key|tak(?:e|ing)\\s+the\\s+key|(?:with|holding)\\s+(?:the\\s+|a\\s+|that\\s+)?key)\\b(?!\\s+eyes)`, "i")],
