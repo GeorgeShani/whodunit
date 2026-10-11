@@ -10,6 +10,7 @@ import type { LoadedCase } from "./case-schema";
 import type { CaseIssue } from "./case-validation";
 import { coreGuiltSecretIds } from "./core-guilt";
 import { accuseProgress, isUnlocked, leadStates, type LeadStates } from "./progress";
+import { liesTouchedByTestimony } from "./testimony";
 import type { Condition, GameState } from "./types";
 import { GameStateSchema } from "./types";
 
@@ -317,8 +318,14 @@ export const FASTEST_PATH_BUDGET = 400_000;
  * budget ran out. Breadth-first over the real unlock rules: a search, an exchange with any suspect, or showing a clue
  * (also an exchange with its owner, and the only way to crack a secret). The final accusation counts as one action.
  * Exchange counts are capped at the largest number any condition looks at, so the state space stays small.
+ *
+ * C4 (DX8): confrontations are modelled too. Facing A with B is one action: it counts as an exchange with A only (the
+ * addressed suspect; B reacting is not questioned), A may crack as in an ordinary exchange, and if A does not, A
+ * throws one of A's own revealed secrets that touches one of B's lies, which can crack a B secret whose testimony
+ * condition names it (one reveal per exchange). The game-wide confrontation cap (MAX_CONFRONTATION_TOTAL) is far above
+ * any shortest path and is not tracked. `confrontations: false` gives the old talk/search/show-only number.
  */
-export function fastestPath(c: LoadedCase): number | null {
+export function fastestPath(c: LoadedCase, opts: { confrontations?: boolean } = {}): number | null {
   if (!usesProgression(c)) return null;
   const cap = exchangeCap(c);
   const sol = c.solution;
@@ -375,6 +382,26 @@ export function fastestPath(c: LoadedCase): number | null {
           g.revealedSecretIds.push(sec.id);
           g.characters[ch.id].interrogationCount = Math.min(cap, g.characters[ch.id].interrogationCount + 1);
           push(g);
+        }
+      }
+      // C4: confront A with B. A's exchange (or A's crack) is covered above; what is new is B cracking on A's thrown
+      // testimony in the same action, without an exchange of B's own.
+      if (opts.confrontations !== false) {
+        for (const a of c.characters) {
+          const thrown = a.secrets.map((s) => s.id).filter((id) => game.revealedSecretIds.includes(id));
+          if (!thrown.length) continue;
+          for (const b of c.characters) {
+            if (b.id === a.id) continue;
+            const cards = thrown.filter((id) => liesTouchedByTestimony(c, b, id).length > 0);
+            for (const sec of b.secrets) {
+              if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
+              if (!cards.some((t) => sec.revealConditions?.testimonyIds?.includes(t))) continue;
+              const g = clone(game);
+              g.revealedSecretIds.push(sec.id);
+              g.characters[a.id].interrogationCount = Math.min(cap, g.characters[a.id].interrogationCount + 1);
+              push(g);
+            }
+          }
         }
       }
       if (seen.size > FASTEST_PATH_BUDGET) return null;
