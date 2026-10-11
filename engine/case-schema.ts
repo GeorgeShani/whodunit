@@ -129,6 +129,21 @@ export const CaseEnvelopeSchema = z.strictObject({
       recordDown: z.string().trim().min(1).max(300).optional(),
     })
     .optional(),
+  /**
+   * E20 (optional): the case's wording for the loss panel (engine/loss-feedback.ts). `{n}` and `{m}` are the counts.
+   * Each falls back to the engine default.
+   */
+  lossFeedback: z
+    .strictObject({
+      foundClues: z.string().trim().min(1).max(160).optional(),
+      foundTestimony: z.string().trim().min(1).max(160).optional(),
+      citedTooFew: z.string().trim().min(1).max(160).optional(),
+      missedRoom: z.string().trim().min(1).max(160).optional(),
+      missedSecret: z.string().trim().min(1).max(160).optional(),
+      missedClue: z.string().trim().min(1).max(160).optional(),
+      untestedStory: z.string().trim().min(1).max(160).optional(),
+    })
+    .optional(),
   /** Progression (optional): open questions the player works through. Omitted: no leads. */
   leads: z.array(LeadSchema).optional(),
   /** Progression (optional): when ACCUSE unlocks. Omitted: today's behaviour (a single clue is enough). */

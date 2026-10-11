@@ -240,7 +240,7 @@ Good to know:
 
 - **The time and place aren't graded.** You don't pick them on the form. They show up in the winning recap.
 - **Padding never rescues a case.** Extra clues can't turn a loss into a win. They can only turn a clean win into a sloppy one.
-- **A loss doesn't say what you got wrong.** No "so close!", no solution, no breakdown of which part missed. The case simply goes unsolved.
+- **A loss doesn't say what you got wrong.** No "so close!", no solution, no breakdown of which part missed. The case goes unsolved, and a short "Your investigation" panel shows how many of the key clues and key testimonies you found, whether you cited enough proof, and up to two nudges (a room never searched thoroughly, a secret never got out of someone). It's the same whoever you accused.
 - **PLAY AGAIN** starts the case over from scratch.
 
 ---

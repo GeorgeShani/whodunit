@@ -12,6 +12,7 @@ import { citeCaps, gradeAccusation } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import { buildEnding, buildSolutionReveal, endingEvidence, toVerdict } from "./ending-payload";
 import { accuseProgress } from "./progress";
+import { lossFeedback } from "./loss-feedback";
 import { attachProgress } from "./route-progress";
 import { isCaseClosed, restoreSession, saveSession, SYSTEM_LINES, systemLine } from "./session";
 import { ensureGameId, type Env } from "./state-token";
@@ -49,7 +50,16 @@ function verdictBody(caseData: LoadedCase, game: GameState, accusation: Accusati
   const stateToken = saveSession(game, env);
   const rating = grade.rating ? { rating: grade.rating } : {};
   // E2: a loss never carries a rating (it would tell the player whether they had the culprit).
-  if (!grade.won) return { outcome: "lost", accusation, ending, evidence: endingEvidence(caseData, ending, undefined, accusation), stateToken };
+  if (!grade.won)
+    return {
+      outcome: "lost",
+      accusation,
+      ending,
+      evidence: endingEvidence(caseData, ending, undefined, accusation),
+      // E20: the investigation panel, the same for every accusation with this progress.
+      investigation: lossFeedback(caseData, game, { keyEvidenceIds: accusation.keyEvidenceIds, keyTestimonyIds: accusation.keyTestimonyIds }),
+      stateToken,
+    };
   const solution = buildSolutionReveal(caseData);
   return { outcome: "won", accusation, verdict: toVerdict(grade), ...rating, solution, ending, evidence: endingEvidence(caseData, ending, solution, accusation), stateToken };
 }
