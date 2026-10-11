@@ -10,9 +10,21 @@
  *  - a small, case-agnostic English phrase lexicon maps common phrasings onto concept words that ids use ("the lights
  *    went out" -> blackout, "quarrel" -> argument, "overheard" -> overhears, "into the fire" -> burned), weight 3 on an
  *    id token.
- * A sentence with a spoken time binds to the event(s) with the top score, if that score is at least 3. The time must
- * then fit one of the events the sentence touches (score 2 or more; a sentence may name two events, "between 21:13,
- * when he stepped away, and 21:22, when he returned"), within a tolerance that depends on how it was said:
+ *  - participants and the event's location name (case data) rank the events a clause already touches, so a miss
+ *    is reported against the right one; they never widen what a clause touches;
+ *  - word matching tolerates a shared stem ("returned" ~ "returns") and a compound ending ("telephone" ~ "phone").
+ * Multi-event replies (#53 follow-up): each spoken time is attributed in ITS OWN CLAUSE (split on , ; : dashes and
+ * "then / until / till / and / while / but"), not the whole sentence: "I left at 21:13 to use the telephone until
+ * 21:20, then returned at 21:22" checks 21:13 against leaving, 21:20 against the call, 21:22 against the return.
+ *  - The clause's own events score 3 or more: the time must fit one the clause touches (score 2 or more), else it
+ *    is a miss. This is the confident case and stays strict.
+ *  - Otherwise the nearest clause with a cue is tried (the previous one first after "until"/"till", which close a
+ *    range; else the next: "between 21:13, when he stepped away, and ..."), then the whole sentence (the pre-clause
+ *    behaviour). If none of those fit, the time is still accepted when it fits SOME event the speaker knows or is in
+ *    (their WHAT YOU KNOW, or an event involving them): unattributed is not wrong. Only a time that fits none of
+ *    these is a miss.
+ * A sentence whose best event scores below 3 is not event-bound at all and is left to ai/canon-check.ts.
+ * Fitting uses a tolerance that depends on how the time was said:
  *  - a precise clock time ("21:17", "nine-seventeen", "seventeen minutes past nine", "twenty to nine"): +-1 minute;
  *  - a rounded form ("a quarter past nine", "half past eight") or an hour ("nine o'clock"): +-5 minutes;
  *  - hedged with "around / about / roughly / nearly / approximately / or so": +-10 minutes;
@@ -32,9 +44,15 @@ interface EventEntry {
   range: [number, number];
   idWords: string[];
   words: Set<string>;
+  /** Who the event involves (character / victim ids). */
+  involves: string[];
+  /** Content words of the event's location name (a supporting cue, like a participant). */
+  place: Set<string>;
 }
 
-type EventCase = Pick<LoadedCase, "characters" | "victim"> & Partial<Pick<LoadedCase, "facts" | "timeline">>;
+type EventCase = Pick<LoadedCase, "characters" | "victim"> & Partial<Pick<LoadedCase, "facts" | "timeline" | "locations">>;
+/** What the check may use about the speaker (all optional: without it there is no speaker fallback). */
+export type EventTimeSpeaker = Pick<CharacterContext, "intendedLies" | "beliefs"> & Partial<Pick<CharacterContext, "persona" | "knowledge">>;
 
 /** Common English phrasings of typical events -> the concept word an authored id is likely to use. */
 const LEXICON: [RegExp, string[]][] = [
@@ -47,7 +65,19 @@ const LEXICON: [RegExp, string[]][] = [
   [/\b(?:dinner|supper)\b/i, ["dinner"]],
   [/\bfound\s+(?:him|her|the\s+body)|\bdiscover\w*\s+(?:him|her|the\s+body)\b/i, ["discovered"]],
   [/\b(?:forced|broke|burst|shouldered)\b[^.!?]{0,20}\bdoor\b/i, ["forced"]],
+  [/\b(?:came|come|comes|coming|walked|slipped|slips|crept|stepped)\s+in\b|\bentere?d?s?\b|\bentering\b/i, ["enter", "enters", "entered"]],
+  [/\b(?:left|leav(?:e|es|ing)|stepped\s+(?:out|away)|slipped\s+(?:out|away))\b/i, ["leave", "leaves", "left"]],
+  [/\b(?:came|come|comes|coming|got|get|was|were|is|went|walked|hurried)\s+back\b|\breturn\w*/i, ["return", "returns", "back"]],
+  [/\b(?:tele)?phon\w*|\brang\b|\bon\s+the\s+(?:tele)?phone\b|\bon\s+the\s+line\b/i, ["phone", "telephone", "call"]],
+  [/\b(?:backed|back(?:ing)?\s+(?:her|him|me|them|you)\s+up|vouch\w*|agreed?|corroborat\w*|alibi\w*)\b/i, ["alibi", "agrees", "pact"]],
 ];
+
+/** Same word, a shared stem, or a compound ending ("telephone" ~ "phone"; both >= 5 letters). */
+function matches(a: string, b: string): boolean {
+  if (sameWord(a, b)) return true;
+  const [long, short] = a.length >= b.length ? [a, b] : [b, a];
+  return short.length >= 5 && long.endsWith(short);
+}
 
 const clock = (t: string) => {
   const [h, m] = t.split(":").map(Number);
@@ -60,8 +90,9 @@ export function eventTimeMap(c: EventCase): EventEntry[] {
   const hit = cache.get(c);
   if (hit) return hit;
   const names = nameWords(c);
+  const places = new Map((c.locations ?? []).map((l) => [l.id, l.name]));
   const out: EventEntry[] = [];
-  for (const f of [...(c.facts ?? []), ...(c.timeline ?? [])] as { id: string; statement: string; time?: string; from?: string; to?: string }[]) {
+  for (const f of [...(c.facts ?? []), ...(c.timeline ?? [])] as { id: string; statement: string; time?: string; from?: string; to?: string; locationId?: string; involvesCharacterIds?: string[] }[]) {
     const a = f.time ?? f.from;
     const b = f.time ?? f.to ?? f.from;
     if (!a || !b) continue;
@@ -70,7 +101,8 @@ export function eventTimeMap(c: EventCase): EventEntry[] {
       .split(/[^a-z]+/)
       .slice(1)
       .filter((w) => w.length >= 4 && !names.has(w));
-    out.push({ id: f.id, range: [clock(a), clock(b)], idWords, words: contentWords(f.statement, names) });
+    const place = f.locationId ? (places.get(f.locationId) ?? "") : "";
+    out.push({ id: f.id, range: [clock(a), clock(b)], idWords, words: contentWords(f.statement, names), involves: f.involvesCharacterIds ?? [], place: contentWords(place, names) });
   }
   cache.set(c, out);
   return out;
@@ -92,14 +124,44 @@ function df(events: EventEntry[]) {
 }
 
 /** Id tokens weigh 2 (3 through the lexicon), 1 when three or more events share them; statement words weigh 1, 0 when four or more events share them. */
-function score(e: EventEntry, said: Set<string>, concepts: Set<string>, d: ReturnType<typeof df>): number {
+/** `base`: word cues only (decides whether a clause is event-bound); `total`: plus the supporting cues. */
+function score(e: EventEntry, said: Set<string>, concepts: Set<string>, d: ReturnType<typeof df>, people: Set<string>): { base: number; total: number } {
   let s = 0;
   for (const w of e.idWords) {
-    if (concepts.has(w)) s += 3;
-    else if ([...said].some((x) => sameWord(x, w))) s += (d.id.get(w) ?? 0) >= 3 ? 1 : 2;
+    if ([...concepts].some((x) => matches(x, w))) s += 3;
+    else if ([...said].some((x) => matches(x, w))) s += (d.id.get(w) ?? 0) >= 3 ? 1 : 2;
   }
-  for (const w of e.words) if ((d.word.get(w) ?? 0) < 4 && [...said].some((x) => sameWord(x, w))) s += 1;
-  return s;
+  for (const w of e.words) if ((d.word.get(w) ?? 0) < 4 && [...said].some((x) => matches(x, w))) s += 1;
+  // Supporting cues, only for an event the words already touch (2+): a person named in the clause (or the speaker's
+  // "I"/"we") who is in it, and its location's name when the statement itself does not already say it. They only rank
+  // the touched events (which one a miss is reported against); they never widen what a clause touches or make it
+  // event-bound: an incidental word plus a participant let a wrong time through (g44, "confess" + "his lordship").
+  let total = s;
+  if (s >= 2 && e.involves.some((id) => people.has(id))) total += 1;
+  if (s >= 2 && [...e.place].some((w) => !e.words.has(w) && [...said].some((x) => matches(x, w)))) total += 1;
+  return { base: s, total };
+}
+
+/** Clause boundaries: , ; : dashes, and then / until / till / and / while / but. `closesRange` marks until/till. */
+const CLAUSE_SPLIT = /\s*(?:[,;:]|\s[-\u2013\u2014]+\s|\u2014|\u2013)\s*|\s+(then|until|till|and|while|but)\s+/gi;
+interface Clause {
+  start: number;
+  end: number;
+  text: string;
+  closesRange: boolean;
+}
+function clauses(sentence: string): Clause[] {
+  const out: Clause[] = [];
+  let start = 0;
+  let closes = false;
+  for (const m of sentence.matchAll(CLAUSE_SPLIT)) {
+    const at = m.index ?? 0;
+    out.push({ start, end: at, text: sentence.slice(start, at), closesRange: closes });
+    start = at + m[0].length;
+    closes = /^(?:until|till)$/i.test(m[1] ?? "");
+  }
+  out.push({ start, end: sentence.length, text: sentence.slice(start), closesRange: closes });
+  return out;
 }
 
 function tolerance(m: TimeMention, before: string, after: string): { lo: number; hi: number } {
@@ -117,33 +179,69 @@ export interface EventTimeMiss {
 }
 
 /** Times in `text` attached to an event at the wrong time; [] = fine. */
-export function checkEventTimes(text: string, c: EventCase, ctx?: Pick<CharacterContext, "intendedLies" | "beliefs">): EventTimeMiss[] {
+export function checkEventTimes(text: string, c: EventCase, ctx?: EventTimeSpeaker): EventTimeMiss[] {
   const events = eventTimeMap(c);
   if (!events.length) return [];
   const exempt = new Set<number>();
   for (const s of [...(ctx?.intendedLies ?? []).map((l) => l.claim), ...(ctx?.beliefs ?? []).map((b) => b.statement)]) for (const m of extractTimes(s)) m.candidates.forEach((x) => exempt.add(x));
+  const d = df(events);
+  const speakerId = ctx?.persona?.id;
+  // The speaker's own canon: events they know (WHAT YOU KNOW) or are in. Used only for times no clause can attribute.
+  const known = new Set((ctx?.knowledge ?? []).map((k) => k.id));
+  const speakerEvents = speakerId || known.size ? events.filter((e) => known.has(e.id) || (speakerId !== undefined && e.involves.includes(speakerId))) : [];
+  const peopleIn = (text: string): Set<string> => {
+    const p = new Set<string>();
+    const low = text.toLowerCase();
+    for (const ch of [...c.characters, { ...c.victim, id: c.victim.id ?? "victim" }] as { id: string; name: string; aliases?: string[] }[]) {
+      const words = contentWords([ch.name, ...(ch.aliases ?? [])].join(" "));
+      if ([...words].some((w) => new RegExp(`\\b${w}\\b`).test(low))) p.add(ch.id);
+    }
+    if (speakerId && /\b(?:i|me|my|we|us|our)\b/.test(low)) p.add(speakerId);
+    return p;
+  };
+  const scoreText = (t: string) => {
+    const said = new Set(contentWords(t));
+    const concepts = new Set<string>();
+    for (const [re, cs] of LEXICON) if (re.test(t)) cs.forEach((x) => concepts.add(x));
+    const people = peopleIn(t);
+    const scored = events.map((e) => ({ e, ...score(e, said, concepts, d, people) }));
+    const top = Math.max(...scored.map((x) => x.base));
+    const best = Math.max(...scored.map((x) => x.total));
+    return { top, bound: scored.filter((x) => x.total === best).map((x) => x.e), touched: scored.filter((x) => x.base >= 2).map((x) => x.e) };
+  };
+
   const misses: EventTimeMiss[] = [];
   for (const sentence of text.split(/(?<=[.!?;])\s+|\n+/)) {
     const mentions = extractTimes(sentence);
     if (!mentions.length) continue;
-    const said = new Set(contentWords(sentence));
-    const concepts = new Set<string>();
-    for (const [re, cs] of LEXICON) if (re.test(sentence)) cs.forEach((x) => concepts.add(x));
-    const d = df(events);
-    const scored = events.map((e) => ({ e, s: score(e, said, concepts, d) }));
-    const top = Math.max(...scored.map((x) => x.s));
-    if (top < 3) continue;
-    // Bound to the top event(s); a time is still fine if it fits ANY event the sentence clearly touches (score >= 2):
-    // "between 21:13, when he stepped away, and 21:22, when he returned" names two events in one sentence.
-    const bound = scored.filter((x) => x.s === top).map((x) => x.e);
-    const touched = scored.filter((x) => x.s >= 2).map((x) => x.e);
+    const whole = scoreText(sentence);
+    if (whole.top < 3) continue;
+    const parts = clauses(sentence);
+    const partScores = parts.map((p) => scoreText(p.text));
+    let cursor = 0;
     for (const m of mentions) {
+      const found = sentence.indexOf(m.text, cursor);
+      const at = found >= 0 ? found : sentence.indexOf(m.text);
+      cursor = at + m.text.length;
       if (m.candidates.some((x) => exempt.has(x))) continue;
-      const at = sentence.indexOf(m.text);
       const { lo, hi } = tolerance(m, sentence.slice(Math.max(0, at - 30), at), sentence.slice(at + m.text.length, at + m.text.length + 12));
       // T fits an event when the event's range overlaps [T+lo, T+hi] (directional forms: the event is after/before T).
-      const fits = touched.some((e) => m.candidates.some((t) => e.range[1] >= t + lo && e.range[0] <= t + hi));
-      if (!fits) misses.push({ text: m.text, eventIds: bound.map((e) => e.id) });
+      const fits = (es: EventEntry[]) => es.some((e) => m.candidates.some((t) => e.range[1] >= t + lo && e.range[0] <= t + hi));
+      let k = parts.findIndex((p) => at >= p.start && at < Math.max(p.end, p.start + 1));
+      if (k < 0) k = parts.length - 1;
+      const own = partScores[k]!;
+      if (own.top >= 3) {
+        // Confident: the clause names its event. Strict.
+        if (!fits(own.touched)) misses.push({ text: m.text, eventIds: own.bound.map((e) => e.id) });
+        continue;
+      }
+      // Not attributable in its own clause: the nearest clause with a cue, then the sentence, then the speaker's canon.
+      const order = parts[k]!.closesRange ? [k - 1, k + 1] : [k + 1, k - 1];
+      const neighbour = order.filter((n) => n >= 0 && n < parts.length).map((n) => partScores[n]!).find((p) => p.top >= 3);
+      if (neighbour && fits(neighbour.touched)) continue;
+      if (fits(whole.touched)) continue;
+      if (fits(speakerEvents)) continue;
+      misses.push({ text: m.text, eventIds: (neighbour ?? whole).bound.map((e) => e.id) });
     }
   }
   return misses;

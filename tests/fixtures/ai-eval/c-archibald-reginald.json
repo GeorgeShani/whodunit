@@ -1,23 +1,23 @@
 {
   "scenarioId": "c-archibald-reginald",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:52:08.265Z",
+  "recordedAt": "2026-10-11T13:49:30.345Z",
   "calls": [
     {
       "promptHash": "f36e30a49dfb0b31",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "435a1a3e-9fd1-9b65-a6e8-8bc6f23704c8",
+        "id": "5900dd7e-ba8f-9e51-bfd0-702633429cff",
         "object": "chat.completion",
-        "created": 1791456725,
+        "created": 1791726566,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Mr Crane, I must inform you that I was counting the money I had skimmed from the household accounts in my pantry. Through the door I heard your voice on the servants' telephone from a quarter past nine to twenty minutes past nine; at eighteen minutes past nine you told me to mind my own business.\",\n  \"emotion\": \"nervous\",\n  \"intensity\": 0.6,\n  \"action\": \"polishes a nearby candlestick with furious little circles while his left eyebrow twitches\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": 0,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Mr Crane, I was counting the money I had skimmed from the household accounts in my pantry when I heard your voice on the servants' telephone speaking of moving it all before midnight. At eighteen minutes past nine you told me to mind my own business.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"polishes a nearby candlestick with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[\"s-reginald-theft\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
@@ -25,8 +25,8 @@
         ],
         "usage": {
           "prompt_tokens": 5065,
-          "completion_tokens": 147,
-          "total_tokens": 5212,
+          "completion_tokens": 109,
+          "total_tokens": 5174,
           "prompt_tokens_details": {
             "text_tokens": 5065,
             "audio_tokens": 0,
@@ -40,15 +40,15 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 65643500
+          "cost_in_usd_ticks": 64693500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
         "prompt_tokens": 5065,
-        "completion_tokens": 147,
-        "total_tokens": 5212,
+        "completion_tokens": 109,
+        "total_tokens": 5174,
         "prompt_tokens_details": {
           "text_tokens": 5065,
           "audio_tokens": 0,
@@ -62,39 +62,39 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 65643500
+        "cost_in_usd_ticks": 64693500
       },
-      "costUsd": 0.00656435
+      "costUsd": 0.0064693500000000004
     },
     {
-      "promptHash": "5d4631953163c7dc",
+      "promptHash": "a7e361000de157d5",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "042460f9-203f-96a6-b201-348a67e645af",
+        "id": "73da7016-f30f-9491-97ec-3894944c84e4",
         "object": "chat.completion",
-        "created": 1791456726,
+        "created": 1791726567,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Mind your own dashed business, Reginald – who pays the wages in this house, eh? And that candlestick you carried off was yours to account for, old boy.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.7,\n  \"action\": \"mops his brow with a huge handkerchief while going beetroot red and chomping harder on his cigar\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 6,\n  \"trustDelta\": -4,\n  \"admits\": []\n}",
+              "content": "{\n  \"dialogue\": \"Reginald, you were listening at your door so you could report me to the police! It was your candlestick, Reginald. You lit it, you carried it, you fussed over it in front of all of us.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.7,\n  \"action\": \"goes beetroot red and mops his brow furiously with a huge handkerchief, chomping down hard on his cigar\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -5,\n  \"admits\": []\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4837,
-          "completion_tokens": 123,
-          "total_tokens": 4960,
+          "prompt_tokens": 4834,
+          "completion_tokens": 137,
+          "total_tokens": 4971,
           "prompt_tokens_details": {
-            "text_tokens": 4837,
+            "text_tokens": 4834,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -103,20 +103,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 61521500
+          "cost_in_usd_ticks": 62506000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4837,
-        "completion_tokens": 123,
-        "total_tokens": 4960,
+        "prompt_tokens": 4834,
+        "completion_tokens": 137,
+        "total_tokens": 4971,
         "prompt_tokens_details": {
-          "text_tokens": 4837,
+          "text_tokens": 4834,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 61521500
+        "cost_in_usd_ticks": 62506000
       },
-      "costUsd": 0.00615215
+      "costUsd": 0.0062506
     }
   ]
 }
