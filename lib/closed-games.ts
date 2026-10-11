@@ -16,6 +16,7 @@ import { eq, sql } from "drizzle-orm";
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { getDb } from "@/db/client";
 import { closedGames } from "@/db/schema";
+import { classifyDbError, diagnoseDatabaseUrl, type DbUrlDiagnostic } from "./db-diagnostic";
 
 export type ClosedOutcome = "won" | "lost";
 
@@ -51,7 +52,18 @@ const toRecord = (r: typeof closedGames.$inferSelect): ClosedGameRecord => ({
 });
 
 /** Postgres implementation over any Drizzle pg database (postgres-js in production, node-postgres/pg-mem in tests). */
-export function postgresClosedGames(db: AnyPgDb): ClosedGamesRepo {
+export function postgresClosedGames(db: AnyPgDb, onError?: (e: unknown) => void): ClosedGamesRepo {
+  const inner = postgresClosedGamesRaw(db);
+  if (!onError) return inner;
+  const watch = <T>(p: Promise<T>) =>
+    p.catch((e: unknown) => {
+      onError(e);
+      throw e;
+    });
+  return { getClosed: (id) => watch(inner.getClosed(id)), closeGame: (input) => watch(inner.closeGame(input)) };
+}
+
+function postgresClosedGamesRaw(db: AnyPgDb): ClosedGamesRepo {
   const getClosed = async (gameId: string) => {
     const rows = await db.select().from(closedGames).where(eq(closedGames.gameId, gameId)).limit(1);
     return rows[0] ? toRecord(rows[0]) : null;
@@ -99,7 +111,15 @@ let repo: { db: unknown; repo: ClosedGamesRepo } | null = null;
  * keeps today's Runtime Cache-only record, so deploying before the env var exists cannot break accusations).
  */
 export function closedGamesRepo(env: NodeJS.ProcessEnv = process.env, log: (msg: string) => void = console.warn): ClosedGamesRepo | null {
-  const db = getDb(env);
+  let db: ReturnType<typeof getDb>;
+  try {
+    db = getDb(env);
+  } catch (e) {
+    // An unparseable DATABASE_URL is configured-but-broken: accusations fail CLOSED (every call rejects -> 503).
+    logDbFailure("accuse", e, env);
+    const reject = () => Promise.reject(e);
+    return { getClosed: reject, closeGame: reject };
+  }
   if (!db) {
     if (!warned) {
       warned = true;
@@ -107,7 +127,7 @@ export function closedGamesRepo(env: NodeJS.ProcessEnv = process.env, log: (msg:
     }
     return null;
   }
-  if (repo?.db !== db) repo = { db, repo: postgresClosedGames(db as unknown as AnyPgDb) };
+  if (repo?.db !== db) repo = { db, repo: postgresClosedGames(db as unknown as AnyPgDb, (e) => logDbFailure("accuse", e, env)) };
   return repo.repo;
 }
 
@@ -119,32 +139,55 @@ export function resetClosedGamesWarning(): void {
 export type DbHealth = "ok" | "unreachable" | "unconfigured";
 export const DB_HEALTH_TIMEOUT_MS = 3000;
 
+/** Non-secret diagnosis for /api/health and the log line: the URL's shape plus the last error class. */
+export type DbDiagnostic = DbUrlDiagnostic & { errorClass: string | null };
+
+export function dbDiagnostic(env: NodeJS.ProcessEnv = process.env, error?: unknown): DbDiagnostic | null {
+  const raw = env.DATABASE_URL;
+  if (!raw?.trim()) return null;
+  return { ...diagnoseDatabaseUrl(raw), errorClass: error === undefined ? null : classifyDbError(error) };
+}
+
+/** ONE structured server log line per failure: non-secret fields only (never the URL, user, password or message). */
+export function logDbFailure(source: "health" | "accuse", e: unknown, env: NodeJS.ProcessEnv = process.env, log: (line: string) => void = console.error): void {
+  log(`[db] ${JSON.stringify({ event: "db_unreachable", source, ...dbDiagnostic(env, e) })}`);
+}
+
 /**
  * /api/health's database state: "unconfigured" (no DATABASE_URL), "ok" (SELECT 1 answered within the timeout) or
- * "unreachable" (error or timeout). Never throws; never reports why (no URL, host or message leaves the server).
+ * "unreachable" (error or timeout), with the non-secret diagnostic when DATABASE_URL is set. Never throws.
  */
-export async function dbHealth(
-  opts: { env?: NodeJS.ProcessEnv; ping?: () => Promise<unknown>; timeoutMs?: number } = {},
-): Promise<DbHealth> {
+export async function dbHealthReport(
+  opts: { env?: NodeJS.ProcessEnv; ping?: () => Promise<unknown>; timeoutMs?: number; log?: (line: string) => void } = {},
+): Promise<{ db: DbHealth; dbDiagnostic?: DbDiagnostic }> {
   const env = opts.env ?? process.env;
+  const diag = (e?: unknown) => dbDiagnostic(env, e) ?? undefined;
   let ping = opts.ping;
-  if (!ping) {
-    const db = getDb(env);
-    if (!db) return "unconfigured";
-    ping = () => db.execute(sql`select 1`);
-  }
   let timer: ReturnType<typeof setTimeout> | undefined;
   try {
+    if (!ping) {
+      const db = getDb(env);
+      if (!db) return { db: "unconfigured" };
+      ping = () => db.execute(sql`select 1`);
+    }
     await Promise.race([
       ping(),
       new Promise((_, reject) => {
         timer = setTimeout(() => reject(new Error("timeout")), opts.timeoutMs ?? DB_HEALTH_TIMEOUT_MS);
       }),
     ]);
-    return "ok";
-  } catch {
-    return "unreachable";
+    const d = diag();
+    return { db: "ok", ...(d ? { dbDiagnostic: d } : {}) };
+  } catch (e) {
+    logDbFailure("health", e, env, opts.log);
+    const d = diag(e);
+    return { db: "unreachable", ...(d ? { dbDiagnostic: d } : {}) };
   } finally {
     if (timer) clearTimeout(timer);
   }
+}
+
+/** Just the state (see dbHealthReport). */
+export async function dbHealth(opts: Parameters<typeof dbHealthReport>[0] = {}): Promise<DbHealth> {
+  return (await dbHealthReport(opts)).db;
 }

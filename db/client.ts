@@ -13,23 +13,42 @@
  */
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
+import { normalizeDatabaseUrl } from "@/lib/db-diagnostic";
 import * as schema from "./schema";
 
 export type Db = PostgresJsDatabase<typeof schema>;
 
 let cached: { url: string; db: Db; sql: postgres.Sql } | null = null;
 
-/** True when DATABASE_URL is set (non-empty). */
+/** True when DATABASE_URL is set (non-empty after trimming and stripping one pair of quotes). */
 export function dbConfigured(env: NodeJS.ProcessEnv = process.env): boolean {
-  return Boolean(env.DATABASE_URL?.trim());
+  return Boolean(normalizeDatabaseUrl(env.DATABASE_URL));
 }
 
-/** The shared Drizzle client, or null when DATABASE_URL is unset. Never throws for a bad URL until first query. */
+/** A DATABASE_URL the driver could not even parse. Carries a code only: never the URL or the driver's message. */
+export class DbConfigError extends Error {
+  readonly code = "URL_PARSE_ERROR";
+  constructor() {
+    super("DATABASE_URL could not be parsed");
+    this.name = "DbConfigError";
+  }
+}
+
+/**
+ * The shared Drizzle client, or null when DATABASE_URL is unset. The value is trimmed and one pair of matching
+ * surrounding quotes stripped first (a common paste mistake). Throws DbConfigError (no details) if the driver
+ * can't parse it; connection errors only surface on the first query.
+ */
 export function getDb(env: NodeJS.ProcessEnv = process.env): Db | null {
-  const url = env.DATABASE_URL?.trim();
+  const url = normalizeDatabaseUrl(env.DATABASE_URL);
   if (!url) return null;
   if (cached?.url === url) return cached.db;
-  const client = postgres(url, { prepare: false, max: 1, connect_timeout: 5, idle_timeout: 10, onnotice: () => {} });
+  let client: postgres.Sql;
+  try {
+    client = postgres(url, { prepare: false, max: 1, connect_timeout: 5, idle_timeout: 10, onnotice: () => {} });
+  } catch {
+    throw new DbConfigError();
+  }
   cached = { url, db: drizzle(client, { schema }), sql: client };
   return cached.db;
 }
