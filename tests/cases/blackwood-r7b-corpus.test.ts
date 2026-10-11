@@ -23,6 +23,13 @@ const S: Record<string, Spec> = {
   archBoth: { ev: ["silver-candlestick", "library-key"], rev: [["archibald", "s-archibald-false-alibi"], ["archibald", "s-archibald-embezzlement"]], shown: { archibald: ["library-key"] } },
   gregHall: { ev: ["silver-candlestick", "muddy-footprint"], rev: [["gregory", "s-gregory-in-hall"]], shown: { gregory: ["muddy-footprint"] } },
   gregSaw: { ev: ["silver-candlestick", "muddy-footprint", "library-key"], rev: [["gregory", "s-gregory-in-hall"], ["gregory", "s-gregory-saw-victoria"]], shown: { gregory: ["muddy-footprint", "library-key"] } },
+  // r7c (Gremlin's probe8-10)
+  vNewwill: { ev: ["silver-candlestick", "library-key", "burned-letter"], rev: [["victoria", "s-victoria-new-will"]], shown: { victoria: ["burned-letter"] } },
+  vLeft: { ev: ["silver-candlestick", "library-key", "burned-letter"], rev: [["victoria", "s-victoria-new-will"], ["victoria", "s-victoria-left-dining"]], shown: { victoria: ["burned-letter", "library-key"] } },
+  gregSawNotShown: { ev: ALL_EV, rev: [["gregory", "s-gregory-in-hall"], ["gregory", "s-gregory-saw-victoria"]] },
+  gregSawShown: { ev: ALL_EV, rev: [["gregory", "s-gregory-in-hall"], ["gregory", "s-gregory-saw-victoria"]], heard: { reginald: ["s-gregory-saw-victoria"], archibald: ["s-gregory-saw-victoria"] } },
+  zeroTheft: { rev: [["victoria", "s-victoria-left-dining"], ["archibald", "s-archibald-false-alibi"], ["reginald", "s-reginald-theft"]], heard: { reginald: ["s-archibald-false-alibi"], archibald: ["s-victoria-left-dining"] } },
+  zeroTheftVic: { rev: [["victoria", "s-victoria-left-dining"], ["archibald", "s-archibald-false-alibi"], ["reginald", "s-reginald-theft"]], heard: { reginald: ["s-archibald-false-alibi", "s-victoria-left-dining"], archibald: ["s-victoria-left-dining"] } },
   allInnoc: { ev: ALL_EV, rev: [["reginald", "s-reginald-theft"], ["reginald", "s-reginald-overheard"], ["archibald", "s-archibald-false-alibi"], ["archibald", "s-archibald-embezzlement"], ["gregory", "s-gregory-in-hall"], ["gregory", "s-gregory-saw-victoria"]], shown: { reginald: ["burned-letter"], archibald: ["library-key"], gregory: ["muddy-footprint", "library-key"] } },
 };
 
@@ -353,27 +360,250 @@ beforeAll(async () => {
   for (const [ch, d] of p7) {
     run("P7", "fresh", ch, d, "pass", "Go on.");
   }
+
+  // ===== r7c: Gremlin's probe8-10 (/workspace/qa/r7c/harness), each line in his state =====
+  const V3 = ["fresh", "vNewwill", "vLeft"];
+  // A1 (R1): Victoria anchored on Archibald's errand and other relative markers (want block in every state)
+  for (const st of V3) for (const d of [
+    "When the storm was at its worst I went to see Edmund.",
+    "While Reginald was fetching candles I slipped out to see Edmund.",
+    "After Archibald left me, I went to the library.",
+    "After Archibald left me I had a word with Edmund.",
+    "During the blackout I spoke with Edmund, briefly.",
+    "Before the scream I was with my husband, darling.",
+    "In those few minutes I went to Edmund.",
+    "While the house was dark I went along to the library.",
+    "Once Archibald had gone off for his brandy, I went to my husband.",
+    "With the candles lit and Archibald gone, I paid Edmund a visit.",
+    "I took the letter from his desk while the house was dark.",
+    "I burned it after Archibald left me.",
+    "I burned it in those few minutes on my own.",
+    "I burned the letter before Reginald found him.",
+    "I burned the letter after the lights went.",
+    "Edmund was alive when I left him the second time.",
+    "I last saw Edmund alive a little after the lights failed.",
+    "When I saw Edmund last, the candle Reginald brought was burning on his desk.",
+    "I knocked and Edmund unlocked the door for me himself, by candlelight.",
+    "Edmund let me in, darling, while Archibald was hunting for brandy.",
+    "I was in the hall when the lightning came, darling, near the library.",
+    "I came back to the fire just before Archibald did.",
+    "I came back to the dining room a minute or two before Archibald.",
+    "I was alone with Edmund for a few minutes after the candles were lit.",
+    "Between the candles and the scream I saw Edmund once.",
+    "The candle on Edmund's desk was still burning when I left him.",
+  ]) run("R1", st, "victoria", d, "block", "Tell me the truth.");
+  // A2: Victoria's true lines (want pass)
+  for (const [st, d] of [
+    ["fresh", "I excused myself from dinner soon after Edmund went to the library."],
+    ["fresh", "Edmund and I had a little chat in the library before nine. The Sunday menu."],
+    ["fresh", "When the lights went out at ten past nine I was by the dining-room fire with Archibald."],
+    ["fresh", "Reginald lit the candles at eleven minutes past nine, darling. I was at the table."],
+    ["fresh", "Archibald and I sat by the fire from the moment the candles were lit until we heard the scream. Neither of us left."],
+    ["fresh", "After the scream I ran to the library door with Archibald."],
+    ["fresh", "When Reginald screamed, Archibald and I hurried into the hall."],
+    ["fresh", "I was at the library door when Archibald forced it at twenty-nine minutes to ten."],
+    ["fresh", "I went into the library with the others after the door was forced, and there was Edmund."],
+    ["fresh", "I fainted clean away when I saw Edmund on the floor."],
+    ["fresh", "The lights came back at twenty-two minutes to ten, thank heaven."],
+    ["fresh", "Reginald telephoned the police at twenty-two minutes to ten. They can't come till morning."],
+    ["fresh", "Edmund must have locked himself in. He always did."],
+    ["fresh", "I loathe the dark, darling. Candlelight is so unflattering."],
+    ["fresh", "The storm has been dreadful all evening."],
+    ["fresh", "Archibald came back to the fire at twenty-two minutes past nine without any brandy."],
+    ["vNewwill", "Yes, I knew about the new will. And yes, I burned that wretched letter. There."],
+    ["vNewwill", "I knew Edmund meant to sign a new will at ten tomorrow. I'm not a fool."],
+    ["vLeft", "Very well. I left the dining room while Archibald was away. Where I went is my own affair."],
+    ["vLeft", "I wasn't by the fire the whole time, darling. I stepped out for a little while."],
+    ["vLeft", "Archibald and I were not together all that time. He went off at thirteen minutes past and came back at twenty-two minutes past."],
+    ["vLeft", "At twenty to ten I asked Archibald to say we'd been together. A small kindness."],
+    ["vLeft", "I left the room for a few minutes after Archibald went off, that's all."],
+    ["vLeft", "I was not in the dining room every minute between thirteen and twenty-two minutes past nine."],
+    ["vLeft", "I left the dining room for a while after the candles were lit. I shan't say where."],
+    ["vLeft", "When Archibald went for his brandy, I went out too. That is all you'll get."],
+    ["vLeft", "I was alone for a few minutes, so I stepped out. Hardly a crime."],
+  ] as const) run("R1T", st, "victoria", d, "pass", "Where were you?");
+  // R4 (probe9 P9a): conceding left-dining while it is locked (fresh; want block)
+  for (const d of ["I stepped out for some air while Archibald was away.", "I left the dining room after Archibald went off for his brandy.", "I wasn't by the fire every minute, darling.", "Archibald wasn't with me the whole time, if you must know.", "I was alone in the dining room for a little while after Archibald went off.", "Archibald left me alone at the fire for ten minutes, darling. Rude of him."])
+    run("R4", "fresh", "victoria", d, "block", "Where were you?");
+  // B1 (R2): Gregory before his reveal (want block, fresh and in-hall)
+  for (const st of ["fresh", "gregHall"]) for (const d of [
+    "I knows who come out o' that door, sir, but I ain't sayin'.",
+    "There were a face in the lightnin', sir. A face I knowed.",
+    "Whoever it were 'ad skirts on, sir.",
+    "I seen the library door open and shut, sir, in the flash.",
+    "It were a woman, sir. That's all I'll say.",
+    "Her ladyship were in the 'all, sir, by the library.",
+    "The mistress were by that door, sir, when the lightnin' come.",
+    "I seen 'er ladyship's face, white as a sheet, by the library door.",
+    "Me lady come out o' there, sir.",
+    "Milady turned the key, sir, I'd swear it on me mother's grave.",
+    "The key went down 'er bodice, sir.",
+    "She 'ad the key, sir. I seen it shine.",
+    "The person what come out were wearin' a gown, sir.",
+    "I weren't the only one in that 'all, sir.",
+    "Somebody stepped out o' the library just after the thud, sir.",
+    "I seen who it were. Ask 'er ladyship where she were at nineteen past.",
+    "Lady Victoria walked off towards the dining room after, sir.",
+    "Someone locked that door from the outside, sir, I seen 'em do it.",
+  ]) run("R2", st, "gregory", d, "block", "Go on.");
+  // B2 (R3): relays by Reginald and Archibald before they hold Gregory's card (want block)
+  const relay = [
+    "Gregory says he saw her ladyship lock the door.",
+    "The gardener saw who locked it, I'm told.",
+    "Gregory told me her ladyship came out of the library in the lightning.",
+    "Someone saw Victoria lock that door, old boy, mark my words.",
+    "Her ladyship pocketed the key, according to the gardener.",
+    "The gardener swears it was her ladyship at the door.",
+    "Word below stairs is that the gardener saw her ladyship with the key.",
+  ];
+  for (const st of ["fresh", "gregSawNotShown"]) for (const ch of ["reginald", "archibald"]) for (const d of relay) run("R3", st, ch, d, "block", "Go on.");
+  for (const ch of ["reginald", "archibald"]) for (const d of ["Gregory says her ladyship locked the door.", "The gardener told me her ladyship locked the library.", "Gregory saw her ladyship come out of the library, I'm told.", "Her ladyship locked that door, I would know her step anywhere."])
+    run("R3", "fresh", ch, d, "block", "Go on.");
+  // B2b: the same relays once Gregory's card has been shown to them (want pass, E13 unlessShown)
+  for (const ch of ["reginald", "archibald"]) for (const d of relay.slice(0, 3)) run("R3T", "gregSawShown", ch, d, "pass", "Go on.");
+  // ... but never as their own eyes, card or no card (want block)
+  for (const ch of ["reginald", "archibald"]) for (const d of ["I saw her ladyship lock the library door myself.", "I saw Victoria come out of the library in the lightning, old boy."]) run("R3", "gregSawShown", ch, d, "block", "Go on.");
+  // B3: Gregory after his reveal (want pass) and still no killing (want block)
+  for (const d of [
+    "'Twas 'er ladyship come out o' the library, sir, in the lightnin', and she locked it be'ind 'er.",
+    "I seen 'er plain, sir: out the library door, key in the lock, a turn, and into 'er dress it went.",
+    "The mistress, sir. Out o' the library, locked the door, popped the key down 'er front.",
+    "Her ladyship it were, sir. I seen her face by the lightning and the flickers after.",
+    "She locked the library door behind her, sir, and walked off towards the dining room.",
+    "Lady Victoria come out of the library at nineteen minutes past nine and locked it.",
+    "I saw Lady Blackwood lock his lordship's door, sir, and slip the key into her gown.",
+    "Milady come out, sir, and turned the key, and off she went to the dinin' room.",
+    "It were her that locked the door, sir. I'd swear to it.",
+    "I seen her ladyship with the key, sir, after she locked up.",
+    "She came out of the library in the dark, sir, and locked the door.",
+    "I saw her leave the library just after the thud, sir.",
+    "Her ladyship's the one what locked that door, sir.",
+    "It was her ladyship who locked the library, sir. I seen it.",
+    "She had the key in her hand, sir, and then it was gone into her gown.",
+    "It was Lady Victoria that locked the door, sir.",
+    "It was her ladyship who locked it, sir.",
+    "It was her ladyship locked it, sir, as I live and breathe.",
+    "'Twas her ladyship locked that door, sir.",
+  ]) run("R2T", "gregSaw", "gregory", d, "pass", "What did you see?");
+  for (const d of ["She come out o' there after she done 'im in, sir.", "She killed 'im, sir, then locked the door.", "I seen 'er come out with the candlestick, sir.", "Her ladyship locked the door on 'is dead body, sir, she did it."])
+    run("R2", "gregSaw", "gregory", d, "block", "What did you see?");
+  // D2 (R5): Reginald asserting the embezzlement after the zero-clue theft (want block)
+  for (const d of [
+    "Mr Crane was arranging to move a great deal of money before midnight, sir.",
+    "He was telling someone to sell up everything before midnight, sir.",
+    "It sounded as if Mr Crane was emptying the company coffers, sir.",
+    "Mr Crane was hiding money from his lordship, sir, I'm sure of it.",
+    "His lordship had found Mr Crane out, sir, and Mr Crane meant to bolt with the funds.",
+    "Mr Crane was squirrelling away the company's money on that telephone.",
+    "Mr Crane was settling his accounts before the Yard could, sir.",
+    "Whatever Mr Crane was up to on that telephone, sir, it was money, and it wasn't his.",
+  ]) run("R5", "zeroTheft", "reginald", d, "block", "What did you hear?");
+  for (const d of [
+    "I heard Mr Crane on the servants' telephone, sir, talking about moving it all before midnight.",
+    "I was counting the household money in my pantry during the blackout, sir. I am ashamed.",
+    "I called through the pantry door who was on the telephone, and Mr Crane told me to mind my own business.",
+    "At dinner his lordship accused Mr Crane of embezzling, sir, and Mr Crane threatened him.",
+  ]) run("R5T", "zeroTheft", "reginald", d, "pass", "What did you hear?");
+  // D3 (R15): elimination after the zero-clue theft (two named-by-elimination lines block; the rest are accepted deductions)
+  for (const st of ["zeroTheft", "zeroTheftVic"]) for (const d of [
+    "If Mr Crane was on the telephone, sir, then her ladyship was alone in the dining room.",
+    "That leaves only her ladyship, sir, doesn't it?",
+    "With Mr Crane at the telephone and me in my pantry, sir, there was only her ladyship free to go to the library.",
+    "Her ladyship had the dining room to herself, sir, and the library is but a step across the hall.",
+    "Mr Crane could not have done it, sir. He was on the telephone the whole while.",
+  ]) run("R15", st, "reginald", d, "block", "Who could it have been?");
+  // E1 (CA-43 tail, R10 data side): hedges and aliases (want block)
+  for (const ch of ["reginald", "archibald", "gregory"]) for (const d of [
+    "No doubt about it, she killed him.", "Surely she killed him, sir.", "She killed him, and I would swear to it in any court.", "If you ask me, she killed him.",
+    "She killed him, I'd say.", "She struck him down, I believe, with that candlestick.", "She killed him, as sure as I could ever be of anything.",
+    "Whether you like it or not, Victoria killed him.", "Victoria killed him. I could swear to it.", "She killed him, they say, and they're right.",
+    "Mark my words: she killed him, and she'd do it again if she could.", "Should anyone ask, Victoria killed him.", "The mistress killed him.",
+    "The missus killed him, sir.", "Milady killed him.", "M'lady killed him, sir.", "Mrs Blackwood killed him.", "The widow killed him, old boy.",
+    "His wife killed him.", "Lady B. killed him.", "She did for him with the candlestick.", "She finished him, sir.", "She caved his head in.", "She struck his lordship dead.",
+  ]) run("E8", "fresh", ch, d, "block", "Go on.");
+  // E2: negations and true innocent lines (want pass)
+  for (const [ch, d] of [
+    ["archibald", "No one saw her kill him, old boy."],
+    ["reginald", "Not a soul saw her ladyship strike him, sir."],
+    ["reginald", "Nobody can say Victoria killed him, sir."],
+    ["archibald", "Victoria never killed anyone in her life."],
+    ["archibald", "She couldn't have killed him; she was with me."],
+    ["gregory", "She didn't kill him, sir, not as I know."],
+    ["archibald", "Her ladyship killed him? Never!"],
+    ["reginald", "Her ladyship came out of the library at three minutes to nine, sir, flushed."],
+    ["archibald", "Victoria went into the library before nine to see Edmund."],
+    ["reginald", "Her ladyship came into the library with us when the door was forced, sir, in the dark."],
+    ["archibald", "Victoria went into the library with the rest of us after I forced the door, and Edmund was dead."],
+    ["reginald", "Her ladyship was in the library by candlelight when we found his lordship dead, sir."],
+    ["gregory", "Her ladyship were in the library with the others when I come in, sir, and the master was dead."],
+    ["reginald", "Her ladyship screamed and swooned in the library when we found him, sir."],
+    ["archibald", "Victoria locked eyes with me across the table, old boy."],
+    ["reginald", "Her ladyship always locks her jewel case, sir."],
+    ["archibald", "She left the library door open after their row, before nine."],
+    ["reginald", "Her ladyship went to the library at a quarter to nine, sir, after dinner."],
+  ] as const) run("E8T", "fresh", ch, d, "pass", "Go on.");
+  // P10 (R14): CA-48/49/50 tails (fresh; want block)
+  for (const [ch, d] of [
+    ["reginald", "Her ladyship? I never once clapped eyes on her the whole evening, sir."],
+    ["reginald", "Not hide nor hair of her ladyship did I see tonight, sir."],
+    ["reginald", "I had no sight of her ladyship from dinner to the discovery, sir."],
+    ["reginald", "Her ladyship's handkerchief had a dark stain on it, sir."],
+    ["archibald", "Her lace was soiled with something that wasn't wine, old boy."],
+    ["gregory", "There were muck on her ladyship's 'anky, sir, dark muck."],
+    ["archibald", "We could take a cue in the billiard room while we wait."],
+    ["reginald", "I could serve tea in the morning room, sir."],
+    ["victoria", "I shall be in the smoking room if anyone needs me."],
+    ["reginald", "The footman had the evening off, sir."],
+    ["gregory", "The scullery maid seen nothing, sir, she were abed."],
+    ["reginald", "There is a second key in the butler's pantry, sir."],
+    ["archibald", "The constable says they'll row across before midnight."],
+    ["reginald", "The telephone line went dead at ten past nine, sir."],
+  ] as const) run("P10", "fresh", ch, d, "block", "Go on.");
 }, 120_000);
 
-/** probe7 lines that SHOULD block (they are not canon), with the reason. */
+/** probe7/probe8 lines that SHOULD block (they are not canon, or the speaker does not hold that time), with the reason. */
 const P7_EXPECT_BLOCK: Record<string, string> = {
   "His lordship let the cook go last spring, sir. I see to the kitchen now.": "invents a cook and her dismissal; f-household-tonight names no other staff, past or present",
   "I did not see her ladyship at all this evening after twenty past nine, sir, until the door was forced.": "engine time check (unknown_time): 21:20 is no time Reginald knows; he was below stairs 21:13-21:30",
   "Folk say she done for him, sir, but I couldn't say.": "an accusation dressed as rumour: no one in canon says it",
   "Her ladyship took the candlestick from me at dinner to admire it, sir.": "invented, and puts the weapon in her hand (#46 rule 6)",
-  "Her ladyship went in to his lordship at a quarter to nine, sir.": "engine time check (unknown_time): wrong time for the 20:5x chat",
+  "Her ladyship went in to his lordship at a quarter to nine, sir.": "engine time check (unknown_time): she did leave at 20:45 (ev-victoria-leaves-for-library), but Reginald does not hold that event (he knows 20:54 and 20:57), so the time is not his to state",
+  "Her ladyship went to the library at a quarter to nine, sir, after dinner.": "same as above (r7c): true of Victoria at 20:45, but not a time Reginald holds (unknown_time)",
+  "Archibald came back to the fire at twenty-two minutes past nine without any brandy.": "r7c: Victoria conceding Archibald's absence before left-dining is out breaks her own 'together' story, and 21:22 is not a time she states (unknown_time); Gremlin marked a block acceptable",
 };
 /** Attack lines deliberately left open: line -> reason. Never drop a line silently; list it here. */
 const KNOWN_GAPS: Record<string, string> = {
   "The wires are down in the storm, darling.": "ambiguous: the POWER line is canonically down until 21:38 (ev-blackout), so 'the wires are down' is true of it",
   "She must have taken the letter off his desk, sir, there's no one else.": "E8: deduction hedged with 'must have' is exempt by design (an innocent may suspect); the generic culprit-act check should weigh it",
   "I rang the police at half past nine, sir.": "engine (E14): the event-time check falls back to any event the speaker knows, and 21:30 fits Reginald's own coal and scream",
-  "I left the dining room to see my husband, if you must know.": "E8: with no time anchor it also fits the canon 20:5x chat (she excused herself from dinner to see Edmund); needs a time-aware culprit check",
-  "When I left the dining room I went to the hall, darling, that's all.": "E8: same ambiguity with her canon pre-nine exit; no anchor in the murder window",
+};
+/**
+ * Lines whose verdict depends on the reveal state: "line@state" -> reason. They block before the secret is out (the
+ * corpus wants block) and pass in the listed state, where they are true.
+ */
+const STATE_CANON: Record<string, string> = {
+  "I left the dining room to see my husband, if you must know.@newwill+left": "r7c (George via the brief): blocked until s-victoria-left-dining is out ([r7c-R4-left]); after it, leaving the dining room is admitted. It also fits her 20:45 exit, and she still may not say WHEN she saw him (core, [r7c-R1-errand])",
+  "When I left the dining room I went to the hall, darling, that's all.@newwill+left": "r7c: same as above; after left-dining the hall is where any exit leads, and no window anchor is given",
+  "I came back to the fire just before Archibald did.@vLeft": "r7c: true once left-dining is out (she was back at 21:20-21, he at 21:22); before that it concedes her absence ([r7c-R1-return])",
+  "I came back to the dining room a minute or two before Archibald.@vLeft": "r7c: same as above",
+};
+/** Hedged deductions the brief accepts (Gremlin r7c R15): an innocent may reason aloud from what he knows. */
+const ACCEPTED_DEDUCTIONS: Record<string, string> = {
+  "If Mr Crane was on the telephone, sir, then her ladyship was alone in the dining room.": "R15: a conditional deduction from Archibald's card, which Reginald holds on this route; nothing new reaches the player",
+  "Her ladyship had the dining room to herself, sir, and the library is but a step across the hall.": "R15: an inference from the same card, with no act or time stated",
+  "Mr Crane could not have done it, sir. He was on the telephone the whole while.": "R15: clears Archibald from the card Reginald holds; names nobody",
 };
 /** Canon or innocuous lines the ENGINE (not data) blocks: listed for Dexter, and the test fails once fixed so the entry is removed. */
 const ENGINE_FALSE_BLOCKS: Record<string, string> = {
   "Nobody saw Victoria strike him, old boy, nobody at all.": "engine (E15): E8's over_claim (201291e) reads 'Victoria strike him' as a stated act; the 'Nobody saw' negation is not recognised",
+  "Not a soul saw her ladyship strike him, sir.": "engine (E15): same negation class ('not a soul saw'); the data rules now pass it (r7c R11)",
+  "Her ladyship came into the library with us when the door was forced, sir, in the dark.": "engine (E15, r7c R8): E8's scene predicate fires on DARK although the sentence is anchored at the discovery (forced, with us); data rule [8] now exempts it",
+  "Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.": "engine (E15, r7c R8): E8 scene on DEAD at the discovery (loc-victoria-2132)",
+  "Her ladyship was in the library by candlelight when we found his lordship dead, sir.": "engine (E15, r7c R8): E8 scene at the discovery; data rule [8] now exempts it",
+  "I left the dining room for a while after the candles were lit. I shan't say where.": "engine (E16, r7c R9): event_order binds 'left the dining room' to ev-victoria-leaves-for-library (20:45) and rejects 'after the candles'; true once left-dining is out",
+  "It was her ladyship who locked the library, sir. I seen it.": "engine (E17, r7c R7): E8's cleft rule files 'it was MURDERER who locked' under killing, so the key cover from s-gregory-saw-victoria does not apply",
+  "It was Lady Victoria that locked the door, sir.": "engine (E17, r7c R7): same cleft rule",
+  "It was her ladyship who locked it, sir.": "engine (E17, r7c R7): same cleft rule",
 };
 /** Lines Gremlin listed as attacks that are canon: they move to the allow side. */
 const ACTUALLY_CANON: Record<string, string> = {
@@ -382,13 +612,14 @@ const ACTUALLY_CANON: Record<string, string> = {
 };
 
 const key = (r: R7bResult) => `${r.tag} ${r.ch}@${r.st} :: ${r.d}`;
-const wanted = (r: R7bResult): "block" | "pass" => (r.d in ACTUALLY_CANON ? "pass" : r.d in P7_EXPECT_BLOCK ? "block" : r.want);
+const wanted = (r: R7bResult): "block" | "pass" =>
+  `${r.d}@${r.st}` in STATE_CANON || r.d in ACTUALLY_CANON || r.d in ACCEPTED_DEDUCTIONS ? "pass" : r.d in P7_EXPECT_BLOCK ? "block" : r.want;
 const show = (rs: R7bResult[]) => rs.map((r) => `[${r.why || "PASS"}] ${key(r)}`);
 
-describe("r7b corpus through the real guard (Gremlin's probe5-7)", () => {
+describe("r7b + r7c corpus through the real guard (Gremlin's probe5-10)", () => {
   it("ALLOW: every true-canon, small-talk and innocuous line passes in its reveal state", () => {
     const allow = results.filter((r) => wanted(r) === "pass");
-    expect(allow.length).toBe(173);
+    expect(allow.length).toBe(255);
     expect(show(allow.filter((r) => r.got === "block" && !(r.d in ENGINE_FALSE_BLOCKS)))).toEqual([]);
   });
 
@@ -398,13 +629,14 @@ describe("r7b corpus through the real guard (Gremlin's probe5-7)", () => {
 
   it("BLOCK: every attack line is blocked, except the listed known gaps", () => {
     const block = results.filter((r) => wanted(r) === "block");
-    expect(block.length).toBe(313);
+    expect(block.length).toBe(573);
     expect(show(block.filter((r) => r.got === "pass" && !(r.d in KNOWN_GAPS)))).toEqual([]);
   });
 
   it("every known gap is still a real gap (remove it once fixed) and every listed line exists in the corpus", () => {
     const lines = new Set(results.map((r) => r.d));
-    for (const d of [...Object.keys(KNOWN_GAPS), ...Object.keys(P7_EXPECT_BLOCK), ...Object.keys(ACTUALLY_CANON), ...Object.keys(ENGINE_FALSE_BLOCKS)]) expect(lines.has(d), d).toBe(true);
+    for (const d of [...Object.keys(KNOWN_GAPS), ...Object.keys(P7_EXPECT_BLOCK), ...Object.keys(ACTUALLY_CANON), ...Object.keys(ENGINE_FALSE_BLOCKS), ...Object.keys(ACCEPTED_DEDUCTIONS)]) expect(lines.has(d), d).toBe(true);
+    for (const k of Object.keys(STATE_CANON)) expect(results.some((r) => `${r.d}@${r.st}` === k), k).toBe(true);
     for (const d of Object.keys(KNOWN_GAPS)) expect(results.some((r) => r.d === d && r.got === "pass"), d).toBe(true);
   });
 

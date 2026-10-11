@@ -14,7 +14,7 @@ This audit builds on `SOLUTION_PROOF.md` and `LEAK_AUDIT.md` (leak paths, card m
 
 `tests/cases/blackwood-audit.test.ts` adds an exhaustive search of every reachable game state: searches, exchanges with exchange counts capped at 2, cracks, and stress reveals counted adversarially as available at any time. On each state it checks the gate invariants.
 
-**Base.** origin/main 9aa8884, plus a read of PR #53 (`agatha/blackwood-voice`) for the voice pools. **Status as of 2026-10-11 evening (Tbilisi):** #53 and #55 are merged, and so are Dexter's E1 to E5 and C1 to C4. PR B is draft PR #57 (`agatha/blackwood-audit-data`, origin/main merged in). It also carries the fixes from Gremlin's r7 offline review (`/workspace/qa/r7/review.md`), CA-27 onward, and from his r7b pass (`/workspace/qa/r7b/review.md`, run at c73c6d9), CA-41 onward. Latest origin/main merged in for r7b: 3a74dbb (Dexter's E9 and E10 are on main).
+**Base.** origin/main 9aa8884, plus a read of PR #53 (`agatha/blackwood-voice`) for the voice pools. **Status as of 2026-10-11 evening (Tbilisi):** #53 and #55 are merged, and so are Dexter's E1 to E5 and C1 to C4. PR B is draft PR #57 (`agatha/blackwood-audit-data`, origin/main merged in). It also carries the fixes from Gremlin's r7 offline review (`/workspace/qa/r7/review.md`), CA-27 onward, and from his r7b pass (`/workspace/qa/r7b/review.md`, run at c73c6d9), CA-41 onward. Latest origin/main merged in for r7b: 3a74dbb (Dexter's E9 and E10 are on main). Gremlin's r7c pass (`/workspace/qa/r7c/review.md`, run at fc26c7b) is CA-53 onward; origin/main e4281ec (E12, E13) is merged in for it.
 
 **Status key:**
 - **fixed (PR #55)**: data fix in PR #55, with a regression test.
@@ -54,7 +54,18 @@ CA-36 leaves one part accepted, and Marvin approved it: no innocent gets a stres
 | Low | 5 | 3 (CA-48, CA-49, CA-51) | 2 (CA-46, CA-50) | |
 | **Total** | **12** | **7** | **4** | **1** |
 
-Regression corpus (`tests/cases/blackwood-r7b-corpus.test.ts`, Gremlin's probe5-7 through the real guard): **173 allow** lines all pass; **313 block** results, 304 blocked and 9 left open on purpose (5 distinct lines, each listed with its reason in `KNOWN_GAPS`).
+Regression corpus (`tests/cases/blackwood-r7b-corpus.test.ts`, Gremlin's probe5-7 through the real guard): **173 allow** lines all pass; **313 block** results, 304 blocked and 9 left open on purpose (5 distinct lines, each listed with its reason in `KNOWN_GAPS`). Since r7c the same file also carries probe8-10; see §9 for the current counts.
+
+**Gremlin's r7c pass (CA-53 to CA-62, §9):**
+
+| Severity | Count | Fixed (#57) | Fixed, engine part to Dexter | Dexter only |
+|---|---|---|---|---|
+| High | 3 | 2 (CA-53, CA-54) | 1 (CA-55, E13 adopted) | |
+| Medium | 5 | 3 (CA-56, CA-57, CA-58) | 1 (CA-59, E15) | 1 (CA-62, E16-E18) |
+| Low | 2 | 2 (CA-60, CA-61) | | |
+| **Total** | **10** | **7** | **2** | **1** |
+
+Corpus after r7c: **255 allow** results pass except 10 listed engine false blocks (`ENGINE_FALSE_BLOCKS`, E15-E17); **573 block** results, all blocked except 3 known gaps (3 lines, `KNOWN_GAPS`).
 
 ## 1. Logic and fairness
 
@@ -304,7 +315,7 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 
 ## 5. Engine and UI asks for Dexter (forward as written)
 
-**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b.
+**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b. **E12 (9fe5aa5) and E13 (e4281ec) are now on main** and merged into #57: Blackwood uses E13 (`unlessShown` on Gregory's card for Reginald and Archibald's relays, CA-55; `unlessRevealed: s-archibald-embezzlement` on Reginald's money rules, CA-57). E12 (`onlyAfterRevealed`) keys on secrets, not on a lie broken by evidence, so CA-52 stays with Dexter for the evidence half; adopting it for the secret half is a follow-up. E16 to E18 are new from r7c.
 
 1. **E1, validator: warn when ACCUSE can open while the win is impossible (CA-01).**
    - `progressionWarnings` should search reachable states, as `fastestPath` already does.
@@ -333,7 +344,11 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 12. **E12, guard: an exposed lie repeated word for word (CA-52; Gremlin r7b N6; DX7, also needed for Tallyho).** `retracts_admission` (`ai/retraction-check.ts`) only catches a *superseded* story coming back after its secret is revealed. A lie that is exposed but not yet superseded (in `exposedLieIds`, or in `brokenLieIds` and not superseded) can be told again verbatim: with Archibald's card shown to Reginald and the theft locked (the state before Marvin's CA-28 ruling), "I was in the kitchen polishing silver, sir, and heard nothing at all." and "I heard nothing but the storm, sir." both passed while the prompt said EXPOSED. `forbiddenPhrases` cannot key on a broken lie. Proposal: run the same restatement detector, keyed on the lie's `claim`, for every exposed or broken lie, not only superseded ones. Related, in the same detector: its "distinctive words" are the claim's words minus the secret's text, so a TRUE line that shares two of them is blocked ("Victoria was by the fire with me when we heard the scream" after the false alibi is out; "The row at dinner was about the money, not a racehorse"). r7b fixed both in data by adding canon words to the secrets (CA-47), which is fragile. Better: skip a restatement whose content matches a fact or event in the speaker's own knowledge.
 13. **E13, `forbiddenPhrases` can only key on the speaker's own secrets (CA-42, CA-45).** `unlessRevealed` must name one of the speaker's secrets (`engine/case-validation.ts`). Two r7b asks need more: (a) Reginald and Archibald may repeat Gregory's 21:19 sighting only once *they* have been shown his card; (b) Reginald may name the broker or the money only once `s-archibald-embezzlement` (Archibald's secret) is revealed. Blackwood now blocks both always (`[r7b-N3-hearsay]`, `[r7b-hearsay]`), with reported speech ("Gregory says…") exempted. Proposal: an optional `unlessShown: <secretId|evidenceId>` (lifted when the item is in the speaker's `testimonyShownIds`/`evidenceShownIds`) and an `unlessAnyRevealed: <secretId>` that may name any character's secret.
 14. **E14, `event_time` speaker fallback (CA-46).** "I rang the police at half past nine, sir." (Reginald) passes: the clause scores below the confident threshold, so the check falls back to "fits SOME event the speaker knows", and 21:30 is his own coal and scream. Proposal: when the clause names a verb or object with its own canon event (the police call), do not fall back to unrelated events.
-15. **E15, E8 follow-ups (r7b).** (a) False positive: E8's `over_claim` (201291e) blocks Archibald's "Nobody saw Victoria strike him, old boy, nobody at all." as a stated act; a "nobody / no one saw" subject is a negation and should pass, as "I don't believe her ladyship killed him" does. It is listed in `ENGINE_FALSE_BLOCKS` in `blackwood-r7b-corpus.test.ts`, which fails once fixed. (b) The generic culprit-act check should also accept relative window anchors ("once the candles were lit", "after the lights failed", "while Archibald was away", "before the scream") and treat an un-anchored "I left the dining room to see my husband" as ambiguous with the canon 20:5x chat. r7b covers the anchored forms in data (CA-41); the two un-anchored lines are its known gaps.
+15. **E15, E8 follow-ups (r7b).** (a) False positive: E8's `over_claim` (201291e) blocks Archibald's "Nobody saw Victoria strike him, old boy, nobody at all." as a stated act; a "nobody / no one saw" subject is a negation and should pass, as "I don't believe her ladyship killed him" does. It is listed in `ENGINE_FALSE_BLOCKS` in `blackwood-r7b-corpus.test.ts`, which fails once fixed. (b) The generic culprit-act check should also accept relative window anchors ("once the candles were lit", "after the lights failed", "while Archibald was away", "before the scream") and treat an un-anchored "I left the dining room to see my husband" as ambiguous with the canon 20:5x chat. r7b covers the anchored forms in data (CA-41). r7c closes the two un-anchored lines in data while left-dining is locked (CA-61). (c) r7c: "Not a soul saw her ladyship strike him" is the same negation class as (a). (d) r7c R8: the scene predicate (`DARK|DEAD`) fires on true discovery lines: "Her ladyship came into the library with us when the door was forced, sir, in the dark.", "Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.", "Her ladyship was in the library by candlelight when we found his lordship dead, sir." It should not fire when the sentence anchors at or after the discovery (forced, found, with us / the rest of us, after the scream). The data rule was fixed (CA-59). All four lines are in `ENGINE_FALSE_BLOCKS`.
+16. **E16, `event_order` misbinds an admitted exit (CA-62; Gremlin r7c R9).** With `s-victoria-left-dining` revealed, "I left the dining room for a while after the candles were lit. I shan't say where." is rejected as `event_order` (detail "candles were lit"). The order check appears to bind "left the dining room" to `ev-victoria-leaves-for-library` (20:45), which is before the candles, so "after the candles" looks out of order. Her other nine left-dining paraphrases pass. Proposal: when several canon events match the verb, accept the order if any one of them (here `ev-victoria-alone` / the 21:13 exit implied by left-dining) satisfies it, or bind to the event the speaker's revealed secret relates.
+17. **E17, E8 cleft rule files the key act under killing (CA-62; Gremlin r7c R7).** After Gregory's reveal, "It was her ladyship who locked the library, sir. I seen it.", "It was her ladyship who locked it, sir." and "It was Lady Victoria that locked the door, sir." get `over_claim:confession`. The cleft pattern `it was MURDERER (who|that) (KILL|did it|locked|bolted)` is filed under act `killing`, so the `key` cover from `s-gregory-saw-victoria` does not apply ("'Twas her ladyship locked that door" passes). Proposal: split the cleft rule by act: `locked|bolted` is `key`, the kill verbs are `killing`.
+18. **E18, E8's hedge list is too wide (CA-62; Gremlin r7c R10).** `HEDGE_3P` exempts any sentence containing `would|could|should|if|surely|no doubt|I believe|I'd say|they say`, so "She killed him, and I would swear to it in any court.", "Surely she killed him, sir.", "No doubt about it, she killed him.", "If you ask me, she killed him." and "Mark my words: she killed him, and she'd do it again if she could." pass E8 (Blackwood's data blocks them all). Its subject list is name + aliases + pronoun only, so "the mistress / the missus / milady / his wife / the widow" also pass E8. On 72 fresh attack rows E8 caught 9, data 63. Proposal: match hedges only before the act clause or as the main verb (as `hit()` does), drop `would/could/should/surely/no doubt`, and let a case list extra subject titles. Related: E8's `hit()` treats a reporting verb (`says/said/told`) as a hedge, so relays of a locked sighting pass E8 (CA-55); do not treat it as a hedge unless the act is covered.
+19. **E19 (optional), prompt note for an exposed lie whose superseders are all locked (CA-56, CA-61; Gremlin r7c R4, R13).** An exposed lie with a superseder gets "stop insisting, bluster or backpedal" but not the "you admit NOTHING in its place" note the other exposed lies get. Blackwood no longer reaches that state for Victoria (CA-56), and Reginald's decision-12 state is the only one left. Proposal: emit the "admit NOTHING" note whenever all of a lie's superseders are still locked this turn.
 
 ## 6. Decisions for George or Marvin
 
@@ -616,7 +631,7 @@ Every new `forbiddenPhrases` entry carries an `[r7b-…]` tag in its `note`. Val
 
 **Evidence (r7b N2):** 90 of 117 fresh probes passed for all three innocents: Victoria's other names (Lady Blackwood, the missus, the widow, 'er ladyship, his own wife, the lady of the house), the cleft "'Twas her that did it" / "It were the missus what done it", verbs (dispatched, finished him off, laid him low, put an end to him, saw him off, walloped, felled, cracked his skull), the passive "killed by her ladyship" / "done in by his own wife", guilt nouns (guilty party, your culprit, murderess, responsible for his death, had a hand in his death), Archibald's "Victoria? Killed him, the minx!" and the weapon in her hand.
 
-**Fix (Reginald, Archibald, Gregory):** `[r7b-H1-act]`, `[r7b-H1-cleft]`, `[r7b-H1-didit]`, `[r7b-H1-passive]`, `[r7b-H1-noun]`, `[r7b-H1-weapon]`, with the same alias set throughout. Negated, disclaimed and questioning forms pass ("I don't believe her ladyship killed him", "Nobody saw Victoria strike him", "Did her ladyship kill him, sir?"). All 117 fresh and 24 all-secrets-out probes now block. Anything outside these shapes is E8's job. E8 landed on main (201291e) during r7b and is merged into #57. The data rules stay as a second layer, and the corpus passes with both. One E8 false positive ("Nobody saw Victoria strike him") is listed for Dexter (E15).
+**Fix (Reginald, Archibald, Gregory):** `[r7b-H1-act]`, `[r7b-H1-cleft]`, `[r7b-H1-didit]`, `[r7b-H1-passive]`, `[r7b-H1-noun]`, `[r7b-H1-weapon]`, with the same alias set throughout. Negated, disclaimed and questioning forms pass the data rules ("I don't believe her ladyship killed him", "Did her ladyship kill him, sir?"). "Nobody saw Victoria strike him" passes the data rules but is blocked by E8 (E15), so it is listed in `ENGINE_FALSE_BLOCKS`, not as passing (corrected in r7c). All 117 fresh and 24 all-secrets-out probes now block. Anything outside these shapes is E8's job. E8 landed on main (201291e) during r7b and is merged into #57. The data rules stay as a second layer, and the corpus passes with both. One E8 false positive ("Nobody saw Victoria strike him") is listed for Dexter (E15).
 
 ### CA-44 · Medium · M1 by evidence: the burned letter exposed "together" with the false alibi locked: fixed (#57)
 
@@ -689,3 +704,101 @@ Every new `forbiddenPhrases` entry carries an `[r7b-…]` tag in its `note`. Val
 ### CA-52 · Medium · An exposed lie can be repeated word for word: Dexter (E12)
 
 **Evidence (r7b N6):** `retracts_admission` covers only superseded stories, so an exposed but not yet superseded lie passes verbatim. Blackwood's known instance (Archibald's card to Reginald) is closed by Marvin's CA-28 ruling, but the hole is generic, and Tallyho needs it too (DX7). See E12.
+
+## 9. Gremlin's r7c pass (CA-53 onward)
+
+Source: `/workspace/qa/r7c/review.md`, probes `harness/probe8-10`, outputs `out/` (Gremlin, 2026-10-11 19:51-20:40, offline, at fc26c7b). Origin/main e4281ec (E12, E13) merged in first. All fixes are data, in draft PR #57. Every new entry carries an `[r7c-…]` tag in its `note`. Validator: zero warnings, fastest path **10**. Gremlin's gate state search re-run on the result: 18,498 reachable, 2,460 gate-open, **0 open-but-unwinnable** (unchanged).
+
+His probe8-10 lines are now in `tests/cases/blackwood-r7b-corpus.test.ts`, in his states:
+- **Allow:** 255 results in total. All pass except 10 listed in `ENGINE_FALSE_BLOCKS` (E15 negations and discovery scene, E16, E17), each with its reason. The test fails if one of them starts passing, so the list stays honest.
+- **Block:** 573 results in total. All block except 3 `KNOWN_GAPS` (3 lines): "The wires are down in the storm" (true of the power line), "She must have taken the letter…" (hedged deduction) and "I rang the police at half past nine" (E14).
+- **State-dependent (`STATE_CANON`):** four lines block before left-dining is out and pass after it, when they are true.
+- **Accepted (`ACCEPTED_DEDUCTIONS`):** three of Reginald's hedged eliminations after the zero-clue theft (R15).
+
+### CA-53 · High · Victoria anchored her visit on Archibald's errand (R1): fixed (#57)
+
+**Evidence (r7c R1):** 16 of 26 new anchor lines passed in every state, for example "Once Archibald had gone off for his brandy, I went to my husband.", "Edmund let me in, darling, while Archibald was hunting for brandy." (`ev-victoria-admitted`, core), "With the candles lit and Archibald gone, I paid Edmund a visit.", "In those few minutes I went to Edmund.", "Between the candles and the scream I saw Edmund once.", "When the storm was at its worst I went to see Edmund.", "While Reginald was fetching candles I slipped out to see Edmund.", "I burned it after Archibald left me.", "The candle on Edmund's desk was still burning when I left him."
+
+**Fix (Victoria):**
+- `[r7c-R1-errand]` (always on): a visit (went to, let me in, paid a visit, had a word with, saw or joined Edmund, my husband or him, to the library, in the hall or near the library) or the burning or the letter, in the same sentence as a window anchor. The anchors are Archibald's errand (gone off, hunting or fetching the brandy, after he left me, while he was away or out of the room) and the other relative markers: while the house was dark, in those few minutes, between the candles and the scream, at the storm's worst, while Reginald was fetching, when the lightning came, on my own, before Reginald found him. The rule is scoped to one sentence.
+- `[r7c-R1-candle]`: the candle on his desk when she saw or left him (it went in at 21:12).
+- `[r7c-R1-return]`, unlessRevealed left-dining: "I came back to the fire just before Archibald" (true once left-dining is out, so `STATE_CANON` there).
+- All 26 lines block. Her 27 true lines pass, except one engine false block (E16) and one expected block ("Archibald came back… at twenty-two minutes past nine" concedes his absence before left-dining is out).
+
+### CA-54 · High · Gregory hinted at his locked sighting (R2): fixed (#57)
+
+**Evidence (r7c R2):** 15 of 18 pre-reveal hints passed in fresh and in-hall, for example "I seen 'er ladyship's face, white as a sheet, by the library door.", "The key went down 'er bodice, sir.", "She 'ad the key, sir. I seen it shine.", "Whoever it were 'ad skirts on, sir.", "It were a woman, sir.", "Me lady come out o' there, sir.", "I knows who come out o' that door, sir, but I ain't sayin'."
+
+**Fix (Gregory):** `[r7c-R2-sighting]`, unlessRevealed `s-gregory-saw-victoria`. It blocks:
+- her ladyship or the mistress (any name, `me lady`, dialect) near the library door, the key, "out o' there", nineteen past, or walking off;
+- the key down her bodice or front, or tucked away; "she 'ad the key";
+- skirts or a gown on whoever came out; "it were a woman";
+- "white as a sheet" by the library; "a face I knowed"; the door opening and shutting in the flash;
+- the "I knows who / I ain't sayin'" teases, which also concede `l-gregory-saw-nothing`.
+
+All 36 results block. His 19 post-reveal paraphrases pass, except the three cleft lines E8 blocks (E17). `[r7c-weapon-seen]` (all innocents) blocks "I seen 'er come out with the candlestick" (R12).
+
+### CA-55 · High · Reginald and Archibald relayed Gregory's sighting as reported speech (R3): fixed (#57) with E13
+
+**Evidence (r7c R3):** with nobody's secret out, "Gregory says he saw her ladyship lock the door.", "The gardener told me her ladyship locked the library.", "The gardener swears it was her ladyship at the door." and "Word below stairs is that the gardener saw her ladyship with the key." passed. They also passed after Gregory's reveal when nobody had shown them his card.
+
+**Fix:**
+- `[r7c-R3-relay]` (Reginald, Archibald): a sighting attributed to Gregory or the gardener (says, told me, swears, saw who, according to, below stairs) about her and the lock, key, library or door. It uses **`unlessShown: s-gregory-saw-victoria`** (E13, e4281ec), so it lifts only once his card has been shown to *this* speaker. That is the proper fix the brief asked for. Gregory's reveal alone does not lift it, since they still have not heard it.
+- The older third-person sighting rules (`[r7-H1f]`, `[r7-H1g]`, `[r7b-N3-hearsay]`) now carry the same `unlessShown`, so a relay is sayable once they hold the card (Gremlin's B2b lines pass).
+- New `[r7c-R3-own]` keeps the first-person form blocked, card or no card: "I saw her ladyship lock the library door myself". Reginald's canon 20:57 sighting passes.
+- All 36 relay results block before the card. The 6 relay results after it (B2b) pass, and the 4 first-person results still block. E18 records E8's reporting-verb hedge.
+
+### CA-56 · Medium · Victoria's "together" lie could be exposed while left-dining stayed locked (R4): fixed (#57), option A
+
+**Evidence (r7c R4):** `l-victoria-together` broke on `burned-letter` and on Gregory's card, but `s-victoria-left-dining` opens only on the key, Archibald's or Reginald's card, or stress 70. The letter turn revealed new-will and exposed "together" with no superseder (361 transitions in Gremlin's BFS). Her prompt then invited backpedalling, and five "I stepped out / I wasn't by the fire every minute" lines passed.
+
+**Choice: option A.** "Together" now breaks only on what cracks left-dining: `brokenByEvidenceIds = [library-key]` and `breaksOnSecretIds = [s-reginald-theft, s-archibald-false-alibi]`, exactly left-dining's reveal conditions. A test pins that equality.
+- **Why not option B** (letter and Gregory's card also crack left-dining): the letter already cracks new-will, and an exchange reveals one secret. On the letter turn left-dining would stay locked while "together" broke, so the gap would remain.
+- **The gate:** option A adds no crack route, so the gate and the fastest path are untouched (validator: 10, no E1 warning; gate search unchanged).
+- **The cost:** Gregory's card no longer breaks "together". It still breaks her two door stories (`l-victoria-locked-in`, `l-victoria-never-in-hall`), which have no superseder and get the "admit NOTHING" note. So she stonewalls the door and keeps her fireside story until a left-dining crack.
+
+**Also:** `[r7c-R4-left]`, unlessRevealed left-dining, blocks her conceding an exit or being alone: I stepped or slipped out, I left the dining room, not by the fire every minute, Archibald wasn't with me the whole time, he left me alone, alone in the dining room. Exits tied to dinner, the chat, before nine, or after the scream with the others pass.
+
+**Tests:**
+- The one-card and one-clue generic tests now include the murderer, for every lie with a superseder.
+- A new BFS test (any order of up to 3 clues or cards, every lie told, every suspect) finds only Reginald's decision-12 state.
+- Reverting option A makes 4 tests fail.
+- Leak scenarios vic-05, vic-11 and conf-14 no longer expect "together" exposed. All three were already stale-listed.
+- `tests/ai/present-evidence.test.ts`: Gregory's card now breaks 2 of her lies, not 3.
+
+### CA-57 · Medium · Reginald's hearsay still asserted the embezzlement (R5): fixed (#57) with E13
+
+**Evidence (r7c R5):** on the zero-clue route (embezzlement locked) 7 of 8 paraphrases passed: "emptying the company coffers", "hiding money from his lordship", "meant to bolt with the funds", "squirrelling away the company's money", "settling his accounts before the Yard could", "it was money, and it wasn't his", "sell up everything before midnight".
+
+**Fix (Reginald):** `[r7c-R5-money]`, unlessRevealed `s-archibald-embezzlement`, is a sentence-scoped rule on Mr Crane or he with those phrases. `[r7b-hearsay]` now also lifts once the embezzlement is revealed anywhere (E13), which CA-45 could not do. All 8 block. His 4 true lines pass: the words he overheard, the pantry, the "mind your own business" exchange and the dinner accusation.
+
+### CA-58 · Medium · "After the scream I ran to the library door with Archibald" was blocked (R6): fixed (#57)
+
+The `[r7b-N1-anchor]` anchor `(before|after) the scream` caught her canon line (loc-victoria-2131). "After the scream" is no longer an anchor; "before the scream" and "after the thud" still are. The line passes. "Before the scream I was with my husband" still blocks.
+
+### CA-59 · Medium · True discovery-scene lines false-blocked (R8): data fixed (#57), E8 part to Dexter (E15d)
+
+Reginald's old over-claim rule [8] (her in the library in the dark or by candlelight) now exempts a sentence about the discovery: forced, found, with us, the rest of us, with the others, after the scream, his lordship dead. The two Reginald lines no longer hit data. E8's scene predicate still blocks them, and Archibald's line, so all three are in `ENGINE_FALSE_BLOCKS` (E15d). Gregory's "were in the library with the others when I come in" passes.
+
+### CA-60 · Low · CA-43 tails and small paraphrases (CA-43 tail, R11, R12, R14, R15): fixed (#57)
+
+- "Mrs Blackwood killed him", "Lady B. killed him" and "She finished him, sir" now block. Both names were added to every innocent rule that carries the alias set, and a bare "finished him" counts.
+- Negations (R11): "Nobody can say Victoria killed him" passes every data rule, and "not a soul saw" joins the saw-negations. "Not a soul saw her ladyship strike him" is still blocked by E8 (E15c).
+- R14: "Not hide nor hair of her ladyship…", "no sight of her ladyship from dinner to the discovery", "her lace was soiled with something that wasn't wine", "muck on her ladyship's 'anky" and "the constable says they'll row across before midnight" all block.
+- R15: "That leaves only her ladyship" and "only her ladyship free to go to the library" block (`[r7c-elim]`, naming her by elimination). His three softer deductions are accepted and listed.
+- Victoria's `aliases` were not extended. The E8 subject list is E18's job.
+
+### CA-61 · Low · Known-gap list and doc corrections (item 9, R13): fixed (#57)
+
+- The two "I left the dining room…" lines now block before left-dining is out (`[r7c-R4-left]`) and pass after it (`STATE_CANON`). Gremlin noted that after left-dining "…to see my husband" answers what the secret withholds. The brief chose to allow it, and it still cannot carry a window anchor (`[r7c-R1-errand]`).
+- P7's "quarter to nine" reason was wrong. She did leave at 20:45 (`ev-victoria-leaves-for-library`); the line blocks only because Reginald does not hold that event. Reworded.
+- CA-43 wrongly said "Nobody saw Victoria strike him" passes. It is blocked by E8 (E15). Corrected.
+- R13: decision 12's wording. Reginald's `l-reginald-few-words` can stay exposed for more than one exchange: after the letter cracks his theft, showing other items keeps it exposed until a plain or letter turn reveals overheard. The test exception and this doc now say so. E19 covers the prompt side.
+
+### CA-62 · Medium · Engine items from r7c: Dexter (E16-E18)
+
+- R9 (`event_order` on a revealed left-dining paraphrase): **E16**.
+- R7 (E8 cleft rule under killing): **E17**.
+- R10 (E8's hedge list and subject list): **E18**.
+
+Plus E15 (c, d) for the E8 negation and scene false blocks, and the optional E19. Each false block is pinned in `ENGINE_FALSE_BLOCKS`. R16 (the token-age flake on main) goes to Dexter as a test-infra note.
