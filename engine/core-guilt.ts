@@ -105,6 +105,8 @@ export interface GuiltProfile {
    */
   murdererNames?: string[];
   murdererPronoun?: "she" | "he";
+  /** R3: the murderer's object pronoun ("saw her lock it"), only when it can't mean the victim. */
+  murdererObject?: "her" | "him";
   /**
    * E8: per secret (any character's, never the murderer's own) whose facts touch the murderer's core guilt: which acts
    * its facts describe. Holding that secret (own revealed, or its card shown/presented) covers saying those acts.
@@ -230,6 +232,27 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
       const v = n.toLowerCase().trim();
       if (v.length >= 3 && !victimSet.has(v) && ![...victimSet].some((x) => x.includes(v) && x !== v && v.split(/\s+/).length === 1)) murdererNames.add(v);
     }
+    // R10 / E18: the forms people use without the authored aliases, all derived from data: title + surname or initial
+    // ("Mrs Doe", "Lady D."), the address form of a title ("milady"), the household's words for the house's lady or
+    // master (from a title or a spouse role), and, when the case marks the victim as their spouse, "his wife"/"the widow".
+    const pron = pronounOf(murderer as Character & { pronoun?: "she" | "he" | "they" });
+    const all = [murderer.name, ...(murderer.aliases ?? [])].join(" | ").toLowerCase();
+    const parts = murderer.name.trim().split(/\s+/);
+    const surname = parts.length > 1 ? parts[parts.length - 1].toLowerCase() : "";
+    const titles = new Set<string>([...(all.match(/\b(?:lady|lord|mrs|mr|miss|sir|dame)\b/g) ?? []), ...(pron === "she" ? ["mrs"] : pron === "he" ? ["mr"] : [])]);
+    const extra: string[] = [];
+    if (surname) for (const t of titles) extra.push(`${t} ${surname}`, `${t} ${surname[0]}.`);
+    if (/\b(?:lady|ladyship)\b/.test(all)) extra.push("milady", "m'lady", "m’lady", "my lady");
+    if (/\b(?:lord|lordship)\b/.test(all)) extra.push("milord", "m'lord", "m’lord", "my lord");
+    const spouse = murderer.relationships?.some((r) => r.targetCharacterId === c.victim.id && /\b(?:husband|wife|spouse)\b/i.test(r.kind ?? ""));
+    const victimAll = [c.victim.name, ...(c.victim.aliases ?? [])].join(" | ").toLowerCase();
+    const victimHe = /\b(?:lord|lordship|mr|sir|master)\b/.test(victimAll);
+    if (pron === "she" && (spouse || /\b(?:lady|ladyship)\b/.test(all))) extra.push("the mistress", "the missus", "the lady of the house");
+    if (pron === "he" && !victimHe && (spouse || /\b(?:lord|lordship)\b/.test(all))) extra.push("the master", "the master of the house");
+    if (spouse && pron === "she") extra.push("his wife", "the widow");
+    if (spouse && pron === "he") extra.push("her husband", "the widower");
+    const taken = new Set(c.characters.filter((x) => x.id !== murderer.id).flatMap((x) => [x.name, ...(x.aliases ?? [])].map((n) => n.toLowerCase())));
+    for (const v of extra) if (!victimSet.has(v) && !taken.has(v)) murdererNames.add(v);
     const facts = coreGuiltFactIds(c, murderer);
     const factText = new Map(allFacts(c).map((f) => [f.id, f.statement]));
     const objects = [...coreObjects];
@@ -260,9 +283,12 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     if (words.length) anchorEvents.push({ words, range: [clock(from), clock(to)] });
   }
   const murdererPronoun = murderer ? pronounOf(murderer as Character & { pronoun?: "she" | "he" | "they" }) : undefined;
+  const victimPronoun = pronounOf(c.victim as Pick<Character, "name" | "aliases">);
+  const murdererObject = murdererPronoun === "she" && victimPronoun !== "she" ? "her" : murdererPronoun === "he" && victimPronoun !== "he" ? "him" : undefined;
   return {
     murdererNames: [...murdererNames],
     ...(murdererPronoun ? { murdererPronoun } : {}),
+    ...(murdererObject ? { murdererObject } : {}),
     coverActs,
     anchorEvents,
     witnessNames: [...witnessNames],

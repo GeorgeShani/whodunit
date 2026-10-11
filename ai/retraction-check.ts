@@ -74,6 +74,18 @@ function deniesTerm(sentence: string, term: string): string | null {
   return null;
 }
 
+const NEGATION = /\b(?:not|never|no|nothing|nothin['’]?|none|nobody|didn['’]?t|don['’]?t|doesn['’]?t|wasn['’]?t|weren['’]?t|isn['’]?t|ain['’]?t|haven['’]?t|hadn['’]?t|couldn['’]?t|wouldn['’]?t|won['’]?t|can['’]?t|cannot)\b/i;
+const NEG_WORDS = new Set("not never nothing nothin none nobody didnt dont doesnt wasnt werent isnt aint havent hadnt couldnt wouldnt wont cant cannot".split(" "));
+/** The dialogue with everything after a negation, up to the end of its clause, removed. */
+const stripNegated = (t: string) =>
+  t
+    .split(/(?<=[,;:.!?…—–])/)
+    .map((cl) => {
+      const m = NEGATION.exec(cl);
+      return m ? cl.slice(0, m.index) : cl;
+    })
+    .join(" ");
+
 /** The first retraction of a revealed secret in `dialogue`, or null. */
 export function findRetraction(
   dialogue: string,
@@ -99,11 +111,17 @@ export function findRetraction(
         if (hit) return { secretId: id, kind: "denies_key_claim", text: hit };
       }
     }
-    // (b) A superseded story restated.
+    // (b) A superseded story restated. Negation words are not story content ("I didn't see nothin' of the blow" does not
+    // restate "I didn't see nothin' in the dark"), and the old story's words inside a negated clause deny it rather
+    // than restate it ("It was not the Sunday menu"), unless the old story itself denied that word.
     const ownWords = new Set(words(own));
+    const affirmed = new Set(words(stripNegated(dialogue)));
     for (const lie of ch.intendedLies.filter((l) => l.supersededBySecretIds.includes(id))) {
-      const distinct = [...contentWords(lie.claim, exclude)].filter((w) => ![...ownWords].some((o) => sameWord(o, w)));
-      const hits = distinct.filter((w) => [...said].some((x) => sameWord(x, w)));
+      const lieAffirmed = words(stripNegated(lie.claim));
+      const distinct = [...contentWords(lie.claim, exclude)].filter((w) => !NEG_WORDS.has(w) && ![...ownWords].some((o) => sameWord(o, w)));
+      // A word the old story affirms must be affirmed again; one it denied may come back under a negation.
+      const pool = (w: string) => (lieAffirmed.some((x) => sameWord(x, w)) ? affirmed : said);
+      const hits = distinct.filter((w) => [...pool(w)].some((x) => sameWord(x, w)));
       if (hits.length >= 3 || (hits.length >= 2 && hits.length / distinct.length >= 0.4)) return { secretId: id, kind: "restates_superseded_story", text: hits.join(", ") };
     }
   }

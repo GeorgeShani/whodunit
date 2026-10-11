@@ -22,6 +22,15 @@ afterEach(() => {
 
 const NOW = Date.UTC(2026, 9, 8, 12, 0, 0);
 const DAY = 24 * 3600 * 1000;
+/**
+ * Break the signature deterministically: change its FIRST character to a different one. (The old `slice(0, -2) + "xx"`
+ * was flaky: the token carries a random game id and IV, and the last base64url character of a 32-byte HMAC holds only 2 bits, so
+ * about 1 run in 256 the "tampered" signature still decoded to the same bytes and the token read as merely expired.)
+ */
+const tamper = (token: string) => {
+  const i = token.lastIndexOf(".") + 1;
+  return token.slice(0, i) + (token[i] === "A" ? "B" : "A") + token.slice(i + 1);
+};
 const at = (ms: number) => vi.useFakeTimers({ now: ms, toFake: ["Date"] });
 
 /** Re-sign a token's payload after editing it (as a token issued by older code would look). */
@@ -93,7 +102,7 @@ describe("#39 state token max age", () => {
     expect(s.game.discoveredEvidenceIds).toEqual([]);
     expect(COLD_CASE_NOTICE).toMatch(/gone cold/);
     expect(COLD_CASE_NOTICE).not.toMatch(/\b(token|expired|error|session|server)\b/i);
-    expect(restoreSession(c, token.slice(0, -2) + "xx", TEST_ENV).notice).toBe(RESET_NOTICE);
+    expect(restoreSession(c, tamper(token), TEST_ENV).notice).toBe(RESET_NOTICE);
   });
   it("the routes: investigate restarts with the notice; accuse refuses a cold pre-accusation token (the #39 replay)", async () => {
     at(NOW);

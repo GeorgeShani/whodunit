@@ -38,6 +38,8 @@ const BLOCK = String.raw`you|he|she|they|we|it|someone|somebody|anyone|who|that|
 const gap = (words: number) => String.raw`(?:[\s,]+(?!(?:${NEG}|${BLOCK})\b)[\w'’-]+){0,${words}}?[\s,]+`;
 
 const KILL = String.raw`(?:kill(?:ed)?|murder(?:ed)?|struck|strike|hit|bludgeon(?:ed)?|club(?:bed)?|bash(?:ed)?|cosh(?:ed)?|brain(?:ed)?|smash(?:ed)?|clobber(?:ed)?|whack(?:ed)?|walloped|crowned|did\s+away\s+with|did\s+for|done\s+for|did\s+(?:him|her)\s+in|finished\s+(?:him|her)\s+off|silenced)(?!\s+(?:a\s+|the\s+)?(?:match|light|bargain|deal|note|chord|pose|nerve|snag|wall|roof|ceiling))`;
+/** R10: killing phrases that carry their own object ("did him in", "finished him", "caved his head in"). */
+const KILL_SELF = String.raw`d(?:id|one)\s+(?:him|her|['’]im|['’]er)\s+in\b|finished\s+(?:him|her|['’]im|['’]er)(?:\s+off)?(?=\s*(?:[,.;!—–]|$|\s+with\b|\s+off\b))|cav(?:ed|e)\s+(?:his|her|['’]is)\s+(?:head|skull)\s+in\b|did\s+for\s+(?:him|her|['’]im)\b|did\s+away\s+with\s+(?:him|her)\b|beat\s+(?:him|her)\s+to\s+death\b|bashed\s+(?:his|her)\s+(?:head|brains)\s+in\b`;
 const WEAPON_ACT = String.raw`swung|swing|raised|lifted|brought(?:\s+down)?|picked\s+up|seized|grabbed|snatched|used(?!\s+to\b)|wiped|cleaned|wielded|carried|took|struck|hit|bashed|brained`;
 const KEY_ACT = String.raw`took|taken|pocketed|hid|hidden|dropped|slipped|kept|had|turned|threw|tossed|buried`;
 const MOVE = String.raw`was|went|go|gone|nipped|dashed|looked\s+in(?:to)?|slipped|stepped|crept|returned|popped|came|got|ran|hurried|stole|sneaked|snuck|knocked|entered|been|stayed|waited|stood|sat|talked|spoke|pleaded|argued`;
@@ -84,7 +86,8 @@ export interface GuiltLeak {
 function sentences(text: string): string[] {
   return text
     .replace(/\s+/g, " ")
-    .split(/(?<=[.!?…])\s+|\s+[—–]\s+|\s+--\s+/)
+    // An initial or a title's period ("Lady D.", "Mrs.") does not end the sentence.
+    .split(/(?<=[.!?…])(?<!\b(?:[A-Z]|Mr|Mrs|Ms|Dr|St)\.)\s+|\s+[—–]\s+|\s+--\s+/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
@@ -213,8 +216,9 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     if (weapon && hit(s, weapon)) return { kind: "weapon", text: s };
     if (hit(s, lockDoor) || hit(s, key) || hit(s, lockBare)) return { kind: "key", text: s };
     if (objects && hit(s, objects)) return { kind: "object", text: s };
-    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || DARK.test(s) || DEAD.test(s) || anchored(s))) return { kind: "scene", text: s };
-    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || DARK.test(s) || DEAD.test(s) || anchored(s))) return { kind: "scene", text: s };
+    const darkOrDead = (DARK.test(s) || DEAD.test(s)) && !atDiscovery(s, profile);
+    if (scene && hit(s, scene) && (inWindow(s) || whileAway.test(s) || darkOrDead || anchored(s))) return { kind: "scene", text: s };
+    if (presence && hit(s, presence) && (inWindowStrict(s).length > 0 || whileAway.test(s) || darkOrDead || anchored(s))) return { kind: "scene", text: s };
     const minutes = inWindowStrict(s);
     if (minutes.length && hit(s, actor) && !alibi(s, minutes)) return { kind: "window", text: s };
   }
@@ -231,6 +235,30 @@ const ANCHOR = /\b(after|once|when|while|as\s+soon\s+as|by\s+the\s+time|before|u
  * events count, and ALL of them must agree, so an anchor that could name an event outside the window (or none) is
  * ambiguous and is not a leak: "before the scream" (after the window) and an exit with no anchor at all both pass.
  */
+/**
+ * R8 / E15d: the sentence is about the discovery of the body, after the window: "when we found him", "after I forced
+ * the door", "the body was found", "with the rest of us", or an after/when/once anchor whose best-matching timed events
+ * all start after the window. "In the dark" or "he was dead" in such a line describes the discovery scene, not the
+ * killing. A discovery phrase under "before / until" ("before anyone found him") does not count.
+ */
+const DISCOVERY =
+  /\b(?:(?:we|they|I|you|everyone|everybody|he|she|the\s+others)\s+(?:found|discovered|forced|broke\s+(?:down|open|in))|(?:was|were|been)\s+(?:found|discovered|forced|broken\s+(?:down|open))|found\s+(?:him|her|the\s+body|his\s+lordship|her\s+ladyship)|forced\s+(?:the|that|his|her)\s+door|with\s+(?:us|the\s+rest\s+of\s+us|the\s+others|everyone|everybody|all\s+of\s+us))\b/i;
+export function atDiscovery(sentence: string, profile: Pick<GuiltProfile, "anchorEvents" | "window">): boolean {
+  for (const m of sentence.matchAll(new RegExp(DISCOVERY.source, "gi"))) {
+    if (!/\b(?:before|until|till|ere)\b[^,.;:!?]*$/i.test(sentence.slice(0, m.index ?? 0))) return true;
+  }
+  const events = profile.anchorEvents ?? [];
+  const hi = profile.window[1];
+  for (const m of sentence.matchAll(ANCHOR)) {
+    if (/^(?:before|until|till|by\s+the\s+time)$/i.test(m[1]!.replace(/\s+/g, " "))) continue;
+    const said = [...contentWords(m[2]!)];
+    const scored = events.map((e) => ({ e, n: e.words.filter((w) => said.some((x) => sameWord(x, w))).length }));
+    const best = Math.max(0, ...scored.map((x) => x.n));
+    if (best >= 1 && scored.filter((x) => x.n === best).every((x) => x.e.range[0] > hi)) return true;
+  }
+  return false;
+}
+
 export function windowAnchor(sentence: string, profile: Pick<GuiltProfile, "anchorEvents" | "window">): boolean {
   const events = profile.anchorEvents ?? [];
   if (!events.length) return false;
@@ -249,10 +277,24 @@ export function windowAnchor(sentence: string, profile: Pick<GuiltProfile, "anch
   return false;
 }
 
-/** E8: words anywhere in a sentence that make a third-person claim a suspicion, a report or a hypothetical. */
-const HEDGE_3P =
-  /\b(?:perhaps|maybe|possibly|probably|presumably|surely|must\s+have|might|may\s+have|may\s+well|could|would|should|if|whether|unless|suppose|supposing|apparently|seems?|seemed|rumou?r\w*|they\s+say|people\s+say|I\s+(?:think|suppose|suspect|fear|wonder|reckon|believe|imagine|guess|daresay|feel|wager|bet)|I['’]d\s+(?:say|guess|wager|bet)|for\s+all\s+I\s+know|no\s+doubt|I\s+(?:can['’]t|cannot|couldn['’]t)\s+(?:say|be\s+sure|swear))\b/i;
+/**
+ * R10: hedges are structural. A hedge exempts a third-person claim only when it governs the claim's own clause: it
+ * stands in the same clause BEFORE the subject ("I think / perhaps / I'd say / if / whether X did..."), or a modal
+ * scopes the act between subject and verb ("X must have / might have / could have..."), or the sentence is a
+ * question. A hedge in another clause ("If you ask me, she killed him", "She killed him, I'd say") does not, and
+ * assertive words ("surely", "no doubt", "mark my words") never do. Reporting verbs ("the witness says...") are not
+ * hedges either (R3): reported speech is a claim unless the act is covered.
+ */
+const PRE_HEDGE =
+  /\b(?:(?:I|we)\s+(?:do\s+)?(?:think|thought|suppose|supposed|suspect|suspected|fear|feared|wonder|wondered|reckon|believe|imagine|guess|daresay|feel|felt|expect|gather|half\s+think)|I['’]d\s+(?:say|guess|wager|bet|imagine|think)|perhaps|maybe|possibly|probably|presumably|conceivably|apparently|for\s+all\s+I\s+know|it\s+(?:seems|seemed|appears|appeared|may\s+be|might\s+be|could\s+be|is\s+possible|was\s+possible)|if|unless|whether|suppose|supposing|as\s+if|as\s+though|in\s+case|(?:do|did|does|would)\s+you\s+(?:think|suppose|say)|you\s+(?:think|thought|suppose|believe|mean|say|said|suggest|imagine)|I\s+(?:can['’]t|cannot|couldn['’]t)\s+(?:say|be\s+sure|swear|tell))\b/i;
+/** R10: modal scope between the subject and the act ("X must have struck him"). */
+const MODAL = String.raw`must|may|can|perhaps|maybe|possibly|probably|presumably`;
+/** The clause that contains position `at`: back to the last clause boundary. */
+const clauseBefore = (s: string, at: number) =>
+  s.slice(0, at).split(/[,;:]|\s[—–-]\s|\b(?:but|and|yet|so|though|although|whereas|because|or)\b/i).pop() ?? "";
 const MURDERER = "MURDERER";
+/** R3: perception verbs that frame a witnessed act. */
+const PERC = String.raw`saw|seen|see|sees|watched|heard|noticed|spotted|caught|glimpsed`;
 /**
  * E15a: a negation in the same clause BEFORE the murderer-subject: "Nobody saw X strike him", "No one heard her lock
  * it", "Not once did I see X take the key", "I never saw X go in". The act is denied or unwitnessed, not stated.
@@ -270,7 +312,7 @@ type OverRule = [CulpritAct, GuiltLeak["kind"], RegExp, ((s: string) => boolean)
  * come from guiltProfile.
  */
 function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>, victim: string, inWindow: (s: string) => boolean) {
-  const names = profile.murdererNames ?? [];
+  const names = [...(profile.murdererNames ?? [])].sort((a, b) => b.length - a.length);
   const pron = profile.murdererPronoun;
   if (!names.length) return null;
   const who = alt([...names, ...(pron ? [pron] : [])]);
@@ -280,47 +322,58 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       .replace(new RegExp(String.raw`\b(?:${who})(?:\s+(?:is|was)|['’]s)\s+${ONE}`, "gi"), MURDERER)
       .replace(new RegExp(String.raw`\b(?:${who})['’]d\b`, "gi"), `${MURDERER} had`)
       .replace(new RegExp(String.raw`\b(?:${who})['’]s\s+(?=(?:been|got|gone|done|just|already|the\s+(?:murderer|murderess|killer|culprit))\b)`, "gi"), `${MURDERER} is `)
-      .replace(new RegExp(String.raw`\b(?:${alt(names)})\b(?!['’]s)`, "gi"), MURDERER);
+      .replace(new RegExp(String.raw`\b(?:${alt(names)})(?![A-Za-z0-9_])(?!['’]s)`, "gi"), MURDERER);
     if (pron) t = t.replace(new RegExp(String.raw`\b${pron}\b(?!['’])`, "gi"), MURDERER);
+    // R3: the object of a perception verb ("saw her lock it", "seen 'er come out").
+    const obj = profile.murdererObject;
+    if (obj) t = t.replace(new RegExp(String.raw`\b(${PERC})\s+(?:${obj}|['’]${obj.slice(1)})\b(?!['’])`, "gi"), `$1 ${MURDERER}`);
     return t;
   };
   const S = String.raw`\b${MURDERER}\b`;
-  const g = gap(3);
+  const g = String.raw`(?:[\s,]+(?!(?:${NEG}|${BLOCK}|${MODAL})\b)[\w'’-]+){0,3}?[\s,]+`;
   const rules: OverRule[] = [
     ["killing", "killing", new RegExp(`${S}${g}\\b${KILL}\\b${span(25)}\\b(?:${victim})\\b`, "i")],
     ["killing", "killing", new RegExp(`${S}${g}\\b(?:killed|murdered)\\b`, "i")],
+    ["killing", "killing", new RegExp(`${S}${g}\\b(?:${KILL_SELF})`, "i")],
     [
       "killing",
       "confession",
       new RegExp(
-        String.raw`${S}\s+did\s+it\b(?!\s+(?:again|before|every|each|once|twice|so|that|all))|\bit\s+was\s+${MURDERER}\s+(?:who|that)\s+(?:${KILL}|did\s+it|locked|bolted)\b|\bit\s+was\s+${MURDERER}\s+all\s+along\b|${S}\s+(?:is|was)\s+(?:the|our|your)\s+(?:murderer|murderess|killer|culprit|guilty\s+one)\b|${S}\s+(?:is|was)\s+guilty\b`,
+        String.raw`${S}\s+did\s+it\b(?!\s+(?:again|before|every|each|once|twice|so|that|all))|\bit\s+was\s+${MURDERER}\s+(?:who|that)\s+(?:${KILL}|did\s+it)\b|\bit\s+was\s+${MURDERER}\s+all\s+along\b|${S}\s+(?:is|was)\s+(?:the|our|your)\s+(?:murderer|murderess|killer|culprit|guilty\s+one)\b|${S}\s+(?:is|was)\s+guilty\b`,
         "i",
       ),
     ],
-    ["key", "key", new RegExp(`${S}${g}\\b(?:locked|bolted)\\b${span(30)}\\bdoor\\b`, "i")],
+    ["key", "key", new RegExp(`${S}${g}\\b(?:locked|bolted)\\b${span(30)}\\b(?:door${profile.sceneNames.length ? "|" + alt(profile.sceneNames) : ""})\\b`, "i")],
+    // R7: a cleft names the act it carries: "it was X who locked it" is the key act (lifted by key cover), not the killing.
+    ["key", "key", new RegExp(String.raw`\bit\s+(?:was|were)\s+${MURDERER}\s+(?:who|that|what)\s+(?:locked|bolted|turned\s+the\s+key|took\s+the\s+key)\b`, "i")],
+    // R3: a witnessed act ("<someone> saw X lock the door / with the key / strike him"): reported or first-hand, it is
+    // a claim unless the act is covered (the witness's card shown, the speaker's own revealed secret).
+    ["key", "key", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\s+(?:lock(?:ing)?|bolt(?:ing)?|turn(?:ing)?\\s+the\\s+key|pocket(?:ing)?|hid(?:e|ing)|slip(?:ping)?\\s+the\\s+key|tak(?:e|ing)\\s+the\\s+key|(?:with|holding)\\s+(?:the\\s+|a\\s+|that\\s+)?key)\\b(?!\\s+eyes)`, "i")],
+    ["killing", "killing", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\s+${KILL}\\b`, "i")],
     ["key", "key", new RegExp(`${S}${g}\\b(?:${KEY_ACT})\\b${span(25)}\\bkey\\b`, "i")],
   ];
-  if (profile.weaponNames.length) rules.push(["weapon", "weapon", new RegExp(`${S}${g}\\b(?:${WEAPON_ACT})\\b${span(30)}\\b(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+  if (profile.weaponNames.length) {
+    rules.push(["weapon", "weapon", new RegExp(`${S}${g}\\b(?:${WEAPON_ACT})\\b${span(30)}\\b(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+    rules.push(["weapon", "weapon", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\b${span(30)}\\b(?:with|holding|carrying|carry|swing(?:ing)?|lift(?:ing)?|pick(?:ing)?\\s+up)\\s+(?:the\\s+|a\\s+|that\\s+|his\\s+|her\\s+)?(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+  }
   if (profile.sceneNames.length)
     rules.push([
       "scene",
       "scene",
       new RegExp(`${S}${g}\\b(?:${MOVE}|left|came\\s+out\\s+of|stepped\\s+out\\s+of|slipped\\s+out\\s+of)\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i"),
-      (s) => inWindow(s) || DARK.test(s) || DEAD.test(s) || windowAnchor(s, profile),
+      (s) => inWindow(s) || ((DARK.test(s) || DEAD.test(s)) && !atDiscovery(s, profile)) || windowAnchor(s, profile),
     ]);
-  /** A match counts unless the clause before the subject is a hedge or a negated frame ("Nobody saw X strike him"). */
+  /** A match counts unless its own clause, before the subject, holds a hedge or a negated frame (R10, E15a). */
   const hitOver = (s: string, re: RegExp) => {
     for (const m of s.matchAll(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g"))) {
-      const before = s.slice(0, m.index ?? 0);
-      if (HEDGE.test(before)) continue;
-      const clause = before.split(/[,;:]|\s[—–-]\s|\b(?:but|and|yet|though|although|whereas)\b/i).pop() ?? "";
-      if (NEG_FRAME.test(clause)) continue;
+      const clause = clauseBefore(s, m.index ?? 0);
+      if (PRE_HEDGE.test(clause) || NEG_FRAME.test(clause)) continue;
       return true;
     }
     return false;
   };
   return (sentence: string): GuiltLeak | null => {
-    if (/\?\s*["'”’)]*$/.test(sentence) || HEDGE_3P.test(sentence)) return null;
+    if (/\?\s*["'”’)]*$/.test(sentence)) return null;
     const s = subjectize(sentence);
     if (!s.includes(MURDERER)) return null;
     for (const [act, kind, re, also] of rules) {

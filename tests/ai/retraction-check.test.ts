@@ -61,3 +61,14 @@ describe("findRetraction (#48)", () => {
     expect(findRetraction("There's no rum in my galley.", hl, "cook-marlow", [], g)).toBeNull();
   });
 });
+
+describe("negated true lines are not retractions", () => {
+  it("negating the old story confirms the admission", () => {
+    expect(v("It was not the Sunday menu, darling. It was the will.", ["s-victoria-new-will"])).toBeNull();
+    expect(findRetraction("I didn't see nothin' of the blow, sir, only her at the door after.", c, "gregory", ["s-gregory-saw-victoria"], guiltProfile(c))).toBeNull();
+  });
+  it("restating the old story is still caught, and so is denying the secret's own claim", () => {
+    expect(v("Our little chat? The Sunday menu. Nothing more.", ["s-victoria-new-will"])?.kind).toBe("restates_superseded_story");
+    expect(v("I know nothing of any will.", ["s-victoria-new-will"])?.kind).toBe("denies_key_claim");
+  });
+});

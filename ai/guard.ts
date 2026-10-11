@@ -242,7 +242,7 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   }
 
   // 4. Order of events (#26).
-  const order = checkOrder(said, g.ctx);
+  const order = checkOrder(said, g.ctx, g.directives.revealSecret ?? null);
   if (!order.ok) {
     return {
       reason: "event_order",

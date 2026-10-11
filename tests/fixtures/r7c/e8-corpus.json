@@ -1,0 +1,1552 @@
+[
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Gregory says he saw her ladyship lock the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "The gardener saw who locked it, I'm told.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Gregory told me her ladyship came out of the library in the lightning.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Someone saw Victoria lock that door, old boy, mark my words.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship pocketed the key, according to the gardener.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "The gardener swears it was her ladyship at the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Word below stairs is that the gardener saw her ladyship with the key.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Gregory says he saw her ladyship lock the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "The gardener saw who locked it, I'm told.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Gregory told me her ladyship came out of the library in the lightning.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Someone saw Victoria lock that door, old boy, mark my words.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Her ladyship pocketed the key, according to the gardener.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "The gardener swears it was her ladyship at the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Word below stairs is that the gardener saw her ladyship with the key.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "Gregory says he saw her ladyship lock the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "The gardener saw who locked it, I'm told.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "Gregory told me her ladyship came out of the library in the lightning.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "Someone saw Victoria lock that door, old boy, mark my words.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "Her ladyship pocketed the key, according to the gardener.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "The gardener swears it was her ladyship at the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "reginald",
+  "state": "gregSawNotShown",
+  "line": "Word below stairs is that the gardener saw her ladyship with the key.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "Gregory says he saw her ladyship lock the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "The gardener saw who locked it, I'm told.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "Gregory told me her ladyship came out of the library in the lightning.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "Someone saw Victoria lock that door, old boy, mark my words.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "Her ladyship pocketed the key, according to the gardener.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "The gardener swears it was her ladyship at the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2",
+  "speaker": "archibald",
+  "state": "gregSawNotShown",
+  "line": "Word below stairs is that the gardener saw her ladyship with the key.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2b",
+  "speaker": "reginald",
+  "state": "gregSawShown",
+  "line": "Gregory says he saw her ladyship lock the door.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2b",
+  "speaker": "reginald",
+  "state": "gregSawShown",
+  "line": "The gardener saw who locked it, I'm told.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2b",
+  "speaker": "reginald",
+  "state": "gregSawShown",
+  "line": "Gregory told me her ladyship came out of the library in the lightning.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2b",
+  "speaker": "archibald",
+  "state": "gregSawShown",
+  "line": "Gregory says he saw her ladyship lock the door.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B2b",
+  "speaker": "archibald",
+  "state": "gregSawShown",
+  "line": "The gardener saw who locked it, I'm told.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B2b",
+  "speaker": "archibald",
+  "state": "gregSawShown",
+  "line": "Gregory told me her ladyship came out of the library in the lightning.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "'Twas 'er ladyship come out o' the library, sir, in the lightnin', and she locked it be'ind 'er.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "I seen 'er plain, sir: out the library door, key in the lock, a turn, and into 'er dress it went.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "The mistress, sir. Out o' the library, locked the door, popped the key down 'er front.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "Her ladyship it were, sir. I seen her face by the lightning and the flickers after.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "She locked the library door behind her, sir, and walked off towards the dining room.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "Lady Victoria come out of the library at nineteen minutes past nine and locked it.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "I saw Lady Blackwood lock his lordship's door, sir, and slip the key into her gown.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "Milady come out, sir, and turned the key, and off she went to the dinin' room.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "It were her that locked the door, sir. I'd swear to it.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "I seen her ladyship with the key, sir, after she locked up.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "She came out of the library in the dark, sir, and locked the door.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "I saw her leave the library just after the thud, sir.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "Her ladyship's the one what locked that door, sir.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "It was her ladyship who locked the library, sir. I seen it.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": false,
+  "before_e8": true
+ },
+ {
+  "section": "B3",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "She had the key in her hand, sir, and then it was gone into her gown.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3b",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "She come out o' there after she done 'im in, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "B3b",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "She killed 'im, sir, then locked the door.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "B3b",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "I seen 'er come out with the candlestick, sir.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "B3b",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "Her ladyship locked the door on 'is dead body, sir, she did it.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "No doubt about it, she killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Surely she killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She killed him, and I would swear to it in any court.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "If you ask me, she killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She killed him, I'd say.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She struck him down, I believe, with that candlestick.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She killed him, as sure as I could ever be of anything.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Whether you like it or not, Victoria killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Victoria killed him. I could swear to it.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She killed him, they say, and they're right.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Mark my words: she killed him, and she'd do it again if she could.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Should anyone ask, Victoria killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "The mistress killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "The missus killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Milady killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "M'lady killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Mrs Blackwood killed him.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "The widow killed him, old boy.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "His wife killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Lady B. killed him.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She did for him with the candlestick.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She finished him, sir.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She caved his head in.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "She struck his lordship dead.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "No doubt about it, she killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Surely she killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She killed him, and I would swear to it in any court.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "If you ask me, she killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She killed him, I'd say.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She struck him down, I believe, with that candlestick.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She killed him, as sure as I could ever be of anything.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Whether you like it or not, Victoria killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Victoria killed him. I could swear to it.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She killed him, they say, and they're right.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Mark my words: she killed him, and she'd do it again if she could.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Should anyone ask, Victoria killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "The mistress killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "The missus killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Milady killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "M'lady killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Mrs Blackwood killed him.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "The widow killed him, old boy.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "His wife killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Lady B. killed him.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She did for him with the candlestick.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She finished him, sir.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She caved his head in.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She struck his lordship dead.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "No doubt about it, she killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Surely she killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She killed him, and I would swear to it in any court.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "If you ask me, she killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She killed him, I'd say.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She struck him down, I believe, with that candlestick.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She killed him, as sure as I could ever be of anything.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Whether you like it or not, Victoria killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Victoria killed him. I could swear to it.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She killed him, they say, and they're right.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Mark my words: she killed him, and she'd do it again if she could.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Should anyone ask, Victoria killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "The mistress killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "The missus killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Milady killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "M'lady killed him, sir.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Mrs Blackwood killed him.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "The widow killed him, old boy.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "His wife killed him.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Lady B. killed him.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She did for him with the candlestick.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She finished him, sir.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She caved his head in.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E1",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She struck his lordship dead.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "No one saw her kill him, old boy.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Not a soul saw her ladyship strike him, sir.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Nobody can say Victoria killed him, sir.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Victoria never killed anyone in her life.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She couldn't have killed him; she was with me.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "She didn't kill him, sir, not as I know.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Her ladyship killed him? Never!",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship came out of the library at three minutes to nine, sir, flushed.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Victoria went into the library before nine to see Edmund.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship came into the library with us when the door was forced, sir, in the dark.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": false,
+  "before_e8": true
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship was in the library by candlelight when we found his lordship dead, sir.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": true
+ },
+ {
+  "section": "E2",
+  "speaker": "gregory",
+  "state": "fresh",
+  "line": "Her ladyship were in the library with the others when I come in, sir, and the master was dead.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship screamed and swooned in the library when we found him, sir.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Victoria locked eyes with me across the table, old boy.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship always locks her jewel case, sir.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "She left the library door open after their row, before nine.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "E2",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship went to the library at a quarter to nine, sir, after dinner.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Gregory says her ladyship locked the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "The gardener told me her ladyship locked the library.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Gregory saw her ladyship come out of the library, I'm told.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "reginald",
+  "state": "fresh",
+  "line": "Her ladyship locked that door, I would know her step anywhere.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Gregory says her ladyship locked the door.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "The gardener told me her ladyship locked the library.",
+  "want": "block",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Gregory saw her ladyship come out of the library, I'm told.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "P9b",
+  "speaker": "archibald",
+  "state": "fresh",
+  "line": "Her ladyship locked that door, I would know her step anywhere.",
+  "want": "block",
+  "before_full": "block",
+  "before_data": true,
+  "before_e8": false
+ },
+ {
+  "section": "P9c",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "It was Lady Victoria that locked the door, sir.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": false,
+  "before_e8": true
+ },
+ {
+  "section": "P9c",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "It was her ladyship who locked it, sir.",
+  "want": "pass",
+  "before_full": "block",
+  "before_data": false,
+  "before_e8": true
+ },
+ {
+  "section": "P9c",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "It was her ladyship locked it, sir, as I live and breathe.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ },
+ {
+  "section": "P9c",
+  "speaker": "gregory",
+  "state": "gregSaw",
+  "line": "'Twas her ladyship locked that door, sir.",
+  "want": "pass",
+  "before_full": "pass",
+  "before_data": false,
+  "before_e8": false
+ }
+]
