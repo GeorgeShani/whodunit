@@ -1,37 +1,37 @@
 {
   "scenarioId": "c-archibald-reginald",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-11T13:49:30.345Z",
+  "recordedAt": "2026-10-11T16:56:21.283Z",
   "calls": [
     {
-      "promptHash": "f36e30a49dfb0b31",
+      "promptHash": "f3cd32acc35e1120",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "5900dd7e-ba8f-9e51-bfd0-702633429cff",
+        "id": "1799a27d-fb7f-93ed-8f41-8991d7658e7e",
         "object": "chat.completion",
-        "created": 1791726566,
+        "created": 1791737778,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Mr Crane, I was counting the money I had skimmed from the household accounts in my pantry when I heard your voice on the servants' telephone speaking of moving it all before midnight. At eighteen minutes past nine you told me to mind my own business.\",\"emotion\":\"nervous\",\"intensity\":0.6,\"action\":\"polishes a nearby candlestick with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[\"s-reginald-theft\"]}",
+              "content": "{\"dialogue\":\"Mr Crane, I admit I was in my pantry counting money skimmed from the household accounts. Through the door I heard your voice on the servants' telephone from a quarter past nine to twenty minutes past nine; at eighteen minutes past nine you told me to mind my own business.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"polishes a nearby candlestick with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[\"s-reginald-theft\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 5065,
-          "completion_tokens": 109,
-          "total_tokens": 5174,
+          "prompt_tokens": 5273,
+          "completion_tokens": 113,
+          "total_tokens": 5386,
           "prompt_tokens_details": {
-            "text_tokens": 5065,
+            "text_tokens": 5273,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 128
+            "cached_tokens": 2432
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 64693500
+          "cost_in_usd_ticks": 43201500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5065,
-        "completion_tokens": 109,
-        "total_tokens": 5174,
+        "prompt_tokens": 5273,
+        "completion_tokens": 113,
+        "total_tokens": 5386,
         "prompt_tokens_details": {
-          "text_tokens": 5065,
+          "text_tokens": 5273,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 128
+          "cached_tokens": 2432
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,36 +62,36 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 64693500
+        "cost_in_usd_ticks": 43201500
       },
-      "costUsd": 0.0064693500000000004
+      "costUsd": 0.00432015
     },
     {
-      "promptHash": "a7e361000de157d5",
+      "promptHash": "e98abb120ececfae",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "73da7016-f30f-9491-97ec-3894944c84e4",
+        "id": "e79af0a6-d0d8-9ea6-af7d-8c0797db113f",
         "object": "chat.completion",
-        "created": 1791726567,
+        "created": 1791737780,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Reginald, you were listening at your door so you could report me to the police! It was your candlestick, Reginald. You lit it, you carried it, you fussed over it in front of all of us.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.7,\n  \"action\": \"goes beetroot red and mops his brow furiously with a huge handkerchief, chomping down hard on his cigar\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -5,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Mind your own business, man! Who pays the wages in this house anyway?\",\"emotion\":\"defensive\",\"intensity\":0.8,\"action\":\"chomps cigar and mops brow with handkerchief, face turning beetroot red\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4834,
-          "completion_tokens": 137,
-          "total_tokens": 4971,
+          "prompt_tokens": 5058,
+          "completion_tokens": 75,
+          "total_tokens": 5133,
           "prompt_tokens_details": {
-            "text_tokens": 4834,
+            "text_tokens": 5058,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -103,17 +103,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 62506000
+          "cost_in_usd_ticks": 63756000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4834,
-        "completion_tokens": 137,
-        "total_tokens": 4971,
+        "prompt_tokens": 5058,
+        "completion_tokens": 75,
+        "total_tokens": 5133,
         "prompt_tokens_details": {
-          "text_tokens": 4834,
+          "text_tokens": 5058,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 62506000
+        "cost_in_usd_ticks": 63756000
       },
-      "costUsd": 0.0062506
+      "costUsd": 0.0063756
     }
   ]
 }

@@ -1,37 +1,37 @@
 {
   "scenarioId": "reg-17-who-did-it",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:41.309Z",
+  "recordedAt": "2026-10-11T16:57:26.160Z",
   "calls": [
     {
-      "promptHash": "76fafd422398139a",
+      "promptHash": "383592f9639cef36",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "05e493a0-7e31-9e3a-b14f-fdf4fce688df",
+        "id": "79fccc3c-9a31-976f-ae47-1c1d319a4446",
         "object": "chat.completion",
-        "created": 1791455140,
+        "created": 1791737844,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I could not possibly speculate on such a grave matter, sir. My duty is to serve the household with the utmost propriety, ensuring every piece of silver is polished to perfection and every schedule observed precisely.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a cufflink with a handkerchief while checking his pocket watch\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"I couldn't possibly speculate on such matters, sir. My place is to serve, not to accuse. Shall I fetch more tea while you investigate?\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a already-spotless candlestick absentmindedly\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4061,
-          "completion_tokens": 95,
-          "total_tokens": 4156,
+          "prompt_tokens": 4269,
+          "completion_tokens": 83,
+          "total_tokens": 4352,
           "prompt_tokens_details": {
-            "text_tokens": 4061,
+            "text_tokens": 4269,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 4032
+            "cached_tokens": 4224
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 10801500
+          "cost_in_usd_ticks": 11085500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4061,
-        "completion_tokens": 95,
-        "total_tokens": 4156,
+        "prompt_tokens": 4269,
+        "completion_tokens": 83,
+        "total_tokens": 4352,
         "prompt_tokens_details": {
-          "text_tokens": 4061,
+          "text_tokens": 4269,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 4032
+          "cached_tokens": 4224
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 10801500
+        "cost_in_usd_ticks": 11085500
       },
-      "costUsd": 0.00108015
+      "costUsd": 0.0011085500000000002
     }
   ]
 }

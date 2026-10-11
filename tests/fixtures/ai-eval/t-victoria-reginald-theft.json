@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-victoria-reginald-theft",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:43:26.459Z",
+  "recordedAt": "2026-10-11T16:55:55.744Z",
   "calls": [
     {
-      "promptHash": "3f6b1421b7eec627",
+      "promptHash": "b0cfe52eaea2cb9a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b2128106-8792-9661-b3a8-f77519dc29a6",
+        "id": "7a1a9f06-1c85-983a-8099-625e7127040b",
         "object": "chat.completion",
-        "created": 1791459804,
+        "created": 1791737754,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh dear, Reginald and his little economies... but between thirteen minutes past nine and twenty-two minutes past nine I did slip away from the dining room while Archibald was off hunting for brandy. We weren't together the whole time as we claimed, you see; I got him to agree to that story later at twenty minutes to ten. Where I went is my own affair.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief then swoons onto chaise\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
+              "content": "{\"dialogue\":\"Oh, Reginald and his little economies... I must confess, between thirteen minutes past nine when Archibald went for the brandy and twenty-two minutes past nine when he returned, I did slip away from the dining room for a short while. We weren't together the entire time as we later agreed at twenty minutes to ten. Where I went, however, is my own affair.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief and twists her rings absently\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-5,\"admits\":[\"s-victoria-left-dining\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4372,
-          "completion_tokens": 134,
-          "total_tokens": 4506,
+          "prompt_tokens": 4559,
+          "completion_tokens": 136,
+          "total_tokens": 4695,
           "prompt_tokens_details": {
-            "text_tokens": 4372,
+            "text_tokens": 4559,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2240
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 34480000
+          "cost_in_usd_ticks": 59043500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4372,
-        "completion_tokens": 134,
-        "total_tokens": 4506,
+        "prompt_tokens": 4559,
+        "completion_tokens": 136,
+        "total_tokens": 4695,
         "prompt_tokens_details": {
-          "text_tokens": 4372,
+          "text_tokens": 4559,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2240
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 34480000
+        "cost_in_usd_ticks": 59043500
       },
-      "costUsd": 0.003448
+      "costUsd": 0.00590435
     }
   ]
 }

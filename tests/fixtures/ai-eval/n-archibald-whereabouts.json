@@ -1,34 +1,34 @@
 {
   "scenarioId": "n-archibald-whereabouts",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:07:08.946Z",
+  "recordedAt": "2026-10-11T16:55:26.736Z",
   "calls": [
     {
-      "promptHash": "a49d5ffc37b56c40",
+      "promptHash": "20d7219000a86d53",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "5ebfd4bb-5f17-9e3f-8764-7d8044bc32ab",
+        "id": "26a36754-bcf1-9edd-b6bf-b3399de7d9b0",
         "object": "chat.completion",
-        "created": 1791454027,
+        "created": 1791737725,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I was right here in the dining room with Victoria by the fire, old boy, from the moment those candles were lit until that dreadful scream. Ask her if you don't believe me!\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"chomps unlit cigar and checks pocket watch\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\n  \"dialogue\": \"I was with Victoria by the dining-room fire from the moment the candles were lit until the scream. Ask her, old boy!\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"chomps unlit cigar and checks pocket watch\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 5,\n  \"trustDelta\": -5,\n  \"admits\": []\n}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3420,
-          "completion_tokens": 90,
-          "total_tokens": 3510,
+          "prompt_tokens": 3623,
+          "completion_tokens": 104,
+          "total_tokens": 3727,
           "prompt_tokens_details": {
-            "text_tokens": 3420,
+            "text_tokens": 3623,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 43656000
+          "cost_in_usd_ticks": 46543500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3420,
-        "completion_tokens": 90,
-        "total_tokens": 3510,
+        "prompt_tokens": 3623,
+        "completion_tokens": 104,
+        "total_tokens": 3727,
         "prompt_tokens_details": {
-          "text_tokens": 3420,
+          "text_tokens": 3623,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 43656000
+        "cost_in_usd_ticks": 46543500
       },
-      "costUsd": 0.004365600000000001
+      "costUsd": 0.004654350000000001
     }
   ]
 }

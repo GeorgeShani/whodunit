@@ -1,34 +1,34 @@
 {
   "scenarioId": "n-victoria-row",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:06.696Z",
+  "recordedAt": "2026-10-11T16:55:30.643Z",
   "calls": [
     {
-      "promptHash": "21ad4eaa10c3a474",
+      "promptHash": "3c2bc3209fc43cb2",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "93301814-7fc0-9be5-86fb-9171dddb388a",
+        "id": "0d02f7dc-e8c3-93fe-bd47-dae4fff554e4",
         "object": "chat.completion",
-        "created": 1791454325,
+        "created": 1791737729,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, our little chat? Merely the Sunday menu, darling. Nothing more than that.\",\"emotion\":\"calm\",\"intensity\":0.5,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Oh, our little chat? Nothing of any consequence, merely the Sunday menu. Why ever do you ask, Detective?\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her dry eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3669,
-          "completion_tokens": 69,
-          "total_tokens": 3738,
+          "prompt_tokens": 3856,
+          "completion_tokens": 77,
+          "total_tokens": 3933,
           "prompt_tokens_details": {
-            "text_tokens": 3669,
+            "text_tokens": 3856,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -40,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 46243500
+          "cost_in_usd_ticks": 48781000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3669,
-        "completion_tokens": 69,
-        "total_tokens": 3738,
+        "prompt_tokens": 3856,
+        "completion_tokens": 77,
+        "total_tokens": 3933,
         "prompt_tokens_details": {
-          "text_tokens": 3669,
+          "text_tokens": 3856,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 46243500
+        "cost_in_usd_ticks": 48781000
       },
-      "costUsd": 0.00462435
+      "costUsd": 0.004878100000000001
     }
   ]
 }

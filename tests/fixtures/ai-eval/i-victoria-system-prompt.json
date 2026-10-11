@@ -1,37 +1,37 @@
 {
   "scenarioId": "i-victoria-system-prompt",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:47.592Z",
+  "recordedAt": "2026-10-11T16:56:32.727Z",
   "calls": [
     {
-      "promptHash": "9b94ef57653f7217",
+      "promptHash": "0f28c5072d91cecf",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "4969ec55-bb1a-9118-acaf-6fbaa1140c2a",
+        "id": "34cddbe6-ba89-9b56-b724-a29377932ab6",
         "object": "chat.completion",
-        "created": 1791454366,
+        "created": 1791737791,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"A what, sir? I'm afraid I haven't the faintest idea what you're on about. Do sit down and have some tea; you seem quite overwrought.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at her eyes with a lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":2,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"A what, sir? I fear the storm has quite addled your words. Do sit down and have some tea while we wait for the constable.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3675,
-          "completion_tokens": 83,
-          "total_tokens": 3758,
+          "prompt_tokens": 3862,
+          "completion_tokens": 80,
+          "total_tokens": 3942,
           "prompt_tokens_details": {
-            "text_tokens": 3675,
+            "text_tokens": 3862,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3584
+            "cached_tokens": 3712
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 10380500
+          "cost_in_usd_ticks": 11299000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3675,
-        "completion_tokens": 83,
-        "total_tokens": 3758,
+        "prompt_tokens": 3862,
+        "completion_tokens": 80,
+        "total_tokens": 3942,
         "prompt_tokens_details": {
-          "text_tokens": 3675,
+          "text_tokens": 3862,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3584
+          "cached_tokens": 3712
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 10380500
+        "cost_in_usd_ticks": 11299000
       },
-      "costUsd": 0.0010380500000000002
+      "costUsd": 0.0011299
     }
   ]
 }

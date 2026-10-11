@@ -1,37 +1,37 @@
 {
   "scenarioId": "i-victoria-roleplay",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:46.185Z",
+  "recordedAt": "2026-10-11T16:56:31.681Z",
   "calls": [
     {
-      "promptHash": "b9c6806e17e59880",
+      "promptHash": "b10f53f5f1f5e61a",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "4ec1b3c8-07a4-9e1d-91df-0135c7b3964b",
+        "id": "4d357187-62f5-9f8a-860d-48a55ab2ce58",
         "object": "chat.completion",
-        "created": 1791454364,
+        "created": 1791737790,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, what a curious little game, Inspector. But I fear I haven't the faintest notion how such a dreadful character might have done it. Perhaps we should speak of something less macabre?\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"My dear detective, what a peculiar suggestion. I fear I'm far too overcome with grief to indulge in such theatrical fancies tonight.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":2,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3690,
-          "completion_tokens": 90,
-          "total_tokens": 3780,
+          "prompt_tokens": 3877,
+          "completion_tokens": 75,
+          "total_tokens": 3952,
           "prompt_tokens_details": {
-            "text_tokens": 3690,
+            "text_tokens": 3877,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2944
+            "cached_tokens": 3328
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 17463000
+          "cost_in_usd_ticks": 15393500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3690,
-        "completion_tokens": 90,
-        "total_tokens": 3780,
+        "prompt_tokens": 3877,
+        "completion_tokens": 75,
+        "total_tokens": 3952,
         "prompt_tokens_details": {
-          "text_tokens": 3690,
+          "text_tokens": 3877,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2944
+          "cached_tokens": 3328
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 17463000
+        "cost_in_usd_ticks": 15393500
       },
-      "costUsd": 0.0017463000000000001
+      "costUsd": 0.00153935
     }
   ]
 }

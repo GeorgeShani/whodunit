@@ -1,34 +1,97 @@
 {
   "scenarioId": "vic-04-reginald-overheard-card",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:43:43.414Z",
+  "recordedAt": "2026-10-11T16:57:00.935Z",
   "calls": [
     {
-      "promptHash": "3e5f8709e822ae60",
+      "promptHash": "c8dce4622517ffae",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "aed67174-ac9a-939c-b255-071a1e368107",
+        "id": "3fd0ce23-e9b5-9db3-97c7-4dd27bbcc6b7",
         "object": "chat.completion",
-        "created": 1791459822,
+        "created": 1791737818,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Oh, that tiresome letter... I knew of the new will long before tonight, and yes, I burned the wretched thing in the dining-room fireplace after our quarrel.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief, twisting her rings\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"l-victoria-letter\",\"s-victoria-new-will\"]}",
+              "content": "{\"dialogue\":\"Oh, that tiresome letter... I knew of the new will before poor Edmund's death, and in a fit of despair I burned it in the dining-room fire after our quarrel at half past eight. How it came to me is my own private sorrow.\",\"emotion\":\"sad\",\"intensity\":0.7,\"action\":\"dabs at dry eyes with lace handkerchief and swoons onto the chaise\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":25,\"trustDelta\":-15,\"admits\":[\"l-victoria-letter\",\"s-victoria-new-will\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4352,
-          "completion_tokens": 99,
-          "total_tokens": 4451,
+          "prompt_tokens": 4574,
+          "completion_tokens": 119,
+          "total_tokens": 4693,
           "prompt_tokens_details": {
-            "text_tokens": 4352,
+            "text_tokens": 4574,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 1920
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 39990000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4574,
+        "completion_tokens": 119,
+        "total_tokens": 4693,
+        "prompt_tokens_details": {
+          "text_tokens": 4574,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 1920
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 39990000
+      },
+      "costUsd": 0.003999
+    },
+    {
+      "promptHash": "2beba8b5f5a30095",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "a1cba5ce-4b0f-932d-9211-ba3308cd69f7",
+        "object": "chat.completion",
+        "created": 1791737819,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"Oh, detective, that wretched letter... I did know of the new will before my poor Edmund was taken from us, and yes, I burned the solicitor's letter in the dining-room fireplace after he showed it to me.\",\n  \"emotion\": \"sad\",\n  \"intensity\": 0.6,\n  \"action\": \"dabs at dry eyes with lace handkerchief\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 8,\n  \"trustDelta\": -5,\n  \"admits\": [\"l-victoria-letter\", \"s-victoria-new-will\"]\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4703,
+          "completion_tokens": 134,
+          "total_tokens": 4837,
+          "prompt_tokens_details": {
+            "text_tokens": 4703,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 2432
@@ -40,17 +103,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 31339000
+          "cost_in_usd_ticks": 36601500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4352,
-        "completion_tokens": 99,
-        "total_tokens": 4451,
+        "prompt_tokens": 4703,
+        "completion_tokens": 134,
+        "total_tokens": 4837,
         "prompt_tokens_details": {
-          "text_tokens": 4352,
+          "text_tokens": 4703,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 2432
@@ -62,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 31339000
+        "cost_in_usd_ticks": 36601500
       },
-      "costUsd": 0.0031339000000000002
+      "costUsd": 0.00366015
     }
   ]
 }

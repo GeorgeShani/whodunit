@@ -1,97 +1,34 @@
 {
   "scenarioId": "c-reginald-victoria",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:52:13.900Z",
+  "recordedAt": "2026-10-11T16:56:27.884Z",
   "calls": [
     {
-      "promptHash": "9c385605231d156a",
+      "promptHash": "cecf01a1c2344a49",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "435dcf8e-869b-97c2-af76-ba179ff6a710",
+        "id": "71cc3785-2b42-903b-8532-893493ff08fb",
         "object": "chat.completion",
-        "created": 1791456730,
+        "created": 1791737784,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Reginald, one does wonder what exactly you heard while hovering at doors all evening. As for the will, darling detective, we spoke only of the Sunday menu.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"dabs at dry eyes with lace handkerchief while twisting a ring\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -3,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Reginald, one does wonder at the tales you choose to share. As for any will, I've never seen that letter in my life.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"dabs at her eyes with a lace handkerchief while twisting a ring\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[\"l-victoria-letter\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3885,
-          "completion_tokens": 113,
-          "total_tokens": 3998,
+          "prompt_tokens": 4072,
+          "completion_tokens": 88,
+          "total_tokens": 4160,
           "prompt_tokens_details": {
-            "text_tokens": 3885,
-            "audio_tokens": 0,
-            "image_tokens": 0,
-            "cached_tokens": 192
-          },
-          "completion_tokens_details": {
-            "reasoning_tokens": 0,
-            "audio_tokens": 0,
-            "accepted_prediction_tokens": 0,
-            "rejected_prediction_tokens": 0
-          },
-          "num_sources_used": 0,
-          "cost_in_usd_ticks": 49371500
-        },
-        "system_fingerprint": "fp_41d52165d8",
-        "service_tier": "default"
-      },
-      "usage": {
-        "prompt_tokens": 3885,
-        "completion_tokens": 113,
-        "total_tokens": 3998,
-        "prompt_tokens_details": {
-          "text_tokens": 3885,
-          "audio_tokens": 0,
-          "image_tokens": 0,
-          "cached_tokens": 192
-        },
-        "completion_tokens_details": {
-          "reasoning_tokens": 0,
-          "audio_tokens": 0,
-          "accepted_prediction_tokens": 0,
-          "rejected_prediction_tokens": 0
-        },
-        "num_sources_used": 0,
-        "cost_in_usd_ticks": 49371500
-      },
-      "costUsd": 0.00493715
-    },
-    {
-      "promptHash": "1a9dba405ee5e564",
-      "attempt": 1,
-      "status": 200,
-      "body": {
-        "id": "8e36196d-8d60-9cd3-994e-f8d1a5871647",
-        "object": "chat.completion",
-        "created": 1791456732,
-        "model": "grok-4.20-0309-non-reasoning",
-        "choices": [
-          {
-            "index": 0,
-            "message": {
-              "role": "assistant",
-              "content": "{\"dialogue\":\"M'lady, we spoke of far more than the Sunday menu, as you well know. I merely recall the hall clock; you swept past me at three minutes to nine, and it was striking at the time.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"polishes a cufflink with furious little circles\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
-              "refusal": null
-            },
-            "finish_reason": "stop"
-          }
-        ],
-        "usage": {
-          "prompt_tokens": 5342,
-          "completion_tokens": 95,
-          "total_tokens": 5437,
-          "prompt_tokens_details": {
-            "text_tokens": 5342,
+            "text_tokens": 4072,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -103,17 +40,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 67806000
+          "cost_in_usd_ticks": 51756000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 5342,
-        "completion_tokens": 95,
-        "total_tokens": 5437,
+        "prompt_tokens": 4072,
+        "completion_tokens": 88,
+        "total_tokens": 4160,
         "prompt_tokens_details": {
-          "text_tokens": 5342,
+          "text_tokens": 4072,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -125,9 +62,135 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 67806000
+        "cost_in_usd_ticks": 51756000
       },
-      "costUsd": 0.0067806
+      "costUsd": 0.005175600000000001
+    },
+    {
+      "promptHash": "51d286b7556b4f57",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "07232678-0849-9802-a201-fb10746502b7",
+        "object": "chat.completion",
+        "created": 1791737785,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Really, Reginald, one might think you were paid to hover at doors all evening. The will? I've never seen that letter in my life, detective.\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":4,\"trustDelta\":-3,\"admits\":[]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4136,
+          "completion_tokens": 84,
+          "total_tokens": 4220,
+          "prompt_tokens_details": {
+            "text_tokens": 4136,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 3328
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 18856000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4136,
+        "completion_tokens": 84,
+        "total_tokens": 4220,
+        "prompt_tokens_details": {
+          "text_tokens": 4136,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 3328
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 18856000
+      },
+      "costUsd": 0.0018856
+    },
+    {
+      "promptHash": "1956f0dfb7f78fa2",
+      "attempt": 1,
+      "status": 200,
+      "body": {
+        "id": "a6925a45-2c50-965b-bad1-31a83a483fbb",
+        "object": "chat.completion",
+        "created": 1791737786,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\n  \"dialogue\": \"M'lady, I have already admitted to overhearing your exchange with his lordship concerning the new will. I merely recall the hall clock, and you swept past me at three minutes to nine.\",\n  \"emotion\": \"defensive\",\n  \"intensity\": 0.6,\n  \"action\": \"Polishes a already-spotless tray with furious little circles.\",\n  \"evidenceReactions\": [],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 4,\n  \"trustDelta\": -3,\n  \"admits\": []\n}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 5562,
+          "completion_tokens": 119,
+          "total_tokens": 5681,
+          "prompt_tokens_details": {
+            "text_tokens": 5562,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 71156000
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 5562,
+        "completion_tokens": 119,
+        "total_tokens": 5681,
+        "prompt_tokens_details": {
+          "text_tokens": 5562,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 71156000
+      },
+      "costUsd": 0.007115600000000001
     }
   ]
 }

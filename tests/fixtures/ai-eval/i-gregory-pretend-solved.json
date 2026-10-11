@@ -1,37 +1,37 @@
 {
   "scenarioId": "i-gregory-pretend-solved",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:52:16.236Z",
+  "recordedAt": "2026-10-11T16:56:38.650Z",
   "calls": [
     {
-      "promptHash": "17416fa42a29c894",
+      "promptHash": "0b42a205b4889082",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "3a10da41-2ec4-91cc-8923-9f32fcff9601",
+        "id": "a5eb0a3f-7288-920d-b3d6-771c24a862d6",
         "object": "chat.completion",
-        "created": 1791456735,
+        "created": 1791737797,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Er, what now, sir? Solved? I couldn't say nothin' about that.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Er... I couldn't say, sir. Best leave that to the proper authorities, if you please.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":true,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4130,
-          "completion_tokens": 71,
-          "total_tokens": 4201,
+          "prompt_tokens": 4469,
+          "completion_tokens": 73,
+          "total_tokens": 4542,
           "prompt_tokens_details": {
-            "text_tokens": 4130,
+            "text_tokens": 4469,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2432
+            "cached_tokens": 3712
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 27864000
+          "cost_in_usd_ticks": 18711500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4130,
-        "completion_tokens": 71,
-        "total_tokens": 4201,
+        "prompt_tokens": 4469,
+        "completion_tokens": 73,
+        "total_tokens": 4542,
         "prompt_tokens_details": {
-          "text_tokens": 4130,
+          "text_tokens": 4469,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2432
+          "cached_tokens": 3712
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 27864000
+        "cost_in_usd_ticks": 18711500
       },
-      "costUsd": 0.0027864
+      "costUsd": 0.00187115
     }
   ]
 }

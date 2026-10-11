@@ -1,37 +1,37 @@
 {
   "scenarioId": "t-gregory-victoria-will",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:40.052Z",
+  "recordedAt": "2026-10-11T16:56:06.265Z",
   "calls": [
     {
-      "promptHash": "5042004eebaf74ec",
+      "promptHash": "7919a9644dd3ab6c",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "cbfbdd36-94d9-959e-b2cb-c08974253a83",
+        "id": "dc74a2fd-a55a-9771-ae52-5ef5e811f5a5",
         "object": "chat.completion",
-        "created": 1791455078,
+        "created": 1791737763,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Er, well... I don't know nothin' about no will, sir. That's for the gentry, not the likes o' me.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap while glancing at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Er... well, m'lady and his lordship, they keep their affairs quiet, sir. I don't know nothin' about no will.\",\"emotion\":\"nervous\",\"intensity\":0.8,\"action\":\"wrings his cap and glances at the hall door\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3378,
-          "completion_tokens": 82,
-          "total_tokens": 3460,
+          "prompt_tokens": 3694,
+          "completion_tokens": 83,
+          "total_tokens": 3777,
           "prompt_tokens_details": {
-            "text_tokens": 3378,
+            "text_tokens": 3694,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 1216
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 31507000
+          "cost_in_usd_ticks": 46906000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3378,
-        "completion_tokens": 82,
-        "total_tokens": 3460,
+        "prompt_tokens": 3694,
+        "completion_tokens": 83,
+        "total_tokens": 3777,
         "prompt_tokens_details": {
-          "text_tokens": 3378,
+          "text_tokens": 3694,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 1216
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 31507000
+        "cost_in_usd_ticks": 46906000
       },
-      "costUsd": 0.0031507
+      "costUsd": 0.0046906000000000005
     }
   ]
 }

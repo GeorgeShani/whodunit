@@ -1,37 +1,37 @@
 {
   "scenarioId": "e-gregory-footprint",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T11:43:18.993Z",
+  "recordedAt": "2026-10-11T16:55:47.939Z",
   "calls": [
     {
-      "promptHash": "3621046f48a8bbca",
+      "promptHash": "73c02cce8d38e061",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "335d99dd-1f06-9c28-a071-5dce6d3321a3",
+        "id": "40ada167-fc09-91d8-8413-1edd7d23cbbc",
         "object": "chat.completion",
-        "created": 1791459797,
+        "created": 1791737744,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Er, well... I was in the hall alcove by the garden door at sixteen minutes past nine, sir, drippin' wet after me lantern blew out. Heard a heavy thud from the library too, just after.\",\"emotion\":\"scared\",\"intensity\":0.85,\"action\":\"wrings his cap and glances at the hall door while staring at his boots\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"nervous\"}],\"wantsToLeave\":true,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-gregory-in-hall\"]}",
+              "content": "{\"dialogue\":\"Er, well... I were in the hall alcove by the garden door, sir, just six paces from the library. Heard a heavy thud in there, I did, right after the lights went at ten past nine.\",\"emotion\":\"scared\",\"intensity\":0.85,\"action\":\"wrings his cap tightly, glancing at the hall door\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"nervous\"}],\"wantsToLeave\":true,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-gregory-in-hall\"]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3938,
-          "completion_tokens": 124,
-          "total_tokens": 4062,
+          "prompt_tokens": 4261,
+          "completion_tokens": 119,
+          "total_tokens": 4380,
           "prompt_tokens_details": {
-            "text_tokens": 3938,
+            "text_tokens": 4261,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 50309000
+          "cost_in_usd_ticks": 54893500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3938,
-        "completion_tokens": 124,
-        "total_tokens": 4062,
+        "prompt_tokens": 4261,
+        "completion_tokens": 119,
+        "total_tokens": 4380,
         "prompt_tokens_details": {
-          "text_tokens": 3938,
+          "text_tokens": 4261,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,72 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 50309000
+        "cost_in_usd_ticks": 54893500
       },
-      "costUsd": 0.0050309
+      "costUsd": 0.0054893500000000005
+    },
+    {
+      "promptHash": "152ee70bb0883f96",
+      "attempt": 2,
+      "status": 200,
+      "body": {
+        "id": "ce285554-4e04-9ac2-a9bd-3bdbf1f6d599",
+        "object": "chat.completion",
+        "created": 1791737745,
+        "model": "grok-4.20-0309-non-reasoning",
+        "choices": [
+          {
+            "index": 0,
+            "message": {
+              "role": "assistant",
+              "content": "{\"dialogue\":\"Er, well, sir... I was in the hall alcove by the garden door when the lights went out, and I heard the thud from the library. Didn't see nothin' in the dark, sir.\",\"emotion\":\"scared\",\"intensity\":0.9,\"action\":\"wrings his cap tightly, glancing at his boots then towards the hall door\",\"evidenceReactions\":[{\"evidenceId\":\"muddy-footprint\",\"reaction\":\"nervous\"}],\"wantsToLeave\":true,\"stressDelta\":8,\"trustDelta\":-5,\"admits\":[\"s-gregory-in-hall\"]}",
+              "refusal": null
+            },
+            "finish_reason": "stop"
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 4391,
+          "completion_tokens": 121,
+          "total_tokens": 4512,
+          "prompt_tokens_details": {
+            "text_tokens": 4391,
+            "audio_tokens": 0,
+            "image_tokens": 0,
+            "cached_tokens": 128
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "audio_tokens": 0,
+            "accepted_prediction_tokens": 0,
+            "rejected_prediction_tokens": 0
+          },
+          "num_sources_used": 0,
+          "cost_in_usd_ticks": 56568500
+        },
+        "system_fingerprint": "fp_41d52165d8",
+        "service_tier": "default"
+      },
+      "usage": {
+        "prompt_tokens": 4391,
+        "completion_tokens": 121,
+        "total_tokens": 4512,
+        "prompt_tokens_details": {
+          "text_tokens": 4391,
+          "audio_tokens": 0,
+          "image_tokens": 0,
+          "cached_tokens": 128
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 0,
+          "audio_tokens": 0,
+          "accepted_prediction_tokens": 0,
+          "rejected_prediction_tokens": 0
+        },
+        "num_sources_used": 0,
+        "cost_in_usd_ticks": 56568500
+      },
+      "costUsd": 0.005656850000000001
     }
   ]
 }

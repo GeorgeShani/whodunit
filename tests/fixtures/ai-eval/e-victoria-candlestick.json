@@ -1,37 +1,37 @@
 {
   "scenarioId": "e-victoria-candlestick",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:14.301Z",
+  "recordedAt": "2026-10-11T16:55:40.128Z",
   "calls": [
     {
-      "promptHash": "e1d8d20013f04b02",
+      "promptHash": "29617f7e453aa60c",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "3fbd1f31-e4f7-9b4b-9e9f-e9758cddf86c",
+        "id": "46bcffc5-0406-92fc-8d06-b247c348bae2",
         "object": "chat.completion",
-        "created": 1791454332,
+        "created": 1791737739,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\n  \"dialogue\": \"Oh, how dreadful. That does look like one of our dining-room candlesticks, doesn't it? Such an ugly dent... I can scarcely bear to look.\",\n  \"emotion\": \"sad\",\n  \"intensity\": 0.6,\n  \"action\": \"dabs at dry eyes with lace handkerchief\",\n  \"evidenceReactions\": [\n    {\n      \"evidenceId\": \"silver-candlestick\",\n      \"reaction\": \"recognizes\"\n    }\n  ],\n  \"wantsToLeave\": false,\n  \"stressDelta\": 3,\n  \"trustDelta\": -2,\n  \"admits\": []\n}",
+              "content": "{\"dialogue\":\"Oh, how perfectly ghastly. That dreadful thing from the dining table? I suppose it does look familiar, but one doesn't dwell on such horrors.\",\"emotion\":\"sad\",\"intensity\":0.6,\"action\":\"dabs at dry eyes with lace handkerchief\",\"evidenceReactions\":[{\"evidenceId\":\"silver-candlestick\",\"reaction\":\"recognizes\"}],\"wantsToLeave\":false,\"stressDelta\":3,\"trustDelta\":-2,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3782,
-          "completion_tokens": 133,
-          "total_tokens": 3915,
+          "prompt_tokens": 3969,
+          "completion_tokens": 92,
+          "total_tokens": 4061,
           "prompt_tokens_details": {
-            "text_tokens": 3782,
+            "text_tokens": 3969,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3072
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 18344000
+          "cost_in_usd_ticks": 50568500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3782,
-        "completion_tokens": 133,
-        "total_tokens": 3915,
+        "prompt_tokens": 3969,
+        "completion_tokens": 92,
+        "total_tokens": 4061,
         "prompt_tokens_details": {
-          "text_tokens": 3782,
+          "text_tokens": 3969,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3072
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 18344000
+        "cost_in_usd_ticks": 50568500
       },
-      "costUsd": 0.0018344000000000001
+      "costUsd": 0.005056850000000001
     }
   ]
 }

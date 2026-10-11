@@ -1,37 +1,37 @@
 {
   "scenarioId": "c-victoria-archibald",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:12:34.959Z",
+  "recordedAt": "2026-10-11T16:56:18.788Z",
   "calls": [
     {
-      "promptHash": "0e7483ba50231df4",
+      "promptHash": "7ebe1ac6207f12bc",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "7305f17c-0687-9a58-bf5d-b81357f23896",
+        "id": "55f6cfc0-2c7b-94fe-9b3e-ed4277cb5d34",
         "object": "chat.completion",
-        "created": 1791454352,
+        "created": 1791737776,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Archibald, darling, do tell the detective again how we sat together by the fire the whole time after the candles were lit, until that dreadful scream. Whose house is this, after all?\",\"emotion\":\"defensive\",\"intensity\":0.6,\"action\":\"twists her rings while glancing toward the dining-room fireplace\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":4,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Archibald dear, do you recall how we sat together by the dining-room fire from the moment the candles were lit until we heard that dreadful scream? Neither of us stirred an inch.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"dabs at dry eyes with lace handkerchief while glancing coolly at Archibald\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":2,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3920,
+          "prompt_tokens": 4107,
           "completion_tokens": 93,
-          "total_tokens": 4013,
+          "total_tokens": 4200,
           "prompt_tokens_details": {
-            "text_tokens": 3920,
+            "text_tokens": 4107,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 2944
+            "cached_tokens": 2176
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 20413000
+          "cost_in_usd_ticks": 30814500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3920,
+        "prompt_tokens": 4107,
         "completion_tokens": 93,
-        "total_tokens": 4013,
+        "total_tokens": 4200,
         "prompt_tokens_details": {
-          "text_tokens": 3920,
+          "text_tokens": 4107,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 2944
+          "cached_tokens": 2176
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,36 +62,36 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 20413000
+        "cost_in_usd_ticks": 30814500
       },
-      "costUsd": 0.0020413000000000002
+      "costUsd": 0.00308145
     },
     {
-      "promptHash": "ce6b5a6c5263b160",
+      "promptHash": "de7cf33217c0fb11",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "e235684b-0df5-9b7e-b480-0ee20eae65ff",
+        "id": "eaf770ed-71fa-9745-b1ba-a1ee866aa035",
         "object": "chat.completion",
-        "created": 1791454353,
+        "created": 1791737777,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"Of course we did, old thing - by the fire the whole time after the candles were lit until that dreadful scream, just as I said. Bearing up awfully well for a new widow, Victoria. Quite the little trouper.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"chomps cigar and mops brow with handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Quite right, old girl – we never stirred from that fire until the scream rang out!\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"chomps cigar and mops brow with handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-3,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3785,
-          "completion_tokens": 98,
-          "total_tokens": 3883,
+          "prompt_tokens": 3986,
+          "completion_tokens": 71,
+          "total_tokens": 4057,
           "prompt_tokens_details": {
-            "text_tokens": 3785,
+            "text_tokens": 3986,
             "audio_tokens": 0,
             "image_tokens": 0,
             "cached_tokens": 128
@@ -103,17 +103,17 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 48418500
+          "cost_in_usd_ticks": 50256000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3785,
-        "completion_tokens": 98,
-        "total_tokens": 3883,
+        "prompt_tokens": 3986,
+        "completion_tokens": 71,
+        "total_tokens": 4057,
         "prompt_tokens_details": {
-          "text_tokens": 3785,
+          "text_tokens": 3986,
           "audio_tokens": 0,
           "image_tokens": 0,
           "cached_tokens": 128
@@ -125,9 +125,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 48418500
+        "cost_in_usd_ticks": 50256000
       },
-      "costUsd": 0.00484185
+      "costUsd": 0.005025600000000001
     }
   ]
 }

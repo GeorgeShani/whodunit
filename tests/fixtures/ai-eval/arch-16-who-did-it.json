@@ -1,37 +1,37 @@
 {
   "scenarioId": "arch-16-who-did-it",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:25:40.101Z",
+  "recordedAt": "2026-10-11T16:57:24.730Z",
   "calls": [
     {
-      "promptHash": "fd101ae56fae1825",
+      "promptHash": "8b74e222b354ae5e",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "f6739c6f-53f1-945c-875d-27338ac4c0f7",
+        "id": "e9677324-d2eb-9dfa-a73c-337e4b0cf2dc",
         "object": "chat.completion",
-        "created": 1791455138,
+        "created": 1791737843,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I say, old boy, what a dashed impertinent question! How should I know? That gardener fellow looks shifty enough to me.\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"chomps cigar and checks pocket watch\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Who killed him? That gardener chap, obviously! Turns up soaked to the skin the second we find the body - looks guilty as sin, what?\",\"emotion\":\"defensive\",\"intensity\":0.7,\"action\":\"chomps cigar and checks pocket watch\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":5,\"trustDelta\":-5,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 3420,
-          "completion_tokens": 79,
-          "total_tokens": 3499,
+          "prompt_tokens": 3623,
+          "completion_tokens": 81,
+          "total_tokens": 3704,
           "prompt_tokens_details": {
-            "text_tokens": 3420,
+            "text_tokens": 3623,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 3392
+            "cached_tokens": 2176
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 9109000
+          "cost_in_usd_ticks": 24464500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 3420,
-        "completion_tokens": 79,
-        "total_tokens": 3499,
+        "prompt_tokens": 3623,
+        "completion_tokens": 81,
+        "total_tokens": 3704,
         "prompt_tokens_details": {
-          "text_tokens": 3420,
+          "text_tokens": 3623,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 3392
+          "cached_tokens": 2176
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 9109000
+        "cost_in_usd_ticks": 24464500
       },
-      "costUsd": 0.0009109000000000001
+      "costUsd": 0.00244645
     }
   ]
 }

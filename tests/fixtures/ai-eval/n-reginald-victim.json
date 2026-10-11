@@ -1,37 +1,37 @@
 {
   "scenarioId": "n-reginald-victim",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:22.806Z",
+  "recordedAt": "2026-10-11T16:55:33.753Z",
   "calls": [
     {
-      "promptHash": "73f5809efc000a47",
+      "promptHash": "81531fc01fbfc9c8",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "b83371e5-c907-989f-b527-6b9c6eb3668d",
+        "id": "f1fbc57e-66fd-96d2-8cc5-c144c4d4433b",
         "object": "chat.completion",
-        "created": 1791455061,
+        "created": 1791737732,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"His Lordship was a man of exacting standards, sir, who expected every spoon to gleam and every duty to be performed without fail. Twenty years in his service taught one the value of precision.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a cufflink with a handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"Lord Blackwood was a gentleman of exacting standards, sir. Twenty years in his service taught one the value of precision in all things, from the polishing of the silver to the promptness of the dinner gong.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a cufflink with his handkerchief\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4062,
-          "completion_tokens": 90,
-          "total_tokens": 4152,
+          "prompt_tokens": 4270,
+          "completion_tokens": 93,
+          "total_tokens": 4363,
           "prompt_tokens_details": {
-            "text_tokens": 4062,
+            "text_tokens": 4270,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 192
+            "cached_tokens": 4224
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 51009000
+          "cost_in_usd_ticks": 11348000
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4062,
-        "completion_tokens": 90,
-        "total_tokens": 4152,
+        "prompt_tokens": 4270,
+        "completion_tokens": 93,
+        "total_tokens": 4363,
         "prompt_tokens_details": {
-          "text_tokens": 4062,
+          "text_tokens": 4270,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 192
+          "cached_tokens": 4224
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 51009000
+        "cost_in_usd_ticks": 11348000
       },
-      "costUsd": 0.0051009
+      "costUsd": 0.0011348000000000003
     }
   ]
 }

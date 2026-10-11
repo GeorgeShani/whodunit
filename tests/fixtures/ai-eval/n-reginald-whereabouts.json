@@ -1,37 +1,37 @@
 {
   "scenarioId": "n-reginald-whereabouts",
   "model": "grok-4.20-0309-non-reasoning",
-  "recordedAt": "2026-10-08T10:24:21.504Z",
+  "recordedAt": "2026-10-11T16:55:29.199Z",
   "calls": [
     {
-      "promptHash": "07dcf0e33724cee5",
+      "promptHash": "09422b7aea853859",
       "attempt": 1,
       "status": 200,
       "body": {
-        "id": "145a66af-7750-926f-aaaf-3a8d9b6dbd82",
+        "id": "ca0e97a8-0014-9819-ac7e-f823d6b0b736",
         "object": "chat.completion",
-        "created": 1791455060,
+        "created": 1791737728,
         "model": "grok-4.20-0309-non-reasoning",
         "choices": [
           {
             "index": 0,
             "message": {
               "role": "assistant",
-              "content": "{\"dialogue\":\"I was in the kitchen polishing silver, sir, and heard nothing at all. One must always ensure the candlesticks are spotless before the evening duties conclude.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a candlestick absentmindedly with a cloth\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
+              "content": "{\"dialogue\":\"I was in the kitchen polishing silver, sir, and heard nothing at all.\",\"emotion\":\"calm\",\"intensity\":0.4,\"action\":\"polishes a spoon with a cloth\",\"evidenceReactions\":[],\"wantsToLeave\":false,\"stressDelta\":0,\"trustDelta\":0,\"admits\":[]}",
               "refusal": null
             },
             "finish_reason": "stop"
           }
         ],
         "usage": {
-          "prompt_tokens": 4063,
-          "completion_tokens": 86,
-          "total_tokens": 4149,
+          "prompt_tokens": 4271,
+          "completion_tokens": 65,
+          "total_tokens": 4336,
           "prompt_tokens_details": {
-            "text_tokens": 4063,
+            "text_tokens": 4271,
             "audio_tokens": 0,
             "image_tokens": 0,
-            "cached_tokens": 640
+            "cached_tokens": 128
           },
           "completion_tokens_details": {
             "reasoning_tokens": 0,
@@ -40,20 +40,20 @@
             "rejected_prediction_tokens": 0
           },
           "num_sources_used": 0,
-          "cost_in_usd_ticks": 46217500
+          "cost_in_usd_ticks": 53668500
         },
         "system_fingerprint": "fp_41d52165d8",
         "service_tier": "default"
       },
       "usage": {
-        "prompt_tokens": 4063,
-        "completion_tokens": 86,
-        "total_tokens": 4149,
+        "prompt_tokens": 4271,
+        "completion_tokens": 65,
+        "total_tokens": 4336,
         "prompt_tokens_details": {
-          "text_tokens": 4063,
+          "text_tokens": 4271,
           "audio_tokens": 0,
           "image_tokens": 0,
-          "cached_tokens": 640
+          "cached_tokens": 128
         },
         "completion_tokens_details": {
           "reasoning_tokens": 0,
@@ -62,9 +62,9 @@
           "rejected_prediction_tokens": 0
         },
         "num_sources_used": 0,
-        "cost_in_usd_ticks": 46217500
+        "cost_in_usd_ticks": 53668500
       },
-      "costUsd": 0.00462175
+      "costUsd": 0.00536685
     }
   ]
 }
