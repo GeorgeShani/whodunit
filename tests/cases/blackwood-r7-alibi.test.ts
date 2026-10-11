@@ -45,6 +45,36 @@ describe("CA-28 (r7 M1): no 'exposed lie, truth still locked' gap", () => {
         }
     expect(gaps).toEqual([]);
   });
+
+  /** r7b (Gremlin N4): the same rule for CLUES. Each entry is a deliberate exception with its reason. */
+  const EVIDENCE_EXCEPTIONS: Record<string, string> = {
+    "reginald:l-reginald-few-words <- burned-letter":
+      "The letter first cracks s-reginald-theft (his own deeper secret); the overheard truth needs theft first and opens on the next showing of the same clue. Gremlin r7b rated it benign; Marvin to confirm (alternative: drop burned-letter from the lie's brokenByEvidenceIds).",
+  };
+  it("generic: every CLUE that breaks an innocent's lie reveals a secret that supersedes it on that same exchange (r7b N4)", () => {
+    const victoria = c.solution.murdererId;
+    const gaps: string[] = [];
+    for (const ch of c.characters.filter((x) => x.id !== victoria))
+      for (const lie of ch.intendedLies)
+        for (const ev of lie.brokenByEvidenceIds) {
+          const g = r7State(c, { ev: c.evidence.map((e) => e.id) });
+          g.characters[ch.id].liesToldIds.push(lie.id);
+          const plan = planTurn(c, g, ch.id, { playerText: "Explain this.", presentedEvidenceId: ev });
+          if (plan.exposedLieIds.includes(lie.id) && !(plan.revealSecretId && lie.supersededBySecretIds.includes(plan.revealSecretId)))
+            gaps.push(`${ch.id}:${lie.id} <- ${ev}`);
+        }
+    expect(gaps.filter((x) => !(x in EVIDENCE_EXCEPTIONS))).toEqual([]);
+    // an exception that no longer happens must be removed
+    expect(Object.keys(EVIDENCE_EXCEPTIONS).filter((x) => !gaps.includes(x))).toEqual([]);
+  });
+
+  it("r7b N4: the burned letter shown to Archibald cracks his false alibi too (it already broke 'together')", () => {
+    const g = r7State(c, { ev: ["silver-candlestick", "library-key", "burned-letter"] });
+    g.characters.archibald.liesToldIds.push("l-archibald-together");
+    const plan = planTurn(c, g, "archibald", { playerText: "This letter was in the dining-room fire. You sat there all along?", presentedEvidenceId: "burned-letter" });
+    expect(plan.exposedLieIds).toContain("l-archibald-together");
+    expect(plan.revealSecretId).toBe("s-archibald-false-alibi");
+  });
 });
 
 describe("CA-28 (r7 M1): Archibald cannot invent where he was", () => {
