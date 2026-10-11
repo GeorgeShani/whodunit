@@ -118,6 +118,22 @@
           "brass-spyglass"
         ]
       }
+    },
+    {
+      "id": "lead-witness",
+      "title": "Did anyone see the keeper?",
+      "hint": "The cook knows more than she says.",
+      "opensWhen": {
+        "secretIds": [
+          "marlow-secret"
+        ]
+      },
+      "closesWhen": {
+        "secretIds": [
+          "marlow-saw-quill"
+        ]
+      },
+      "closedLine": "The cook saw the keeper."
     }
   ],
   "accuseGate": {
@@ -128,7 +144,8 @@
     },
     "minRevealedSecrets": 2,
     "closedLeadIds": [
-      "lead-spyglass"
+      "lead-spyglass",
+      "lead-witness"
     ],
     "lockedLines": {
       "evidence": "More clues, detective.",

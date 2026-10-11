@@ -21,7 +21,7 @@ import { checkEventTimes } from "./event-time-check";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, type GuiltProfile } from "@/engine/core-guilt";
-import { isOutburst } from "@/engine/stress";
+import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
 import { DEFLECT_CALM, DEFLECT_RATTLED, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
@@ -102,6 +102,30 @@ export function findUnknownName(text: string, vocabulary: string): string | null
 
 /** Check one reply against the contract; null = accepted. */
 export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
+  const v = checkReplyRules(r, g);
+  return v && withPlannedReveal(v, g.directives);
+}
+
+/** Phrases that tell the model to confess nothing; wrong on a turn whose directive REQUIRES a confession. */
+const ADMIT_NOTHING = /\s*Still admit nothing new\.?/g;
+
+/**
+ * C2: on a turn with a planned reveal (directives.revealSecret: a deferred stress reveal, a breakdown that is also a
+ * reveal, a clue or testimony that cracks a story), a retry note must never tell the model to admit nothing: that
+ * contradicts the directive and costs the beat. Any "admit nothing new" is dropped, and the note ends by keeping the
+ * confession this turn requires and fixing only the flagged problem. General: applies to every reason.
+ */
+export function withPlannedReveal(v: GuardVerdict, d: Pick<TurnDirectives, "revealSecret">): GuardVerdict {
+  if (!d.revealSecret) return v;
+  const note = v.note.replace(ADMIT_NOTHING, "").trim();
+  return { ...v, note: `${note} ${plannedRevealNote(d.revealSecret.id)}` };
+}
+
+export function plannedRevealNote(secretId: string): string {
+  return `This turn still REQUIRES your confession ("${secretId}", as your ENGINE DIRECTIVE says): keep that confession in your reply and fix only the problem above.`;
+}
+
+function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   const said = `${r.dialogue} ${r.action ?? ""}`;
   const victim = g.caseData.victim.name;
 
@@ -218,7 +242,7 @@ export function checkReply(r: GuardReply, g: GuardInput): GuardVerdict | null {
     if (again) return { reason: "repeat", note: `You already said almost exactly this in your last replies: "${again}". Do NOT repeat it or reword it lightly: answer what the detective just said, with something new (a different angle, reaction or fact you know), keeping every story the same.`, detail: again.slice(0, 120) };
   }
   if (g.directives.breakdown && !isOutburst(r.dialogue)) {
-    return { reason: "no_outburst", note: "This turn is your BREAKDOWN: burst out loud (at least one word in CAPITALS and an exclamation mark), panicked, furious or sobbing. Still admit nothing new.", detail: "" };
+    return { reason: "no_outburst", note: `This turn is your BREAKDOWN: burst out loud, panicked, furious or sobbing. Your dialogue must contain ${outburstRuleText()}. Still admit nothing new.`, detail: "" };
   }
   const modern = findModernWord(said, g.heard);
   if (modern) return { reason: "modern_word", note: `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`, detail: modern };

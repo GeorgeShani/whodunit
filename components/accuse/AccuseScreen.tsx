@@ -1,5 +1,6 @@
 "use client";
 
+import { weaponChoices } from "./weapon-choices";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { Portrait } from "@/components/characters/Portrait";
@@ -42,6 +43,8 @@ export function AccuseScreen({
   error,
   testimonies = [],
   citeTestimony = false,
+  weaponsMarked = false,
+  citeCap,
   onSubmit,
   onBack,
 }: {
@@ -54,10 +57,17 @@ export function AccuseScreen({
   /** Confessions in the notebook; the picker shows only when the case asks for one (citeTestimony). */
   testimonies?: PublicTestimony[];
   citeTestimony?: boolean;
+  /** E3: the case marks weapon candidates; the weapon picker lists only those (see weaponChoices). */
+  weaponsMarked?: boolean;
+  /** E2: "Cite up to N" clues / confessions (progress.accuse.citeCap); absent = the absolute maxima. */
+  citeCap?: { evidence: number; testimony: number };
   onSubmit: (a: Accusation) => void;
   onBack: () => void;
 }) {
   const [draft, setDraft] = useState<AccusationDraft>({ keyEvidenceIds: [] });
+  const maxProof = Math.min(MAX_ACCUSE_EVIDENCE, citeCap?.evidence ?? MAX_ACCUSE_EVIDENCE);
+  const maxTestimony = Math.min(MAX_ACCUSE_TESTIMONY, citeCap?.testimony ?? MAX_ACCUSE_TESTIMONY);
+  const weapons = weaponChoices(evidence, weaponsMarked);
   const [errors, setErrors] = useState<string[]>([]);
   const [confirming, setConfirming] = useState(false);
   const set = (d: Partial<AccusationDraft>) => {
@@ -77,11 +87,12 @@ export function AccuseScreen({
       motiveIds: motives.map((m) => m.id),
       testimonyIds: testimonies.map((t) => t.id),
       requireTestimony: citeTestimony,
+      ...(citeCap ? { caps: citeCap } : {}),
     });
 
   return (
     <main className="screen-scroll relative flex scroll-pb-28 min-h-0 flex-1 flex-col items-center gap-5 bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)] px-4 pb-0 pt-3 sm:px-6 sm:py-6">
-      <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-xl:pe-12">
+      <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-2xl:pe-24">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
@@ -114,9 +125,10 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={2} title="With what?" hint="The murder weapon, from the clues in your notebook.">
+      <Section n={2} title="With what?" hint={weaponsMarked ? "The murder weapon, from the possible weapons you have found." : "The murder weapon, from the clues in your notebook."}>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="accuse-2">
-          {evidence.map((e) => (
+          {weapons.length === 0 && <p className="text-base font-semibold text-yellow-100">No possible weapon in your notebook yet. Keep searching.</p>}
+          {weapons.map((e) => (
             <button
               key={e.id}
               type="button"
@@ -153,7 +165,7 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={4} title="Your proof" hint={`Cite 1 to ${MAX_ACCUSE_EVIDENCE} clues that prove it (${draft.keyEvidenceIds.length} chosen).`}>
+      <Section n={4} title="Your proof" hint={`Cite up to ${maxProof} clues that prove it (${draft.keyEvidenceIds.length} chosen). Only cite what supports your case.`}>
         <div className="flex flex-wrap gap-2">
           {evidence.map((e) => {
             const on = draft.keyEvidenceIds.includes(e.id);
@@ -164,7 +176,7 @@ export function AccuseScreen({
                 role="checkbox"
                 aria-checked={on}
                 data-accuse-proof={e.id}
-                disabled={busy || (!on && draft.keyEvidenceIds.length >= MAX_ACCUSE_EVIDENCE)}
+                disabled={busy || (!on && draft.keyEvidenceIds.length >= maxProof)}
                 onClick={() => toggleProof(e.id)}
                 className={`${pick(on)} min-h-12 px-4 py-2 text-base font-bold`}
               >
@@ -179,7 +191,7 @@ export function AccuseScreen({
         <Section
           n={5}
           title="A confession"
-          hint={`Clues alone won't do. Cite 1 to ${MAX_ACCUSE_TESTIMONY} confessions someone gave you (${(draft.keyTestimonyIds ?? []).length} chosen).`}
+          hint={`Clues alone won't do. Cite up to ${maxTestimony} confessions someone gave you (${(draft.keyTestimonyIds ?? []).length} chosen).`}
         >
           {testimonies.length === 0 ? (
             <p
@@ -203,8 +215,7 @@ export function AccuseScreen({
                     disabled={
                       busy ||
                       (!on &&
-                        (draft.keyTestimonyIds ?? []).length >=
-                          MAX_ACCUSE_TESTIMONY)
+                        (draft.keyTestimonyIds ?? []).length >= maxTestimony)
                     }
                     onClick={() => toggleTestimony(t.id)}
                     className={`${pick(on)} min-h-12 px-4 py-2 text-base`}

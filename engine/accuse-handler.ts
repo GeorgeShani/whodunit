@@ -8,7 +8,7 @@
  * on a win: a loss never carries the solution or per-field verdict).
  */
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
-import { gradeAccusation } from "./accusation";
+import { citeCaps, gradeAccusation } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import { buildEnding, buildSolutionReveal, endingEvidence, toVerdict } from "./ending-payload";
 import { accuseProgress } from "./progress";
@@ -25,6 +25,8 @@ export const ACCUSE_LINES = {
   unknownMotive: "That's not a motive anyone here could have, detective.",
   notDiscovered: "You can't cite a clue you haven't found, detective. Check your notebook.",
   testimonyNotRevealed: "You can't cite a confession nobody has made, detective. Check the testimony in your notebook.",
+  /** E2: more citations than the case's "Cite up to N". */
+  tooManyCitations: "The inspector won't wade through a whole sack of exhibits, detective. Pick your best, and stay within the limit.",
   locked: "The case isn't ready yet, detective.",
   caseClosed: "You've already named your culprit, detective. The case is closed.",
   /** The closed-games record could not be written (#39): nothing was decided, ask again shortly. */
@@ -46,9 +48,10 @@ function verdictBody(caseData: LoadedCase, game: GameState, accusation: Accusati
   const grade = gradeAccusation(caseData.solution, accusation);
   const ending = buildEnding(caseData, grade, accusation);
   const stateToken = saveSession(game, env);
-  if (!grade.won) return { outcome: "lost", accusation, ending, evidence: endingEvidence(caseData, ending, undefined, accusation), stateToken };
+  const rating = grade.rating ? { rating: grade.rating } : {};
+  if (!grade.won) return { outcome: "lost", accusation, ...rating, ending, evidence: endingEvidence(caseData, ending, undefined, accusation), stateToken };
   const solution = buildSolutionReveal(caseData);
-  return { outcome: "won", accusation, verdict: toVerdict(grade), solution, ending, evidence: endingEvidence(caseData, ending, solution, accusation), stateToken };
+  return { outcome: "won", accusation, verdict: toVerdict(grade), ...rating, solution, ending, evidence: endingEvidence(caseData, ending, solution, accusation), stateToken };
 }
 
 /**
@@ -102,8 +105,8 @@ function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: Stored
       murdererId: s.murdererId,
       weaponId: s.weaponId,
       motiveId: s.motiveId,
-      keyEvidenceIds: s.keyEvidenceIds.slice(0, 5),
-      ...(s.keyTestimonyIds?.length ? { keyTestimonyIds: s.keyTestimonyIds.slice(0, 3) } : {}),
+      keyEvidenceIds: s.keyEvidenceIds.slice(0, citeCaps(s).evidence),
+      ...(s.keyTestimonyIds?.length ? { keyTestimonyIds: s.keyTestimonyIds.slice(0, citeCaps(s).testimony) } : {}),
     };
     game.accusation = accusation;
     game.outcome = "won";
@@ -162,6 +165,9 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
   if (!caseData.motives.some((m) => m.id === accusation.motiveId)) return reject("unknown_motive", ACCUSE_LINES.unknownMotive);
   const discovered = new Set(game.discoveredEvidenceIds);
   const cited = [...new Set(accusation.keyEvidenceIds)];
+  // E2: "Cite up to N" (min required + 1, clues and testimony separately). Over the cap: 400, nothing consumed.
+  const caps = citeCaps(caseData.solution);
+  if (cited.length > caps.evidence || new Set(accusation.keyTestimonyIds ?? []).size > caps.testimony) return reject("too_many_citations", ACCUSE_LINES.tooManyCitations);
   if (!discovered.has(accusation.weaponId) || !cited.every((id) => discovered.has(id))) return reject("evidence_not_discovered", ACCUSE_LINES.notDiscovered);
 
   const citedTestimony = [...new Set(accusation.keyTestimonyIds ?? [])];

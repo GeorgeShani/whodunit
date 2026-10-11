@@ -16,6 +16,7 @@ export function InvestigateScreen({
   pendingId,
   otherBusy = false,
   lockedLocationIds = [],
+  freshLocationIds = [],
   onSearch,
   onBack,
 }: {
@@ -30,6 +31,8 @@ export function InvestigateScreen({
   otherBusy?: boolean;
   /** Rooms still locked by progression (progress.lockedLocationIds): a padlock and the room's lockedLine instead of a search. */
   lockedLocationIds?: string[];
+  /** Searched rooms where something new can be found now (progress.freshLocationIds): "something new" instead of ✔. */
+  freshLocationIds?: string[];
   onSearch: (locationId: string) => void;
   onBack: () => void;
 }) {
@@ -40,7 +43,7 @@ export function InvestigateScreen({
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-xl:pe-12">
+      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-2xl:pe-24">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
@@ -58,6 +61,7 @@ export function InvestigateScreen({
           const locked =
             lockedLocationIds.includes(l.id) && !searched.includes(l.id);
           const done = searched.includes(l.id);
+          const fresh = done && !locked && freshLocationIds.includes(l.id);
           const busy = pendingId === l.id;
           const bg = l.background;
           return (
@@ -81,12 +85,14 @@ export function InvestigateScreen({
                   className={`absolute right-2 top-2 rounded-full border-[3px] border-black px-3 py-1 text-sm font-black uppercase shadow-[2px_2px_0_#000] ${
                     locked
                       ? "bg-neutral-300"
-                      : done
+                      : fresh
+                        ? "bg-yellow-300"
+                        : done
                         ? "bg-lime-300"
                         : "bg-white"
                   }`}
                 >
-                  {locked ? "🔒 Locked" : done ? "✔ Searched" : "Unsearched"}
+                  {locked ? "🔒 Locked" : fresh ? "✨ Something new" : done ? "✔ Searched" : "Unsearched"}
                 </span>
               </div>
               <div className="flex flex-1 flex-col gap-2 p-4">

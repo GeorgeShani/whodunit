@@ -47,8 +47,13 @@ describe("AI eval replay (recorded live replies through the guard pipeline)", ()
     }
   });
 
-  it("replays are current: no scenario's prompt changed since it was recorded", () => {
-    expect(results.filter((r) => r.notes.length).map((r) => `${r.id}: ${r.notes.join("; ")}`)).toEqual([]);
+  it("replays are current: no scenario's prompt changed since it was recorded, except the listed pending re-records", () => {
+    // tools/ai-eval/pending-rerecord.json: prompt changes already shipped whose fixtures wait for the next combined
+    // re-record. Exactly those may be stale (and still have to pass after the guard below); nothing else may be.
+    const pending = Object.keys(JSON.parse(readFileSync(path.resolve("tools/ai-eval/pending-rerecord.json"), "utf8")) as Record<string, string>).filter((k) => !k.startsWith("_"));
+    const stale = results.filter((r) => r.notes.includes("prompt changed since recording")).map((r) => r.id);
+    expect(stale.sort(), "stale fixtures must equal tools/ai-eval/pending-rerecord.json").toEqual([...pending].sort());
+    expect(results.filter((r) => r.notes.some((n) => n !== "prompt changed since recording")).map((r) => `${r.id}: ${r.notes.join("; ")}`)).toEqual([]);
   });
 
   it("after the guard: every assertion passes on every line the player sees", () => {

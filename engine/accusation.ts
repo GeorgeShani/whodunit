@@ -4,8 +4,12 @@
  * Rule (George): a WIN needs the correct murderer, weapon AND motive, AND
  * at least `minKeyEvidence` (default 1) cited ids from solution.keyEvidenceIds, AND
  * at least `minKeyTestimony` (default 0) cited ids from solution.keyTestimonyIds.
- * Extra non-key evidence is fine. Time and place are not graded, but are returned
+ * Extra non-key evidence never changes won/lost. Time and place are not graded, but are returned
  * for the ending recap. Pure; the LLM never judges accusations.
+ *
+ * E2 rating (only when the accused IS the murderer, won or "right person, wrong story"): "sloppy" when any cited
+ * clue is outside keyEvidenceIds + supportingEvidenceIds, or any cited testimony is outside keyTestimonyIds +
+ * supportingTestimonyIds; otherwise "clean". A wrong accusation has no rating.
  */
 import type { CaseSolution } from "./solution";
 import type { Accusation } from "./types";
@@ -23,8 +27,26 @@ export interface AccusationGrade {
   /** Cited testimony (secret ids) that is key testimony (deduplicated, in citation order). */
   keyTestimonyCited: string[];
   hasKeyTestimony: boolean;
+  /** E2: present only when the murderer is right. */
+  rating?: Rating;
+  /** E2: cited clue / testimony ids that support nothing (what made the rating sloppy). */
+  unsupportedCited: string[];
   /** For the ending recap only; not graded. */
   recap: { murdererId: string; weaponId: string; motiveId: string; locationId: string; time: string };
+}
+
+export type Rating = "clean" | "sloppy";
+
+/** E2: "Cite up to N" for clues and for testimony separately: the minimum the win needs, plus one. */
+export function citeCaps(solution: Pick<CaseSolution, "minKeyEvidence" | "minKeyTestimony">): { evidence: number; testimony: number } {
+  return { evidence: (solution.minKeyEvidence ?? 1) + 1, testimony: (solution.minKeyTestimony ?? 0) + 1 };
+}
+
+/** E2: the cited ids that support nothing (not key, not supporting). */
+export function unsupportedCitations(solution: CaseSolution, accusation: Pick<Accusation, "keyEvidenceIds" | "keyTestimonyIds">): string[] {
+  const ev = new Set([...solution.keyEvidenceIds, ...(solution.supportingEvidenceIds ?? [])]);
+  const te = new Set([...(solution.keyTestimonyIds ?? []), ...(solution.supportingTestimonyIds ?? [])]);
+  return [...[...new Set(accusation.keyEvidenceIds)].filter((id) => !ev.has(id)), ...[...new Set(accusation.keyTestimonyIds ?? [])].filter((id) => !te.has(id))];
 }
 
 export function gradeAccusation(solution: CaseSolution, accusation: Accusation): AccusationGrade {
@@ -38,8 +60,11 @@ export function gradeAccusation(solution: CaseSolution, accusation: Accusation):
   const keyTestimony = new Set(solution.keyTestimonyIds ?? []);
   const keyTestimonyCited = [...new Set(accusation.keyTestimonyIds ?? [])].filter((id) => keyTestimony.has(id));
   const hasKeyTestimony = keyTestimonyCited.length >= (solution.minKeyTestimony ?? 0);
+  const unsupportedCited = unsupportedCitations(solution, accusation);
   return {
     won: murdererCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence && hasKeyTestimony,
+    ...(murdererCorrect ? { rating: unsupportedCited.length ? ("sloppy" as const) : ("clean" as const) } : {}),
+    unsupportedCited,
     murdererCorrect,
     weaponCorrect,
     motiveCorrect,

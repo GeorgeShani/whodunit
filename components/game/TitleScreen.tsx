@@ -4,11 +4,12 @@ import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useRef } from "react";
 import { getAudio } from "@/components/effects/audio";
+import { FirstTimePrompt } from "@/components/help/HowToPlay";
 import { backdropStyle } from "./backdrop";
 
 // Title card art: docs/ART_BIBLE.md §7.0 (assets/title/ -> /assets/title/ via sync:assets).
 // Phones (max-sm): tighter tagline + button and less bottom padding so the stack clears the mansion base.
-export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; backdrop?: string; onStart: () => void }) {
+export function TitleScreen({ tagline, backdrop, onStart, onHowToPlay }: { tagline: string; backdrop?: string; onStart: () => void; /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void }) {
   // #9: no endless sunburst spin or button pulse under prefers-reduced-motion.
   const reduced = useReducedMotion() ?? false;
   // A first tap anywhere but START unlocks audio and lets the noir theme play once over the rain (never before a gesture).
@@ -21,7 +22,7 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
     audio.play("theme_noir_minor");
   };
   return (
-    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6dvh] text-center max-sm:pb-[3dvh]" style={backdropStyle(backdrop)}>
+    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6dvh] text-center max-sm:pb-[3dvh] short:py-3" style={backdropStyle(backdrop)}>
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[22%] w-[130vmin] -translate-x-1/2 -translate-y-1/2">
         <motion.img
           src="/assets/title/sunburst.webp"
@@ -33,7 +34,7 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
         />
       </div>
       <motion.h1
-        className="relative mt-[2dvh] w-[min(90vw,1100px,105dvh)]"
+        className="relative mt-[2dvh] w-[min(90vw,1100px,105dvh)] short:mt-0 short:w-[min(90vw,1100px,85dvh)]"
         initial={{ scale: 0, rotate: -16 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 12 }}
@@ -42,13 +43,15 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
       </motion.h1>
       <div className="relative flex flex-col items-center">
         <motion.p
-          className="relative max-w-xl rounded-2xl border-4 border-black bg-white px-6 py-3 text-lg font-bold text-black shadow-[6px_6px_0_#000] max-sm:max-w-80 max-sm:px-4 max-sm:py-2 max-sm:text-sm max-sm:shadow-[4px_4px_0_#000] sm:text-xl"
+          className="relative max-w-xl rounded-2xl border-4 border-black bg-white px-6 py-3 text-lg font-bold text-black shadow-[6px_6px_0_#000] max-sm:max-w-80 max-sm:px-4 max-sm:py-2 max-sm:text-sm max-sm:shadow-[4px_4px_0_#000] sm:text-xl short:py-1.5 short:text-base"
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
         >
           {tagline}
         </motion.p>
+        {/* Phones held sideways: START and HOW TO PLAY share a row so both stay on screen. */}
+        <div className="flex flex-col items-center short:mt-3 short:flex-row short:gap-4">
         <motion.button
           type="button"
           data-start
@@ -60,7 +63,7 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
             audio.play("case_open");
             onStart();
           }}
-          className="relative mt-8 cursor-pointer rounded-full border-4 border-black bg-red-500 px-10 py-4 font-display text-3xl tracking-widest text-white shadow-[6px_6px_0_#000] hover:bg-red-400 active:translate-y-1 active:shadow-[2px_2px_0_#000] max-sm:mt-5 max-sm:px-8 max-sm:py-3 max-sm:text-2xl"
+          className="relative mt-8 cursor-pointer rounded-full border-4 border-black bg-red-500 px-10 py-4 font-display text-3xl tracking-widest text-white shadow-[6px_6px_0_#000] hover:bg-red-400 active:translate-y-1 active:shadow-[2px_2px_0_#000] max-sm:mt-5 max-sm:px-8 max-sm:py-3 max-sm:text-2xl short:mt-0 short:py-2 short:text-2xl"
           initial={{ opacity: 0, scale: 0.5 }}
           animate={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [1, 1.08, 1] }}
           whileHover={reduced ? undefined : { rotate: [0, -3, 3, 0] }}
@@ -71,6 +74,24 @@ export function TitleScreen({ tagline, backdrop, onStart }: { tagline: string; b
         >
           [START CASE]
         </motion.button>
+        {onHowToPlay && (
+          <button
+            type="button"
+            data-how-to-play-button
+            aria-haspopup="dialog"
+            onClick={() => {
+              const audio = getAudio();
+              audio.unlock();
+              audio.play("ui_paper");
+              onHowToPlay();
+            }}
+            className="relative mt-4 min-h-12 cursor-pointer rounded-full border-[3px] border-black bg-white px-6 py-2 font-display text-xl tracking-widest text-black shadow-[4px_4px_0_#000] hover:bg-yellow-100 active:translate-y-1 active:shadow-[1px_1px_0_#000] max-sm:mt-3 max-sm:text-lg short:mt-0"
+          >
+            <span aria-hidden>❓</span> HOW TO PLAY
+          </button>
+        )}
+        </div>
+        {onHowToPlay && <FirstTimePrompt />}
       </div>
     </main>
   );

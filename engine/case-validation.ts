@@ -196,6 +196,15 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   if (!locationIds.has(s.locationId)) issues.push({ file: SOL, path: "locationId", message: `location "${s.locationId}" is not a location in case.json` });
   if (!motiveIds.has(s.motiveId)) issues.push({ file: SOL, path: "motiveId", message: `motive "${s.motiveId}" is not one of case.json motives[].id` });
   s.keyEvidenceIds.forEach((id, k) => ref(evidenceIds, "evidence", id, SOL, `keyEvidenceIds.${k}`));
+  // E2: supporting citations exist and never overlap the key lists.
+  (s.supportingEvidenceIds ?? []).forEach((id, k) => {
+    ref(evidenceIds, "evidence", id, SOL, `supportingEvidenceIds.${k}`);
+    if (s.keyEvidenceIds.includes(id)) issues.push({ file: SOL, path: `supportingEvidenceIds.${k}`, message: `"${id}" is already in keyEvidenceIds (supporting ids must not overlap the key list)` });
+  });
+  (s.supportingTestimonyIds ?? []).forEach((id, k) => {
+    if (!allSecretIds.has(id)) issues.push({ file: SOL, path: `supportingTestimonyIds.${k}`, message: `unknown secret "${id}"` });
+    if ((s.keyTestimonyIds ?? []).includes(id)) issues.push({ file: SOL, path: `supportingTestimonyIds.${k}`, message: `"${id}" is already in keyTestimonyIds (supporting ids must not overlap the key list)` });
+  });
 
   if (murderer && locationIds.has(s.locationId) && !wasPresent(c, s.murdererId, s.locationId, s.time)) {
     issues.push({
@@ -204,6 +213,11 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
         `murderer "${s.murdererId}" had no opportunity: no timeline entry (point or window) places them in ` +
         `"${s.locationId}" within ${OPPORTUNITY_WINDOW_MINUTES} min of ${s.time}`,
     });
+  }
+
+  // E3: when the case marks weapon candidates, the real weapon must be one, or the picker hides the answer.
+  if (c.evidence.some((e) => e.weapon) && !c.evidence.find((e) => e.id === s.weaponId)?.weapon) {
+    issues.push({ file: "evidence.json", path: s.weaponId, message: `evidence marks weapon candidates ("weapon": true) but the solution's weapon "${s.weaponId}" is not one, so the accuse form would not offer it` });
   }
 
   // endings.json (optional)
@@ -218,6 +232,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       });
     checkLines(c.endings.correct.confession, "correct.confession");
     checkLines(c.endings.correct.recap, "correct.recap");
+    if (c.endings.sloppyRemark) checkLines([c.endings.sloppyRemark], "sloppyRemark");
     for (const [suspectId, lines] of Object.entries(c.endings.wrong)) {
       if (!characterIds.has(suspectId)) issues.push({ file: END, path: `wrong.${suspectId}`, message: `"${suspectId}" is not a suspect` });
       checkLines(lines, `wrong.${suspectId}`);
@@ -243,6 +258,36 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   return issues;
 }
 
+/** How to Play tips (case.json howToPlayTips): no duplicates, and nothing that names the solution. */
+export function howToPlayTipWarnings(c: LoadedCase): CaseIssue[] {
+  const warnings: CaseIssue[] = [];
+  const tips = c.howToPlayTips ?? [];
+  const key = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const seen = new Map<string, number>();
+  const murderer = c.characters.find((x) => x.id === c.solution.murdererId);
+  const weapon = c.evidence.find((e) => e.id === c.solution.weaponId);
+  const motive = c.motives.find((m) => m.id === c.solution.motiveId);
+  // The culprit's name and each distinctive part of it (not a title, and not shared with the case title, the victim or
+  // another suspect: a family surname that is also in the case title is no giveaway).
+  const shared = new Set(
+    [c.title, c.victim.name, ...c.characters.filter((x) => x.id !== murderer?.id).map((x) => x.name)].flatMap((n) => key(n).split(" ")),
+  );
+  const TITLES = new Set(["lady", "lord", "miss", "mister", "missus", "madam", "madame", "master", "doctor", "captain", "colonel", "major", "father", "sister", "brother", "uncle", "aunt", "professor", "inspector", "reverend", "sir", "dame"]);
+  const parts = murderer ? key(murderer.name).split(" ").filter((w) => w.length >= 3 && !TITLES.has(w) && !shared.has(w)) : [];
+  const giveaways = [murderer?.name, ...parts, weapon?.name, motive?.label]
+    .filter((x): x is string => Boolean(x))
+    .map(key)
+    .filter(Boolean);
+  tips.forEach((t, j) => {
+    const k = key(t);
+    if (seen.has(k)) warnings.push({ file: "case.json", path: `howToPlayTips.${j}`, message: `duplicates howToPlayTips.${seen.get(k)}` });
+    else seen.set(k, j);
+    const hit = giveaways.find((g) => ` ${k} `.includes(` ${g} `));
+    if (hit) warnings.push({ file: "case.json", path: `howToPlayTips.${j}`, message: `mentions "${hit}", which is part of the solution (culprit, weapon or motive); tips must be spoiler-free` });
+  });
+  return warnings;
+}
+
 /**
  * Non-fatal design warnings (validate:case prints them with ⚠): lies that can
  * never break, testimony that can never be revealed, reveal-order cycles,
@@ -264,6 +309,7 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
       if (fp.unlessRevealed && core.has(fp.unlessRevealed))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
     });
+  warnings.push(...howToPlayTipWarnings(c));
   // #52: voice variants. Duplicates waste a rotation slot; a long opener is not an opener; one variant cannot rotate.
   for (const ch of c.characters) {
     for (const k of ["openers", "actions", "deflections"] as const) {

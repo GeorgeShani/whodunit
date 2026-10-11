@@ -5,6 +5,7 @@
  * revealedSecretIds, characters[id].interrogationCount) and only ever goes false -> true, so no order of play can
  * undo an unlock. Conditions are evaluated against the state BEFORE an action.
  */
+import { citeCaps } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import type { AccuseGate, Condition, GameState, Lead, Location } from "./types";
 
@@ -84,6 +85,8 @@ export interface AccuseChecklist {
   clues: { have: number; need: number };
   suspects: { have: number; need: number };
   secrets: { have: number; need: number };
+  /** E5: the gate's required leads (closedLeadIds) closed so far. Optional only for sessions saved before it existed. */
+  leads?: { have: number; need: number };
 }
 
 export interface AccuseProgress {
@@ -100,7 +103,7 @@ type Unmet = "evidence" | "suspects" | "secrets" | "leads";
 /** Counts and the first unmet item (order: clues, suspects, secrets, leads). Never says which clue, who or why. */
 export function accuseProgress(caseData: Pick<LoadedCase, "characters" | "accuseGate" | "leads">, game: GameState, states: LeadStates = leadStates(caseData, game)): AccuseProgress {
   const gate: AccuseGate | undefined = caseData.accuseGate;
-  if (!gate) return { unlocked: true, checklist: { clues: { have: 0, need: 0 }, suspects: { have: 0, need: 0 }, secrets: { have: 0, need: 0 } } };
+  if (!gate) return { unlocked: true, checklist: { clues: { have: 0, need: 0 }, suspects: { have: 0, need: 0 }, secrets: { have: 0, need: 0 }, leads: { have: 0, need: 0 } } };
   const clues = { have: game.discoveredEvidenceIds.length, need: gate.minEvidence };
   const sq = gate.minSuspectsQuestioned;
   const suspects = {
@@ -108,12 +111,23 @@ export function accuseProgress(caseData: Pick<LoadedCase, "characters" | "accuse
     need: sq?.count ?? 0,
   };
   const secrets = { have: game.revealedSecretIds.length, need: gate.minRevealedSecrets ?? 0 };
-  const leadsOpen = (gate.closedLeadIds ?? []).every((id) => states[id] === "closed");
+  // Counts only (never which lead): one checklist row per gate condition, so every row ticked == unlocked (E5).
+  const required = gate.closedLeadIds ?? [];
+  const leads = { have: required.filter((id) => states[id] === "closed").length, need: required.length };
   const unmet: Unmet | null =
-    clues.have < clues.need ? "evidence" : suspects.have < suspects.need ? "suspects" : secrets.have < secrets.need ? "secrets" : !leadsOpen ? "leads" : null;
-  const checklist = { clues, suspects, secrets };
+    clues.have < clues.need ? "evidence" : suspects.have < suspects.need ? "suspects" : secrets.have < secrets.need ? "secrets" : leads.have < leads.need ? "leads" : null;
+  const checklist = { clues, suspects, secrets, leads };
   if (!unmet) return { unlocked: true, checklist };
   return { unlocked: false, checklist, line: gate.lockedLines?.[unmet] ?? gate.lockedLines?.default ?? DEFAULT_ACCUSE_LOCKED_LINE };
+}
+
+/** Searched, unlocked rooms where an undiscovered clue is findable now (what the next search would collect). */
+export function freshLocationIds(caseData: Pick<LoadedCase, "locations" | "evidence">, game: GameState, states: LeadStates): string[] {
+  const found = new Set(game.discoveredEvidenceIds);
+  return caseData.locations
+    .filter((l) => game.searchedLocationIds.includes(l.id) && isUnlocked(l, game, states))
+    .filter((l) => caseData.evidence.some((e) => e.locationId === l.id && !found.has(e.id) && isUnlocked(e, game, states)))
+    .map((l) => l.id);
 }
 
 /** The public progress object returned by every route that returns a token (docs §5.6). */
@@ -123,14 +137,24 @@ export interface PublicProgress {
   newLeadIds: string[];
   /** Rooms whose `requires` is unmet now. */
   lockedLocationIds: string[];
+  /**
+   * Rooms already searched where a search NOW would find something (a clue there became findable after the last
+   * search). The Investigate card shows "something new" instead of "Searched". Says nothing about which clue.
+   * Optional only for sessions saved before it existed.
+   */
+  freshLocationIds?: string[];
   /** `citeTestimony`: the accuse form must cite a revealed confession (solution.minKeyTestimony >= 1). Says nothing about which. */
-  accuse: AccuseProgress & { citeTestimony: boolean };
+  accuse: AccuseProgress & {
+    citeTestimony: boolean;
+    /** E2: "Cite up to N" clues / testimonies (the win's minimum + 1). Optional only for sessions saved before it. */
+    citeCap?: { evidence: number; testimony: number };
+  };
   /** "questioned n/2" badges: exchanges per suspect, capped at `need` (only when the gate asks for questioned suspects). */
   questioned?: { need: number; counts: Record<string, number> };
 }
 
 /** `before`: visibleLeadStates() of the state before the action (so a toast is only ever for a lead the player saw open or saw solved after opening). */
-export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution">, game: GameState, before?: LeadStates): PublicProgress {
+export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution" | "evidence">, game: GameState, before?: LeadStates): PublicProgress {
   const raw = leadStates(caseData, game);
   const states = visibleLeadStates(caseData, game, raw);
   const leads = (caseData.leads ?? []).filter((l): l is Lead => states[l.id] !== "hidden");
@@ -145,7 +169,8 @@ export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" 
     // hidden -> open (NEW LEAD) and open -> closed (LEAD SOLVED). hidden -> closed is a lead nobody saw open: no toast.
     newLeadIds: leads.filter((l) => (prev[l.id] ?? "hidden") !== states[l.id] && !((prev[l.id] ?? "hidden") === "hidden" && states[l.id] === "closed")).map((l) => l.id),
     lockedLocationIds: caseData.locations.filter((l: Location) => !isUnlocked(l, game, raw)).map((l) => l.id),
-    accuse: { ...accuseProgress(caseData, game, raw), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1 },
+    freshLocationIds: freshLocationIds(caseData, game, raw),
+    accuse: { ...accuseProgress(caseData, game, raw), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1, citeCap: citeCaps(caseData.solution) },
     ...(sq ? { questioned: { need: sq.minExchanges, counts: Object.fromEntries(caseData.characters.map((c) => [c.id, Math.min(sq.minExchanges, exchanges(game, c.id))])) } } : {}),
   };
 }
