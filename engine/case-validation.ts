@@ -3,6 +3,7 @@
  * be unit-tested and reused by the loader and scripts/validate-case.ts.
  */
 import type { LoadedCase } from "./case-schema";
+import { MAX_CONFRONTATION_TOTAL } from "./constants";
 import { gameMinutes } from "./time";
 import type { TimelineEntry } from "./types";
 import { checkProgression, progressionWarnings } from "./progression-validation";
@@ -304,8 +305,18 @@ export function howToPlayTipWarnings(c: LoadedCase): CaseIssue[] {
  * self-referential testimony, missing testimony summaries, explicit hiding
  * nobody can see. Assumes checkCaseReferences passed.
  */
+/** confrontation.perPair above the (case or default) total can never be used up: the engine clamps it to the total. */
+export function confrontationCapWarnings(c: Pick<LoadedCase, "confrontation">): CaseIssue[] {
+  const caps = c.confrontation;
+  if (!caps?.perPair) return [];
+  const total = caps.total ?? MAX_CONFRONTATION_TOTAL;
+  return caps.perPair > total
+    ? [{ file: "case.json", path: "confrontation.perPair", message: `perPair ${caps.perPair} is greater than total ${total}${caps.total ? "" : " (the default)"}; a pair can only ever get ${total}` }]
+    : [];
+}
+
 export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
-  const warnings: CaseIssue[] = [];
+  const warnings: CaseIssue[] = [...confrontationCapWarnings(c)];
   // C3: an override word that is no word of any multi-word name does nothing.
   const tokens = multiWordNameTokens(c);
   for (const [k, list] of [["ignoreNameTokens", c.guiltCheck?.ignoreNameTokens], ["keepNameTokens", c.guiltCheck?.keepNameTokens]] as const) {

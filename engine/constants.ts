@@ -9,5 +9,8 @@ export const MAX_CONFRONTATION_TURNS = 6;
 /** Maximum confrontation exchanges in a whole game, across every pair (#24). Each one costs two model calls. */
 export const MAX_CONFRONTATION_TOTAL = 12;
 
+/** Highest `confrontation.total` a case may set (the default is MAX_CONFRONTATION_TOTAL). The per-IP and daily model caps stay the cost guard. */
+export const MAX_CASE_CONFRONTATION_TOTAL = 20;
+
 /** Caps on the detective's recorded claims per character (engine/memory.ts). */
 export const CLAIM_LIMITS = { perCharacter: 6, chars: 160, minWords: 3 } as const;

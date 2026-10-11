@@ -21,8 +21,8 @@ Somebody's been murdered, the suspects are all lying about *something*, and the 
 2. **Search the rooms.** Hit **🔍 Investigate** and search each room. Clues go straight into your **📓 Notebook**.
 3. **Question the suspects.** Pick a suspect and ask anything. Each one is hiding something.
 4. **Show them what you found.** Use **🔍 Present evidence** to hold up a clue or a confession. A story that doesn't fit the facts will crack.
-5. **Follow your leads.** The Notebook's **Leads** tab lists the open questions in the case.
-6. **Accuse when the case is ready.** Name the killer, the weapon and the motive, and cite your proof. You get **one** accusation, so make it count.
+5. **Follow your leads.** The Notebook's **🧭 Leads** tab lists the open questions in the case.
+6. **Accuse when the case is ready.** Name the killer, the weapon and the motive, and cite only the proof that backs it. You get **one** accusation, so make it count.
 
 ---
 
@@ -45,7 +45,7 @@ A lucky guess won't cut it. To win, your accusation must name:
 
 - Open **🔍 Investigate** to see every room in the house.
 - Tap **🔎 Search**. Anything you find drops into your Notebook with a little fanfare.
-- Room badges tell you where you stand: **Unsearched**, **✔ Searched** or **🔒 Locked**.
+- Room badges tell you where you stand: **Unsearched**, **✔ Searched**, **✨ Something new** or **🔒 Locked**.
 
 **Locked rooms**
 
@@ -55,15 +55,17 @@ A lucky guess won't cut it. To win, your accusation must name:
 **Hidden clues**
 
 - Some clues aren't there to be found until you know what to look for. Search a room early and you may get a line like *"Something's tucked behind the dresser, but you can't reach it yet."*
-- **Searching again is free.** If you've learned something new, go back and search rooms you've already done. A ✔ doesn't mean a room is empty forever.
-- Each search uses only what you knew *before* you searched. If a search opens something new, search once more to collect it.
+- **Watch for ✨ Something new.** When a room you've already searched has something findable that wasn't there before, its badge changes from ✔ Searched to ✨ Something new. Go back and search it again.
+- **Searching again is free.** A ✔ means there's nothing more for you in that room *right now*. Once you learn more, it may change to ✨.
 
 **Your Notebook**
 
-- **Clues:** each card shows what it is, what it looks like and where you found it.
-- **Testimony:** confessions suspects have made to you (see *Testimony cards* below).
-- **Leads:** the open questions in the case.
-- Once a card has caught someone out, it gets a note: *"Contradicts so-and-so's story."*
+The Notebook has two tabs:
+
+- **🔎 Evidence:** your **Clues** (each card shows what it is, what it looks like and where you found it) and your **Testimony** (confessions suspects have made to you; see *Testimony cards* below).
+- **🧭 Leads:** the open questions in the case.
+
+Once a card has caught someone out, it gets a note: *"Contradicts so-and-so's story."*
 
 ---
 
@@ -162,15 +164,15 @@ Tap **⚔️ Confront…** to bring two suspects face to face.
 
 **Limits**
 
-- Each pair gets at most **6 exchanges**. Once a pair is done, they won't face off again.
-- The whole game allows **12 confrontation exchanges** in total, shared across every pair. The counter on screen shows what's left.
+- Each pair gets at most **6 exchanges** (some cases allow fewer). Once a pair is done, they won't face off again.
+- The whole game allows at most **12 confrontation exchanges** in total, shared across every pair. The **"N left"** counter shows whichever runs out first, this pair's or the whole game's, so a fresh pair can start below 6.
 - Spend them wisely: confront people whose stories *clash*, not people you haven't questioned yet.
 
 ---
 
 ## Leads
 
-The **Leads** tab in your Notebook is your to-do list.
+The **🧭 Leads** tab in your Notebook is your to-do list.
 
 - A **NEW LEAD** pops up when something you found or heard raises a question. Each lead comes with a gentle hint about where to look next.
 - A lead is **SOLVED** when you've found the thing that answers it. It gets struck through and stamped.
@@ -193,7 +195,7 @@ The **⚖️ ACCUSE!** button starts out stamped **🔒 CASE NOT READY**. The in
 Tap it any time to see your checklist. Depending on the case, it can ask for:
 
 - **Clues:** enough evidence found;
-- **Suspects:** enough people questioned properly (look for the *"questioned n/x"* badges on the suspect cards);
+- **Suspects:** enough people questioned properly (look for the *"questioned n/x"* badges on the suspect cards; in a confrontation, only the suspect you address gets the credit);
 - **Cracks:** enough secrets uncovered;
 - and sometimes particular **leads** solved.
 
@@ -208,12 +210,14 @@ Each case sets its own numbers, and the checklist shows them. It never tells you
 The form has four parts, sometimes five:
 
 1. **Who did it?** Pick a suspect.
-2. **With what?** Pick the weapon from the clues you've found.
+2. **With what?** Pick the weapon from the possible weapons you've found. Only clues that could be the weapon appear here. In a case that doesn't pick out any, every clue you've found is on the list.
 3. **Why?** Pick the motive.
-4. **Your proof:** cite **1 to 5** clues that prove it.
-5. **A confession** (only in some cases): cite **1 to 3** testimony cards.
+4. **Your proof:** cite the clues that prove it. The form shows **"Cite up to N"**: that's what this case asks for, plus one spare.
+5. **A confession** (only in some cases): cite the testimony cards that prove it, again up to the number the form shows.
 
-Then **"Are you sure? This ends the case."** It really does: **one accusation per game, no take-backs.**
+Whatever the case, it's always somewhere from 1 to 5 clues and 1 to 3 confessions, so read the number on the form.
+
+Then the game asks **"Are you sure?"** and warns you: *"This ends the case. There's no taking it back."* It means it: **one accusation per game, no take-backs.**
 
 You can only cite clues you've found and confessions someone actually made to you.
 
@@ -223,17 +227,20 @@ You can only cite clues you've found and confessions someone actually made to yo
 
 The game grades you, not a suspect, so no amount of charm changes the verdict.
 
+**Cite only what proves your case.** Every clue and confession you cite is checked.
+
 | You got… | Result |
 |---|---|
-| Right murderer, weapon and motive, **plus** the proof the case needs | **CASE CLOSED!** The culprit confesses, and you get the full recap: who, how, why, where and when. |
-| Right person, **wrong story** (wrong weapon or motive, or proof that doesn't hold up) | **The murderer escaped.** Naming the right person isn't enough if you can't prove it. |
-| The wrong person | **The murderer escaped.** Your suspect protests, goes home, and the case goes unsolved. |
+| **Clean win:** right murderer, weapon and motive, with the proof the case needs and nothing that doesn't back your story | **CASE CLOSED!** The culprit confesses, and you get the full recap: who, how, why, where and when. Textbook police work. |
+| **Sloppy win:** the same, but you padded the case with clues or confessions that don't back your story | **CASE CLOSED!** Same confession, same recap, but a lower rating. The record notes the sloppy police work with a pointed remark at the end. |
+| **Right person, wrong story:** wrong weapon or motive, or proof that doesn't hold up | **The murderer escaped.** Naming the right person isn't enough if you can't prove it. |
+| **Wrong accusation:** the wrong person | **The murderer escaped.** Your suspect protests, goes home, and the case goes unsolved. |
 
 Good to know:
 
 - **The time and place aren't graded.** You don't pick them on the form. They show up in the winning recap.
-- **Extra clues don't hurt.** Citing a clue that isn't key proof costs nothing, but you still need the clues that *are* key proof.
-- **A loss doesn't say what you got wrong.** No "so close!", no solution. The case simply goes unsolved.
+- **Padding never rescues a case.** Extra clues can't turn a loss into a win. They can only turn a clean win into a sloppy one.
+- **A loss doesn't say what you got wrong.** No "so close!", no solution, no breakdown of which part missed. The case simply goes unsolved.
 - **PLAY AGAIN** starts the case over from scratch.
 
 ---
@@ -249,6 +256,7 @@ Good to know:
 - **Not every liar is a killer.** People lie to hide debts, scandals and plain embarrassment too. Sort the *petty* secrets from the *deadly* one.
 - **Watch for red herrings.** A clue that seems to point at someone might just be pointing at an embarrassing secret.
 - **Proof, not hunches.** Before you accuse, ask yourself: *which clue proves the weapon? Which proves the motive? Which puts this person in the frame?*
+- **A tidy evidence bag beats a full one.** If you can't say what a clue proves, leave it out.
 - **Save your confrontations** for two people whose stories can't both be true.
 - **Don't rush the button.** When the gate opens you're *allowed* to accuse, not *told* to.
 
@@ -258,32 +266,26 @@ Good luck, detective. Somebody in this house is counting on you not noticing som
 
 ## Notes for Dexter
 
-*Not player copy. Strip this section (and the top comment) before rendering.*
+*Not player copy. The build strips this section (and the top comment).*
 
-### Suggested placement
+### Placement still open
+
+Already built (15446e4): HOW TO PLAY on the title screen, the ? modal in the HUD, `/how-to-play`, the first-visit nudge, and "Tips for this case".
 
 | Where | What to show |
 |---|---|
-| **First launch, after the intro ("MEET THE SUSPECTS →")** | *Quick start* only, as a 3–6 card dismissible overlay. Include "Don't show again". |
-| **Contextual one-time tips** | First Investigate screen: *Locked rooms* and *Hidden clues*, especially "searching again is free". First testimony card earned: *Testimony cards*. First time the stamped ACCUSE is tapped: *The accuse gate*. First confrontation: *Confrontations → Limits*. First time the meter reaches Nervous: *Stress and breakdowns*. |
-| **Help screen** (a "?" button on the suspect screen and in the Notebook) | The full manual, one collapsible section per `##` heading, in this order. |
-| **Accuse form** | A "How am I graded?" link opening *How accusations are graded*. |
+| **Contextual one-time tips** (not built) | First Investigate screen: *Locked rooms* and *Hidden clues*, especially ✨ Something new. First testimony card earned: *Testimony cards*. First time the stamped ACCUSE is tapped: *The accuse gate*. First confrontation: *Confrontations → Limits*. First time the meter reaches Nervous: *Stress and breakdowns*. |
+| **Accuse form** (not built) | A "How am I graded?" link opening *How accusations are graded*. |
 
-Every `##` section stands alone, so they can be split into separate cards or pages.
+### Open mechanics questions
 
-### Mechanics I found ambiguous or surprising
+Checked against `main` at 43d7de8. Resolved since the first draft, and removed from this list: the right-person-wrong-story ending (E4), hedged proof (E2), the Leads row on CASE NOT READY, ✨ Something new, the weapon picker (E3), the sloppy remark and rating on a loss (307d09c: wins only), the confrontation counter (43d7de8), and confrontations counting for both suspects (fac75ba: addressed suspect only).
 
-I described these as the code behaves on `main` today (as of 76959e9). Please confirm, or change the code or the copy:
-
-1. **"Right person, wrong story" has no ending of its own.** `engine/ending-payload.ts` `lossBeats()` deliberately skips `endings.wrong[<real murderer>]` (#22, so it doesn't say how close the guess was). It plays the generic "Me? You've got it all wrong…" lines instead. Players get the same loss as for a wrong suspect. Any authored murderer entry in `endings.wrong` is dead content (relevant to Marvin's consistency audit). The copy promises only "the murderer escaped".
-2. **Hedged proof isn't penalised.** `gradeAccusation` ignores non-key citations, and the form allows 5. A player can cite 5 clues so the key ones are in there somewhere. The copy says "extra clues don't hurt", because that's true. This is a fairness and design question for Marvin and George, not a copy fix.
-3. **The accuse checklist hides the leads requirement.** `CaseNotReady.tsx` shows only Clues, Suspects and Cracks rows. If `accuseGate.closedLeadIds` is the unmet item, every row can show ✓ while the button stays locked, and only the `lockedLines.leads` text explains why. Suggest a "Leads n/m" row.
-4. **"✔ Searched" can hide a newly available clue.** Once a room's locked clue becomes available, the badge still says ✔ Searched. Only the `lockedLine` from an earlier search hints that it's worth going back. The copy tells players to re-search. A subtle "something's changed" marker may be worth it, if it can be done without spoiling.
-5. **Stress reveals are deferred after a card.** Per #47, a stress-threshold confession triggered by a presented card waits for the next ordinary question, with nothing presented. Players won't guess this, so the copy says to follow up with a plain question. Consider an on-screen cue, e.g. the suspect looks ready to talk.
-6. **The contradiction check only knows told stories.** `hintCandidates` needs `liesToldIds`, and a story counts as told only when the player's words match its topic (`questionTouchesLie`, word-stem overlap). A vaguely worded question may never register a story, so "Nothing clashes… yet" can be misleading. Cooldown is `HINT_COOLDOWN_TURNS = 3`; a "none" answer doesn't start it.
-7. **The confrontation budget is shared.** `MAX_CONFRONTATION_TURNS = 6` per pair and `MAX_CONFRONTATION_TOTAL = 12` per game. The "N left" counter shows the smaller of the two, so a fresh pair can show fewer than 6, which may surprise players. I stated both caps because they're global constants.
-8. **Stress relief is hidden.** Accepting phrases ("that makes sense", `acceptsExplanation`; any "but" cancels it), showing a clue that only concerns someone else, and being a bystander to a confrontation all lower stress. The copy mentions them lightly. Players may otherwise "waste" pressure without knowing why.
-9. **A loss reveals nothing, and Play Again replays the same solution.** After a loss the player never learns the answer. If they replay, it's the same case with the same culprit. Is that the intended learning loop? The copy only says the case goes unsolved and Play Again starts over.
-10. **The weapon picker lists every found clue,** not just plausible weapons. That's fine, and it keeps elimination honest. I described it as "pick the weapon from the clues you've found".
-11. **Everything counts as a question.** Quick buttons, presenting and each confrontation exchange (for both suspects) all increment `interrogationCount`, the number behind the "questioned n/x" badges. A model-unavailable reply spends nothing.
-12. **Bluffing.** Player claims are recorded but explicitly untrusted (`engine/memory.ts`). The copy says bluffs aren't proof. I didn't promise that bluffs move stress, since that's model-suggested and clamped to ±10.
+1. **No rating is shown anywhere.** The copy says a sloppy win gets "a lower rating". The rating (wins only since 307d09c) exists only in the response, and the UI shows it only through the remark beat. Consider a CLEAN / SLOPPY stamp on the end screen, or tell me to soften the copy to "the record notes it".
+2. **Stress reveals are deferred after a card.** Per #47, a stress-threshold confession triggered by a presented card waits for the next ordinary question, with nothing presented. The copy says to follow up with a plain question. Consider an on-screen cue (the suspect looks ready to talk).
+3. **The contradiction check only knows told stories.** `hintCandidates` needs `liesToldIds`, and a story counts as told only when the player's words match its topic (`questionTouchesLie`, word-stem overlap). A vaguely worded question may never register a story, so "Nothing clashes… yet" can mislead. Cooldown is `HINT_COOLDOWN_TURNS = 3`; a "none" answer doesn't start it.
+4. **Stress relief is hidden.** Accepting phrases ("that makes sense", `acceptsExplanation`; any "but" cancels it), showing a clue that only concerns someone else, and being a bystander to a confrontation all lower stress. The copy mentions them lightly.
+5. **A loss reveals nothing, and Play Again replays the same solution.** Is that the intended learning loop? The copy only says the case goes unsolved and Play Again starts over.
+6. **What counts as a question.** Quick buttons, presenting, and each confrontation exchange for the **addressed** suspect only (fac75ba) increment `interrogationCount`, the number behind the "questioned n/x" badges. A model-unavailable reply spends nothing.
+7. **Bluffing.** Player claims are recorded but explicitly untrusted (`engine/memory.ts`). The copy says bluffs aren't proof. It doesn't promise that bluffs move stress (model-suggested, clamped to ±10).
+8. **The manual test pins "1 to 5" and "1 to 3".** `tests/lib/how-to-play.test.ts` requires those literal strings. The copy keeps them as the absolute range ("always somewhere from 1 to 5 clues and 1 to 3 confessions"). If you'd rather test the "Cite up to N" wording, that test can change.

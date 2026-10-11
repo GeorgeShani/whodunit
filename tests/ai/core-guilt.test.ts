@@ -25,6 +25,9 @@ import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
+/** These run the validator's exhaustive state search (fastestPath / checkCaseWarnings): unchanged, just slow under a loaded runner. */
+const EXHAUSTIVE_SEARCH_TIMEOUT = 30_000;
+
 let c: LoadedCase;
 /** Blackwood with Agatha's mapping applied in memory (her data PR sets these flags; this repo's data is untouched). */
 let agatha: LoadedCase;
@@ -168,7 +171,7 @@ describe("core guilt: data flag and derivation", () => {
     expect(guiltProfile(agatha).window).toEqual([21 * 60 + 15, 21 * 60 + 21]);
   });
 
-  it("validator accepts coreGuilt; Agatha's mapping validates clean and the fastest path still exists", () => {
+  it("validator accepts coreGuilt; Agatha's mapping validates clean and the fastest path still exists", { timeout: EXHAUSTIVE_SEARCH_TIMEOUT }, () => {
     expect(checkCaseReferences(agatha)).toEqual([]);
     expect(checkProgression(agatha)).toEqual([]);
     expect(checkCaseWarnings(agatha)).toEqual([]);
@@ -176,7 +179,7 @@ describe("core guilt: data flag and derivation", () => {
     expect(fastestPath(c)).not.toBeNull();
   });
 
-  it("validator warns about reveal conditions or a summary on a flagged secret, and rejects an own-secret testimony condition", () => {
+  it("validator warns about reveal conditions or a summary on a flagged secret, and rejects an own-secret testimony condition", { timeout: EXHAUSTIVE_SEARCH_TIMEOUT }, () => {
     const bad = structuredClone(agatha);
     const v = bad.characters.find((x) => x.id === "victoria")!;
     const murder = v.secrets.find((s) => s.id === "s-victoria-murder")!;

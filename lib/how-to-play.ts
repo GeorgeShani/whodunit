@@ -127,3 +127,8 @@ export function manualText(m: Manual): string {
     x.type === "p" || x.type === "h" ? plainText(x.text) : x.type === "table" ? [...x.head, ...x.rows.flat()].map(plainText).join(" | ") : x.items.map(plainText).join("\n");
   return [m.title, ...m.intro.map(b), ...m.sections.flatMap((s) => [s.title, ...s.blocks.map(b)])].join("\n");
 }
+
+/** The grading section ("How accusations are graded"): the accuse form's "How am I graded?" link opens it. */
+export const GRADING_SECTION_ID = "how-accusations-are-graded";
+/** No-JS / new-tab fallback for that link: the standalone page's anchor. */
+export const GRADING_HREF = `/how-to-play#htp-${GRADING_SECTION_ID}`;

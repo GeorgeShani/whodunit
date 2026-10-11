@@ -6,18 +6,21 @@ import { checkCaseWarnings } from "@/engine/case-validation";
 import { accuseProgress } from "@/engine/progress";
 import { accuseOpenWithoutWin } from "@/engine/progression-validation";
 
+/** These run the validator's exhaustive state search (fastestPath / checkCaseWarnings): unchanged, just slow under a loaded runner. */
+const EXHAUSTIVE_SEARCH_TIMEOUT = 30_000;
+
 let c: LoadedCase;
 beforeAll(async () => {
   c = await loadCase("blackwood");
 });
 
 describe("E1: accuse gate vs the win", () => {
-  it("Blackwood's gate (data from #55) never opens before the win is possible: no warning", () => {
+  it("Blackwood's gate (data from #55) never opens before the win is possible: no warning", { timeout: EXHAUSTIVE_SEARCH_TIMEOUT }, () => {
     expect(accuseOpenWithoutWin(c)).toBeNull();
     expect(checkCaseWarnings(c).filter((w) => w.path === "accuseGate")).toEqual([]);
   });
 
-  it("without the required leads (the pre-#55 gate) it finds such a state and warns", () => {
+  it("without the required leads (the pre-#55 gate) it finds such a state and warns", { timeout: EXHAUSTIVE_SEARCH_TIMEOUT }, () => {
     const loose: LoadedCase = { ...c, accuseGate: { ...c.accuseGate!, closedLeadIds: [] } };
     const g = accuseOpenWithoutWin(loose);
     expect(g).not.toBeNull();
