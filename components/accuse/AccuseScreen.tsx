@@ -1,5 +1,6 @@
 "use client";
 
+import { weaponChoices } from "./weapon-choices";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
 import { Portrait } from "@/components/characters/Portrait";
@@ -42,6 +43,7 @@ export function AccuseScreen({
   error,
   testimonies = [],
   citeTestimony = false,
+  weaponsMarked = false,
   onSubmit,
   onBack,
 }: {
@@ -54,10 +56,13 @@ export function AccuseScreen({
   /** Confessions in the notebook; the picker shows only when the case asks for one (citeTestimony). */
   testimonies?: PublicTestimony[];
   citeTestimony?: boolean;
+  /** E3: the case marks weapon candidates; the weapon picker lists only those (see weaponChoices). */
+  weaponsMarked?: boolean;
   onSubmit: (a: Accusation) => void;
   onBack: () => void;
 }) {
   const [draft, setDraft] = useState<AccusationDraft>({ keyEvidenceIds: [] });
+  const weapons = weaponChoices(evidence, weaponsMarked);
   const [errors, setErrors] = useState<string[]>([]);
   const [confirming, setConfirming] = useState(false);
   const set = (d: Partial<AccusationDraft>) => {
@@ -114,9 +119,10 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={2} title="With what?" hint="The murder weapon, from the clues in your notebook.">
+      <Section n={2} title="With what?" hint={weaponsMarked ? "The murder weapon, from the possible weapons you have found." : "The murder weapon, from the clues in your notebook."}>
         <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="accuse-2">
-          {evidence.map((e) => (
+          {weapons.length === 0 && <p className="text-base font-semibold text-yellow-100">No possible weapon in your notebook yet. Keep searching.</p>}
+          {weapons.map((e) => (
             <button
               key={e.id}
               type="button"

@@ -876,6 +876,7 @@ export function Game({ view }: { view: PublicCaseView }) {
             error={accuseError}
             testimonies={testimonies}
             citeTestimony={progress.accuse.citeTestimony}
+            weaponsMarked={view.weaponsMarked}
             onSubmit={onAccuse}
             onBack={() => go("suspects")}
           />

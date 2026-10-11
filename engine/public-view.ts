@@ -23,7 +23,7 @@ export interface PublicSuspect {
   emotion: EmotionalState;
 }
 
-export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "icon" | "discoveryLine">;
+export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "icon" | "discoveryLine" | "weapon">;
 
 export interface PublicCaseMeta {
   id: string;
@@ -56,6 +56,8 @@ export interface PublicCaseView {
   locations: PublicLocation[];
   suspects: PublicSuspect[];
   evidence: PublicEvidence[];
+  /** E3: the case marks weapon candidates (`evidence.weapon`), so the weapon picker lists only those. */
+  weaponsMarked: boolean;
   /** Starting progress (leads, locked rooms, accuse checklist). Routes return the live one with every token. */
   progress: PublicProgress;
 }
@@ -71,8 +73,8 @@ export function toPublicLocation(l: Location): PublicLocation {
 }
 
 export function toPublicEvidence(e: Evidence): PublicEvidence {
-  const { id, name, description, kind, locationId, image, icon, discoveryLine } = e;
-  return { id, name, description, kind, locationId, image, ...(icon ? { icon } : {}), ...(discoveryLine ? { discoveryLine } : {}) };
+  const { id, name, description, kind, locationId, image, icon, discoveryLine, weapon } = e;
+  return { id, name, description, kind, locationId, image, ...(icon ? { icon } : {}), ...(discoveryLine ? { discoveryLine } : {}), ...(weapon ? { weapon: true } : {}) };
 }
 
 export function getPublicCaseView(
@@ -99,6 +101,7 @@ export function getPublicCaseView(
       };
     }),
     evidence: c.evidence.filter((e) => discovered.has(e.id)).map(toPublicEvidence),
+    weaponsMarked: c.evidence.some((e) => e.weapon),
     progress: publicProgress(c, createInitialGameState(c)),
   };
 }

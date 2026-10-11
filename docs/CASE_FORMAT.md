@@ -154,6 +154,9 @@ When an entry has a `locationId`, **every id in `involvesCharacterIds` is presen
   {
     "id": "silver-candlestick", "name": "…", "description": "…",
     "kind": "physical | document | testimony | observation",
+    "weapon": true,                     // optional, PUBLIC (E3): a possible murder weapon, offered by the accuse form's
+                                        // weapon picker. Mark the real weapon and any decoys. If NO clue is marked, the
+                                        // picker lists every clue found. If any is marked, the solution's weapon must be.
     "locationId": "library",            // where it is FOUND when the player searches this location (Investigate).
                                         // No locationId and not initiallyAvailable = unreachable.
     "discoveryLine": "Aha! …",          // optional, PUBLIC; shown in the discovery sting

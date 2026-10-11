@@ -514,6 +514,11 @@ export const EvidenceSchema = z.strictObject({
   /** What the player sees when inspecting it. */
   description: NonEmptyText,
   kind: z.enum(["physical", "document", "testimony", "observation"]),
+  /**
+   * PUBLIC: this clue could be a murder weapon (E3), so the accuse form's weapon picker offers it. Mark the real
+   * weapon AND any decoys. When no clue in the case is marked, the picker falls back to every clue found.
+   */
+  weapon: z.boolean().optional(),
   /** Where it is found when the player searches (Investigate). No locationId = cannot be found by searching. */
   locationId: IdSchema.optional(),
   /** Optional PUBLIC one-liner shown in the discovery sting. */

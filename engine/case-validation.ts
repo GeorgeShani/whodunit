@@ -206,6 +206,11 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     });
   }
 
+  // E3: when the case marks weapon candidates, the real weapon must be one, or the picker hides the answer.
+  if (c.evidence.some((e) => e.weapon) && !c.evidence.find((e) => e.id === s.weaponId)?.weapon) {
+    issues.push({ file: "evidence.json", path: s.weaponId, message: `evidence marks weapon candidates ("weapon": true) but the solution's weapon "${s.weaponId}" is not one, so the accuse form would not offer it` });
+  }
+
   // endings.json (optional)
   if (c.endings) {
     const END = "endings.json";
