@@ -4,5 +4,16 @@
   "s-victoria-max": "C1 breakdown outburst rule in the prompt",
   "s-reginald-breakdown": "C1 breakdown outburst rule in the prompt; C2 retry note on a planned-reveal turn",
   "s-archibald-breakdown": "C1 breakdown outburst rule in the prompt; C2 retry note on a planned-reveal turn",
-  "vic-08-max-stress-everything": "C1 breakdown outburst rule in the prompt"
+  "vic-08-max-stress-everything": "C1 breakdown outburst rule in the prompt",
+  "e-victoria-letter": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "e-reginald-letter": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "t-victoria-gregory-saw": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "t-reginald-archibald-card": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "c-gregory-victoria": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "b-victoria-library-minute": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "vic-05-gregory-eyewitness-card": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "reg-07-archibald-card": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "vic-11-new-will-narrow": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "conf-13-victoria-vs-archibald": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked",
+  "conf-14-victoria-vs-gregory": "E19 'admit NOTHING in its place' on an exposed lie whose replacing secrets are all locked"
 }

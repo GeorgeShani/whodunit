@@ -80,8 +80,9 @@ export interface CharacterContext {
     /** Has told the detective this story (engine/memory.ts). */
     told: boolean;
     /**
-     * Exposed, but the truth behind it is core guilt (engine/core-guilt.ts): the character can no longer tell it and
-     * admits NOTHING in its place (stonewalls / deflects). Only set on exposed lies.
+     * Exposed, but the truth behind it is core guilt (engine/core-guilt.ts), or every secret that would replace it is
+     * still locked this turn (E19): the character can no longer tell it and admits NOTHING in its place (stonewalls /
+     * deflects). Only set on exposed lies.
      */
     stonewall?: true;
   }[];
@@ -212,7 +213,11 @@ export function buildCharacterContext(caseState: CaseState, characterId: string,
         claim: l.claim,
         status,
         told: (runtime?.liesToldIds ?? []).includes(l.id),
-        ...(status === "exposed" && guilt ? { stonewall: true as const } : {}),
+        // E19 (r7c R4): also when every secret that would replace it is still locked this turn (none revealed, none
+        // being revealed now), for culprits and innocents alike: the exposed story leaves a gap they must not fill.
+        ...(status === "exposed" && (guilt || (l.supersededBySecretIds.length > 0 && !l.supersededBySecretIds.some((id) => revealing.includes(id))))
+          ? { stonewall: true as const }
+          : {}),
       };
     }),
     playerClaims: (runtime?.playerClaims ?? []).slice(-4).map((x) => ({ ...x })),
