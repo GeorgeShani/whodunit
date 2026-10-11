@@ -67,6 +67,8 @@ export interface AccuseResponseBody {
   rating?: "clean" | "sloppy";
   solution?: SolutionReveal;
   ending?: EndingPayload;
+  /** E20: on a loss only, "your investigation" lines (counts and unnamed hints; engine/loss-feedback.ts). */
+  investigation?: string[];
   /** Public cards for every clue the ending or the solution mentions. */
   evidence?: PublicEvidence[];
   stateToken?: string;

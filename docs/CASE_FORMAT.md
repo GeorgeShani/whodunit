@@ -62,6 +62,10 @@ cases/<caseId>/
     "caseClosedSearch": "…",             //   a search after the accusation
     "recordDown": "…"                    //   the closed-games record can't be written (503, nothing decided, try again)
   },                                     //   each falls back to a neutral default (no constable / police / telephone)
+  "lossFeedback": {                     // optional (E20): wording for the loss panel, up to 160 chars, {n}/{m} = counts
+    "foundClues": "…", "foundTestimony": "…", "citedTooFew": "…",
+    "missedRoom": "…", "missedSecret": "…", "missedClue": "…", "untestedStory": "…"
+  },                                     //   built from the investigation only: same for every accusation (engine/loss-feedback.ts)
   "guiltCheck": {                       // optional, server-only (C3): the guilt check's single-word name tokens
     "ignoreNameTokens": ["barnacle"],    //   words of multi-word names that must NOT count alone (lower-case)
     "keepNameTokens": ["brine"]          //   stoplisted ordinary words that SHOULD count alone (e.g. a surname)

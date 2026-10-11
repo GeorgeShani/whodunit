@@ -114,6 +114,17 @@ export function EndScreen({
         </section>
       )}
 
+      {!won && (result.investigation?.length ?? 0) > 0 && (
+        <section aria-label="Your investigation" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-black shadow-[6px_6px_0_#000]" data-investigation>
+          <h2 className="mb-2 font-display text-3xl tracking-wide">Your investigation</h2>
+          <ul className="flex list-disc flex-col gap-1 pl-6 text-base font-semibold">
+            {result.investigation!.map((l) => (
+              <li key={l}>{l}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {s && (
         <section aria-label="The solution" className="w-full max-w-3xl rounded-3xl border-4 border-black bg-amber-100 p-4 text-black shadow-[6px_6px_0_#000]" data-solution>
           <h2 className="mb-1 font-display text-3xl tracking-wide">The solution</h2>
