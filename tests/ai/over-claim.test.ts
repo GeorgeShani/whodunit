@@ -72,6 +72,9 @@ describe("E8 over-claim: matches", () => {
     ["She picked up the candlestick and swung it.", "weapon"],
     ["Lady Victoria went into the library at seventeen past nine.", "scene"],
     ["She came out of the library in the dark.", "scene"],
+    // E15a: a negation in an EARLIER clause does not cover a later stated act.
+    ["Nobody saw anything, but Victoria killed him.", "killing"],
+    ["Victoria killed him, and nobody saw it.", "killing"],
   ] as const;
   for (const [line, kind] of OVER)
     it(`"${line}" -> over-claim (${kind})`, () => {
@@ -104,6 +107,14 @@ describe("E8 over-claim: innocent negatives pass", () => {
     "She went into the library before dinner to fetch a book.",
     "Lord Blackwood locked the door himself.",
     "Gregory locked the shed and took the key.",
+    // E15a: a negated frame before the subject denies or un-witnesses the act.
+    "Nobody saw Victoria strike him, old boy, nobody at all.",
+    "No one saw her ladyship lock the door.",
+    "No-one heard Victoria go into the library in the dark.",
+    "Not a soul saw Lady Victoria take the key.",
+    "I never saw her ladyship pick up the candlestick.",
+    "None of us saw Victoria kill him.",
+    "I don't believe her ladyship killed him.",
   ];
   for (const line of PASS)
     it(`"${line}" passes`, () => {

@@ -223,6 +223,12 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
 const HEDGE_3P =
   /\b(?:perhaps|maybe|possibly|probably|presumably|surely|must\s+have|might|may\s+have|may\s+well|could|would|should|if|whether|unless|suppose|supposing|apparently|seems?|seemed|rumou?r\w*|they\s+say|people\s+say|I\s+(?:think|suppose|suspect|fear|wonder|reckon|believe|imagine|guess|daresay|feel|wager|bet)|I['’]d\s+(?:say|guess|wager|bet)|for\s+all\s+I\s+know|no\s+doubt|I\s+(?:can['’]t|cannot|couldn['’]t)\s+(?:say|be\s+sure|swear))\b/i;
 const MURDERER = "MURDERER";
+/**
+ * E15a: a negation in the same clause BEFORE the murderer-subject: "Nobody saw X strike him", "No one heard her lock
+ * it", "Not once did I see X take the key", "I never saw X go in". The act is denied or unwitnessed, not stated.
+ */
+const NEG_FRAME =
+  /\b(?:nobody|no\s*-?\s*one|none\s+of\s+us|not\s+a\s+(?:soul|living\s+soul|one\s+of\s+us)|never|not|nor|neither|no\s+(?:proof|evidence|sign|reason|way)|without|didn['’]?t|don['’]?t|doesn['’]?t|can['’]?t|cannot|couldn['’]?t|wasn['’]?t|isn['’]?t|won['’]?t|wouldn['’]?t|hardly|scarcely)\b/i;
 type OverRule = [CulpritAct, GuiltLeak["kind"], RegExp, ((s: string) => boolean)?];
 
 /**
@@ -272,13 +278,24 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       new RegExp(`${S}${g}\\b(?:${MOVE}|left|came\\s+out\\s+of|stepped\\s+out\\s+of|slipped\\s+out\\s+of)\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i"),
       (s) => inWindow(s) || DARK.test(s) || DEAD.test(s),
     ]);
+  /** A match counts unless the clause before the subject is a hedge or a negated frame ("Nobody saw X strike him"). */
+  const hitOver = (s: string, re: RegExp) => {
+    for (const m of s.matchAll(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g"))) {
+      const before = s.slice(0, m.index ?? 0);
+      if (HEDGE.test(before)) continue;
+      const clause = before.split(/[,;:]|\s[—–-]\s|\b(?:but|and|yet|though|although|whereas)\b/i).pop() ?? "";
+      if (NEG_FRAME.test(clause)) continue;
+      return true;
+    }
+    return false;
+  };
   return (sentence: string): GuiltLeak | null => {
     if (/\?\s*["'”’)]*$/.test(sentence) || HEDGE_3P.test(sentence)) return null;
     const s = subjectize(sentence);
     if (!s.includes(MURDERER)) return null;
     for (const [act, kind, re, also] of rules) {
       if (covered.has(act)) continue;
-      if (hit(s, re) && (!also || also(sentence))) return { kind, text: sentence, overClaim: true };
+      if (hitOver(s, re) && (!also || also(sentence))) return { kind, text: sentence, overClaim: true };
     }
     return null;
   };

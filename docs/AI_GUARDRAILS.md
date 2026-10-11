@@ -405,3 +405,9 @@ tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered conf
   a time no event-naming clause can claim (every such clause already has its own time, as in "The lights went out at
   ten past nine, and by twenty-two minutes past nine I was sitting quietly again").
 
+### E15a over_claim negation
+
+- A negation in the same clause before the murderer-subject passes: "Nobody saw X strike him", "No one heard her lock
+  the door", "I never saw X take the key", "None of us saw X kill him". A negation in an earlier clause ("Nobody saw
+  anything, but X killed him") or after the act ("X killed him, and nobody saw it") does not.
+
