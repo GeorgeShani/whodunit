@@ -164,8 +164,8 @@ Tap **⚔️ Confront…** to bring two suspects face to face.
 
 **Limits**
 
-- Each pair gets at most **6 exchanges**. Once a pair is done, they won't face off again.
-- The whole game allows **12 confrontation exchanges** in total, shared across every pair. The counter on screen shows what's left.
+- Each pair gets at most **6 exchanges** (some cases allow fewer). Once a pair is done, they won't face off again.
+- The whole game allows at most **12 confrontation exchanges** in total, shared across every pair. The **"N left"** counter shows whichever runs out first, this pair's or the whole game's, so a fresh pair can start below 6.
 - Spend them wisely: confront people whose stories *clash*, not people you haven't questioned yet.
 
 ---
@@ -195,7 +195,7 @@ The **⚖️ ACCUSE!** button starts out stamped **🔒 CASE NOT READY**. The in
 Tap it any time to see your checklist. Depending on the case, it can ask for:
 
 - **Clues:** enough evidence found;
-- **Suspects:** enough people questioned properly (look for the *"questioned n/x"* badges on the suspect cards);
+- **Suspects:** enough people questioned properly (look for the *"questioned n/x"* badges on the suspect cards; in a confrontation, only the suspect you address gets the credit);
 - **Cracks:** enough secrets uncovered;
 - and sometimes particular **leads** solved.
 
@@ -279,15 +279,13 @@ Already built (15446e4): HOW TO PLAY on the title screen, the ? modal in the HUD
 
 ### Open mechanics questions
 
-Checked against `main` at b1ee793. Resolved since the first draft, and removed from this list: the right-person-wrong-story ending (E4), hedged proof (E2), the Leads row on CASE NOT READY, ✨ Something new, and the weapon picker (E3).
+Checked against `main` at 43d7de8. Resolved since the first draft, and removed from this list: the right-person-wrong-story ending (E4), hedged proof (E2), the Leads row on CASE NOT READY, ✨ Something new, the weapon picker (E3), the sloppy remark and rating on a loss (307d09c: wins only), the confrontation counter (43d7de8), and confrontations counting for both suspects (fac75ba: addressed suspect only).
 
-1. **The sloppy remark also plays on a loss, and it gives the guess away.** The copy says the sloppy remark is for wins and a loss never says what you got wrong. But `buildEnding` appends `remarkBeats` to the loss beats too, and `grade.rating` (so the remark) exists only when the accused **is** the murderer. A padded right-person-wrong-story loss therefore plays an extra line that only appears when the player named the real killer. That breaks #22. The response body also carries `rating` on a loss, which leaks the same fact to anyone reading the network tab. Blackwood's remark also opens with "Case closed, detective", which contradicts "The case went unsolved". `tests/engine/citation-grading.test.ts` ("right person, wrong story… only the rating and the remark are added") currently asserts this behaviour. Suggest: remark and rating on wins only.
-2. **No rating is shown anywhere.** The copy says a sloppy win gets "a lower rating". The rating exists only in the response; the UI shows it only through the remark beat. Consider a CLEAN / SLOPPY stamp on the end screen, or tell me to soften the copy to "the record notes it".
-3. **Stress reveals are deferred after a card.** Per #47, a stress-threshold confession triggered by a presented card waits for the next ordinary question, with nothing presented. The copy says to follow up with a plain question. Consider an on-screen cue (the suspect looks ready to talk).
-4. **The contradiction check only knows told stories.** `hintCandidates` needs `liesToldIds`, and a story counts as told only when the player's words match its topic (`questionTouchesLie`, word-stem overlap). A vaguely worded question may never register a story, so "Nothing clashes… yet" can mislead. Cooldown is `HINT_COOLDOWN_TURNS = 3`; a "none" answer doesn't start it.
-5. **The confrontation budget is shared.** `MAX_CONFRONTATION_TURNS = 6` per pair and `MAX_CONFRONTATION_TOTAL = 12` per game. The "N left" counter shows the smaller of the two, so a fresh pair can show fewer than 6, which may surprise players. I stated both caps because they're global constants. (Today a new pair shows "6 left" until its first exchange; Dexter is fixing the counter.)
-6. **Stress relief is hidden.** Accepting phrases ("that makes sense", `acceptsExplanation`; any "but" cancels it), showing a clue that only concerns someone else, and being a bystander to a confrontation all lower stress. The copy mentions them lightly.
-7. **A loss reveals nothing, and Play Again replays the same solution.** Is that the intended learning loop? The copy only says the case goes unsolved and Play Again starts over.
-8. **Everything counts as a question.** Quick buttons, presenting and each confrontation exchange (for both suspects) all increment `interrogationCount`, the number behind the "questioned n/x" badges. A model-unavailable reply spends nothing.
-9. **Bluffing.** Player claims are recorded but explicitly untrusted (`engine/memory.ts`). The copy says bluffs aren't proof. It doesn't promise that bluffs move stress (model-suggested, clamped to ±10).
-10. **The manual test pins "1 to 5" and "1 to 3".** `tests/lib/how-to-play.test.ts` requires those literal strings. The copy keeps them as the absolute range ("always somewhere from 1 to 5 clues and 1 to 3 confessions"). If you'd rather test the "Cite up to N" wording, that test can change.
+1. **No rating is shown anywhere.** The copy says a sloppy win gets "a lower rating". The rating (wins only since 307d09c) exists only in the response, and the UI shows it only through the remark beat. Consider a CLEAN / SLOPPY stamp on the end screen, or tell me to soften the copy to "the record notes it".
+2. **Stress reveals are deferred after a card.** Per #47, a stress-threshold confession triggered by a presented card waits for the next ordinary question, with nothing presented. The copy says to follow up with a plain question. Consider an on-screen cue (the suspect looks ready to talk).
+3. **The contradiction check only knows told stories.** `hintCandidates` needs `liesToldIds`, and a story counts as told only when the player's words match its topic (`questionTouchesLie`, word-stem overlap). A vaguely worded question may never register a story, so "Nothing clashes… yet" can mislead. Cooldown is `HINT_COOLDOWN_TURNS = 3`; a "none" answer doesn't start it.
+4. **Stress relief is hidden.** Accepting phrases ("that makes sense", `acceptsExplanation`; any "but" cancels it), showing a clue that only concerns someone else, and being a bystander to a confrontation all lower stress. The copy mentions them lightly.
+5. **A loss reveals nothing, and Play Again replays the same solution.** Is that the intended learning loop? The copy only says the case goes unsolved and Play Again starts over.
+6. **What counts as a question.** Quick buttons, presenting, and each confrontation exchange for the **addressed** suspect only (fac75ba) increment `interrogationCount`, the number behind the "questioned n/x" badges. A model-unavailable reply spends nothing.
+7. **Bluffing.** Player claims are recorded but explicitly untrusted (`engine/memory.ts`). The copy says bluffs aren't proof. It doesn't promise that bluffs move stress (model-suggested, clamped to ±10).
+8. **The manual test pins "1 to 5" and "1 to 3".** `tests/lib/how-to-play.test.ts` requires those literal strings. The copy keeps them as the absolute range ("always somewhere from 1 to 5 clues and 1 to 3 confessions"). If you'd rather test the "Cite up to N" wording, that test can change.
