@@ -57,6 +57,10 @@ cases/<caseId>/
   "intro": "Para one.\n\nPara two.",     // intro screen
   "dayStartsAt": "12:00",               // optional
   "knowledgeGate": "proximity",         // optional: "proximity" (default) | "explicit"; see "Knowledge gate" below
+  "guiltCheck": {                       // optional, server-only (C3): the guilt check's single-word name tokens
+    "ignoreNameTokens": ["barnacle"],    //   words of multi-word names that must NOT count alone (lower-case)
+    "keepNameTokens": ["brine"]          //   stoplisted ordinary words that SHOULD count alone (e.g. a surname)
+  },
   "victim": {                           // PUBLIC
     "id": "lord-blackwood", "name": "…", "description": "…",
     "aliases": ["his lordship"],        // optional; how people refer to them (canon check subject matching)
@@ -80,9 +84,24 @@ cases/<caseId>/
     "suspects": "/assets/backgrounds/manor.webp",     // suspect selection (ART_BIBLE §7.2)
     "interrogation": "/assets/backgrounds/….webp",   // interrogation scene
     "investigate": "/assets/backgrounds/….webp"      // Investigate screen behind the room cards
-  }
+  },
+  "howToPlayTips": [                    // optional, PUBLIC: 1–8 tips, 1–200 chars each (How to Play → "Tips for this case")
+    "Spoiler-free advice for this case only, e.g. how its clock or its house works."
+  ],
+  "confrontation": { "perPair": 6, "total": 12 }   // optional: confrontation caps (defaults shown; may only be lowered)
 }
 ```
+
+### Confrontation caps (optional)
+
+- **`confrontation.perPair`** (1–6): exchanges one pair of suspects may have; **`confrontation.total`** (1–12): exchanges in the whole game, across every pair. Omitted: 6 and 12. The global constants are hard ceilings (each exchange costs two model calls), so a case can lower them but not raise them; a per-pair cap above the total is clamped to it.
+- The confrontation screen's "N left" is whichever runs out first, shown from the first look at a pair.
+
+### How to Play tips (optional)
+
+- **`howToPlayTips`**: case-specific advice shown in the in-game How to Play manual under **Tips for this case**, after the general manual (`docs/HOW_TO_PLAY.md`, which stays case-agnostic). Omitted or empty: the section is not shown.
+- Limits: at most 8 tips, each 1–200 characters (trimmed). Longer or more fails `validate:case`.
+- Spoiler-free: never name the culprit, the weapon or the true motive. `validate:case` warns on duplicate tips and on a tip that mentions the murderer's name, the weapon's name or the true motive's label.
 
 ### Art fields (optional, additive)
 
@@ -298,6 +317,8 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 
 1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower or a listed lie is broken. Nothing else applies to that fact.
 2. **Direct links** (both modes): an unbroken lie's `aboutFactId` and a locked own secret's `relatedFactIds`.
+**Guilt-check name tokens (C3).** The guilt check matches every name in full and, for multi-word names (victim name and aliases, location names, a witness's first name), each word of 4+ letters alone too, except ordinary English words in the generic stoplist (`engine/name-tokens.ts`: "king", "deck", "brine", "marmalade", "room", "captain", ...). The weapon's head noun always counts. `guiltCheck.ignoreNameTokens` drops more words, `keepNameTokens` restores a stoplisted one; `validate:case` errors on a word in both lists and warns about a word that is no word of any multi-word name.
+
 3. **Proximity heuristic** (`"knowledgeGate": "proximity"`, the default): the character's own time-bound facts that fall within a padded window around a protected time are withheld too. `"knowledgeGate": "explicit"` turns this off, so only layers 1 and 2 apply.
 
 ## solution.json (server-only)
@@ -315,7 +336,7 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 
 The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds, keyTestimonyIds? }`.
 
-**Citation grading (E2).** A cited clue *supports* the accusation if it is in `keyEvidenceIds` or `supportingEvidenceIds`; cited testimony supports it if it is in `keyTestimonyIds` or `supportingTestimonyIds` (absent field: only the key ids count). The form shows "Cite up to N" and won't let you pick more, with N = the win's minimum + 1, for clues (`minKeyEvidence ?? 1`) and testimony (`minKeyTestimony ?? 0`) separately; the server answers an over-cap submission with **400 `too_many_citations`** and nothing is consumed. When the accused IS the murderer, the response carries `rating`: `"sloppy"` if any citation supports nothing, else `"clean"`. A sloppy win is still a win (same ending, same solution reveal) plus one `endings.sloppyRemark` line at the end; "right person, wrong story" keeps its authored ending and adds the rating and the remark before the escaped line. A wrong accusation has no rating and extra citations change nothing. The rating lives in the response only: `closed_games` stores won/lost (so a replay served from the database alone shows the win as clean). `validate:case`: supporting ids must exist and must not overlap the key lists. These fields are server-only.
+**Citation grading (E2).** A cited clue *supports* the accusation if it is in `keyEvidenceIds` or `supportingEvidenceIds`; cited testimony supports it if it is in `keyTestimonyIds` or `supportingTestimonyIds` (absent field: only the key ids count). The form shows "Cite up to N" and won't let you pick more, with N = the win's minimum + 1, for clues (`minKeyEvidence ?? 1`) and testimony (`minKeyTestimony ?? 0`) separately; the server answers an over-cap submission with **400 `too_many_citations`** and nothing is consumed. A WIN carries `rating`: `"sloppy"` if any citation supports nothing, else `"clean"`. A sloppy win is still a win (same ending, same solution reveal) plus one `endings.sloppyRemark` line at the end. **No loss carries a rating or the remark**, "right person, wrong story" included (it would tell the player they had the culprit, undoing E4's no-tell rule): extra citations change nothing on any loss. The rating lives in the response only: `closed_games` stores won/lost (so a replay served from the database alone shows the win as clean). `validate:case`: supporting ids must exist and must not overlap the key lists. These fields are server-only.
 
 ## endings.json (server-only, optional for now)
 
@@ -364,12 +385,14 @@ Every field below is optional and strict; a case that uses none of them plays ex
 
 Engine behaviour: a locked room answers with its `lockedLine` and is not marked searched; `/api/accuse` recomputes the gate from the signed token and answers **403 `accuse_locked`** with the line of the first unmet item (clues, suspects, secrets, leads; the token is unchanged, the one accusation is not spent); cited `keyTestimonyIds` must be revealed (`testimony_not_revealed`); a win needs the right murderer, weapon and motive plus `minKeyEvidence` key clues and `minKeyTestimony` key testimony. Every route that returns a `stateToken` also returns `progress` (`leads` that are open/closed, `newLeadIds` = changed in this action, `lockedLocationIds`, `accuse: {unlocked, checklist {clues,suspects,secrets: {have,need}}, line?, citeTestimony}`); counts only, never which clue, who or why. A lead whose `closesWhen` holds before its `opensWhen` ever did (e.g. a hall search finds the clue first) still counts as closed for the gate and for `leadIds` atoms, but is never shown or announced: it stays out of `progress.leads` until its `opensWhen` holds (then it appears already solved, without a toast), and `newLeadIds` only carries hidden→open and open→closed. `requires`, `opensWhen`, `closesWhen` and `accuseGate` never leave the server.
 
-`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues, testimony cards held and `afterSecretIds` only, stress-only counts as unreachable, core guilt never reveals): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`, and (E1) **ACCUSE can open while winning is impossible**: an exhaustive search over reachable states (search, talk, crack; any secret with a `stressThreshold` counts as revealable at any time) finds a state where the gate is open but fewer than `minKeyEvidence` key clues or `minKeyTestimony` key testimonies can be held. It prints the fastest legal path in actions (exact, breadth-first).
+`validate:case` for these fields: errors for unresolved ids, an empty condition, duplicate lead ids, a room or clue that requires itself, a lead cycle, `requires` on a clue with no room or an initially available clue, key testimony that is not a secret with a `testimonySummary`, `minKeyTestimony`/`minKeyEvidence` above their lists, and the **reachability simulation** (everyone can be questioned without limit, any clue in hand can be shown to anyone, secrets reveal by clues, testimony cards held and `afterSecretIds` only, stress-only counts as unreachable, core guilt never reveals): any room, clue, the gate, the key clues or key testimony that can never be reached is an error. Warnings: a lead that never opens or closes, `accuseGate.minEvidence < 2`, a gated clue or room without a `lockedLine`, and (E1) **ACCUSE can open while winning is impossible**: an exhaustive search over reachable states (search, talk, crack; any secret with a `stressThreshold` counts as revealable at any time) finds a state where the gate is open but fewer than `minKeyEvidence` key clues or `minKeyTestimony` key testimonies can be held. It prints the fastest legal path in actions (exact, breadth-first, confrontations included: C4).
+
+**Confrontations and exchange counts (C4).** A confrontation exchange counts as an exchange (`interrogationCount`: the gate's questioned suspects, `interrogated` conditions, the n/2 badges) only with the ADDRESSED suspect; the partner reacting is not being questioned. The fastest-path search models a confrontation as one action: an exchange with the addressed suspect (who may crack as usual), or, if they don't, the partner cracking on the addressed suspect's thrown testimony. Blackwood: 10 actions either way (under the old rule, where both sides counted, the real minimum was 8 while the validator printed 10).
 
 ## What the AI and the player can see
 
 - **The player** (`getPublicCaseView`) sees:
-  - the case id, title, tagline and intro;
+  - the case id, title, tagline and intro (and `howToPlayTips`, when present);
   - the victim;
   - the locations (including `searchFlavor` and `background`) and the case `backdrops`;
   - the motive **options**;
@@ -420,4 +443,5 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
 - reveal-order cycles in `afterSecretIds`;
 - secrets used as testimony without a `testimonySummary`;
 - `hiddenUntil` on a fact nobody knows, or pointing at a secret that can never be revealed;
-- `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere.
+- `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere;
+- `howToPlayTips` that repeat each other or mention the culprit's name, the weapon or the true motive.

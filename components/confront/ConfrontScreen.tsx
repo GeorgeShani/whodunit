@@ -14,7 +14,7 @@ import type { Emotion } from "@/engine/types";
 /**
  * Confrontation (MASTER_PLAN §32 / Scene 6): two suspects split-screen, the
  * detective questions one in front of the other, the other reacts. The engine
- * caps it at `max` exchanges; the counter shows how many are left.
+ * caps it (per pair and per game); the counter shows how many are left, whichever cap runs out first.
  */
 export function ConfrontScreen({
   pair,
@@ -24,7 +24,7 @@ export function ConfrontScreen({
   messages,
   pending,
   speakingId,
-  turnsUsed,
+  left,
   max,
   over,
   onAsk,
@@ -42,7 +42,9 @@ export function ConfrontScreen({
   messages: DialogueMessage[];
   pending: boolean;
   speakingId: string | null;
-  turnsUsed: number;
+  /** Exchanges left: min(this pair's, the whole game's), from confrontCounter. */
+  left: number;
+  /** This pair's cap (screen-reader "of N"). */
   max: number;
   over: boolean;
   /** Returns false if not accepted. */
@@ -66,12 +68,11 @@ export function ConfrontScreen({
   const addressed = target === b.id ? b : a;
   const other = target === b.id ? a : b;
   const locked = pending || over;
-  const left = Math.max(0, max - turnsUsed);
   const tooLong = text.trim().length > MAX_QUESTION_CHARS;
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#5b1d1d_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
-      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
+      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-24 sm:mb-3 sm:gap-3">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>

@@ -30,6 +30,8 @@ export interface PublicCaseMeta {
   title: string;
   tagline: string;
   intro: string;
+  /** Case-specific How to Play tips (case.json howToPlayTips); absent when the case has none. */
+  howToPlayTips?: string[];
 }
 
 /** Interrogation stage art (docs/ART_BIBLE.md §7), resolved server-side by lib/case-art.ts. */
@@ -83,7 +85,7 @@ export function getPublicCaseView(
 ): PublicCaseView {
   const discovered = new Set(options.discoveredEvidenceIds ?? initialDiscoveredEvidenceIds(c));
   return {
-    meta: { id: c.id, title: c.title, tagline: c.tagline, intro: c.intro },
+    meta: { id: c.id, title: c.title, tagline: c.tagline, intro: c.intro, ...(c.howToPlayTips?.length ? { howToPlayTips: [...c.howToPlayTips] } : {}) },
     motives: c.motives.map(({ id, label, description }) => ({ id, label, ...(description ? { description } : {}) })),
     victim: { ...c.victim },
     backdrops: { ...(c.backdrops ?? {}) },

@@ -59,8 +59,18 @@ export function wasPresent(
   });
 }
 
+/** C3: every word of a multi-word name the guilt check splits (victim, characters, locations, evidence). */
+function multiWordNameTokens(c: LoadedCase): Set<string> {
+  const names = [c.victim.name, ...c.victim.aliases, ...c.characters.flatMap((ch) => [ch.name, ...(ch.aliases ?? [])]), ...c.locations.map((l) => l.name), ...c.evidence.map((e) => e.name)];
+  return new Set(names.map((n) => n.toLowerCase().split(/\s+/)).filter((w) => w.length > 1).flat());
+}
+
 export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const issues: CaseIssue[] = [];
+  // C3: a name token can't be both ignored and kept.
+  for (const w of c.guiltCheck?.ignoreNameTokens ?? []) {
+    if (c.guiltCheck?.keepNameTokens?.includes(w)) issues.push({ file: "case.json", path: "guiltCheck", message: `"${w}" is in both ignoreNameTokens and keepNameTokens` });
+  }
   const CASE = "case.json";
   const TL = "timeline.json";
   const EV = "evidence.json";
@@ -258,6 +268,36 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   return issues;
 }
 
+/** How to Play tips (case.json howToPlayTips): no duplicates, and nothing that names the solution. */
+export function howToPlayTipWarnings(c: LoadedCase): CaseIssue[] {
+  const warnings: CaseIssue[] = [];
+  const tips = c.howToPlayTips ?? [];
+  const key = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const seen = new Map<string, number>();
+  const murderer = c.characters.find((x) => x.id === c.solution.murdererId);
+  const weapon = c.evidence.find((e) => e.id === c.solution.weaponId);
+  const motive = c.motives.find((m) => m.id === c.solution.motiveId);
+  // The culprit's name and each distinctive part of it (not a title, and not shared with the case title, the victim or
+  // another suspect: a family surname that is also in the case title is no giveaway).
+  const shared = new Set(
+    [c.title, c.victim.name, ...c.characters.filter((x) => x.id !== murderer?.id).map((x) => x.name)].flatMap((n) => key(n).split(" ")),
+  );
+  const TITLES = new Set(["lady", "lord", "miss", "mister", "missus", "madam", "madame", "master", "doctor", "captain", "colonel", "major", "father", "sister", "brother", "uncle", "aunt", "professor", "inspector", "reverend", "sir", "dame"]);
+  const parts = murderer ? key(murderer.name).split(" ").filter((w) => w.length >= 3 && !TITLES.has(w) && !shared.has(w)) : [];
+  const giveaways = [murderer?.name, ...parts, weapon?.name, motive?.label]
+    .filter((x): x is string => Boolean(x))
+    .map(key)
+    .filter(Boolean);
+  tips.forEach((t, j) => {
+    const k = key(t);
+    if (seen.has(k)) warnings.push({ file: "case.json", path: `howToPlayTips.${j}`, message: `duplicates howToPlayTips.${seen.get(k)}` });
+    else seen.set(k, j);
+    const hit = giveaways.find((g) => ` ${k} `.includes(` ${g} `));
+    if (hit) warnings.push({ file: "case.json", path: `howToPlayTips.${j}`, message: `mentions "${hit}", which is part of the solution (culprit, weapon or motive); tips must be spoiler-free` });
+  });
+  return warnings;
+}
+
 /**
  * Non-fatal design warnings (validate:case prints them with ⚠): lies that can
  * never break, testimony that can never be revealed, reveal-order cycles,
@@ -266,6 +306,11 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
  */
 export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   const warnings: CaseIssue[] = [];
+  // C3: an override word that is no word of any multi-word name does nothing.
+  const tokens = multiWordNameTokens(c);
+  for (const [k, list] of [["ignoreNameTokens", c.guiltCheck?.ignoreNameTokens], ["keepNameTokens", c.guiltCheck?.keepNameTokens]] as const) {
+    for (const w of list ?? []) if (!tokens.has(w)) warnings.push({ file: "case.json", path: `guiltCheck.${k}`, message: `"${w}" is not a word of any multi-word name (victim, character, location or evidence), so it has no effect` });
+  }
   const charFile = (id: string) => `characters/${id}.json`;
   const findable = new Set(c.evidence.filter((e) => e.locationId || e.initiallyAvailable).map((e) => e.id));
   const secrets = new Map(c.characters.flatMap((ch) => ch.secrets.map((s) => [s.id, { s, owner: ch.id }] as const)));
@@ -279,6 +324,7 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
       if (fp.unlessRevealed && core.has(fp.unlessRevealed))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
     });
+  warnings.push(...howToPlayTipWarnings(c));
   // #52: voice variants. Duplicates waste a rotation slot; a long opener is not an opener; one variant cannot rotate.
   for (const ch of c.characters) {
     for (const k of ["openers", "actions", "deflections"] as const) {

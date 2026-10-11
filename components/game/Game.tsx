@@ -13,6 +13,8 @@ import { DiscoverySting } from "@/components/evidence/DiscoverySting";
 import { ContradictionBeat, type ContradictionBeatData } from "@/components/evidence/ContradictionBeat";
 import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
+import { HelpButton, HowToPlayDialog } from "@/components/help/HowToPlay";
+import { GRADING_SECTION_ID, type Manual } from "@/lib/how-to-play";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
 import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
@@ -25,7 +27,7 @@ import { AccuseScreen } from "@/components/accuse/AccuseScreen";
 import { ConfrontScreen } from "@/components/confront/ConfrontScreen";
 import type { ConfrontRequest, ConfrontResponseBody } from "@/ai/confront-schema";
 import type { HintRequest, HintResponseBody } from "@/engine/hint-handler";
-import { MAX_CONFRONTATION_TURNS } from "@/engine/constants";
+import { confrontCounter } from "@/engine/confront-caps";
 import { EndScreen } from "@/components/ending/EndScreen";
 import { EndingScene } from "@/components/ending/EndingScene";
 import type { AccuseRequest, AccuseResponseBody } from "@/engine/accuse-schema";
@@ -207,9 +209,13 @@ export interface AskInput {
 }
 
 /** Client-side game shell. The server holds the case; this holds UI state only. */
-export function Game({ view }: { view: PublicCaseView }) {
+export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (docs/HOW_TO_PLAY.md, parsed server-side). */ manual?: Manual }) {
   const caseId = view.meta.id;
   const [screen, setScreen] = useState<Screen>("title");
+  // How to Play overlay: UI state only, so opening it mid-case never touches the game.
+  const [helpOpen, setHelpOpen] = useState(false);
+  /** Deep link into the manual (e.g. the accuse form's "How am I graded?"); undefined = from the top. */
+  const [helpSection, setHelpSection] = useState<string | undefined>(undefined);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Record<string, DialogueMessage[]>>({});
   const [emotions, setEmotions] = useState<Record<string, Emotion>>(() =>
@@ -556,9 +562,9 @@ export function Game({ view }: { view: PublicCaseView }) {
         if (r.confrontation) {
           // The counter shows whichever runs out first: this pair's exchanges or the whole game's (#24).
           const c = r.confrontation;
-          setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: Math.max(c.turnsUsed, MAX_CONFRONTATION_TURNS - c.totalLeft), over: c.over || c.totalLeft === 0 } }));
+          setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: Math.max(c.turnsUsed, c.max - c.totalLeft), over: c.over || c.totalLeft === 0 } }));
         }
-        if (r.error === "pair_finished" || r.error === "limit_reached") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: MAX_CONFRONTATION_TURNS, over: true } }));
+        if (r.error === "pair_finished" || r.error === "limit_reached") setConfrontStatus((m) => ({ ...m, [key]: { turnsUsed: m[key]?.turnsUsed ?? 0, over: true } }));
         if (!r.lines.length) push(logKey, { speaker: "narrator", text: r.line ?? "Nobody says a word. Try again, detective." });
         // Deliver the two lines one after the other, each in its speaker's pose.
         r.lines.forEach((l, i) => {
@@ -772,7 +778,9 @@ export function Game({ view }: { view: PublicCaseView }) {
         }}
         data-screen={screen}
       >
-        {screen === "title" && <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} />}
+        {screen === "title" && (
+          <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} {...(manual ? { onHowToPlay: () => setHelpOpen(true) } : {})} />
+        )}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (
           <SuspectSelect
@@ -832,7 +840,8 @@ export function Game({ view }: { view: PublicCaseView }) {
           const pair = confrontPair.map((id) => view.suspects.find((s) => s.id === id)).filter((s): s is PublicSuspect => Boolean(s));
           if (pair.length !== 2) return null;
           const key = pairKey(confrontPair[0], confrontPair[1]);
-          const st = confrontStatus[key] ?? { turnsUsed: 0, over: false };
+          // min(this pair's, the whole game's) exchanges left, from the first look (progress.confront, case caps).
+          const counter = confrontCounter(progress.confront, key, confrontStatus[key]);
           return (
             <ConfrontScreen
               pair={pair as [PublicSuspect, PublicSuspect]}
@@ -842,9 +851,9 @@ export function Game({ view }: { view: PublicCaseView }) {
               messages={conversations[`vs:${key}`] ?? []}
               pending={pendingId !== null}
               speakingId={speakingId}
-              turnsUsed={st.turnsUsed}
-              max={MAX_CONFRONTATION_TURNS}
-              over={st.over}
+              left={counter.left}
+              max={counter.max}
+              over={counter.over}
               onAsk={onConfrontAsk}
               {...(retry && retry.logKey === `vs:${key}` ? { onRetry: retry.run, retryWait } : {})}
               target={confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0]}
@@ -881,6 +890,14 @@ export function Game({ view }: { view: PublicCaseView }) {
             citeCap={progress.accuse.citeCap}
             onSubmit={onAccuse}
             onBack={() => go("suspects")}
+            {...(manual
+              ? {
+                  onHowGraded: () => {
+                    setHelpSection(GRADING_SECTION_ID);
+                    setHelpOpen(true);
+                  },
+                }
+              : {})}
           />
         )}
         {screen === "ending" && result?.ending && endingPart === "scene" && (
@@ -938,6 +955,22 @@ export function Game({ view }: { view: PublicCaseView }) {
     )}
     <ContradictionBeat beat={beats[0] ?? null} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
+    {/* "?" in the HUD on in-case screens, hidden while another overlay owns the corner. It stays mounted under its own
+        overlay so focus can return to it on close. */}
+    {manual && screen !== "title" && screen !== "ending" && !notebookOpen && !notReady && stingQueue.length === 0 && beats.length === 0 && (
+      <HelpButton onOpen={() => setHelpOpen(true)} />
+    )}
+    {manual && helpOpen && (
+      <HowToPlayDialog
+        manual={manual}
+        {...(view.meta.howToPlayTips ? { tips: view.meta.howToPlayTips } : {})}
+        {...(helpSection ? { section: helpSection } : {})}
+        onClose={() => {
+          setHelpOpen(false);
+          setHelpSection(undefined);
+        }}
+      />
+    )}
     </div>
     </ClueArtProvider>
   );

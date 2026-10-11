@@ -54,7 +54,7 @@ async function main() {
     const noArt = d.evidence.filter((e) => !e.icon && !clueArtExists(caseId, e));
     for (const e of noArt) console.log(`   ⚠ evidence "${e.id}" has no icon and no assets/evidence/${e.id}.webp (it shows the generic ${CLUE_FALLBACK_ICON} icon)`);
     const path_ = fastestPath(d);
-    if (path_ !== null) console.log(`   progression: ${d.leads?.length ?? 0} lead(s), accuse gate ${d.accuseGate ? "on" : "off"}; fastest legal path: ${path_} actions.`);
+    if (path_ !== null) console.log(`   progression: ${d.leads?.length ?? 0} lead(s), accuse gate ${d.accuseGate ? "on" : "off"}; fastest legal path: ${path_} actions (confrontations included).`);
     else if (d.leads?.length || d.accuseGate) console.log("   progression: fastest legal path could not be computed (the gate may be unreachable, or the search budget ran out).");
     const warnings = checkCaseWarnings(d);
     for (const w of warnings) console.log(`   ⚠ ${formatIssue(w)}`);

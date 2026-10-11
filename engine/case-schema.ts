@@ -11,6 +11,7 @@
  *   endings.json           -> EndingsSchema (SERVER-ONLY; optional for now)
  */
 import { z } from "zod";
+import { MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 import { EndingsSchema } from "./endings";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
@@ -66,6 +67,18 @@ export const CaseBackdropsSchema = z.strictObject({
 });
 export type CaseBackdrops = z.infer<typeof CaseBackdropsSchema>;
 
+/** One case-specific tip for the How to Play manual (PUBLIC, spoiler-free; shown under "Tips for this case"). */
+export const HowToPlayTipSchema = z.string().trim().min(1).max(200);
+export const MAX_HOW_TO_PLAY_TIPS = 8;
+
+/** Optional per-case confrontation caps (defaults and hard ceilings: MAX_CONFRONTATION_TURNS / MAX_CONFRONTATION_TOTAL). */
+export const ConfrontationCapsSchema = z.strictObject({
+  /** Exchanges one pair may have (1..MAX_CONFRONTATION_TURNS). */
+  perPair: z.number().int().min(1).max(MAX_CONFRONTATION_TURNS).optional(),
+  /** Exchanges in the whole game, across every pair (1..MAX_CONFRONTATION_TOTAL). */
+  total: z.number().int().min(1).max(MAX_CONFRONTATION_TOTAL).optional(),
+});
+
 export const CaseEnvelopeSchema = z.strictObject({
   /** Must equal the case folder name. */
   id: CaseIdSchema,
@@ -90,10 +103,29 @@ export const CaseEnvelopeSchema = z.strictObject({
    * "explicit": direct links only, no window heuristic. In both modes a fact with `hiddenUntil` follows only its own rule.
    */
   knowledgeGate: z.enum(["explicit", "proximity"]).default("proximity"),
+  /**
+   * C3 (optional, SERVER-ONLY): tuning for the guilt check's single-word name tokens. A multi-word name ("the Marmalade
+   * King", "Boat Deck") is matched in full and, by default, by its words too, minus a generic stoplist of ordinary
+   * English words (engine/name-tokens.ts). `ignoreNameTokens` drops more words; `keepNameTokens` puts a stoplisted
+   * word back (e.g. a surname that is also a common word). Lower-case single words.
+   */
+  guiltCheck: z
+    .strictObject({
+      ignoreNameTokens: z.array(z.string().regex(/^[a-z][a-z'’-]*$/, "a lower-case single word")).optional(),
+      keepNameTokens: z.array(z.string().regex(/^[a-z][a-z'’-]*$/, "a lower-case single word")).optional(),
+    })
+    .optional(),
   /** Progression (optional): open questions the player works through. Omitted: no leads. */
   leads: z.array(LeadSchema).optional(),
   /** Progression (optional): when ACCUSE unlocks. Omitted: today's behaviour (a single clue is enough). */
   accuseGate: AccuseGateSchema.optional(),
+  /**
+   * Optional PUBLIC tips for this case, shown in the How to Play manual under "Tips for this case" (1-8 tips of
+   * 1-200 characters). Omitted or empty: the section is not shown. Never name the culprit, the weapon or the motive.
+   */
+  howToPlayTips: z.array(HowToPlayTipSchema).max(MAX_HOW_TO_PLAY_TIPS).optional(),
+  /** Optional confrontation caps; omitted fields use the global defaults (6 per pair, 12 per game). */
+  confrontation: ConfrontationCapsSchema.optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 

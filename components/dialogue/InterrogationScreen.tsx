@@ -87,8 +87,8 @@ export function InterrogationScreen({
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
-      {/* pe-12 leaves room for the fixed mute toggle; the name truncates instead of wrapping (#12). */}
-      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-12 sm:mb-3 sm:gap-3">
+      {/* pe-24 leaves room for the fixed mute toggle and the How to Play button; the name truncates instead of wrapping (#12). */}
+      <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-24 sm:mb-3 sm:gap-3">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
