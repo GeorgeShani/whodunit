@@ -12,7 +12,7 @@
  */
 import type { LoadedCase } from "@/engine/case-schema";
 import { attachProgress } from "@/engine/route-progress";
-import { CASE_CLOSED_LINE, isCaseClosed, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
+import { isCaseClosed, systemLine, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
 import { isTurnUnavailable, performTurn, type AttemptHook } from "./perform-turn";
@@ -86,7 +86,7 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
     return {
       status: 409,
       body: {
-        response: { ...createFallbackCharacterResponse({ seed: game.turn }), dialogue: CASE_CLOSED_LINE, emotion: "calm", evidenceReactions: [], stressDelta: 0, trustDelta: 0 },
+        response: { ...createFallbackCharacterResponse({ seed: game.turn }), dialogue: systemLine(caseData, "caseClosed"), emotion: "calm", evidenceReactions: [], stressDelta: 0, trustDelta: 0 },
         source: "fallback",
         stateToken: unchangedToken(),
         error: "case_closed",

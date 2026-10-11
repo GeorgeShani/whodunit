@@ -182,7 +182,8 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
       // Authored voice.deflections are used only if they pass the same checks a model line would (#52).
       const isSafe = (line: string) =>
         !findReplyGuiltLeak({ dialogue: line }, "", guard.guilt, characterId) && !findForbiddenPhrase(line, ch.forbiddenPhrases, ctx.secrets.map((s) => s.id)) && !findModernWord(line);
-      const d = safeDeflection(ctx, rejected.reason, game.turn, isSafe);
+      const isSafeAction = (a: string) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a);
+      const d = safeDeflection(ctx, rejected.reason, game.turn, isSafe, isSafeAction);
       response = { ...response, dialogue: d.dialogue, action: d.action, emotion: d.emotion, intensity: 0.6 };
     } else if (t.confrontation && !presentedEvidenceId) {
       // Face to face the generic one-on-one lines read oddly and repeat: pick a varied line aimed at the partner (#27).

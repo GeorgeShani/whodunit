@@ -6,7 +6,7 @@ import type { LoadedCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { searchLocation } from "./investigation";
 import { attachProgress } from "./route-progress";
-import { CASE_CLOSED_SEARCH_LINE, isCaseClosed, restoreSession, saveSession } from "./session";
+import { isCaseClosed, systemLine, restoreSession, saveSession } from "./session";
 import type { Env } from "./state-token";
 import type { Evidence } from "./types";
 
@@ -52,7 +52,7 @@ function handleInvestigateCore(
   if (isCaseClosed(game)) {
     return {
       status: 409,
-      body: { found: [], lines: [CASE_CLOSED_SEARCH_LINE], searchedLocationIds: [...game.searchedLocationIds], stateToken: saveSession(game, env), error: "case_closed" },
+      body: { found: [], lines: [systemLine(caseData, "caseClosedSearch")], searchedLocationIds: [...game.searchedLocationIds], stateToken: saveSession(game, env), error: "case_closed" },
     };
   }
 

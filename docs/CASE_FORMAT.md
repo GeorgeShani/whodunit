@@ -57,6 +57,11 @@ cases/<caseId>/
   "intro": "Para one.\n\nPara two.",     // intro screen
   "dayStartsAt": "12:00",               // optional
   "knowledgeGate": "proximity",         // optional: "proximity" (default) | "explicit"; see "Knowledge gate" below
+  "systemLines": {                      // optional (E10): the case's own wording for engine system lines
+    "caseClosed": "…",                   //   a suspect addressed after the accusation (interrogate, confront, hint)
+    "caseClosedSearch": "…",             //   a search after the accusation
+    "recordDown": "…"                    //   the closed-games record can't be written (503, nothing decided, try again)
+  },                                     //   each falls back to a neutral default (no constable / police / telephone)
   "guiltCheck": {                       // optional, server-only (C3): the guilt check's single-word name tokens
     "ignoreNameTokens": ["barnacle"],    //   words of multi-word names that must NOT count alone (lower-case)
     "keepNameTokens": ["brine"]          //   stoplisted ordinary words that SHOULD count alone (e.g. a surname)

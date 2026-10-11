@@ -115,6 +115,20 @@ export const CaseEnvelopeSchema = z.strictObject({
       keepNameTokens: z.array(z.string().regex(/^[a-z][a-z'’-]*$/, "a lower-case single word")).optional(),
     })
     .optional(),
+  /**
+   * E10 (optional): the case's own wording for engine system lines, so they can match its canon (who is in charge,
+   * whether anyone can reach the house). Each falls back to a neutral engine default (engine/session.ts SYSTEM_LINES).
+   */
+  systemLines: z
+    .strictObject({
+      /** A suspect addressed after the accusation (interrogate, confront, hint). */
+      caseClosed: z.string().trim().min(1).max(300).optional(),
+      /** A search after the accusation. */
+      caseClosedSearch: z.string().trim().min(1).max(300).optional(),
+      /** The closed-games record can't be written (503; nothing decided, try again). */
+      recordDown: z.string().trim().min(1).max(300).optional(),
+    })
+    .optional(),
   /** Progression (optional): open questions the player works through. Omitted: no leads. */
   leads: z.array(LeadSchema).optional(),
   /** Progression (optional): when ACCUSE unlocks. Omitted: today's behaviour (a single clue is enough). */

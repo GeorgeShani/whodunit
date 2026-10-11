@@ -346,7 +346,9 @@ tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered conf
   (nothing new is left to keep), retry once. Never on a reveal or breakdown turn.
 - **Fallback deflections** (`safeDeflection`): authored `voice.deflections` first, but only those that pass the guilt,
   forbidden-phrase and modern-word checks, then the generic pool; rotated by turn, never a line said in the last 6
-  replies; the action rotates the same way (neutral actions after a guilt leak).
+  replies; the action rotates the same way, from the character's own actions, quirks and tells, minus any the guilt
+  or modern-word check flags. E9 (CA-37): the rejection REASON never changes the pool, so a guilt-path fallback looks
+  exactly like any other (a separate guilt-only pool showed up almost only for the culprit).
 - **Case data**: optional `voice: { openers, actions, deflections }` per character (docs/CASE_FORMAT.md; schema commit
   146e50b). Empty lists fall back to the generic rules above.
 - **Eval**: assertion `fresh_delivery` (no third opener in a row, no action repeated from the previous reply, no

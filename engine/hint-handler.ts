@@ -8,7 +8,7 @@ import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
 import { HINT_COOLDOWN_TURNS, hintCooldown, takeHint } from "./hints";
 import { attachProgress } from "./route-progress";
-import { CASE_CLOSED_LINE, isCaseClosed, restoreSession, saveSession } from "./session";
+import { isCaseClosed, systemLine, restoreSession, saveSession } from "./session";
 import { CaseIdSchema } from "./types";
 
 type Env = Record<string, string | undefined>;
@@ -47,7 +47,7 @@ function handleHintCore(json: unknown, deps: { caseData: LoadedCase; env?: Env; 
   if (parsed.data.caseId !== undefined && parsed.data.caseId !== caseData.id) return { status: 404, body: { ...empty, line: "No such case.", error: "unknown_case" } };
   const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env, { legacyCaseId });
   const extra = notice ? { notice } : {};
-  if (isCaseClosed(game)) return { status: 409, body: { ...empty, ...extra, line: CASE_CLOSED_LINE, error: "case_closed", stateToken: saveSession(game, env) } };
+  if (isCaseClosed(game)) return { status: 409, body: { ...empty, ...extra, line: systemLine(caseData, "caseClosed"), error: "case_closed", stateToken: saveSession(game, env) } };
   const r = takeHint(caseData, game);
   const stateToken = saveSession(game, env);
   if (r.kind === "cooldown") {
