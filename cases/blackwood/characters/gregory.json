@@ -158,7 +158,7 @@
     },
     {
       "id": "s-gregory-saw-victoria",
-      "description": "He saw Lady Victoria leave the library at the lightning flash, lock the door and pocket the key.",
+      "description": "He saw Lady Victoria leave the library by a lightning flash and the flickers that followed it, lock the door and pocket the key.",
       "severity": "serious",
       "revealConditions": {
         "evidenceIds": [

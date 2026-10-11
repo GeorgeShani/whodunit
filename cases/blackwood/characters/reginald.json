@@ -121,6 +121,7 @@
     "ev-body-discovered",
     "ev-gregory-arrives",
     "ev-lights-restored",
+    "ev-reginald-telephones-police",
     "ev-household-waits",
     "f-reginald-saw-no-one",
     "f-letter-gone",
@@ -226,7 +227,7 @@
       "description": "Wary deference: she holds his position in her hands now. He will never accuse her of anything, and under pressure his courtesy turns stiff and exact.",
       "jabs": [
         {
-          "text": "I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and I had glanced at the hall clock not a moment before.",
+          "text": "I merely recall the hall clock, m'lady. You swept past me at three minutes to nine, and I had looked at it not a moment before.",
           "aboutFactId": "ev-victoria-passes-reginald",
           "when": "confrontation"
         }
@@ -498,6 +499,11 @@
       "text": "(?:\\b(?:the\\s+)?(?:tele)?phone(?:\\s+line)?s?\\s+(?:(?:is|was|are|were|['’]s)\\s+(?:(?:quite|stone|completely|still)\\s+)?(?:dead|down|cut|out\\s+of\\s+order|not\\s+working)|(?:died|went\\s+dead|has\\s+gone\\s+dead|['’]s\\s+gone\\s+dead))\\b|\\b(?:the\\s+)?(?:telephone\\s+|phone\\s+)?lines?\\s+(?:is|are|was|were|['’]s)\\s+(?:all\\s+)?(?:down|dead|cut)\\b|\\b(?:police|constable|constabulary|inspector|Yard|bobbies)\\b[^.!?]{0,30}?\\b(?:will\\s+be|['’]ll\\s+be|are|is|be)\\s+(?:here|along|arriving|on\\s+(?:their|his|the)\\s+way|coming)\\b[^.!?]{0,30}?\\b(?:within\\s+the\\s+hour|tonight|any\\s+minute|shortly|soon|presently|directly)\\b|\\b(?:police|constable|constabulary|inspector)\\b[^.!?]{0,20}?\\b(?:are|is)\\s+on\\s+(?:their|his|the)\\s+way\\b)(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7-M6-phone] Gremlin r7 M6 / CA-15: the servants' telephone works (Reginald rang the police at 21:38, ev-reginald-telephones-police), and nobody can get through the flood before morning (ev-household-waits)."
+    },
+    {
+      "text": "\\bI\\s+(?:did\\s+not|didn['’]?t|never|have\\s+not|haven['’]?t)\\s+(?:see|seen|set\\s+eyes\\s+on|lay\\s+eyes\\s+on|clap\\s+eyes\\s+on)\\s+(?:her\\s+ladyship|her|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress)\\b(?:\\s+at\\s+all)?(?:[\\s,]+(?:this|that|all)\\s+(?:evening|night)|[\\s,]+tonight|\\s+at\\s+all)\\b(?![^.!?]*\\b(?:after|between|from|during|blackout|dark|lights|while|until|till|since|once|then|that\\s+time|in\\s+that)\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-L3] Gremlin r7 L3: Reginald saw her ladyship at 20:54 (ajar door), 20:57 (she swept past him) and 21:11 (candles). A denial scoped to the blackout or 21:13-21:30 passes."
     }
   ],
   "initialEmotion": {

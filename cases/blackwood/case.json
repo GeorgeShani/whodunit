@@ -195,7 +195,7 @@
     },
     {
       "id": "f-reginald-saw-no-one",
-      "statement": "After hearing the library lock turn at 21:13, Reginald went below stairs and stayed there until he carried the coal up at 21:30. In all that time he saw no one in the hall or at the library door, and he did not see Victoria at all.",
+      "statement": "After hearing the library lock turn at 21:13, Reginald went below stairs and stayed there until he carried the coal up at 21:30. In all that time he saw no one in the hall or at the library door, and he did not see Victoria at all in that time.",
       "category": "alibi",
       "locationId": "kitchen",
       "involvesCharacterIds": [
@@ -320,7 +320,7 @@
     {
       "id": "lead-letter",
       "title": "A letter on the desk at 21:12, gone by 21:32",
-      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the desk was bare. Papers do not walk off either.",
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
       "opensWhen": {
         "interrogated": [
           {
@@ -415,7 +415,7 @@
           "s-gregory-saw-victoria"
         ]
       },
-      "closedLine": "A witness, at last, and a lightning flash to thank for it."
+      "closedLine": "A witness, at last, and a lightning flash and its flickers to thank for it."
     }
   ],
   "accuseGate": {
