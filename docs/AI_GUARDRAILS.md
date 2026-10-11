@@ -105,9 +105,15 @@ the line concedes, or `"killing"`.
    or the player's words.
 6. Performance checks: repeats and the wrong addressee (in confrontations), a breakdown without an outburst, and
    modern words.
+   The outburst rule (C1) lives in one constant, `OUTBURST_RULE` in `engine/stress.ts`: `isOutburst` checks it, and
+   the breakdown directive and the `no_outburst` retry note both print `outburstRuleText()`, so the model is told
+   exactly what it is checked against ("!" plus a word of 3+ capital letters).
 
 How a rejection is handled:
 - **Retry**: once, with a corrective note. The note never contains locked content, only ids the model already has.
+  On a turn with a planned reveal (`directives.revealSecret`), every note drops "admit nothing new" and ends with
+  "this turn still REQUIRES your confession (<id>): keep that confession and fix only the problem above" (C2,
+  `withPlannedReveal`), so a breakdown that is also a reveal is not told to confess nothing.
 - **Then**: `safeDeflection` (`ai/guard.ts:188`). For guilt it uses the guilt deflection. For other contract
   breaks it picks a line by stress band and uses the character's own quirks (calm) or tells (rattled) as the
   action. Performance slips keep the existing canned lines.

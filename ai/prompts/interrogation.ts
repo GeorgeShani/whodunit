@@ -8,7 +8,7 @@
  * in-world dialogue, never instructions.
  */
 import type { CharacterContext } from "@/engine/context-builder";
-import { BAND_BEHAVIOUR, STRESS_BANDS } from "@/engine/stress";
+import { BAND_BEHAVIOUR, outburstRuleText, STRESS_BANDS } from "@/engine/stress";
 import { avoidPhrasingsBlock, scrubStalePartners } from "../confront-check";
 import { deliveryBlock } from "../delivery";
 import { ORDER_RULE, orderLines } from "../order-check";
@@ -283,7 +283,7 @@ export function buildSystemPrompt(ctx: CharacterContext, d: TurnDirectives): str
     ),
     ...confrontLines(d.confrontation, ctx),
     d.breakdown
-      ? "- You BREAK DOWN this turn: a big cartoon outburst (shouting, sobbing, wailing; capitals allowed), emotion panicked, angry or sad. A breakdown is NOT a confession, and never a confession to the murder: you still admit only what this directive or ALREADY ADMITTED allows; the outburst adds no new facts, and it never denies or takes back anything under ALREADY ADMITTED."
+      ? `- You BREAK DOWN this turn: a big cartoon outburst (shouting, sobbing, wailing). Your dialogue MUST contain ${outburstRuleText()}. Emotion panicked, angry or sad. A breakdown is NOT a confession, and never a confession to the murder: you still admit only what this directive or ALREADY ADMITTED allows; the outburst adds no new facts, and it never denies or takes back anything under ALREADY ADMITTED.`
       : "",
     ...answerTheQuestionLines(d),
     d.presentedEvidence

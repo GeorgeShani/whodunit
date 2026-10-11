@@ -64,7 +64,31 @@ export interface StressReading {
   breakdown: boolean;
 }
 
-/** Does a breakdown line read as an outburst? (an exclamation plus a shouted word of 3+ capitals) */
+/**
+ * C1: the ONE definition of an outburst. isOutburst (the guard's `no_outburst` check) and the breakdown instruction
+ * in the prompt and in the retry note are all generated from it, so the rule the model is told can't drift from the
+ * rule it is checked against.
+ */
+export const OUTBURST_RULE = {
+  /** The reply must contain this mark. */
+  mark: "!",
+  /** ...and at least one word written entirely in capitals, at least this many letters long. */
+  minCapitalLetters: 3,
+  /** A line that passes (shown to the model). */
+  example: "NO! I WON'T hear it!",
+  /** A near miss that fails (too short to count). */
+  tooShort: "NO!",
+} as const;
+
+const SHOUTED_WORD = new RegExp(`\\b[A-Z]{${OUTBURST_RULE.minCapitalLetters},}\\b`);
+
+/** Does a breakdown line read as an outburst? (see OUTBURST_RULE) */
 export function isOutburst(dialogue: string): boolean {
-  return /!/.test(dialogue) && /\b[A-Z]{3,}\b/.test(dialogue);
+  return dialogue.includes(OUTBURST_RULE.mark) && SHOUTED_WORD.test(dialogue);
+}
+
+/** The outburst rule in words, for the prompt and the retry note (generated from OUTBURST_RULE). */
+export function outburstRuleText(): string {
+  const r = OUTBURST_RULE;
+  return `at least one exclamation mark (${r.mark}) AND at least one word written entirely in CAPITALS, ${r.minCapitalLetters} or more letters long (e.g. "${r.example}"; "${r.tooShort}" alone is too short)`;
 }
