@@ -73,9 +73,33 @@ describe("CA-22: a card that plainly contradicts a story breaks it", () => {
   });
 });
 
-describe("CA-25: no witness invents a stained handkerchief", () => {
-  const hits = ["I saw blood on her ladyship's handkerchief, sir.", "Her handkerchief was stained, sir.", "There was a bloodstained handkerchief by the hearth."];
-  const passes = ["Her handkerchief had no blood on it.", "Was there blood on her handkerchief?", "He mops his brow with a huge handkerchief, red in the face.", "She dabbed her eyes with a lace handkerchief.", "I saw no stained handkerchief."];
+describe("CA-25 / r7 M2 (CA-29): no witness invents a stained handkerchief, but tears and rouge are fine", () => {
+  const hits = [
+    "I saw blood on her ladyship's handkerchief, sir.",
+    "There was a bloodstained handkerchief by the hearth.",
+    // Gremlin's r7 bypasses
+    "Her handkerchief had red smears on it.",
+    "Her hanky was bloodied, sir.",
+    "Her kerchief was all over blood.",
+    "She hid a crimson-spotted handkerchief in her sleeve.",
+    "I'd never seen so much blood as there was on her handkerchief.",
+    "Nothing but blood on that handkerchief of hers, sir.",
+    "Her handkerchief, which she kept balled up in her fist all evening long by the fire, was red.",
+    "There was something dark and wet on her handkerchief.",
+  ];
+  const passes = [
+    "Her handkerchief had no blood on it.",
+    "Was there blood on her handkerchief?",
+    "He mops his brow with a huge handkerchief, red in the face.",
+    "She dabbed her eyes with a lace handkerchief.",
+    "I saw no stained handkerchief.",
+    // Gremlin's r7 false positives
+    "Her handkerchief was stained with tears, poor thing.",
+    "She pressed a tear-stained handkerchief to her eyes.",
+    "Her ladyship's handkerchief was stained with rouge.",
+    "I mopped my brow and my handkerchief came away stained with sweat.",
+    "Blood? I saw no blood. She had her handkerchief out for her tears, that's all.",
+  ];
   it.each(["archibald", "reginald", "gregory"])("%s", (id) => {
     const phrases = ch(id).forbiddenPhrases ?? [];
     for (const t of hits) expect(findForbiddenPhrase(t, phrases, []), t).toBeTruthy();
