@@ -17,7 +17,7 @@ This audit builds on `SOLUTION_PROOF.md` and `LEAK_AUDIT.md` (leak paths, card m
 **Base.** origin/main 9aa8884, plus a read of PR #53 (`agatha/blackwood-voice`, not merged at the time of writing) for the voice pools.
 
 **Status key:**
-- **fixed (PR A)**: data fix in this PR, with a regression test.
+- **fixed (PR #55)**: data fix in PR #55, with a regression test.
 - **queued (PR B)**: data fix written and tested on `agatha/blackwood-audit-data`. It is held because it touches `characters/*.json` or `timeline.json`, which #53 also changes. The PR opens once #53 is on main.
 - **Dexter**: engine or UI work, written up below to forward.
 - **decision**: needs George or Marvin.
@@ -25,7 +25,7 @@ This audit builds on `SOLUTION_PROOF.md` and `LEAK_AUDIT.md` (leak paths, card m
 
 ## Summary
 
-| Severity | Count | Fixed (PR A) | Queued (PR B) | Dexter | Decision | Accepted |
+| Severity | Count | Fixed (PR #55) | Queued (PR B) | Dexter | Decision | Accepted |
 |---|---|---|---|---|---|---|
 | High | 1 | 1 | | (+ validator follow-up) | | |
 | Medium | 7 | | 3 | 3 | 1 | |
@@ -36,7 +36,7 @@ Each finding is counted once, under its primary status. Some also carry a second
 
 ## 1. Logic and fairness
 
-### CA-01 · High · ACCUSE opened in states where the win was impossible: fixed (PR A)
+### CA-01 · High · ACCUSE opened in states where the win was impossible: fixed (PR #55)
 
 **Evidence:**
 - `case.json` `accuseGate` asked for ≥3 clues, ≥3 suspects at ≥2 exchanges, ≥2 secrets and `lead-alibi` closed.
@@ -116,7 +116,7 @@ By design (#22). Combined with a replay of the same solution, the learning loop 
 
 `CaseNotReady.tsx` shows Clues, Suspects and Cracks, but no leads. With `closedLeadIds` unmet, every row shows ✓ and the button stays locked. CA-01 makes this more likely, because there are now two required leads.
 
-The data mitigation in PR A is that the leads line now names both loose ends generically.
+The data mitigation in PR #55 is that the leads line now names both loose ends generically.
 
 **Proposed fix:** a "Leads n/m" row (counts only, no titles).
 
@@ -146,13 +146,13 @@ That elimination clue proves too much. Taken literally, it says Gregory was neve
 
 The garden door, where the 21:16 print is, has no scraper, which also explains why that print exists. Gregory's voice action "drips steadily onto the carpet" is water, not mud, and stays.
 
-### CA-11 · Low · "Dinner for four" with three diners: fixed (PR A)
+### CA-11 · Low · "Dinner for four" with three diners: fixed (PR #55)
 
 **Evidence:** the dining-room `searchFlavor` said "Dinner for four" and "Still four", but only Lord Blackwood, Victoria and Archibald dined (`loc-*-2030`). Reginald served and Gregory ate in the servants' quarters. A fourth place invites an invented guest.
 
 **Fix:** "Dinner for three" and "Still three". Tested.
 
-### CA-12 · Low · The intro put the death "between the port and the coffee": fixed (PR A)
+### CA-12 · Low · The intro put the death "between the port and the coffee": fixed (PR #55)
 
 **Evidence:** the port was at 20:45 and the coffee at 20:58 (`ev-reginald-serves-coffee`). He was alive at 21:12 and died at 21:17.
 
