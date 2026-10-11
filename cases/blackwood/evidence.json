@@ -5,6 +5,7 @@
     "description": "A heavy silver candlestick, one of the pair from the dining table, standing on Lord Blackwood's desk. The base is dented and has been hastily wiped, but dried blood is still caught in the engraved crest. Its fresh white candle is bent and has burned down only a few millimetres, about five minutes of burning, and wax is spattered across the desk as though it fell while lit.",
     "discoveryLine": "Heavy silver, a fresh dent and a suspiciously short candle. Somebody's been using the good candlesticks for bad things!",
     "kind": "physical",
+    "weapon": true,
     "icon": "🕯️",
     "locationId": "library",
     "relatedFactIds": [
