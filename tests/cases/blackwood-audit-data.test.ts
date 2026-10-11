@@ -90,3 +90,10 @@ describe("CA-25: no witness invents a stained handkerchief", () => {
     }
   });
 });
+
+describe("Archibald's breakdown asks for what the outburst guard checks (s-archibald-breakdown eval)", () => {
+  it("his speech style, which the breakdown prompt reads, asks for a word in CAPITALS and an exclamation mark", () => {
+    // ai/guard.ts no_outburst uses engine/stress.ts isOutburst: an exclamation mark plus a word of 3+ capitals.
+    expect(ch("archibald").personality.speechStyle).toMatch(/blows his top[^.]*CAPITALS[^.]*exclamation mark/);
+  });
+});
