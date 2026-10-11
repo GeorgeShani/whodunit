@@ -384,3 +384,24 @@ tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered conf
 
 - `systemLines: { caseClosed?, caseClosedSearch?, recordDown? }` in case.json; neutral engine defaults
   (`engine/session.ts` `SYSTEM_LINES`, no constable, police, Yard or telephone).
+
+## 7. Consistency audit engine items (E12-E15)
+
+### E12 / E13 Forbidden-phrase switches and lifts
+
+- `onlyAfterRevealed: [secretId]`: the entry applies only once one of those secrets (any character's) is revealed.
+- `unlessRevealed`: may name any character's secret (lifted once it is revealed anywhere in the game).
+- `unlessShown: evidenceId | secretId`: lifted once that card has been shown to the speaker (the item presented this
+  exchange included). The guard's state is `forbiddenStateOf(guard)`: game-wide revealed secrets (core guilt never),
+  this exchange's reveal, and the speaker's shown evidence and testimony.
+
+### E14 Event-bound times (CA-46)
+
+- A clause that names an event (score 3 or more) is strict: its time must fit that event. A time from the speaker's own
+  story or belief excuses it only when that story is about the same event (Reginald's "took up the coal at half past
+  nine" no longer excuses "I rang the police at half past nine").
+- A loose time in a cueless clause ("I rang the police, sir, at half past nine") is claimed by an event-naming clause
+  that has no time of its own: it must fit that event, with no speaker fallback. The speaker fallback remains only for
+  a time no event-naming clause can claim (every such clause already has its own time, as in "The lights went out at
+  ten past nine, and by twenty-two minutes past nine I was sitting quietly again").
+
