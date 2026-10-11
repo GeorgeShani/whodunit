@@ -261,6 +261,8 @@ export function checkEventTimes(text: string, c: EventCase, ctx?: EventTimeSpeak
         if (!fits(own.touched) && !exemptFor(m, own.bound)) misses.push({ text: m.text, eventIds: own.bound.map((e) => e.id) });
         continue;
       }
+      // A time that fits an event its own clause touches (below the confident score) is that event's.
+      if (fits(own.touched)) continue;
       if (claimers.length) {
         if (!fits(claimed) && !exemptFor(m, claimers.flatMap((p) => p.bound))) misses.push({ text: m.text, eventIds: claimers.flatMap((p) => p.bound.map((e) => e.id)) });
         continue;

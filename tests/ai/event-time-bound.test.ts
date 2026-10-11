@@ -40,4 +40,8 @@ describe("E14 event-bound times", () => {
     expect(checkEventTimes("I took up the coal at half past nine, sir.", c, reginald())).toEqual([]);
     expect(checkEventTimes("I took the coal up at half past nine, and rang the police at 21:38.", c, reginald())).toEqual([]);
   });
+  it("a time that fits an event its own clause touches is not claimed by a later event-naming clause", () => {
+    // Gremlin r7b TRUE line: the coffee clause has its own time; "he locked the door after me" has none.
+    expect(checkEventTimes("I took his lordship his coffee at 20:58, sir, and he locked the door after me.", c, reginald())).toEqual([]);
+  });
 });
