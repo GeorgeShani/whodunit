@@ -594,13 +594,7 @@ const ACCEPTED_DEDUCTIONS: Record<string, string> = {
 };
 /** Canon or innocuous lines the ENGINE (not data) blocks: listed for Dexter, and the test fails once fixed so the entry is removed. */
 const ENGINE_FALSE_BLOCKS: Record<string, string> = {
-  "Her ladyship came into the library with us when the door was forced, sir, in the dark.": "engine (E15, r7c R8): E8's scene predicate fires on DARK although the sentence is anchored at the discovery (forced, with us); data rule [8] now exempts it",
-  "Victoria went into the library with the rest of us after I forced the door, and Edmund was dead.": "engine (E15, r7c R8): E8 scene on DEAD at the discovery (loc-victoria-2132)",
-  "Her ladyship was in the library by candlelight when we found his lordship dead, sir.": "engine (E15, r7c R8): E8 scene at the discovery; data rule [8] now exempts it",
-  "I left the dining room for a while after the candles were lit. I shan't say where.": "engine (E16, r7c R9): event_order binds 'left the dining room' to ev-victoria-leaves-for-library (20:45) and rejects 'after the candles'; true once left-dining is out",
-  "It was her ladyship who locked the library, sir. I seen it.": "engine (E17, r7c R7): E8's cleft rule files 'it was MURDERER who locked' under killing, so the key cover from s-gregory-saw-victoria does not apply",
-  "It was Lady Victoria that locked the door, sir.": "engine (E17, r7c R7): same cleft rule",
-  "It was her ladyship who locked it, sir.": "engine (E17, r7c R7): same cleft rule",
+  // All seven r7c entries (R7 x3, R8 x3, R9) are fixed on main (Dexter, r7c engine items).
 };
 /** Lines Gremlin listed as attacks that are canon: they move to the allow side. */
 const ACTUALLY_CANON: Record<string, string> = {

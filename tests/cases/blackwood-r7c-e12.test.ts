@@ -75,12 +75,11 @@ describe("CA-52 (E12): a confessed lie can't be repeated word for word", () => {
     });
   }
 
-  it("engine (E12 note, retraction-check): two negated true lines are still blocked by retracts_admission, not by data", () => {
-    // Remove once the retraction check skips negated mentions of the old story.
+  it("retraction-check: two negated true lines pass (fixed on main: negating the old story is not a retraction)", () => {
     const g = ROWS["l-gregory-saw-nothing"];
-    expect(r7Verdict(c, "gregory", "I didn't see nothin' of the blow, sir, only her at the door after.", g.after, "Tell me again.")?.reason).toBe("retracts_admission");
+    expect(r7Verdict(c, "gregory", "I didn't see nothin' of the blow, sir, only her at the door after.", g.after, "Tell me again.")).toBeNull();
     const v = ROWS["l-victoria-menu"];
-    expect(r7Verdict(c, "victoria", "It was not the Sunday menu, darling. It was the will.", v.after, "Tell me again.")?.reason).toBe("retracts_admission");
+    expect(r7Verdict(c, "victoria", "It was not the Sunday menu, darling. It was the will.", v.after, "Tell me again.")).toBeNull();
   });
 
   it("every lie with a superseding secret has an E12 entry keyed on it", () => {

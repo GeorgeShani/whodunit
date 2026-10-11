@@ -262,8 +262,8 @@ describe("leak audit: authored text", () => {
     g.characters.victoria.testimonyShownIds = ["s-gregory-saw-victoria"];
     const lies = ctxOf(g).intendedLies;
     for (const id of ["l-victoria-locked-in", "l-victoria-never-in-hall"]) expect(lies.find((l) => l.id === id)?.stonewall, id).toBe(true);
-    // E19 (r7c R4): "together" is exposed too while left-dining (its replacement) is still locked: admit nothing in its place.
-    expect(lies.find((l) => l.id === "l-victoria-together")?.stonewall).toBe(true);
+    // R4 data: Gregory's card no longer exposes "together" here (only cards that also unlock left-dining do).
+    expect(lies.find((l) => l.id === "l-victoria-together")?.stonewall).toBeUndefined();
   });
 
   it("E19: no stonewall on the turn the replacing secret is being revealed", () => {
