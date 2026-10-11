@@ -26,6 +26,7 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
+import { confrontationCaps } from "./confront-caps";
 import { CLAIM_LIMITS, MAX_CONFRONTATION_TURNS } from "./constants";
 import { createInitialGameState } from "./game-state";
 import { revealedSecretIds, secretIndex } from "./testimony";
@@ -333,7 +334,9 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
     const k = p.confrontation.characterIds.slice().sort().join("|");
     game.pairTurns[k] = Math.max(game.pairTurns[k] ?? 0, p.confrontation.turnsUsed);
   }
-  for (const k of p.confrontedPairs) game.pairTurns[k] = MAX_CONFRONTATION_TURNS;
+  // A finished pair spent this case's whole per-pair allowance.
+  const perPair = confrontationCaps(caseData).perPair;
+  for (const k of p.confrontedPairs) game.pairTurns[k] = perPair;
   game.hintTurn = p.hintTurn !== null && p.hintTurn <= p.turn ? p.hintTurn : null;
   const allLies = new Set(caseData.characters.flatMap((c) => c.intendedLies.map((l) => l.id)));
   if (!sealed.hinted.every((id) => allLies.has(id))) return { ok: false, reason: "invalid_payload" };

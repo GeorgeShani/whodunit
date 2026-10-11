@@ -87,9 +87,15 @@ cases/<caseId>/
   },
   "howToPlayTips": [                    // optional, PUBLIC: 1–8 tips, 1–200 chars each (How to Play → "Tips for this case")
     "Spoiler-free advice for this case only, e.g. how its clock or its house works."
-  ]
+  ],
+  "confrontation": { "perPair": 6, "total": 12 }   // optional: confrontation caps (defaults shown; may only be lowered)
 }
 ```
+
+### Confrontation caps (optional)
+
+- **`confrontation.perPair`** (1–6): exchanges one pair of suspects may have; **`confrontation.total`** (1–12): exchanges in the whole game, across every pair. Omitted: 6 and 12. The global constants are hard ceilings (each exchange costs two model calls), so a case can lower them but not raise them; a per-pair cap above the total is clamped to it.
+- The confrontation screen's "N left" is whichever runs out first, shown from the first look at a pair.
 
 ### How to Play tips (optional)
 
