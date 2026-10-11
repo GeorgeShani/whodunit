@@ -415,6 +415,51 @@
       "text": "(?:\\b(?:her|Lady\\s+Victoria['’]s|her\\s+ladyship['’]s|m['’]lady['’]s|the|a|that|lace)\\s+(?:lace\\s+)?handkerchief\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,40}\\b(?:blood|bloodied|blood-?stained|blood-red|stain(?:ed|s)?|red\\s+with\\s+blood)\\b|(?<!\\bno\\s)(?<!\\bnot\\s)(?<!\\bany\\s)\\b(?:blood|bloodied|blood-?stained|blood-red|stained)\\b(?:(?!\\b(?:no|not|never|nothing|wasn['’]?t|weren['’]?t|without)\\b)[^.!?]){0,20}\\bhandkerchief\\b)(?![^.!?]*\\?)",
       "regex": true,
       "note": "Audit CA-25: Victoria wiped the candlestick with her handkerchief at 21:18 (core, ev-victoria-takes-letter). Nobody saw it, so no witness may invent a stained handkerchief. Denials and questions pass."
+    },
+    {
+      "text": "(?<!\\b(?:don['’]?t|do\\s+not|doesn['’]?t|didn['’]?t|never|can['’]?t|cannot|couldn['’]?t|wouldn['’]?t)\\s+(?:think|believe|say|said|reckon|suppose|imagine|see|hold\\s+with\\s+saying)\\s+(?:that\\s+)?)\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)(?:['’](?:d|s)|\\s+(?:had|has))?[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may|must)\\b)[\\w'’]+[\\s,]+){0,2}?(?:(?:killed|murdered|struck|clubbed|bludgeoned|brained|bashed|coshed|throttled|hit|did\\s+(?:for|away\\s+with)|done\\s+(?:for|away\\s+with))\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband|the\\s+old\\s+man)|(?:did|done)\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband|the\\s+old\\s+man)\\s+in|(?:bashed|stove|caved|smashed|knocked)\\s+(?:in\\s+)?(?:his|Edmund['’]s|his\\s+lordship['’]s)\\s+(?:head|skull)(?:\\s+in)?)\\b(?!\\s+as\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1a] Gremlin r7 H1: an innocent naming Victoria as the killer, contractions included (she'd killed him, her ladyship's done him in, she did him in, brained him, bashed his head in). Hedged or negated lines pass."
+    },
+    {
+      "text": "(?<!\\b(?:don['’]?t|do\\s+not|doesn['’]?t|didn['’]?t|never|can['’]?t|cannot|couldn['’]?t|wouldn['’]?t)\\s+(?:think|believe|say|said|reckon|suppose|imagine|see|hold\\s+with\\s+saying)\\s+(?:that\\s+)?)\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)(?:['’]s|\\s+(?:is|was|were))\\s+(?:the\\s+(?:one|woman|lady|person)\\s+)?(?:who|that)\\s+(?:killed|struck|murdered|brained|bashed|hit\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband|the\\s+old\\s+man)|did\\s+(?:it|for\\s+him|him\\s+in)|done\\s+(?:it|for\\s+him|him\\s+in))\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1b] Gremlin r7 H1: 'her ladyship is the one who killed him'."
+    },
+    {
+      "text": "(?<!\\b(?:don['’]?t|do\\s+not|doesn['’]?t|didn['’]?t|never|can['’]?t|cannot|couldn['’]?t|wouldn['’]?t)\\s+(?:think|believe|say|said|reckon|suppose|imagine|see|hold\\s+with\\s+saying)\\s+(?:that\\s+)?)\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)(?:['’](?:d|s)|\\s+(?:had|has))?[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may|must)\\b)[\\w'’]+[\\s,]+){0,2}?(?:(?:went|slipped|crept|stole|got)\\s+in\\s+to\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband|the\\s+old\\s+man)|(?:was|were)\\s+in\\s+(?:there\\s+)?with\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband|the\\s+old\\s+man)|(?:was|were)\\s+with\\s+(?:him|his\\s+lordship|Lord\\s+Blackwood|Edmund|the\\s+master|her\\s+husband|your\\s+husband|the\\s+old\\s+man)\\s+in\\s+(?:the\\s+)?library)\\b[^.!?]{0,80}?(?:blackout|in\\s+the\\s+dark(?:ness)?|candle-?light|lights?\\s+(?:went|were|was)\\s+out|candles?\\s+went\\s+out|lightning|when\\s+he\\s+(?:died|was\\s+(?:killed|struck))|(?:a\\s+)?quarter\\s+past\\s+nine|(?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty|ten)\\s+(?:minutes\\s+)?past\\s+nine|nine[-\\s](?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|21[:.]1[3-9]|21[:.]2[0-2])(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1c] Gremlin r7 H1: Victoria in with him in the murder window (went in to him while the lights were out; in with him when the candle went out; with his lordship in the library at a quarter past nine). Window times only: Reginald truly saw her in the library at 20:54."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:heard|hear)\\b[^.!?]{0,40}?\\b(?:her|her\\s+ladyship['’]s|Lady\\s+Victoria['’]s|Victoria['’]s|m['’]lady['’]s|milady['’]s|the\\s+mistress['’]s|a\\s+woman['’]s|a\\s+lady['’]s)\\s+voice\\b(?:[^.!?]{0,60}?\\b(?:(?:just\\s+)?(?:before|afore)\\s+the\\s+(?:thud|thump|blow|crash)|pleading|begging)|[^.!?]{0,20}?\\b(?:in\\s+there|in(?:side)?\\s+the\\s+library)\\b[^.!?]{0,60}?(?:blackout|in\\s+the\\s+dark(?:ness)?|candle-?light|lights?\\s+(?:went|were|was)\\s+out|candles?\\s+went\\s+out|lightning|when\\s+he\\s+(?:died|was\\s+(?:killed|struck))|(?:a\\s+)?quarter\\s+past\\s+nine|(?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty|ten)\\s+(?:minutes\\s+)?past\\s+nine|nine[-\\s](?:fifteen|sixteen|seventeen|eighteen|nineteen|twenty)|21[:.]1[3-9]|21[:.]2[0-2]))(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1d] Gremlin r7 H1: 'her voice in there, pleading, just afore the thud'. Reginald's true 20:54 overhearing (voice in the library, no window, no thud) stays sayable."
+    },
+    {
+      "text": "\\bpleading\\b[^.!?]{0,40}?\\b(?:before|afore)\\s+the\\s+(?:thud|thump|blow)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1e] Gremlin r7 H1: pleading before the thud (nobody heard that)."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:saw|seen|watched|spotted|glimpsed)\\s+(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)\\b[^.!?]{0,40}?\\b(?:slip|slipped|slipping|tuck|tucked|tucking|put|putting|hide|hid|hiding|pocket|pocketed|stuff|stuffed)\\s+(?:something|it|the\\s+key|a\\s+key|a\\s+thing)\\s+(?:in|into|down)\\s+(?:her|the)\\s+(?:gown|dress|bodice|pocket|sleeve|skirts?)\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1f] Gremlin r7 H1: Gregory's eyewitness content (slipping something into her gown) in another mouth; Gregory may say it once s-gregory-saw-victoria is out."
+    },
+    {
+      "text": "(?<!\\b(?:don['’]?t|do\\s+not|doesn['’]?t|didn['’]?t|never|can['’]?t|cannot|couldn['’]?t|wouldn['’]?t)\\s+(?:think|believe|say|said|reckon|suppose|imagine|see|hold\\s+with\\s+saying)\\s+(?:that\\s+)?)\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)[\\s,]+(?:(?!(?:never|not|no|didn['’]?t|couldn['’]?t|wouldn['’]?t|can['’]?t|cannot|could|would|might|may|must)\\b)[\\w'’]+[\\s,]+){0,2}?(?:came|come|coming|walked|walking|stepped|stepping|hurried|hurrying|slipped|slipping|crept|creeping|stole|sneaked|snuck)\\s+(?:away\\s+)?(?:from|out\\s+of)\\s+(?:the\\s+|that\\s+)?library(?:\\s+door)?\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1g] Gremlin r7 H1: Victoria coming away from the library door (only Gregory saw it, at 21:19; Reginald saw her leave at 20:57, which stays sayable)."
+    },
+    {
+      "text": "(?<!(?:\\bnever|\\bnot|n['’]t|\\bnobody|\\bno\\s+one|\\bno)\\s+(?:have\\s+)?)\\b(?:saw|seen|watched|spotted|glimpsed|noticed)\\s+(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)[\\s,]+(?:came|come|coming|walked|walking|stepped|stepping|hurried|hurrying|slipped|slipping|crept|creeping|stole|sneaked|snuck)\\s+(?:away\\s+)?(?:from|out\\s+of)\\s+(?:the\\s+|that\\s+)?library(?:\\s+door)?\\b(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1h] Gremlin r7 H1: 'I saw Victoria coming away from the library door' (Archibald after his false alibi, with his own 21:21)."
+    },
+    {
+      "text": "(?:\\b(?:when|as|once)\\s+the\\s+(?:lights?\\s+went\\s+out|blackout\\s+(?:came|struck|hit))\\b[^.!?]{0,40}?\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)\\s+(?:wasn['’]?t|was\\s+not|weren['’]?t|was\\s+nowhere)\\b|\\b(?:her\\s+ladyship|Lady\\s+Victoria|Victoria|m['’]lady|milady|the\\s+mistress|she)\\s+(?:wasn['’]?t|was\\s+not|was\\s+nowhere)\\s+(?:in\\s+the\\s+dining[-\\s]room|by\\s+the\\s+fire|at\\s+the\\s+table|near\\s+the\\s+fire)\\b[^.!?]{0,30}?\\b(?:when|as)\\s+the\\s+lights?\\s+went\\s+out\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "note": "[r7-H1i] Gremlin r7 H1: 'when the lights went out she wasn't in the dining room' (false: Reginald lit the candles at 21:11 with her at the table)."
     }
   ],
   "initialEmotion": {
