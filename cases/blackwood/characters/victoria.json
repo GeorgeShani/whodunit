@@ -359,13 +359,11 @@
         "s-victoria-left-dining"
       ],
       "brokenByEvidenceIds": [
-        "library-key",
-        "burned-letter"
+        "library-key"
       ],
       "breaksOnSecretIds": [
         "s-reginald-theft",
-        "s-archibald-false-alibi",
-        "s-gregory-saw-victoria"
+        "s-archibald-false-alibi"
       ],
       "breakMode": "any"
     },
@@ -571,6 +569,12 @@
       "text": "(?:\\b(?:went|go|gone|going|came|come|popped|nipped|slipped|crept|stole)\\s+back\\s+(?:in\\s+)?(?:to|into|in\\s+to)\\s+(?:see\\s+)?(?:Edmund|my\\s+husband|him|the\\s+library)\\b|\\b(?:pop(?:ped)?|look(?:ed)?|drop(?:ped)?|call(?:ed)?)\\s+in\\s+on\\s+(?:Edmund|my\\s+husband|him)\\b|\\b(?:saw|seen|see|spoke\\s+(?:to|with)|talked\\s+(?:to|with)|met|faced|visited)\\s+(?:Edmund|my\\s+husband|him)\\s+(?:again|a\\s+second\\s+time|once\\s+more|later)\\b|\\b(?:Edmund|my\\s+husband|he)\\s+and\\s+I\\s+(?:spoke|talked|met|argued|quarrelled|had\\s+words)\\b[^.!?]{0,30}?\\b(?:again|(?:a|the)\\s+second\\s+time|later|once\\s+more)\\b|\\b(?:a|the)\\s+second\\s+(?:time|talk|word|conversation|visit|meeting|chat)\\b[^.!?]{0,30}?\\b(?:Edmund|my\\s+husband|him)\\b|\\b(?:Edmund|my\\s+husband)\\b[^.!?]{0,40}?\\b(?:the|a)\\s+second\\s+time\\b|\\banother\\s+(?:word|talk|go|chat|conversation)\\s+with\\s+(?:Edmund|my\\s+husband|him)\\b|\\bin\\s+on\\s+Edmund\\s+again\\b)(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7b-N1-second] Gremlin r7b N1 (HIGH): a second meeting with Edmund ('went back to Edmund', 'popped in on Edmund again', 'saw him again later', 'spoke a second time', 'another word with Edmund'). Only the 20:5x chat is hers to admit; the 21:13-21:19 visit is core guilt."
+    },
+    {
+      "text": "(?:\\bI\\s+(?:had\\s+|just\\s+|then\\s+|only\\s+)?(?:stepped|slipped|nipped|popped|went|wandered)\\s+out\\b(?![^.!?]*\\b(?:before\\s+nine|after\\s+dinner|from\\s+dinner|quarter\\s+to\\s+nine|little\\s+chat|Sunday\\s+menu)\\b)|\\bI\\s+(?:left|quitted|was\\s+out\\s+of)\\s+the\\s+(?:dining[-\\s]room|room)\\b(?![^.!?]*\\b(?:before\\s+nine|after\\s+dinner|from\\s+dinner|quarter\\s+to\\s+nine|little\\s+chat|Sunday\\s+menu|with\\s+(?:Archibald|the\\s+others|everyone)|after\\s+the\\s+scream|when\\s+(?:Reginald\\s+)?screamed)\\b)|\\b(?:wasn['’]?t|was\\s+not|weren['’]?t)\\s+(?:by\\s+the\\s+fire|in\\s+the\\s+dining[-\\s]room|at\\s+the\\s+fire|there)\\s+(?:every|the\\s+whole|all\\s+the)\\s+(?:minute|time|while)|\\b(?:Archibald|Archie|Mr\\s+Crane|he)\\s+(?:wasn['’]?t|was\\s+not)\\s+with\\s+me\\s+(?:the\\s+whole|every|all\\s+the)\\b|\\b(?:Archibald|Archie|Mr\\s+Crane|he)\\s+left\\s+me\\s+(?:alone|on\\s+my\\s+own|by\\s+myself)\\b|\\bI\\s+was\\s+(?:alone|on\\s+my\\s+own|by\\s+myself)\\s+(?:in\\s+the\\s+dining[-\\s]room|at\\s+the\\s+fire|for\\s+a)\\b|\\b(?:Archibald|Archie|Mr\\s+Crane)\\s+and\\s+I\\s+were\\s+not\\s+together\\b)(?![^.!?]*\\?)",
+      "regex": true,
+      "unlessRevealed": "s-victoria-left-dining",
+      "note": "[r7c-R4-left] Gremlin r7c R4: before left-dining is out Victoria must not concede leaving or being alone in the window ('I stepped out for some air while Archibald was away', 'I wasn't by the fire every minute', 'Archibald left me alone at the fire', and the bare 'I left the dining room to see my husband' / 'When I left the dining room I went to the hall'). Her 20:45 exit stays sayable when tied to dinner or the chat ('I excused myself from dinner', 'I left the dining room before nine'). Lifted once s-victoria-left-dining is revealed."
     }
   ],
   "initialEmotion": {

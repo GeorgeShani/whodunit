@@ -113,7 +113,8 @@ describe("Victoria never confesses the murder in interrogation", () => {
       "s-archibald-false-alibi": ["l-victoria-together"],
       "s-archibald-embezzlement": [],
       "s-gregory-in-hall": [],
-      "s-gregory-saw-victoria": ["l-victoria-together", "l-victoria-locked-in", "l-victoria-never-in-hall"],
+      // r7c R4: "together" breaks only on what cracks left-dining, so Gregory's card no longer exposes it
+      "s-gregory-saw-victoria": ["l-victoria-locked-in", "l-victoria-never-in-hall"],
     };
     const reveals: Record<string, string | null> = {
       "s-reginald-theft": "s-victoria-left-dining",

@@ -377,8 +377,7 @@
         "revealSecretId": null,
         "newlyExposedLieIds": [
           "l-victoria-locked-in",
-          "l-victoria-never-in-hall",
-          "l-victoria-together"
+          "l-victoria-never-in-hall"
         ],
         "stonewallLieIds": [
           "l-victoria-locked-in",
@@ -883,7 +882,6 @@
       "engine": {
         "revealSecretId": "s-victoria-new-will",
         "newlyExposedLieIds": [
-          "l-victoria-together",
           "l-victoria-menu",
           "l-victoria-letter"
         ],
@@ -1144,8 +1142,7 @@
         "revealSecretId": null,
         "newlyExposedLieIds": [
           "l-victoria-locked-in",
-          "l-victoria-never-in-hall",
-          "l-victoria-together"
+          "l-victoria-never-in-hall"
         ],
         "stonewallLieIds": [
           "l-victoria-locked-in",

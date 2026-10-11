@@ -504,7 +504,8 @@ describe("Blackwood testimony", () => {
       }
     }
     expect(matrix).toEqual({
-      "l-victoria-together": ["s-archibald-false-alibi", "s-gregory-saw-victoria", "s-reginald-theft"],
+      // r7c R4: only the cards that crack left-dining break "together"
+      "l-victoria-together": ["s-archibald-false-alibi", "s-reginald-theft"],
       "l-victoria-locked-in": ["s-gregory-saw-victoria"],
       "l-victoria-never-in-hall": ["s-gregory-saw-victoria"],
       "l-victoria-menu": ["s-reginald-overheard"],
