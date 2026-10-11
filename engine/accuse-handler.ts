@@ -49,7 +49,8 @@ function verdictBody(caseData: LoadedCase, game: GameState, accusation: Accusati
   const ending = buildEnding(caseData, grade, accusation);
   const stateToken = saveSession(game, env);
   const rating = grade.rating ? { rating: grade.rating } : {};
-  if (!grade.won) return { outcome: "lost", accusation, ...rating, ending, evidence: endingEvidence(caseData, ending, undefined, accusation), stateToken };
+  // E2: a loss never carries a rating (it would tell the player whether they had the culprit).
+  if (!grade.won) return { outcome: "lost", accusation, ending, evidence: endingEvidence(caseData, ending, undefined, accusation), stateToken };
   const solution = buildSolutionReveal(caseData);
   return { outcome: "won", accusation, verdict: toVerdict(grade), ...rating, solution, ending, evidence: endingEvidence(caseData, ending, solution, accusation), stateToken };
 }

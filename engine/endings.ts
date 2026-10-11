@@ -36,7 +36,7 @@ export const EndingsSchema = z.strictObject({
   wrong: z.record(IdSchema, Lines),
   /** Final line when the murderer gets away. */
   escapedLine: NonEmptyText,
-  /** E2: one extra line after the ending when the right culprit was named with a citation that doesn't support it. */
+  /** E2: one extra line after a WIN that cited something that doesn't support it (never played on a loss). */
   sloppyRemark: EndingLineSchema.optional(),
 });
 export type Endings = z.infer<typeof EndingsSchema>;

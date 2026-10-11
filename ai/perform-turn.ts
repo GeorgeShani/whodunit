@@ -204,6 +204,8 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
       trustDelta: response.trustDelta,
       performed: source === "model",
       ...(response.action ? { action: response.action } : {}),
+      // C4: in a confrontation only the addressed suspect is being questioned.
+      countsAsExchange: t.confrontation?.role !== "reacting",
     },
     t.confrontation ? "confrontation" : "interrogation",
   );

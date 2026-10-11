@@ -59,8 +59,18 @@ export function wasPresent(
   });
 }
 
+/** C3: every word of a multi-word name the guilt check splits (victim, characters, locations, evidence). */
+function multiWordNameTokens(c: LoadedCase): Set<string> {
+  const names = [c.victim.name, ...c.victim.aliases, ...c.characters.flatMap((ch) => [ch.name, ...(ch.aliases ?? [])]), ...c.locations.map((l) => l.name), ...c.evidence.map((e) => e.name)];
+  return new Set(names.map((n) => n.toLowerCase().split(/\s+/)).filter((w) => w.length > 1).flat());
+}
+
 export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const issues: CaseIssue[] = [];
+  // C3: a name token can't be both ignored and kept.
+  for (const w of c.guiltCheck?.ignoreNameTokens ?? []) {
+    if (c.guiltCheck?.keepNameTokens?.includes(w)) issues.push({ file: "case.json", path: "guiltCheck", message: `"${w}" is in both ignoreNameTokens and keepNameTokens` });
+  }
   const CASE = "case.json";
   const TL = "timeline.json";
   const EV = "evidence.json";
@@ -296,6 +306,11 @@ export function howToPlayTipWarnings(c: LoadedCase): CaseIssue[] {
  */
 export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   const warnings: CaseIssue[] = [];
+  // C3: an override word that is no word of any multi-word name does nothing.
+  const tokens = multiWordNameTokens(c);
+  for (const [k, list] of [["ignoreNameTokens", c.guiltCheck?.ignoreNameTokens], ["keepNameTokens", c.guiltCheck?.keepNameTokens]] as const) {
+    for (const w of list ?? []) if (!tokens.has(w)) warnings.push({ file: "case.json", path: `guiltCheck.${k}`, message: `"${w}" is not a word of any multi-word name (victim, character, location or evidence), so it has no effect` });
+  }
   const charFile = (id: string) => `characters/${id}.json`;
   const findable = new Set(c.evidence.filter((e) => e.locationId || e.initiallyAvailable).map((e) => e.id));
   const secrets = new Map(c.characters.flatMap((ch) => ch.secrets.map((s) => [s.id, { s, owner: ch.id }] as const)));

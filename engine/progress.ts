@@ -5,6 +5,7 @@
  * revealedSecretIds, characters[id].interrogationCount) and only ever goes false -> true, so no order of play can
  * undo an unlock. Conditions are evaluated against the state BEFORE an action.
  */
+import { confrontationCaps, type PublicConfrontProgress } from "./confront-caps";
 import { citeCaps } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import type { AccuseGate, Condition, GameState, Lead, Location } from "./types";
@@ -151,10 +152,19 @@ export interface PublicProgress {
   };
   /** "questioned n/2" badges: exchanges per suspect, capped at `need` (only when the gate asks for questioned suspects). */
   questioned?: { need: number; counts: Record<string, number> };
+  /** Confrontation caps and what is spent, for every pair's "N left" (confrontLeft). Optional only for older sessions. */
+  confront?: PublicConfrontProgress;
+}
+
+/** Caps plus spent exchanges (game.pairTurns; finished pairs from confrontedPairs). */
+export function confrontProgress(caseData: Pick<LoadedCase, "confrontation">, game: GameState): PublicConfrontProgress {
+  const caps = confrontationCaps(caseData);
+  const pairUsed = Object.fromEntries(Object.entries(game.pairTurns).filter(([, n]) => n > 0));
+  return { ...caps, totalUsed: Object.values(pairUsed).reduce((a, b) => a + b, 0), pairUsed, finished: [...game.confrontedPairs] };
 }
 
 /** `before`: visibleLeadStates() of the state before the action (so a toast is only ever for a lead the player saw open or saw solved after opening). */
-export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution" | "evidence">, game: GameState, before?: LeadStates): PublicProgress {
+export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" | "characters" | "accuseGate" | "solution" | "evidence" | "confrontation">, game: GameState, before?: LeadStates): PublicProgress {
   const raw = leadStates(caseData, game);
   const states = visibleLeadStates(caseData, game, raw);
   const leads = (caseData.leads ?? []).filter((l): l is Lead => states[l.id] !== "hidden");
@@ -171,6 +181,7 @@ export function publicProgress(caseData: Pick<LoadedCase, "leads" | "locations" 
     lockedLocationIds: caseData.locations.filter((l: Location) => !isUnlocked(l, game, raw)).map((l) => l.id),
     freshLocationIds: freshLocationIds(caseData, game, raw),
     accuse: { ...accuseProgress(caseData, game, raw), citeTestimony: (caseData.solution.minKeyTestimony ?? 0) >= 1, citeCap: citeCaps(caseData.solution) },
+    confront: confrontProgress(caseData, game),
     ...(sq ? { questioned: { need: sq.minExchanges, counts: Object.fromEntries(caseData.characters.map((c) => [c.id, Math.min(sq.minExchanges, exchanges(game, c.id))])) } } : {}),
   };
 }
