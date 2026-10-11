@@ -591,6 +591,22 @@
       "text": "\\b(?:police|constable|constabulary|inspector|Yard|bobbies)\\b[^.!?]{0,40}?\\b(?:row|boat|punt|swim|wade|ford|across|get\\s+through|come|arrive)\\w*\\b[^.!?]{0,30}?\\b(?:before\\s+midnight|tonight|within\\s+the\\s+hour|any\\s+minute|shortly|presently|in\\s+an\\s+hour)\\b(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7c-phone] Gremlin r7c R14 (CA-50 tail): nobody can reach the house before morning ('the constable says they'll row across before midnight')."
+    },
+    {
+      "text": "(?<!\\b(?:not|no|wasn['’]?t|weren['’]?t|never|nothing\\s+to\\s+do\\s+with|nor)\\b[^.!?]{0,25})(?:\\b(?:potting\\s+)?shed\\b[^.!?]{0,30}\\b(?:all\\s+night|the\\s+whole\\s+(?:time|night)|all\\s+through\\s+the\\s+(?:blackout|dark))\\b|\\bonly\\s+came\\s+in\\s+when\\s+I\\s+heard\\s+the\\s+shouting\\b)",
+      "regex": true,
+      "onlyAfterRevealed": [
+        "s-gregory-in-hall"
+      ],
+      "note": "[e12-shed] l-gregory-shed after s-gregory-in-hall. Gremlin r7b N6 / CA-52 via E12 (9fe5aa5): once its owner has confessed the superseding secret, the broken story can't be repeated word for word. The pattern does not match the confession (it is live on the reveal turn too), and negated mentions ('it wasn't the Sunday menu') pass."
+    },
+    {
+      "text": "\\b(?:I\\s+)?(?:didn['’]?t|did\\s+not|never)\\s+see\\s+(?:nothin['’g]?|anything|nobody|no\\s*one|a\\s+thing)\\b(?![^.!?]*\\b(?:else|but|except|of\\s+the\\s+(?:blow|killing)|strike|struck|blow|kill\\w*|inside|in\\s+the\\s+library)\\b)",
+      "regex": true,
+      "onlyAfterRevealed": [
+        "s-gregory-saw-victoria"
+      ],
+      "note": "[e12-saw-nothing] l-gregory-saw-nothing after s-gregory-saw-victoria. Gremlin r7b N6 / CA-52 via E12 (9fe5aa5): once its owner has confessed the superseding secret, the broken story can't be repeated word for word. The pattern does not match the confession (it is live on the reveal turn too), and negated mentions ('it wasn't the Sunday menu') pass."
     }
   ],
   "initialEmotion": {

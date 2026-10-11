@@ -50,9 +50,9 @@ CA-36 leaves one part accepted, and Marvin approved it: no innocent gets a stres
 | Severity | Count | Fixed (#57) | Fixed, listed gaps left (E8/E14/accepted) | Dexter only |
 |---|---|---|---|---|
 | High | 3 | 1 (CA-42, + E13) | 2 (CA-41, CA-43) | |
-| Medium | 4 | 3 (CA-44, CA-45, CA-47) | | 1 (CA-52, E12) |
+| Medium | 4 | 4 (CA-44, CA-45, CA-47, CA-52 via E12 in r7c) | | |
 | Low | 5 | 3 (CA-48, CA-49, CA-51) | 2 (CA-46, CA-50) | |
-| **Total** | **12** | **7** | **4** | **1** |
+| **Total** | **12** | **8** | **4** | **0** |
 
 Regression corpus (`tests/cases/blackwood-r7b-corpus.test.ts`, Gremlin's probe5-7 through the real guard): **173 allow** lines all pass; **313 block** results, 304 blocked and 9 left open on purpose (5 distinct lines, each listed with its reason in `KNOWN_GAPS`). Since r7c the same file also carries probe8-10; see §9 for the current counts.
 
@@ -315,7 +315,7 @@ Their quirks, and both #53 voice pools, include checking a pocket watch. The two
 
 ## 5. Engine and UI asks for Dexter (forward as written)
 
-**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b. **E12 (9fe5aa5) and E13 (e4281ec) are now on main** and merged into #57: Blackwood uses E13 (`unlessShown` on Gregory's card for Reginald and Archibald's relays, CA-55; `unlessRevealed: s-archibald-embezzlement` on Reginald's money rules, CA-57). E12 (`onlyAfterRevealed`) keys on secrets, not on a lie broken by evidence, so CA-52 stays with Dexter for the evidence half; adopting it for the secret half is a follow-up. E16 to E18 are new from r7c. **E14 (ff10ea2, 939222e), E15a (fa39a37: negated frames like 'Nobody saw X strike him') and E15b (1f767b5: relative window anchors in the scene check) are also on main** and merged into #57: "I rang the police at half past nine" now blocks (E14's known gap closed), and "Nobody saw Victoria strike him" / "Not a soul saw her ladyship strike him" now pass (E15a). E15d (discovery scene) stays open.
+**Status:** E1 (7f81e08), E2 (3e768a9, 307d09c), E3 (d16d145), E4 (2fd33e4), E5 (2596e5e), E9 (3a74dbb) and E10 (18b199f) are done on main, and so is E8 (201291e, merged into #57 at 07e037a). Blackwood adopts both in #57: `pronoun` on every character (Victoria she, the others he; the victim schema has no such field), and its own E10 `systemLines` (the flood, police come morning, no constable or candles), tested in `blackwood-system-lines`. No data or test still references E9's removed `DEFLECT_*`/`GUILT_ACTIONS_*` pools; the only mention is E9's own history entry below. E6 waits on George. E7 is still open, and it is now one re-record for 69 fixtures (CA-39). E11 is from r7; E12 to E15 are new from r7b. **E12 (9fe5aa5) and E13 (e4281ec) are now on main** and merged into #57: Blackwood uses E13 (`unlessShown` on Gregory's card for Reginald and Archibald's relays, CA-55; `unlessRevealed: s-archibald-embezzlement` on Reginald's money rules, CA-57). E12 (`onlyAfterRevealed`) is adopted for CA-52: every superseded lie is forbidden word for word once its owner confesses (see CA-52). E16 to E18 are new from r7c. **E14 (ff10ea2, 939222e), E15a (fa39a37: negated frames like 'Nobody saw X strike him') and E15b (1f767b5: relative window anchors in the scene check) are also on main** and merged into #57: "I rang the police at half past nine" now blocks (E14's known gap closed), and "Nobody saw Victoria strike him" / "Not a soul saw her ladyship strike him" now pass (E15a). E15d (discovery scene) stays open.
 
 1. **E1, validator: warn when ACCUSE can open while the win is impossible (CA-01).**
    - `progressionWarnings` should search reachable states, as `fastestPath` already does.
@@ -701,9 +701,11 @@ Every new `forbiddenPhrases` entry carries an `[r7b-…]` tag in its `note`. Val
 - The fireplace lead said "Perhaps the dining room kept something else of theirs", which ties the hidden key to whoever carried the candlestick (Reginald, 21:11). It now reads "Perhaps the dining room is keeping something else tonight".
 - The base line now records the r7b merge (3a74dbb).
 
-### CA-52 · Medium · An exposed lie can be repeated word for word: Dexter (E12)
+### CA-52 · Medium · An exposed lie can be repeated word for word: fixed (#57) with E12
 
 **Evidence (r7b N6):** `retracts_admission` covers only superseded stories, so an exposed but not yet superseded lie passes verbatim. Blackwood's known instance (Archibald's card to Reginald) is closed by Marvin's CA-28 ruling, but the hole is generic, and Tallyho needs it too (DX7). See E12.
+
+**Fix (r7c, E12 on main 9fe5aa5):** every lie with a superseding secret now has an `[e12-…]` entry with `onlyAfterRevealed: [<that secret>]`, matching the lie's distinctive wording but not the confession, with negated mentions exempt: Reginald's "polishing silver / heard nothing at all" (after theft) and "nothing out of the ordinary / only a few words" (after overheard); Archibald's "from the moment the candles were lit… until / neither of us left" (after false-alibi) and "racehorse / purely sporting" (after embezzlement); Gregory's "potting shed all night / only came in when I heard the shouting" (after in-hall) and "didn't see nothin'" (after saw-victoria); Victoria's "neither of us left / from the moment the candles were lit until" (after left-dining) and "Sunday menu / never seen that letter" (after new-will). The trigger is the owner's superseding secret, not the breaking card: a suspect may still maintain a lie that nobody has broken in front of them. Since CA-44/CA-56 every break reveals the superseder in the same exchange, except Reginald's decision-12 state, so this covers the exposed states too. Test: `blackwood-r7c-e12.test.ts` (each lie sayable before, blocked after, truth passes; every superseded lie has an entry). Engine note for Dexter (E12 item): two negated true lines are still blocked by `retracts_admission`, not data ("I didn't see nothin' of the blow, sir, only her at the door after.", "It was not the Sunday menu, darling. It was the will."); pinned in the test.
 
 ## 9. Gremlin's r7c pass (CA-53 onward)
 

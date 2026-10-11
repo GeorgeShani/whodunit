@@ -37,7 +37,12 @@ const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const compile = (p: Phrase) => (p.regex ? new RegExp(p.text, "i") : new RegExp(`\\b${esc(p.text.trim()).replace(/\s+/g, "\\s+")}\\b`, "i"));
 /** The first live entry that matches `line`, or null. */
 function blockedBy(who: Who, line: string, revealed: readonly string[] = []): Phrase | null {
-  return chars[who].forbiddenPhrases.find((p) => !(p.unlessRevealed && revealed.includes(p.unlessRevealed)) && compile(p).test(line)) ?? null;
+  // E12: an onlyAfterRevealed entry is off until one of its secrets is in `revealed`
+  const live = (p: Phrase) => {
+    const after = (p as { onlyAfterRevealed?: string[] }).onlyAfterRevealed;
+    return !(p.unlessRevealed && revealed.includes(p.unlessRevealed)) && !(after && !after.some((id) => revealed.includes(id)));
+  };
+  return chars[who].forbiddenPhrases.find((p) => live(p) && compile(p).test(line)) ?? null;
 }
 const EVIDENCE_IDS: string[] = (() => {
   const raw = JSON.parse(readFileSync(join(DIR, "evidence.json"), "utf8")) as { id: string }[] | { evidence: { id: string }[] };

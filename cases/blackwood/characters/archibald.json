@@ -630,6 +630,22 @@
       "text": "\\b(?:police|constable|constabulary|inspector|Yard|bobbies)\\b[^.!?]{0,40}?\\b(?:row|boat|punt|swim|wade|ford|across|get\\s+through|come|arrive)\\w*\\b[^.!?]{0,30}?\\b(?:before\\s+midnight|tonight|within\\s+the\\s+hour|any\\s+minute|shortly|presently|in\\s+an\\s+hour)\\b(?![^.!?]*\\?)",
       "regex": true,
       "note": "[r7c-phone] Gremlin r7c R14 (CA-50 tail): nobody can reach the house before morning ('the constable says they'll row across before midnight')."
+    },
+    {
+      "text": "(?<!\\b(?:not|no|wasn['’]?t|weren['’]?t|never|nothing\\s+to\\s+do\\s+with|nor)\\b[^.!?]{0,25})(?:\\bfrom\\s+the\\s+moment\\s+the\\s+candles\\s+were\\s+lit\\b[^.!?]{0,40}\\b(?:until|till)\\b|\\bneither\\s+of\\s+us\\s+(?:left|stirred|moved)\\b|\\bI\\s+(?:never|didn['’]?t)\\s+(?:once\\s+)?(?:leave|left)\\s+(?:her|Victoria|the\\s+(?:dining[-\\s]room|fire))\\b)",
+      "regex": true,
+      "onlyAfterRevealed": [
+        "s-archibald-false-alibi"
+      ],
+      "note": "[e12-together] l-archibald-together after s-archibald-false-alibi. Gremlin r7b N6 / CA-52 via E12 (9fe5aa5): once its owner has confessed the superseding secret, the broken story can't be repeated word for word. The pattern does not match the confession (it is live on the reveal turn too), and negated mentions ('it wasn't the Sunday menu') pass."
+    },
+    {
+      "text": "(?<!\\b(?:not|no|wasn['’]?t|weren['’]?t|never|nothing\\s+to\\s+do\\s+with|nor)\\b[^.!?]{0,25})(?:\\bracehorses?\\b|\\bpurely\\s+sporting\\b)",
+      "regex": true,
+      "onlyAfterRevealed": [
+        "s-archibald-embezzlement"
+      ],
+      "note": "[e12-racehorse] l-archibald-racehorse after s-archibald-embezzlement. Gremlin r7b N6 / CA-52 via E12 (9fe5aa5): once its owner has confessed the superseding secret, the broken story can't be repeated word for word. The pattern does not match the confession (it is live on the reveal turn too), and negated mentions ('it wasn't the Sunday menu') pass."
     }
   ],
   "initialEmotion": {
