@@ -6,7 +6,7 @@
 | **Author** | Agatha (mystery and narrative design) |
 | **Status** | Docs only. **No Tallyho JSON exists or was created**; that stays on hold until George approves the plan. |
 | **Method** | Adversarial: for every gate, secret, fact and line, "how does a player, or the model, get past this the wrong way?" Then "is the right way provable from what the player can see?" |
-| **Result** | **78 findings: 5 critical, 23 high, 36 medium, 14 low** (T-01 to T-55 from the first pass; T-56 to T-76 from Gremlin's offline review r8; T-77 and T-78 from the engine changes now on `main`; see section 13). Five are checks that passed, recorded as evidence (T-41, T-45, T-46, T-47, T-51). **66 fixed in this PR** in design or plan text; ten of those also need a follow-up (T-38 George's OK; T-10, T-49, T-55, T-56, T-58, T-62, T-63, T-71, T-73 a Dexter engine item). **7 open:** T-30 and T-39 need George; T-37, T-40, T-54, T-57, T-75 need Dexter. Section 9 is the "Decisions needed" list, including Q3 and Q7 to Q17; section 10 the engine items. |
+| **Result** | **79 findings: 5 critical, 23 high, 37 medium, 14 low** (T-01 to T-55 from the first pass; T-56 to T-76 from Gremlin's offline review r8; T-77 and T-78 from the engine changes now on `main`; T-79 the confrontation caps, 4 / 16; see section 13). Five are checks that passed, recorded as evidence (T-41, T-45, T-46, T-47, T-51). **67 fixed in this PR** in design or plan text; eleven of those also need a follow-up (T-38 George's OK; T-10, T-49, T-55, T-56, T-58, T-62, T-63, T-71, T-73, T-79 a Dexter engine item). **7 open:** T-30 and T-39 need George; T-37, T-40, T-54, T-57, T-75 need Dexter. Section 9 is the "Decisions needed" list, including Q3 and Q7 to Q17; section 10 the engine items. |
 
 Severity scale: **Critical** = the case can be solved without proof, or the solution leaks, or a culprit can confess. **High** = a fair player can be blocked, misled by a contradiction, or a gate can be gamed. **Medium** = a consistency, period or AI-surface problem a careful player or the model would hit. **Low** = polish.
 
@@ -266,6 +266,7 @@ Format as in `docs/CASE_FORMAT.md`: `{ text, regex?, unlessRevealed?, note? }`, 
 | **DX16** | Model-down turns do not count toward the talk gate; close the #40 parallel-confrontation race. | `engine/interrogation.ts`, `engine/confrontation.ts` | T-62. |
 | **DX17** | `vocabulary.allowed` overrides `MODERN_WORDS` ("okay"); multi-word banned entries. | `ai/canon-check.ts` | T-73. |
 | **DX18** | Evidence-matched secret wins over a stress-threshold secret in the same exchange. | `engine/secrets.ts` | T-75. |
+| **DX19** | `fastestPath` tracks the case's confrontation caps, or warns when its path uses more exchanges in a pair than `perPair`. Optional while no key reveal depends on a confrontation. | `engine/progression-validation.ts` | T-79. |
 | ~~E1~~ | **Done (7f81e08):** the validator warns when ACCUSE can open while winning is impossible. It would have fired on Tallyho; fixed in data (T-77). | `engine/progression-validation.ts` | T-77. |
 | ~~weapon~~ | **Done (on `main`):** `"weapon": true` on evidence; the picker lists only marked clues; the validator errors if the solution's weapon is unmarked. | `engine/types.ts` | T-78. |
 
@@ -287,7 +288,7 @@ Gremlin (QA) is asked for an offline adversarial review of this audit with no li
 
 ## 13. Second round: Gremlin's review (r8) and the engine changes on `main`
 
-### 13.1 Findings T-56 to T-78
+### 13.1 Findings T-56 to T-79
 
 | ID | Sev | Where | Finding | Fix | Status |
 |---|---|---|---|---|---|
@@ -314,6 +315,7 @@ Gremlin (QA) is asked for an offline adversarial review of this audit with no li
 | **T-76** | Medium | Design 8.3 accusation form (mine, during r8) | The form's citation caps did not match the engine's "minimum required + 1" (`citeCaps`). | Design now says up to 4 clues (3 key + 1 spare) and 3 testimonies. | Fixed (design) |
 | **T-77** | High | Design 8.3 `closedLeadIds` (found with E1, 7f81e08) | With 11 clues and `minEvidence: 8`, the gate could open on the other ten clues without `marmalade-run`, a key clue: ACCUSE open, win impossible. The new validator warning would fire. | `lead-time` (closes when `marmalade-run` is found) is now a gate lead: four gate leads. Every key clue and one key testimony per group is now forced by the gate. Fastest path unchanged (step 13 finds it). | Fixed (design, plan) |
 | **T-78** | Medium | Design 6.1, 6.2 (weapon flag on `main`) | The picker now lists only `"weapon": true` clues and the validator errors if the solution's weapon is not marked. Tallyho had no marks, and a one-item picker would hand over the weapon. | `crock-13` marked; decoy: the heavy round stoneware jug of Orange Lightning in `orange-lightning`, which fits "something round and heavy" and points at Ottilie, and is ruled out by evidence (no dent, no toupee, no marmalade, bolted hatch four minutes away, owner on the bridge at 21:52). | Fixed (design, plan V37) |
+| **T-79** | Medium | Design 9.5, 9.6, new 9.7; plan F7 note, 3.6 caps, 3.7 simulator row; this audit 13.3 (my error in the previous revision) | I wrote that Tallyho keeps the default confrontation caps (6 per pair, 12 per game) and omits the `confrontation` block. George decided on **2026-10-04** that case two uses **4 per pair and 16 total**, and the schema now allows it (7069ae6). Rechecked under 4 / 16 with confrontations crediting only the addressed suspect: no step of the fastest path or the typical path needs a confrontation, and Tallyho has no testimony-triggered reveal, so the floor stays **32** and the typical game **45 to 70**. Each suspect needs at most two productive presentations, so a pair needs at most **4**, exactly the cap: Gherkina–Boris, Ottilie–Captain, Zippelli–Captain and Percy–Gherkina are tight (no spare), none is over. A wrong card in a tight pair pushes one presentation to a one-to-one exchange (one action, nothing locked). 12 productive presentations against a total of 16 leaves 4 spare even if every reveal is done face to face. Also: the plan's cap sketch used `maxPerPair` / `maxTotal` and a `requires` field; the built schema is `perPair` / `total` only. And `fastestPath` does not track the caps (DX19). | Every 6 / 12 statement for Tallyho replaced with 4 / 16 and its source; design 9.7 added (per-pair table, slack, two author rules: no key reveal behind a confrontation, at most two required presentations per suspect); plan field names and `requires` corrected; DX19 added. | Fixed (design, plan); Needs Dexter (DX19, optional while the author rules hold) |
 
 ### 13.2 Decisions on Gremlin's eight questions
 
@@ -335,5 +337,5 @@ Gremlin (QA) is asked for an offline adversarial review of this audit with no li
 | **DX3** name tokens (b1ee793) | "The Marmalade King" back in aliases; `guiltCheck` lists both empty; "brine" not kept (T-25, T-53). | Design 1.2; plan 3.9 |
 | **E1** validator (7f81e08) | It would have warned: the gate did not force `marmalade-run`. `lead-time` is now a gate lead (T-77). | Design 8.1, 8.2, 8.3, 9.4, 9.5 |
 | **Wins-only rating** (307d09c) | A loss never shows a rating or `sloppyRemark`, so a right-doer, wrong-helper loss looks like any other loss outside its ending text (T-59). `sloppyRemark` written for a scraped win only. | Design 4.6; plan 3.9 |
-| **DX8** confrontations (fac75ba, 43d7de8) | Floor rechecked: 32, no confrontation shortcut; default caps (6 per pair, 12 per game) kept, `confrontation` block omitted (T-62). | Design 9.5; plan F7, Q3, V10 |
+| **DX8** confrontations (fac75ba, 43d7de8) | Floor rechecked: 32, no confrontation shortcut (T-62). Caps are **4 per pair, 16 per game** (George, 2026-10-04; 7069ae6), not the 6 / 12 defaults an earlier revision of this section said (T-79). | Design 9.5; plan F7, Q3, V10 |
 | **Weapon flag** | Two marked weapons: `crock-13` and the Orange Lightning jug (T-78). Blind odds about 1 in 430. | Design 6.1, 6.2, 9.4; plan V37 |

@@ -1392,7 +1392,7 @@ The proof chain in 4.5 uses: `smashed-watch`, `marmalade-run`, `heel-chart` (clu
 
 ### 9.5 Fastest legal path (32 actions; re-sequenced by the audit)
 
-Checked by hand against the audit's gate changes (T-07, T-08, T-10) and r8 (T-62 to T-65); the simulator re-checks it in phase 8. 24 exchanges (four with each of six suspects) + 7 searches + the accusation = **32**. **This is the floor under the decided rules** (a confrontation exchange counts only for the suspect addressed, DX8; a presentation that reveals or breaks nothing does not count, DX12). Every exchange below counts under DX12 as well: steps 16 to 24 and 27 to 30 reveal a secret, step 31 breaks two lies. **Rechecked against `main` after DX8 landed (fac75ba, 43d7de8):** a confrontation exchange now counts only for the addressed suspect, and `fastestPath` models confrontations, so the confrontation shortcut (T-62, which put today's floor at about 22) is gone. No exchange in Tallyho can count for two suspects, so 24 exchanges is a hard minimum and the floor is **32 on today's engine too**, with or without DX12 (DX12 only slows the brute-force presenter; the fastest path wastes no presentations). Tallyho has no testimony-triggered reveal, so the other route `fastestPath` now models (a partner cracking on thrown testimony) cannot shorten it either. Tallyho keeps the default confrontation caps (`confrontation` block omitted: 6 per pair, 12 per game); no step below needs a confrontation. Two engine risks would still lower the floor if they count turns: the #40 race (two confrontation requests committing in parallel) and model-down turns (DX16); the phase 8 simulator must print 32 once they are closed.
+Checked by hand against the audit's gate changes (T-07, T-08, T-10) and r8 (T-62 to T-65); the simulator re-checks it in phase 8. 24 exchanges (four with each of six suspects) + 7 searches + the accusation = **32**. **This is the floor under the decided rules** (a confrontation exchange counts only for the suspect addressed, DX8; a presentation that reveals or breaks nothing does not count, DX12). Every exchange below counts under DX12 as well: steps 16 to 24 and 27 to 30 reveal a secret, step 31 breaks two lies. **Rechecked against `main` after DX8 landed (fac75ba, 43d7de8):** a confrontation exchange now counts only for the addressed suspect, and `fastestPath` models confrontations, so the confrontation shortcut (T-62, which put today's floor at about 22) is gone. No exchange in Tallyho can count for two suspects, so 24 exchanges is a hard minimum and the floor is **32 on today's engine too**, with or without DX12 (DX12 only slows the brute-force presenter; the fastest path wastes no presentations). Tallyho has no testimony-triggered reveal, so the other route `fastestPath` now models (a partner cracking on thrown testimony) cannot shorten it either. Tallyho's confrontation caps are **4 per pair and 16 per game** (`"confrontation": { "perPair": 4, "total": 16 }` in `case.json`; George's decision of 2026-10-04, schema widened in 7069ae6; T-79). No step below needs a confrontation, so the caps cannot raise or lower the floor (9.7). Two engine risks would still lower the floor if they count turns: the #40 race (two confrontation requests committing in parallel) and model-down turns (DX16); the phase 8 simulator must print 32 once they are closed.
 
 | # | Action | Unlocks or reveals |
 |---|---|---|
@@ -1439,12 +1439,33 @@ Checked by hand against the audit's gate changes (T-07, T-08, T-10) and r8 (T-62
 | 14 to 17 | Chef and boat deck | Boris ×2, galley (recipe), boat deck (goat) |
 | 18 to 23 | Engine room | Ottilie ×2, engine room twice (chart, then the still), present the still and the chart |
 | 24 to 26 | The turn | Re-search the cabin deck (the marmalade run), search the bridge again (the cylinder now opens, and the deck log with it), present it to Ottilie |
-| 27 to 34 | Confronting | Present the recipe, watch, notes, goat, route sheet and notes to Boris, Gherkina, Percy, Bilge and Zippelli |
+| 27 to 34 | Presenting | Present the recipe, watch, notes, goat, route sheet and notes to Boris, Gherkina, Percy, Bilge and Zippelli |
 | 35 to 38 | The trunk | Search the ballroom (crock 13), present it to Zippelli and Boris, present the cylinder to Bilge |
 | 39 to 56 | Questions | Extra exchanges with each suspect (three each): re-asking, testing lies, pressing alibis, asking about the hiccup and the hats, plus real-world noise |
 | **57** | **Accuse** | |
 
 (With the T-07/T-08 gates, the route sheet waits for Boris ×2 and the trunk for Zippelli's summons; the phases above already have both before the bridge and the trunk.) Real players also waste turns on wrong guesses and re-reading, so the realistic total is 45 to 70, against Blackwood's 18 to 25.
+
+### 9.7 Confrontations under the 4 / 16 caps (T-79)
+
+**Caps:** 4 exchanges per pair, 16 per game (George, 2026-10-04; `confrontation: { perPair: 4, total: 16 }`, allowed since 7069ae6). A confrontation exchange is one action and counts as an exchange with the **addressed** suspect only (DX8); the addressed suspect can crack on a shown clue exactly as in a one-to-one exchange.
+
+**Nothing in the case needs a confrontation.** Every secret reveals on a clue shown to its owner, and Tallyho has no testimony-triggered reveal (`revealConditions.testimonyIds`), so the one thing only a confrontation adds (the partner cracking on thrown testimony) never fires. Testimony cards are evidence for the accusation, not keys. `ev-bilge-sees-ottilie-1/-2` unhide on `l-ottilie-engine` breaking or `s-ottilie-bridge-visits` being revealed, which happen in one-to-one exchanges. So the floor stays **32** and the typical game **about 45 to 70** (9.6 is unchanged: its "Presenting" phase is one-to-one, and a player who confronts instead spends the same number of actions, since a confrontation exchange is one exchange).
+
+**Per-pair fit.** Each suspect needs at most **two** productive presentations on the intended path (9.5: Ottilie 16, 20; Zippelli 17, 29; Boris 21, 22; Gherkina 23, 24; Percy 27, 28; Bilge 30, 31). A player who does all of both suspects' presentations inside one confrontation needs at most 2 + 2 = **4 exchanges**, exactly the per-pair cap. No pair needs more than 4. The tight pairs, where both members have two presentations a player is likely to make face to face, are:
+
+| Pair | Why it is tempting | Exchanges if all done in the confrontation | Fit |
+|---|---|---|---|
+| Gherkina and Boris | the recipe triangle (she bought, he sold) | 4 (`turnip-recipe` to each, `smashed-watch` to Boris, `midnight-notes` to Gherkina) | exactly 4, no spare |
+| Ottilie and the Captain | the bridge visits | 4 (`heel-chart`, `cheer-cylinder` to her; `route-sheet`, `cheer-cylinder` to him) | exactly 4, no spare |
+| Zippelli and the Captain | the two "perfect alibis" | 4 (`midnight-notes`, `crock-13` to Zippelli; `route-sheet`, `cheer-cylinder` to the Captain) | exactly 4, no spare |
+| Percy and Gherkina | the will and the turnips | 4 | exactly 4, no spare |
+
+A wrong card inside a tight pair uses up that pair's spare, so the last presentation may have to be made one to one. That costs one action and never locks anything: every reveal is still available in a one-to-one exchange, and the "N left" counter shows the limit before the player spends it. **No pair is broken.**
+
+**The game total.** The intended path has 12 productive presentations. A player who made every one of them inside confrontations would use 12 of 16 and keep 4 spare for probing (for example Zippelli against Gherkina on "the door"). A typical player confronts a few pairs and uses well under 16. 16 is ample; the per-pair cap of 4 is the one a player will actually meet. When the game total runs out, everything left is still available one to one.
+
+**Author rules that follow:** never put a key reveal behind a confrontation (no `testimonyIds` key reveal) while the per-pair cap is 4, unless the simulator counts that pair's exchanges (DX19); and keep each suspect at two or fewer required presentations, or a natural pair goes over 4.
 
 
 ---
