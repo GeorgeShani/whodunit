@@ -19,7 +19,7 @@
  * Deterministic and cheap: on a hit the caller asks the model ONCE more with a corrective note (the single
  * retry in ai/grok.ts), then falls back to a canned in-character deflection. No extra model call.
  */
-import type { GuiltProfile } from "@/engine/core-guilt";
+import type { CulpritAct, GuiltProfile } from "@/engine/core-guilt";
 import { extractTimes } from "./canon-check";
 
 const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -63,6 +63,12 @@ const AFFIRM_NEG = /\b(?:never|not|no|nothing|didn['’]?t|wasn['’]?t|nor|none
 export interface GuiltOptions {
   /** The speaker's own names ("Jane Doe", "Jane", "Lady Jane"): third-person self-naming counts as "I". */
   speakerNames?: readonly string[];
+  /**
+   * E8: run the third-person over-claim check for a NON-culprit speaker ("she struck him", "<name>'s the one who
+   * locked the door"). `covered`: the culprit acts the speaker may state (from a revealed secret or a testimony card in
+   * their context, via profile.coverActs). Absent: the check is off (the eval's no_guilt assertion leaves it off).
+   */
+  overClaim?: { covered: ReadonlySet<CulpritAct> };
 }
 
 export interface GuiltLeak {
@@ -70,6 +76,8 @@ export interface GuiltLeak {
   kind: "killing" | "confession" | "weapon" | "key" | "scene" | "object" | "window";
   /** The offending sentence (trimmed). */
   text: string;
+  /** E8: a non-culprit stating a culprit act as fact (an over-claim, not a confession). */
+  overClaim?: true;
 }
 
 function sentences(text: string): string[] {
@@ -175,6 +183,7 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     ? new RegExp(String.raw`${SUBJ}${gap(2)}\b(?:stopped|prevented|kept)\s+(?:${victim})\s+(?:from\s+)?(?:ever\s+)?(?:${alt(profile.motiveActs)})\b|\bmade\s+sure\s+(?:${victim}|he|she)\s+(?:never|didn['’]?t|would\s+never|could\s+never|wouldn['’]?t|couldn['’]?t)\s+(?:${alt(profile.motiveActs.map((g) => g.replace(/ing$/, "")))})`, "i")
     : null;
 
+  const over = !culprit && opts.overClaim ? overClaimCheck(profile, opts.overClaim.covered, victim, inWindow) : null;
   for (const s of sentences(text)) {
     if (hit(s, killing) || hit(s, killedBare)) return { kind: "killing", text: s };
     if (hit(s, confession)) return { kind: "confession", text: s };
@@ -183,7 +192,11 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
       if (byMyHand.test(s) && !notMine.test(s) && (culprit ? byMyHandAbout.test(s) : new RegExp(`\\b(?:${victim})\\b`, "i").test(s) && /\b(?:fell|died|dead|struck|killed|murdered)\b/i.test(s)))
         return { kind: "confession", text: s };
     }
-    if (!culprit) continue;
+    if (!culprit) {
+      const o = over?.(s);
+      if (o) return o;
+      continue;
+    }
     if (notQ(s)) {
       if (hit(s, neverMeant) || (selfDefence.test(s) && !/\b(?:not|never|no)\s+(?:\w+\s+){0,2}?self/i.test(s) && /\b(?:I|my|me|it\s+was)\b/i.test(s))) return { kind: "confession", text: s };
       if (cameAtMe.test(s) || hit(s, watchedFall) || bloodOnMe.test(s) || (weaponInHand && weaponInHand.test(s) && !/\b(?:never|not|no)\b/i.test(s)) || hit(s, wipedClean) || deadWhenI.test(s))
@@ -204,6 +217,71 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
     if (minutes.length && hit(s, actor) && !alibi(s, minutes)) return { kind: "window", text: s };
   }
   return null;
+}
+
+/** E8: words anywhere in a sentence that make a third-person claim a suspicion, a report or a hypothetical. */
+const HEDGE_3P =
+  /\b(?:perhaps|maybe|possibly|probably|presumably|surely|must\s+have|might|may\s+have|may\s+well|could|would|should|if|whether|unless|suppose|supposing|apparently|seems?|seemed|rumou?r\w*|they\s+say|people\s+say|I\s+(?:think|suppose|suspect|fear|wonder|reckon|believe|imagine|guess|daresay|feel|wager|bet)|I['’]d\s+(?:say|guess|wager|bet)|for\s+all\s+I\s+know|no\s+doubt|I\s+(?:can['’]t|cannot|couldn['’]t)\s+(?:say|be\s+sure|swear))\b/i;
+const MURDERER = "MURDERER";
+type OverRule = [CulpritAct, GuiltLeak["kind"], RegExp, ((s: string) => boolean)?];
+
+/**
+ * E8 (CA-27): a NON-culprit speaker states one of the culprit's acts as fact, with the murderer (names, aliases or
+ * subject pronoun, contractions included) as the subject: "she struck him", "<name>'s the one who locked the door",
+ * "it was <alias> who struck him". The same act families as the first-person rules (killing, weapon, key/lock, scene
+ * in the window). Hedged ("perhaps", "I think"), negated and questioning lines pass, and so does an act a secret the
+ * speaker holds or a card in their context covers. Data-driven: names, pronoun, weapon, scene, window and cover all
+ * come from guiltProfile.
+ */
+function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>, victim: string, inWindow: (s: string) => boolean) {
+  const names = profile.murdererNames ?? [];
+  const pron = profile.murdererPronoun;
+  if (!names.length) return null;
+  const who = alt([...names, ...(pron ? [pron] : [])]);
+  const ONE = String.raw`(?:the\s+(?:one|woman|man|person|lady|gentleman|culprit)\s+(?:who|that))`;
+  const subjectize = (s: string) => {
+    let t = s
+      .replace(new RegExp(String.raw`\b(?:${who})(?:\s+(?:is|was)|['’]s)\s+${ONE}`, "gi"), MURDERER)
+      .replace(new RegExp(String.raw`\b(?:${who})['’]d\b`, "gi"), `${MURDERER} had`)
+      .replace(new RegExp(String.raw`\b(?:${who})['’]s\s+(?=(?:been|got|gone|done|just|already|the\s+(?:murderer|murderess|killer|culprit))\b)`, "gi"), `${MURDERER} is `)
+      .replace(new RegExp(String.raw`\b(?:${alt(names)})\b(?!['’]s)`, "gi"), MURDERER);
+    if (pron) t = t.replace(new RegExp(String.raw`\b${pron}\b(?!['’])`, "gi"), MURDERER);
+    return t;
+  };
+  const S = String.raw`\b${MURDERER}\b`;
+  const g = gap(3);
+  const rules: OverRule[] = [
+    ["killing", "killing", new RegExp(`${S}${g}\\b${KILL}\\b${span(25)}\\b(?:${victim})\\b`, "i")],
+    ["killing", "killing", new RegExp(`${S}${g}\\b(?:killed|murdered)\\b`, "i")],
+    [
+      "killing",
+      "confession",
+      new RegExp(
+        String.raw`${S}\s+did\s+it\b(?!\s+(?:again|before|every|each|once|twice|so|that|all))|\bit\s+was\s+${MURDERER}\s+(?:who|that)\s+(?:${KILL}|did\s+it|locked|bolted)\b|\bit\s+was\s+${MURDERER}\s+all\s+along\b|${S}\s+(?:is|was)\s+(?:the|our|your)\s+(?:murderer|murderess|killer|culprit|guilty\s+one)\b|${S}\s+(?:is|was)\s+guilty\b`,
+        "i",
+      ),
+    ],
+    ["key", "key", new RegExp(`${S}${g}\\b(?:locked|bolted)\\b${span(30)}\\bdoor\\b`, "i")],
+    ["key", "key", new RegExp(`${S}${g}\\b(?:${KEY_ACT})\\b${span(25)}\\bkey\\b`, "i")],
+  ];
+  if (profile.weaponNames.length) rules.push(["weapon", "weapon", new RegExp(`${S}${g}\\b(?:${WEAPON_ACT})\\b${span(30)}\\b(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+  if (profile.sceneNames.length)
+    rules.push([
+      "scene",
+      "scene",
+      new RegExp(`${S}${g}\\b(?:${MOVE}|left|came\\s+out\\s+of|stepped\\s+out\\s+of|slipped\\s+out\\s+of)\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i"),
+      (s) => inWindow(s) || DARK.test(s) || DEAD.test(s),
+    ]);
+  return (sentence: string): GuiltLeak | null => {
+    if (/\?\s*["'”’)]*$/.test(sentence) || HEDGE_3P.test(sentence)) return null;
+    const s = subjectize(sentence);
+    if (!s.includes(MURDERER)) return null;
+    for (const [act, kind, re, also] of rules) {
+      if (covered.has(act)) continue;
+      if (hit(s, re) && (!also || also(sentence))) return { kind, text: sentence, overClaim: true };
+    }
+    return null;
+  };
 }
 
 /** Regex alternation of a speaker's own names (full name, first name, aliases); "" when none. */

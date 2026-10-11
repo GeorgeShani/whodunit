@@ -357,3 +357,30 @@ tail on an unrelated answer. The #27 near-duplicate logic (9265693) covered conf
   AFTER; two live cases (`g52-*-vary-live`) show the prompt alone producing a fresh opener and action.
 - Known limit: openers longer than 5 words, or repeated only every other reply, are left to the prompt.
 
+## 6. Consistency audit engine items (E8-E10)
+
+### E8 Third-person over-claim (guard, `over_claim`, CA-27)
+
+- `findGuiltLeak(text, profile, speaker, { overClaim: { covered } })`: for a speaker who is NOT the murderer, the same
+  act families as the first-person rules (killing, "did it" / "the one who" / "is the murderer", weapon handling,
+  locking the door or taking the key, the scene in the murder window or in the dark) with the murderer as the
+  subject: names and aliases from case data (any form shared with the victim, e.g. a family name, is left out) and
+  the subject pronoun (`character.pronoun`, else guessed from titles), contractions included ("she'd", "X's the one
+  who"). Hedged ("perhaps", "I think", "must have", "might"), negated and questioning lines pass.
+- Cover: `guiltProfile.coverActs` lists, for each non-murderer secret whose facts touch the murderer's core guilt, the
+  act families its facts describe. A secret the speaker has revealed (or reveals now), a testimony card they have been
+  shown, or the card presented now lifts those acts only ("she locked the door" once the eyewitness secret is out;
+  "she killed him" stays an over-claim).
+- Guard order: after the case's own `forbiddenPhrases` (so a data entry still names its reason), before canon times.
+  Reason `over_claim` (a contract reason: retry once with a note quoting only the model's own sentence, then the safe
+  deflection). Off for the murderer and off in the eval's `no_guilt` assertion (it is not a guilt admission).
+
+### E9 One fallback pool (CA-37)
+
+- `safeDeflection` ignores the rejection reason: guilt-path fallbacks use the same authored deflections, actions,
+  quirks, tells, generic lines and emotions as every other rejection. Actions pass the guilt and era checks first.
+
+### E10 System lines (CA-34)
+
+- `systemLines: { caseClosed?, caseClosedSearch?, recordDown? }` in case.json; neutral engine defaults
+  (`engine/session.ts` `SYSTEM_LINES`, no constable, police, Yard or telephone).

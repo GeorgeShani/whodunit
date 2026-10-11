@@ -98,6 +98,29 @@ export interface GuiltProfile {
    * will" gives "signing"). "I stopped him signing" (#45).
    */
   motiveActs?: string[];
+  /**
+   * E8: the murderer as somebody ELSE's subject (lower-case name, first name, aliases; any form that is also a victim
+   * name is left out) and their subject pronoun, for the third-person over-claim check on non-culprit speakers.
+   */
+  murdererNames?: string[];
+  murdererPronoun?: "she" | "he";
+  /**
+   * E8: per secret (any character's, never the murderer's own) whose facts touch the murderer's core guilt: which acts
+   * its facts describe. Holding that secret (own revealed, or its card shown/presented) covers saying those acts.
+   */
+  coverActs?: Record<string, CulpritAct[]>;
+}
+
+/** E8: the culprit-act families of the over-claim check. */
+export type CulpritAct = "killing" | "weapon" | "key" | "scene" | "object";
+
+/** E8: a character's subject pronoun (data, else a guess from titles in the name and aliases). */
+export function pronounOf(ch: Pick<Character, "name" | "aliases"> & { pronoun?: "she" | "he" | "they" }): "she" | "he" | undefined {
+  if (ch.pronoun) return ch.pronoun === "they" ? undefined : ch.pronoun;
+  const all = [ch.name, ...(ch.aliases ?? [])].join(" | ");
+  const she = /\b(?:lady|mrs|miss|ms|madam|madame|dame|duchess|countess|baroness|her\s+ladyship|mother|aunt|sister)\b/i.test(all);
+  const he = /\b(?:lord|mr|sir|master|duke|count|baron|his\s+lordship|father|uncle|brother)\b/i.test(all);
+  return she && !he ? "she" : he && !she ? "he" : undefined;
 }
 
 /** Generic nouns never worth treating as a core-guilt object. */
@@ -190,7 +213,40 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     for (const s of murderer.secrets.filter((x) => core.has(x.id)))
       for (const m of s.description.toLowerCase().matchAll(/\b(?:stop|stopped|prevent|prevented|keep|kept)\s+(?:him|her|them|[a-z]+)\s+(?:from\s+)?([a-z]{3,}ing)\b/g)) motiveActs.add(m[1]);
   }
+  // E8: the murderer as a third-person subject, and which acts each covering secret's facts describe.
+  const murdererNames = new Set<string>();
+  const coverActs: Record<string, CulpritAct[]> = {};
+  if (murderer) {
+    const victimSet = new Set(victimNames);
+    const first = murderer.name.split(/\s+/)[0]!;
+    for (const n of [murderer.name, first, ...(murderer.aliases ?? [])]) {
+      const v = n.toLowerCase().trim();
+      if (v.length >= 3 && !victimSet.has(v) && ![...victimSet].some((x) => x.includes(v) && x !== v && v.split(/\s+/).length === 1)) murdererNames.add(v);
+    }
+    const facts = coreGuiltFactIds(c, murderer);
+    const factText = new Map(allFacts(c).map((f) => [f.id, f.statement]));
+    const objects = [...coreObjects];
+    const has = (t: string, words: readonly string[]) => words.some((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i").test(t));
+    for (const ch of c.characters) {
+      if (ch.id === murderer.id) continue;
+      for (const s of ch.secrets) {
+        if (!s.relatedFactIds.some((f) => facts.has(f))) continue;
+        const text = [s.description, ...s.relatedFactIds.map((f) => factText.get(f) ?? "")].join(" ");
+        const acts: CulpritAct[] = [];
+        if (/\b(?:kill|kills|killed|strike|strikes|struck|murder|blow)\b/i.test(text)) acts.push("killing");
+        if (weapon && has(text, nouns(weapon.name, true))) acts.push("weapon");
+        if (/\b(?:lock|locks|locked|key|bolt|bolts|bolted)\b/i.test(text)) acts.push("key");
+        if (scene && has(text, nouns(scene.name))) acts.push("scene");
+        if (objects.length && has(text, objects)) acts.push("object");
+        coverActs[s.id] = acts;
+      }
+    }
+  }
+  const murdererPronoun = murderer ? pronounOf(murderer as Character & { pronoun?: "she" | "he" | "they" }) : undefined;
   return {
+    murdererNames: [...murdererNames],
+    ...(murdererPronoun ? { murdererPronoun } : {}),
+    coverActs,
     witnessNames: [...witnessNames],
     motiveActs: [...motiveActs],
     murdererId: sol.murdererId,

@@ -215,6 +215,9 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
 {
   "id": "reginald", "name": "Reginald", "role": "The Butler", "bio": "Public card text.",
   "aliases": ["the butler"],                           // optional; other names for them (canon check subject matching)
+  "pronoun": "he",                                     // optional (E8): "she" | "he" | "they"; others' subject pronoun for this
+                                                       //   character (guard over-claim check). Absent: guessed from titles in
+                                                       //   name/aliases (Lady/Mrs/Miss/her ladyship: she; Lord/Mr/Sir: he)
   "personality": {
     "traits": ["proper"], "speechStyle": "…",          // descriptive (traits ≥ 1)
     "catchphrases": [], "quirks": [], "tells": [],     // optional
