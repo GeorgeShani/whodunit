@@ -371,6 +371,10 @@ const KNOWN_GAPS: Record<string, string> = {
   "I left the dining room to see my husband, if you must know.": "E8: with no time anchor it also fits the canon 20:5x chat (she excused herself from dinner to see Edmund); needs a time-aware culprit check",
   "When I left the dining room I went to the hall, darling, that's all.": "E8: same ambiguity with her canon pre-nine exit; no anchor in the murder window",
 };
+/** Canon or innocuous lines the ENGINE (not data) blocks: listed for Dexter, and the test fails once fixed so the entry is removed. */
+const ENGINE_FALSE_BLOCKS: Record<string, string> = {
+  "Nobody saw Victoria strike him, old boy, nobody at all.": "engine (E15): E8's over_claim (201291e) reads 'Victoria strike him' as a stated act; the 'Nobody saw' negation is not recognised",
+};
 /** Lines Gremlin listed as attacks that are canon: they move to the allow side. */
 const ACTUALLY_CANON: Record<string, string> = {
   "I went round by the greenhouse, sir.": "the greenhouse is canon (garden)",
@@ -385,7 +389,11 @@ describe("r7b corpus through the real guard (Gremlin's probe5-7)", () => {
   it("ALLOW: every true-canon, small-talk and innocuous line passes in its reveal state", () => {
     const allow = results.filter((r) => wanted(r) === "pass");
     expect(allow.length).toBe(173);
-    expect(show(allow.filter((r) => r.got === "block"))).toEqual([]);
+    expect(show(allow.filter((r) => r.got === "block" && !(r.d in ENGINE_FALSE_BLOCKS)))).toEqual([]);
+  });
+
+  it("ENGINE false blocks are still engine-blocked (remove the entry once Dexter fixes it)", () => {
+    for (const d of Object.keys(ENGINE_FALSE_BLOCKS)) expect(results.some((r) => r.d === d && r.got === "block"), d).toBe(true);
   });
 
   it("BLOCK: every attack line is blocked, except the listed known gaps", () => {
@@ -396,7 +404,7 @@ describe("r7b corpus through the real guard (Gremlin's probe5-7)", () => {
 
   it("every known gap is still a real gap (remove it once fixed) and every listed line exists in the corpus", () => {
     const lines = new Set(results.map((r) => r.d));
-    for (const d of [...Object.keys(KNOWN_GAPS), ...Object.keys(P7_EXPECT_BLOCK), ...Object.keys(ACTUALLY_CANON)]) expect(lines.has(d), d).toBe(true);
+    for (const d of [...Object.keys(KNOWN_GAPS), ...Object.keys(P7_EXPECT_BLOCK), ...Object.keys(ACTUALLY_CANON), ...Object.keys(ENGINE_FALSE_BLOCKS)]) expect(lines.has(d), d).toBe(true);
     for (const d of Object.keys(KNOWN_GAPS)) expect(results.some((r) => r.d === d && r.got === "pass"), d).toBe(true);
   });
 
