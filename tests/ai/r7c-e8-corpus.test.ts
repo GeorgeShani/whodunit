@@ -29,16 +29,12 @@ const GREG_SAW = "s-gregory-saw-victoria";
 
 /** "section|line" of rows the engine layer still gets wrong. */
 const KNOWN = new Set<string>([
-  // R3 relays (reported speech of Gregory's sighting before the card is shown).
-  "B2|Gregory says he saw her ladyship lock the door.",
+  // R3 relays the engine layer can't read without case words (no murderer subject, 'at the door', 'in the
+  // lightning', a sighting with no window cue); data covers them.
   "B2|The gardener saw who locked it, I'm told.",
   "B2|Gregory told me her ladyship came out of the library in the lightning.",
-  "B2|Someone saw Victoria lock that door, old boy, mark my words.",
   "B2|The gardener swears it was her ladyship at the door.",
-  "B2|Word below stairs is that the gardener saw her ladyship with the key.",
-  "P9b|The gardener told me her ladyship locked the library.",
   "P9b|Gregory saw her ladyship come out of the library, I'm told.",
-  "B3b|I seen 'er come out with the candlestick, sir.",
   // R7 cleft forms of Gregory's revealed sighting.
   "B3|It was her ladyship who locked the library, sir. I seen it.",
   "P9c|It was Lady Victoria that locked the door, sir.",

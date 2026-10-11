@@ -269,6 +269,8 @@ const MODAL = String.raw`must|may|can|perhaps|maybe|possibly|probably|presumably
 const clauseBefore = (s: string, at: number) =>
   s.slice(0, at).split(/[,;:]|\s[—–-]\s|\b(?:but|and|yet|so|though|although|whereas|because|or)\b/i).pop() ?? "";
 const MURDERER = "MURDERER";
+/** R3: perception verbs that frame a witnessed act. */
+const PERC = String.raw`saw|seen|see|sees|watched|heard|noticed|spotted|caught|glimpsed`;
 /**
  * E15a: a negation in the same clause BEFORE the murderer-subject: "Nobody saw X strike him", "No one heard her lock
  * it", "Not once did I see X take the key", "I never saw X go in". The act is denied or unwitnessed, not stated.
@@ -298,6 +300,9 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       .replace(new RegExp(String.raw`\b(?:${who})['’]s\s+(?=(?:been|got|gone|done|just|already|the\s+(?:murderer|murderess|killer|culprit))\b)`, "gi"), `${MURDERER} is `)
       .replace(new RegExp(String.raw`\b(?:${alt(names)})(?![A-Za-z0-9_])(?!['’]s)`, "gi"), MURDERER);
     if (pron) t = t.replace(new RegExp(String.raw`\b${pron}\b(?!['’])`, "gi"), MURDERER);
+    // R3: the object of a perception verb ("saw her lock it", "seen 'er come out").
+    const obj = profile.murdererObject;
+    if (obj) t = t.replace(new RegExp(String.raw`\b(${PERC})\s+(?:${obj}|['’]${obj.slice(1)})\b(?!['’])`, "gi"), `$1 ${MURDERER}`);
     return t;
   };
   const S = String.raw`\b${MURDERER}\b`;
@@ -314,10 +319,17 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
         "i",
       ),
     ],
-    ["key", "key", new RegExp(`${S}${g}\\b(?:locked|bolted)\\b${span(30)}\\bdoor\\b`, "i")],
+    ["key", "key", new RegExp(`${S}${g}\\b(?:locked|bolted)\\b${span(30)}\\b(?:door${profile.sceneNames.length ? "|" + alt(profile.sceneNames) : ""})\\b`, "i")],
+    // R3: a witnessed act ("<someone> saw X lock the door / with the key / strike him"): reported or first-hand, it is
+    // a claim unless the act is covered (the witness's card shown, the speaker's own revealed secret).
+    ["key", "key", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\s+(?:lock(?:ing)?|bolt(?:ing)?|turn(?:ing)?\\s+the\\s+key|pocket(?:ing)?|hid(?:e|ing)|slip(?:ping)?\\s+the\\s+key|tak(?:e|ing)\\s+the\\s+key|(?:with|holding)\\s+(?:the\\s+|a\\s+|that\\s+)?key)\\b(?!\\s+eyes)`, "i")],
+    ["killing", "killing", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\s+${KILL}\\b`, "i")],
     ["key", "key", new RegExp(`${S}${g}\\b(?:${KEY_ACT})\\b${span(25)}\\bkey\\b`, "i")],
   ];
-  if (profile.weaponNames.length) rules.push(["weapon", "weapon", new RegExp(`${S}${g}\\b(?:${WEAPON_ACT})\\b${span(30)}\\b(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+  if (profile.weaponNames.length) {
+    rules.push(["weapon", "weapon", new RegExp(`${S}${g}\\b(?:${WEAPON_ACT})\\b${span(30)}\\b(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+    rules.push(["weapon", "weapon", new RegExp(`\\b(?:${PERC})\\s+${MURDERER}\\b${span(30)}\\b(?:with|holding|carrying|carry|swing(?:ing)?|lift(?:ing)?|pick(?:ing)?\\s+up)\\s+(?:the\\s+|a\\s+|that\\s+|his\\s+|her\\s+)?(?:${alt(profile.weaponNames)})s?\\b`, "i")]);
+  }
   if (profile.sceneNames.length)
     rules.push([
       "scene",

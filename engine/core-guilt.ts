@@ -105,6 +105,8 @@ export interface GuiltProfile {
    */
   murdererNames?: string[];
   murdererPronoun?: "she" | "he";
+  /** R3: the murderer's object pronoun ("saw her lock it"), only when it can't mean the victim. */
+  murdererObject?: "her" | "him";
   /**
    * E8: per secret (any character's, never the murderer's own) whose facts touch the murderer's core guilt: which acts
    * its facts describe. Holding that secret (own revealed, or its card shown/presented) covers saying those acts.
@@ -281,9 +283,12 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     if (words.length) anchorEvents.push({ words, range: [clock(from), clock(to)] });
   }
   const murdererPronoun = murderer ? pronounOf(murderer as Character & { pronoun?: "she" | "he" | "they" }) : undefined;
+  const victimPronoun = pronounOf(c.victim as Pick<Character, "name" | "aliases">);
+  const murdererObject = murdererPronoun === "she" && victimPronoun !== "she" ? "her" : murdererPronoun === "he" && victimPronoun !== "he" ? "him" : undefined;
   return {
     murdererNames: [...murdererNames],
     ...(murdererPronoun ? { murdererPronoun } : {}),
+    ...(murdererObject ? { murdererObject } : {}),
     coverActs,
     anchorEvents,
     witnessNames: [...witnessNames],
