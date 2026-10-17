@@ -288,8 +288,10 @@
     {
       "text": "Cheer-Box",
       "regex": false,
-      "unlessShown": "cheer-cylinder",
-      "note": "Stops him volunteering the Box. Audit wants unlessBroken l-bilge-owner-cheer (DX7, not in the schema); approximated by the clue that breaks the lie. Stricter than intended after a testimony-only break."
+      "unlessBroken": [
+        "l-bilge-owner-cheer"
+      ],
+      "note": "Stops him volunteering the Box until his story about it falls (DX7)."
     },
     {
       "text": "\\b(?:quarter\\s+to\\s+ten|21[:.]45|half\\s+past\\s+eleven|23[:.]30)\\b[^.!?]{0,60}\\b(?:Commodore|Old\\s+Man|Owner|schedule|appointment|see)\\b|\\b(?:Commodore|Old\\s+Man|Owner)\\b[^.!?]{0,60}\\b(?:quarter\\s+to\\s+ten|21[:.]45|half\\s+past\\s+eleven|23[:.]30)\\b",
