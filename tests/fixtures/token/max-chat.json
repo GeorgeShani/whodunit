@@ -1,0 +1,15 @@
+{
+  "suspects": 4,
+  "tokenChars": 63765,
+  "tokenCharsPerSuspect": 15941,
+  "projectedTokenCharsAt6": 95648,
+  "tokenCap": 60000,
+  "longestPromptChars": 30911,
+  "longestPromptEstTokens": 7728,
+  "promptCharsBySuspect": {
+    "archibald": 29372,
+    "gregory": 27450,
+    "reginald": 30911,
+    "victoria": 30159
+  }
+}
