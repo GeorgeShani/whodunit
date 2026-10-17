@@ -1,0 +1,2756 @@
+[
+  {
+    "id": "ev-gala-dinner",
+    "statement": "The Captain's Dinner begins in the Grand Saloon.",
+    "category": "timeline",
+    "time": "19:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "commodore-brine",
+      "bilge",
+      "zippelli",
+      "gherkina",
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-bilge-1930",
+    "statement": "At 19:30 Captain Bilge is in the Grand Saloon, at the Captain's Dinner.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-1930",
+    "statement": "At 19:30 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-1930",
+    "statement": "At 19:30 The Commodore is in the Grand Saloon.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-1930",
+    "statement": "At 19:30 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-1930",
+    "statement": "At 19:30 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-1930",
+    "statement": "At 19:30 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-1930",
+    "statement": "At 19:30 The Great Zippelli is in the Grand Saloon.",
+    "category": "location",
+    "time": "19:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-live-cheer",
+    "statement": "The Commodore opens the dinner with a live cheer, full of ad-libs: 'TALLY-HO! SPREAD THE BRINE, ME HEARTIES, AND MIND THE PICKLES, PRATT!' No hiccup.",
+    "category": "timeline",
+    "time": "19:31",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "commodore-brine",
+      "bilge",
+      "zippelli",
+      "gherkina",
+      "percy"
+    ],
+    "source": "heard",
+    "confidence": 0.95
+  },
+  {
+    "id": "ev-crock-heft",
+    "statement": "The Commodore visits the galley, hefts a crock chalked '13', finds it far too heavy for marmalade, tucks it under his arm and asks who packed it. Boris says the crates came from the Captain's stores.",
+    "category": "timeline",
+    "time": "20:20",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "commodore-brine",
+      "boris"
+    ],
+    "source": "witnessed",
+    "confidence": 0.95
+  },
+  {
+    "id": "loc-bilge-2030",
+    "statement": "At 20:30 Captain Bilge is in the Grand Saloon, at dinner.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2030",
+    "statement": "At 20:30 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2030",
+    "statement": "At 20:30 The Commodore is in the Grand Saloon.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2030",
+    "statement": "At 20:30 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2030",
+    "statement": "At 20:30 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2030",
+    "statement": "At 20:30 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2030",
+    "statement": "At 20:30 The Great Zippelli is in the Grand Saloon.",
+    "category": "location",
+    "time": "20:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-summons-card",
+    "statement": "A footman presses a card into Zippelli's hand: 'A quarter to ten, my stateroom. The fee, and another matter. B.B.'",
+    "category": "timeline",
+    "time": "20:45",
+    "involvesCharacterIds": [
+      "zippelli",
+      "commodore-brine"
+    ],
+    "source": "told",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-zippelli-summons"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-helmsman-stood-down",
+    "statement": "The Captain stands the helmsman down to sleep before the middle watch, sends him below to the crew's quarters forward, and takes the wheel himself.",
+    "category": "timeline",
+    "time": "20:53",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "ev-commodore-tells-bilge",
+    "statement": "The Commodore visits the bridge and tells the Captain he will scrap the Tallyho, and that they will talk about crock 13 after the show.",
+    "category": "timeline",
+    "from": "20:58",
+    "to": "21:08",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "commodore-brine",
+      "bilge"
+    ],
+    "source": "told",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-bilge-smuggling"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "loc-bilge-2100",
+    "statement": "At 21:00 Captain Bilge is on the bridge, at the wheel, with the Commodore visiting.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2100",
+    "statement": "At 21:00 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2100",
+    "statement": "At 21:00 The Commodore is on the bridge, visiting the Captain.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2100",
+    "statement": "At 21:00 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2100",
+    "statement": "At 21:00 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2100",
+    "statement": "At 21:00 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2100",
+    "statement": "At 21:00 The Great Zippelli is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:00",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-plan-call",
+    "statement": "The Captain calls down the voice-pipe to the greenroom and asks Zippelli to come up and 'discuss the Plunge'.",
+    "category": "timeline",
+    "time": "21:09",
+    "involvesCharacterIds": [
+      "bilge",
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-plan-meeting",
+    "statement": "In the chartroom the Captain and Zippelli settle the plan: Zippelli deals with the Commodore at his quarter-to-ten summons and sets the Commodore's watch for 22:41; the Captain will make the Commodore 'cheer' at 22:38 while Zippelli is under glass.",
+    "category": "timeline",
+    "from": "21:15",
+    "to": "21:18",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "zippelli"
+    ]
+  },
+  {
+    "id": "loc-bilge-2130",
+    "statement": "At 21:30 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2130",
+    "statement": "At 21:30 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2130",
+    "statement": "At 21:30 The Commodore is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2130",
+    "statement": "At 21:30 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2130",
+    "statement": "At 21:30 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2130",
+    "statement": "At 21:30 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2130",
+    "statement": "At 21:30 The Great Zippelli is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-commodore-retires",
+    "statement": "The Commodore leaves the saloon announcing he must 'polish the Speech' and is not to be disturbed.",
+    "category": "timeline",
+    "time": "21:33",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "commodore-brine",
+      "percy",
+      "gherkina",
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-sign-hung",
+    "statement": "The Commodore hangs his 'WRITING SPEECH, ENTER AT PERIL' sign on the stateroom door.",
+    "category": "timeline",
+    "time": "21:35",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "ev-percy-passes-door",
+    "statement": "Percy hurries past the stateroom door on the way to her cabin and hears her uncle humming 'Tally-Ho' inside.",
+    "category": "timeline",
+    "time": "21:37",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "percy",
+      "commodore-brine"
+    ],
+    "source": "heard",
+    "confidence": 0.8
+  },
+  {
+    "id": "ev-storm-squall",
+    "statement": "A squall hits. The Tallyho heels to starboard, six degrees and rising, and the wireless dies.",
+    "category": "timeline",
+    "time": "21:40",
+    "involvesCharacterIds": []
+  },
+  {
+    "id": "loc-bilge-2140",
+    "statement": "At 21:40 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2140",
+    "statement": "At 21:40 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2140",
+    "statement": "At 21:40 The Commodore is in his stateroom, polishing the Speech.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2140",
+    "statement": "At 21:40 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2140",
+    "statement": "At 21:40 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2140",
+    "statement": "At 21:40 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2140",
+    "statement": "At 21:40 The Great Zippelli is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:40",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-confrontation",
+    "statement": "In the stateroom the Commodore shows Zippelli an opened crock, sovereigns under the marmalade, and swears to expose the smuggling at midnight.",
+    "category": "timeline",
+    "from": "21:45",
+    "to": "21:51",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli",
+      "commodore-brine"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-zippelli-smuggling"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-confrontation-captain",
+    "statement": "In the stateroom the Commodore adds that 'your Captain friend' will be exposed with Zippelli.",
+    "category": "timeline",
+    "from": "21:45",
+    "to": "21:51",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli",
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "ev-zippelli-admitted",
+    "statement": "The Commodore admits Zippelli to the stateroom.",
+    "category": "timeline",
+    "time": "21:45",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli",
+      "commodore-brine"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-zippelli-summons"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "loc-bilge-2145",
+    "statement": "At 21:45 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2145",
+    "statement": "At 21:45 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2145",
+    "statement": "At 21:45 The Commodore is in his stateroom with a visitor.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2145",
+    "statement": "At 21:45 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2145",
+    "statement": "At 21:45 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2145",
+    "statement": "At 21:45 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2145",
+    "statement": "At 21:45 The Great Zippelli is in the Commodore's stateroom.",
+    "category": "location",
+    "time": "21:45",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-zippelli-summons"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-bilge-sees-ottilie-1",
+    "statement": "The Chief Engineer comes up to the bridge to report the list and stands beside the Captain at the wheel the whole time.",
+    "category": "timeline",
+    "from": "21:49",
+    "to": "21:56",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "ottilie"
+    ],
+    "source": "witnessed",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "ev-ottilie-reports",
+    "statement": "Ottilie leaves the engine room and reports the list to the Captain on the bridge; he stands beside her the whole time.",
+    "category": "timeline",
+    "from": "21:49",
+    "to": "21:56",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie",
+      "bilge"
+    ],
+    "source": "witnessed",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "ev-recipe-sale-boris",
+    "statement": "On the boat deck Boris sells Dame Gherkina the Commodore's recipe card for five hundred pounds.",
+    "category": "timeline",
+    "time": "21:50",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris",
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-recipe-sale"
+      ],
+      "lieIds": [
+        "l-boris-galley"
+      ]
+    }
+  },
+  {
+    "id": "ev-recipe-sale-gherkina",
+    "statement": "On the boat deck Dame Gherkina buys the Commodore's recipe card from Boris for five hundred pounds.",
+    "category": "timeline",
+    "time": "21:50",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris",
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-bilge-2150",
+    "statement": "At 21:50 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2150",
+    "statement": "At 21:50 Chef Boris is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-recipe-sale"
+      ],
+      "lieIds": [
+        "l-boris-galley"
+      ]
+    }
+  },
+  {
+    "id": "loc-commodore-brine-2150",
+    "statement": "At 21:50 The Commodore is in his stateroom with a visitor.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2150",
+    "statement": "At 21:50 Dame Gherkina is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2150",
+    "statement": "At 21:50 Ottilie is on the bridge, reporting the list to the Captain.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2150",
+    "statement": "At 21:50 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2150",
+    "statement": "At 21:50 The Great Zippelli is in the Commodore's stateroom.",
+    "category": "location",
+    "time": "21:50",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-zippelli-summons"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-bonk",
+    "statement": "Zippelli seizes crock 13 and bonks the Commodore on the head. The tasting jar smashes; marmalade runs towards the starboard wall.",
+    "category": "timeline",
+    "time": "21:52",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli",
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "ev-boris-sees-shadows",
+    "statement": "Leaning over the starboard rail, Boris sees two shadows on the stateroom porthole curtain: a tall one in something long to the knee, a cloak or a greatcoat, flings up an arm and swings something round at a small round one with a pointy swirl of hair on top. BONK. No face, no hat, no hands.",
+    "category": "timeline",
+    "time": "21:52",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "source": "witnessed",
+    "confidence": 0.8,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-saw-shadows"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-gherkina-hears-bonk",
+    "statement": "From the boat deck Dame Gherkina hears a hollow BONK from below and glances at her diamond wristwatch: 21:52.",
+    "category": "timeline",
+    "time": "21:52",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "source": "heard",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "ev-percy-hears-gong",
+    "statement": "Inside lifeboat 3, Percy hears a distant gong-like BONK and takes it for the ship's bell.",
+    "category": "timeline",
+    "time": "21:52",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "source": "heard",
+    "confidence": 0.5,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-bilge-2152",
+    "statement": "At 21:52 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2152",
+    "statement": "At 21:52 Chef Boris is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-recipe-sale"
+      ],
+      "lieIds": [
+        "l-boris-galley"
+      ]
+    }
+  },
+  {
+    "id": "loc-commodore-brine-2152",
+    "statement": "At 21:52 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2152",
+    "statement": "At 21:52 Dame Gherkina is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2152",
+    "statement": "At 21:52 Ottilie is on the bridge, reporting the list to the Captain.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2152",
+    "statement": "At 21:52 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2152",
+    "statement": "At 21:52 The Great Zippelli is in the Commodore's stateroom.",
+    "category": "location",
+    "time": "21:52",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-watch-staged",
+    "statement": "Zippelli takes the Commodore's pocket-watch, pulls the crown, sets the hands to 22:41, stamps the glass to bits and drops it in the marmalade by the starboard wall.",
+    "category": "timeline",
+    "time": "21:54",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli",
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "ev-percy-sees-pair-boris",
+    "statement": "Counting banknotes by the rail with Dame Gherkina, Boris sees Percy creep out of lifeboat 3 for hay. All three see each other.",
+    "category": "timeline",
+    "time": "21:55",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy",
+      "boris",
+      "gherkina"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-recipe-sale"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-percy-sees-pair-gherkina",
+    "statement": "Counting banknotes by the rail with Boris, Dame Gherkina sees Percy creep out of lifeboat 3 for hay. All three see each other.",
+    "category": "timeline",
+    "time": "21:55",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy",
+      "boris",
+      "gherkina"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-percy-sees-pair-percy",
+    "statement": "Percy creeps out of the lifeboat for hay and finds Boris and Dame Gherkina by the rail, counting banknotes. All three see each other.",
+    "category": "timeline",
+    "time": "21:55",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy",
+      "boris",
+      "gherkina"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-bilge-2155",
+    "statement": "At 21:55 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2155",
+    "statement": "At 21:55 Chef Boris is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-recipe-sale"
+      ],
+      "lieIds": [
+        "l-boris-galley"
+      ]
+    }
+  },
+  {
+    "id": "loc-commodore-brine-2155",
+    "statement": "At 21:55 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2155",
+    "statement": "At 21:55 Dame Gherkina is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2155",
+    "statement": "At 21:55 Ottilie is on the bridge, reporting the list to the Captain.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2155",
+    "statement": "At 21:55 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2155",
+    "statement": "At 21:55 The Great Zippelli is in the Commodore's stateroom.",
+    "category": "location",
+    "time": "21:55",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-zippelli-leaves",
+    "statement": "Zippelli leaves the stateroom with crock 13 under his cape, and re-hangs the 'ENTER AT PERIL' sign.",
+    "category": "timeline",
+    "time": "21:56",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "loc-bilge-2156",
+    "statement": "At 21:56 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2156",
+    "statement": "At 21:56 Chef Boris is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-recipe-sale"
+      ],
+      "lieIds": [
+        "l-boris-galley"
+      ]
+    }
+  },
+  {
+    "id": "loc-commodore-brine-2156",
+    "statement": "At 21:56 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2156",
+    "statement": "At 21:56 Dame Gherkina is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2156",
+    "statement": "At 21:56 Ottilie is on the bridge, about to go back below.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2156",
+    "statement": "At 21:56 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2156",
+    "statement": "At 21:56 The Great Zippelli is in the Commodore's stateroom.",
+    "category": "location",
+    "time": "21:56",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-zippelli-returns",
+    "statement": "Zippelli slips back into the greenroom behind the saloon stage and hides the crock in his trunk.",
+    "category": "timeline",
+    "time": "21:59",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "loc-bilge-2200",
+    "statement": "At 22:00 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2200",
+    "statement": "At 22:00 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2200",
+    "statement": "At 22:00 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2200",
+    "statement": "At 22:00 Dame Gherkina is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2200",
+    "statement": "At 22:00 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2200",
+    "statement": "At 22:00 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2200",
+    "statement": "At 22:00 The Great Zippelli is in the greenroom behind the saloon stage.",
+    "category": "location",
+    "time": "22:00",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-boris-omelette-boris",
+    "statement": "Boris delivers Zippelli's pre-show omelette to the greenroom. Zippelli is sneezing, blotched with orange-allergy hives, sticky to the elbows and rinsing his hands in a finger bowl. He blames spirit gum.",
+    "category": "timeline",
+    "time": "22:03",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "boris",
+      "zippelli"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-hives"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-boris-omelette-zippelli",
+    "statement": "Boris delivers Zippelli's pre-show omelette to the greenroom while Zippelli is sneezing, blotched with hives and rinsing his hands in a finger bowl. Zippelli blames spirit gum.",
+    "category": "timeline",
+    "time": "22:03",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "boris",
+      "zippelli"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [],
+      "lieIds": [
+        "l-zippelli-allergy"
+      ]
+    }
+  },
+  {
+    "id": "loc-bilge-2203",
+    "statement": "At 22:03 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2203",
+    "statement": "At 22:03 Chef Boris is in the greenroom behind the saloon stage, delivering an omelette.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-boris-hives"
+      ],
+      "lieIds": [
+        "l-boris-galley"
+      ]
+    }
+  },
+  {
+    "id": "loc-commodore-brine-2203",
+    "statement": "At 22:03 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2203",
+    "statement": "At 22:03 Dame Gherkina is on the boat deck, by the starboard rail.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2203",
+    "statement": "At 22:03 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2203",
+    "statement": "At 22:03 Percy is on the boat deck, in and around lifeboat 3.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "boat-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-percy-goat"
+      ],
+      "lieIds": [
+        "l-percy-cabin"
+      ]
+    }
+  },
+  {
+    "id": "loc-zippelli-2203",
+    "statement": "At 22:03 The Great Zippelli is in the greenroom behind the saloon stage.",
+    "category": "location",
+    "time": "22:03",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-gherkina-returns",
+    "statement": "Dame Gherkina returns to the saloon with her hat askew and a wisp of hay on her shoulder.",
+    "category": "timeline",
+    "time": "22:08",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-recipe-buy"
+      ],
+      "lieIds": [
+        "l-gherkina-saloon"
+      ]
+    }
+  },
+  {
+    "id": "ev-percy-returns",
+    "statement": "Percy slips back into the saloon through the grand staircase door.",
+    "category": "timeline",
+    "time": "22:10",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-bilge-2210",
+    "statement": "At 22:10 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2210",
+    "statement": "At 22:10 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2210",
+    "statement": "At 22:10 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2210",
+    "statement": "At 22:10 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2210",
+    "statement": "At 22:10 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2210",
+    "statement": "At 22:10 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2210",
+    "statement": "At 22:10 The Great Zippelli is in the greenroom behind the saloon stage.",
+    "category": "location",
+    "time": "22:10",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-chart-flip",
+    "statement": "The heel recorder's pen swings from 8 degrees starboard to 6 degrees port. Ottilie pencils 'LURCH 22:14' on the chart.",
+    "category": "timeline",
+    "time": "22:14",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "source": "witnessed"
+  },
+  {
+    "id": "ev-great-lurch",
+    "statement": "THE GREAT LURCH. A rogue wave hits the port quarter; the Captain orders hard-a-port and brings her round, the gale comes onto the other side, and the Tallyho flips from a starboard to a port list. Every loose object aboard slides to port.",
+    "category": "timeline",
+    "time": "22:14",
+    "involvesCharacterIds": []
+  },
+  {
+    "id": "ev-lurch-saloon",
+    "statement": "In the saloon the band, the buffet and Dame Gherkina's hat all slide to port in a single glorious crash.",
+    "category": "timeline",
+    "time": "22:14",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina",
+      "percy",
+      "zippelli"
+    ],
+    "source": "witnessed"
+  },
+  {
+    "id": "ev-lurch-stateroom",
+    "statement": "In the stateroom, the sea chest skates from the starboard wall across the set marmalade until the Commodore's body stops it, and parks on his coat-tail; the smashed watch skates into the port corner.",
+    "category": "timeline",
+    "time": "22:14",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-bilge-2214",
+    "statement": "At 22:14 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2214",
+    "statement": "At 22:14 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2214",
+    "statement": "At 22:14 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2214",
+    "statement": "At 22:14 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2214",
+    "statement": "At 22:14 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2214",
+    "statement": "At 22:14 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2214",
+    "statement": "At 22:14 The Great Zippelli is in the greenroom behind the saloon stage.",
+    "category": "location",
+    "time": "22:14",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-plunge-seal",
+    "statement": "Dame Gherkina chains Zippelli into the glass chest and presses her pickle-jar seal into hot wax on the lid. The Plunge begins at 22:17.",
+    "category": "timeline",
+    "from": "22:15",
+    "to": "22:17",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina",
+      "zippelli",
+      "percy"
+    ],
+    "source": "witnessed"
+  },
+  {
+    "id": "ev-plunge",
+    "statement": "Zippelli sits sealed in the glass chest under the spotlights, visible to the entire saloon, until 22:49.",
+    "category": "timeline",
+    "from": "22:17",
+    "to": "22:49",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli",
+      "percy"
+    ],
+    "source": "witnessed"
+  },
+  {
+    "id": "loc-bilge-2217",
+    "statement": "At 22:17 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2217",
+    "statement": "At 22:17 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2217",
+    "statement": "At 22:17 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2217",
+    "statement": "At 22:17 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2217",
+    "statement": "At 22:17 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2217",
+    "statement": "At 22:17 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2217",
+    "statement": "At 22:17 The Great Zippelli is sealed in the glass chest on the saloon stage.",
+    "category": "location",
+    "time": "22:17",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-gherkina-leaves",
+    "statement": "Dame Gherkina slips out of the saloon 'to powder her nose'.",
+    "category": "timeline",
+    "time": "22:28",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-bilge-2230",
+    "statement": "At 22:30 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2230",
+    "statement": "At 22:30 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2230",
+    "statement": "At 22:30 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2230",
+    "statement": "At 22:30 Dame Gherkina is in the cabin-deck corridor, outside the stateroom door.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-at-door"
+      ],
+      "lieIds": [
+        "l-gherkina-door"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2230",
+    "statement": "At 22:30 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2230",
+    "statement": "At 22:30 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2230",
+    "statement": "At 22:30 The Great Zippelli is sealed in the glass chest on the saloon stage.",
+    "category": "location",
+    "time": "22:30",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-gherkina-at-door",
+    "statement": "Dame Gherkina knocks on the stateroom door, shouts that her offer stands, presses her ear to the wood and gets no answer.",
+    "category": "timeline",
+    "from": "22:32",
+    "to": "22:41",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-at-door"
+      ],
+      "lieIds": [
+        "l-gherkina-door"
+      ]
+    }
+  },
+  {
+    "id": "ev-bilge-sees-ottilie-2",
+    "statement": "The Chief Engineer is back on the bridge about a hot bearing. The Captain hands her the wheel when he goes to check the chart at 22:36, and she is still at the wheel when he comes back out at 22:40.",
+    "category": "timeline",
+    "from": "22:34",
+    "to": "22:41",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "ottilie"
+    ],
+    "source": "witnessed",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "ev-ottilie-second-visit",
+    "statement": "Ottilie is back on the bridge to report a hot bearing. At 22:36 the Captain hands her the wheel and steps away aft; at 22:40 he takes it back.",
+    "category": "timeline",
+    "from": "22:34",
+    "to": "22:41",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie",
+      "bilge"
+    ],
+    "source": "witnessed",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-bilge-2235",
+    "statement": "At 22:35 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2235",
+    "statement": "At 22:35 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2235",
+    "statement": "At 22:35 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2235",
+    "statement": "At 22:35 Dame Gherkina is in the cabin-deck corridor, outside the stateroom door.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-at-door"
+      ],
+      "lieIds": [
+        "l-gherkina-door"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2235",
+    "statement": "At 22:35 Ottilie is on the bridge, reporting a hot bearing.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2235",
+    "statement": "At 22:35 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2235",
+    "statement": "At 22:35 The Great Zippelli is sealed in the glass chest on the saloon stage.",
+    "category": "location",
+    "time": "22:35",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-curtain-bilge",
+    "statement": "The Captain says he must check the chart, gives the Chief Engineer the wheel, steps through the velvet curtain and unlocks the chartroom door with the Master's key.",
+    "category": "timeline",
+    "from": "22:36",
+    "to": "22:40",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [],
+      "lieIds": [
+        "l-bilge-bucket"
+      ]
+    }
+  },
+  {
+    "id": "ev-curtain-ottilie",
+    "statement": "The Captain says he must check the chart, gives Ottilie the wheel and steps through the velvet curtain; she hears the chartroom door. At 22:38, at the wheel with her back to the curtain, she hears a click, a hiss and a whirr behind it.",
+    "category": "timeline",
+    "from": "22:36",
+    "to": "22:40",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "ottilie"
+    ],
+    "source": "witnessed",
+    "confidence": 0.85,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-curtain"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "ev-cheer-heard-bridge-bilge",
+    "statement": "The bridge-wing horn bellows the cheer, hiccup and all.",
+    "category": "timeline",
+    "time": "22:38",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ],
+    "source": "heard",
+    "confidence": 0.95
+  },
+  {
+    "id": "ev-cheer-heard-bridge-ottilie",
+    "statement": "The bridge-wing horn bellows the cheer, hiccup and all.",
+    "category": "timeline",
+    "time": "22:38",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "source": "heard",
+    "confidence": 0.95,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "ev-cheer-heard-galley",
+    "statement": "The galley horn bellows 'TALLY-HO! SPREAD THE BRINE!' with an odd hiccup in the middle. Boris shouts a gloomy 'Hurrah'.",
+    "category": "timeline",
+    "time": "22:38",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ],
+    "source": "heard",
+    "confidence": 0.9
+  },
+  {
+    "id": "ev-cheer-heard-saloon",
+    "statement": "The saloon horn bellows 'TALLY-HO! SPREAD THE BRINE!' with an odd hiccup in the middle. The saloon roars its approval: the Commodore is alive.",
+    "category": "timeline",
+    "time": "22:38",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy",
+      "zippelli"
+    ],
+    "source": "heard",
+    "confidence": 0.95
+  },
+  {
+    "id": "ev-cheer-played",
+    "statement": "The Captain starts the Cheer-Box and throws the junction switch. The horns bellow the Commodore's recorded cheer.",
+    "category": "timeline",
+    "time": "22:38",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "ev-door-silence",
+    "statement": "At 22:38 the corridor horn above her bellows the Commodore's cheer, with an odd hiccup in the middle. With her ear to the door she hears nothing from inside, before, during or after it: no bellow, no stamp, and no 'HARRUMPH! WELL CHEERED, ME!', which always follows his cheer.",
+    "category": "timeline",
+    "time": "22:38",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "source": "heard",
+    "confidence": 0.85,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-at-door"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "loc-bilge-2238",
+    "statement": "At 22:38 Captain Bilge is on the bridge.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2238",
+    "statement": "At 22:38 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2238",
+    "statement": "At 22:38 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2238",
+    "statement": "At 22:38 Dame Gherkina is in the cabin-deck corridor, outside the stateroom door.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-at-door"
+      ],
+      "lieIds": [
+        "l-gherkina-door"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2238",
+    "statement": "At 22:38 Ottilie is at the bridge wheel, holding it for the Captain.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2238",
+    "statement": "At 22:38 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2238",
+    "statement": "At 22:38 The Great Zippelli is sealed in the glass chest on the saloon stage.",
+    "category": "location",
+    "time": "22:38",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-bilge-emerges-bilge",
+    "statement": "The Captain steps out from behind the curtain wiping his hands, takes the wheel back from the Chief Engineer and says: 'The Old Man's in fine voice tonight.'",
+    "category": "timeline",
+    "time": "22:40",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [],
+      "lieIds": [
+        "l-bilge-bucket"
+      ]
+    }
+  },
+  {
+    "id": "ev-bilge-emerges-ottilie",
+    "statement": "The Captain steps out wiping his hands, takes the wheel back from Ottilie and says: 'The Old Man's in fine voice tonight.'",
+    "category": "timeline",
+    "time": "22:40",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge",
+      "ottilie"
+    ],
+    "source": "witnessed",
+    "confidence": 0.9,
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-curtain"
+      ],
+      "lieIds": []
+    }
+  },
+  {
+    "id": "loc-bilge-2241",
+    "statement": "At 22:41 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2241",
+    "statement": "At 22:41 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2241",
+    "statement": "At 22:41 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2241",
+    "statement": "At 22:41 Dame Gherkina is in the cabin-deck corridor, outside the stateroom door.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-gherkina-at-door"
+      ],
+      "lieIds": [
+        "l-gherkina-door"
+      ]
+    }
+  },
+  {
+    "id": "loc-ottilie-2241",
+    "statement": "At 22:41 Ottilie is on the bridge, the wheel back in the Captain's hands.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "ottilie"
+    ],
+    "hiddenUntil": {
+      "secretIds": [
+        "s-ottilie-bridge-visits"
+      ],
+      "lieIds": [
+        "l-ottilie-engine"
+      ]
+    }
+  },
+  {
+    "id": "loc-percy-2241",
+    "statement": "At 22:41 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2241",
+    "statement": "At 22:41 The Great Zippelli is sealed in the glass chest on the saloon stage.",
+    "category": "location",
+    "time": "22:41",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-gherkina-returns-2",
+    "statement": "Dame Gherkina returns to the saloon and takes a seat close to the stage.",
+    "category": "timeline",
+    "time": "22:43",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-bilge-2245",
+    "statement": "At 22:45 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2245",
+    "statement": "At 22:45 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2245",
+    "statement": "At 22:45 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2245",
+    "statement": "At 22:45 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2245",
+    "statement": "At 22:45 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2245",
+    "statement": "At 22:45 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2245",
+    "statement": "At 22:45 The Great Zippelli is sealed in the glass chest on the saloon stage.",
+    "category": "location",
+    "time": "22:45",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-plunge-ends",
+    "statement": "Zippelli bursts out of the chest to thunderous applause; Dame Gherkina confirms her wax seal was intact the whole time.",
+    "category": "timeline",
+    "time": "22:49",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli",
+      "gherkina",
+      "percy"
+    ],
+    "source": "witnessed"
+  },
+  {
+    "id": "loc-bilge-2249",
+    "statement": "At 22:49 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2249",
+    "statement": "At 22:49 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2249",
+    "statement": "At 22:49 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2249",
+    "statement": "At 22:49 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2249",
+    "statement": "At 22:49 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2249",
+    "statement": "At 22:49 Percy is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2249",
+    "statement": "At 22:49 The Great Zippelli is on the saloon stage, just out of the glass chest.",
+    "category": "location",
+    "time": "22:49",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-percy-finds-body",
+    "statement": "Percy ignores the sign, opens the stateroom door and finds the Commodore dead among sticky marmalade, his famous orange toupee missing, a sea chest on his coat-tail and his pocket-watch smashed at 22:41. She screams.",
+    "category": "timeline",
+    "time": "22:55",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "percy",
+      "commodore-brine"
+    ],
+    "source": "witnessed"
+  },
+  {
+    "id": "loc-bilge-2255",
+    "statement": "At 22:55 Captain Bilge is on the bridge, at the wheel.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2255",
+    "statement": "At 22:55 Chef Boris is in the galley, at the stove.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "galley",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2255",
+    "statement": "At 22:55 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2255",
+    "statement": "At 22:55 Dame Gherkina is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2255",
+    "statement": "At 22:55 Ottilie is in the engine room, minding Gladys.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "engine-room",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2255",
+    "statement": "At 22:55 Percy is on the cabin deck, at her uncle's stateroom door.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2255",
+    "statement": "At 22:55 The Great Zippelli is in the Grand Saloon.",
+    "category": "location",
+    "time": "22:55",
+    "locationId": "ballroom",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-helmsman-returns",
+    "statement": "Word of the scream reaches the bridge. The Captain calls the helmsman up the voice-pipe, hands him the wheel and goes below.",
+    "category": "timeline",
+    "time": "22:58",
+    "locationId": "bridge",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "ev-captain-arrives",
+    "statement": "The Captain arrives at the stateroom, orders that nobody leaves the ship (not that anybody can) and reads the watch aloud: 22:41. 'Alive at 22:38, dead by 22:41.'",
+    "category": "timeline",
+    "time": "23:01",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "ev-household-gathers",
+    "statement": "The whole company gathers at the stateroom door, all talking at once.",
+    "category": "timeline",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "bilge",
+      "zippelli",
+      "gherkina",
+      "percy",
+      "boris",
+      "ottilie",
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-bilge-2305",
+    "statement": "At 23:05 Captain Bilge is on the cabin deck, at the stateroom door with the whole company.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "bilge"
+    ]
+  },
+  {
+    "id": "loc-boris-2305",
+    "statement": "At 23:05 Chef Boris is on the cabin deck, at the stateroom door with the whole company.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "boris"
+    ]
+  },
+  {
+    "id": "loc-commodore-brine-2305",
+    "statement": "At 23:05 the Commodore is lying dead on his stateroom carpet.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "loc-gherkina-2305",
+    "statement": "At 23:05 Dame Gherkina is on the cabin deck, at the stateroom door with the whole company.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "gherkina"
+    ]
+  },
+  {
+    "id": "loc-ottilie-2305",
+    "statement": "At 23:05 Ottilie is on the cabin deck, at the stateroom door with the whole company.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "ottilie"
+    ]
+  },
+  {
+    "id": "loc-percy-2305",
+    "statement": "At 23:05 Percy is on the cabin deck, at the stateroom door with the whole company.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "percy"
+    ]
+  },
+  {
+    "id": "loc-zippelli-2305",
+    "statement": "At 23:05 The Great Zippelli is on the cabin deck, at the stateroom door with the whole company.",
+    "category": "location",
+    "time": "23:05",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": [
+      "zippelli"
+    ]
+  },
+  {
+    "id": "ev-purser-takes-charge",
+    "statement": "The purser arrives from his office with the passenger list and the purser's book, seals the stateroom, says the wireless is dead and the police take over when we make port, and asks the detective, a guest aboard, to find out what happened.",
+    "category": "timeline",
+    "time": "23:08",
+    "locationId": "cabin-deck",
+    "involvesCharacterIds": []
+  }
+]

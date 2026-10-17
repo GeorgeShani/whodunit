@@ -46,3 +46,6 @@ next-env.d.ts
 
 # eval:ai spend ledger (local)
 .ai-eval-spend.json
+
+# Tallyho draft: no solution files committed until the case ships
+/cases/_tallyho/solution.json

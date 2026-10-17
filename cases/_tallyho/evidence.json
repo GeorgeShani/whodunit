@@ -1,0 +1,297 @@
+[
+  {
+    "id": "smashed-watch",
+    "name": "The Commodore's Smashed Pocket-Watch",
+    "kind": "physical",
+    "icon": "⌚",
+    "locationId": "cabin-deck",
+    "description": "A gold open-face pocket-watch lying in the port corner of the stateroom, smashed, stopped at 22:41, and stickier than a toffee apple. A brown smear trails behind it. The crown is pulled out, the way you would set a watch, not the way a fall would leave it.",
+    "discoveryLine": "Whoever broke this watch was very, very specific about the time.",
+    "relatedFactIds": [
+      "ev-watch-staged",
+      "ev-lurch-stateroom",
+      "ev-percy-finds-body"
+    ],
+    "relatedCharacters": [
+      "zippelli",
+      "commodore-brine"
+    ]
+  },
+  {
+    "id": "midnight-notes",
+    "name": "Speech Notes for The Announcement",
+    "kind": "document",
+    "icon": "📝",
+    "locationId": "cabin-deck",
+    "description": "The Commodore's speech notes, written in orange crayon and enthusiasm, each item with a marmalade thumbprint. 1. Percy OUT of the will. Crew pension fund IN. (Tell her gently: ha!) 2. Decline Pratt's £200,000. Launch Brine's Pickled Onions. SQUASH HER. 3. Scrap the Tallyho at Port Pottle. Pay off the crew. 4. The Turnip Scandal. Sack Boris. Say I knew nothing. 5. CROCK 13. False bottom!! Gold!!! Somebody is smuggling in MY marmalade. Tiny mark stamped underneath. Expose at midnight. In the margin: 21:45 Z. (the fee. And the OTHER thing. Face him.) / 22:30 Pratt (let her wait) / 23:30 Capt. B. (the crates. Ask him straight.) / 24:00 SPEAK.",
+    "discoveryLine": "Five items, five marmalade thumbprints, and a schedule in the margin.",
+    "relatedFactIds": [
+      "f-new-will",
+      "f-pickle-offer",
+      "f-tallyho-scrap",
+      "f-recipe-turnips-boris",
+      "f-commodore-schedule",
+      "f-pratt-appointment"
+    ],
+    "relatedCharacters": [
+      "percy",
+      "gherkina",
+      "bilge",
+      "boris",
+      "zippelli",
+      "ottilie",
+      "commodore-brine"
+    ],
+    "requires": {
+      "mode": "any",
+      "interrogated": [
+        {
+          "characterId": "percy",
+          "minExchanges": 2
+        },
+        {
+          "characterId": "gherkina",
+          "minExchanges": 2
+        }
+      ]
+    },
+    "lockedLine": "The desk has a speech-shaped hole. The Commodore hid his notes where only someone close to him would know to look. Ask someone who knew his habits."
+  },
+  {
+    "id": "marmalade-run",
+    "name": "The Marmalade Run",
+    "kind": "observation",
+    "icon": "🍊",
+    "locationId": "cabin-deck",
+    "description": "Marmalade has a story to tell. The pool by the starboard wall is where the tasting jar burst; it ran downhill and set there, so the room was leaning starboard when it broke. A long brown skid runs from the starboard wall across the carpet towards port, and stops dead against the Commodore: the sea chest is parked on his coat-tail. A chest that slid when the ship swung over would have gone all the way to the port wall, unless somebody was already lying in its way.",
+    "discoveryLine": "The pool points one way, the skid the other, and the chest is sitting on a dead man's coat-tail.",
+    "relatedFactIds": [
+      "f-list-history",
+      "ev-lurch-stateroom",
+      "ev-bonk"
+    ],
+    "relatedCharacters": [
+      "zippelli",
+      "commodore-brine"
+    ],
+    "requires": {
+      "mode": "all",
+      "evidenceIds": [
+        "smashed-watch",
+        "heel-chart"
+      ]
+    },
+    "lockedLine": "Marmalade everywhere, and it plainly has something to say. You need to know which way downhill pointed, and when that changed."
+  },
+  {
+    "id": "heel-chart",
+    "name": "The Heel Recorder Chart",
+    "kind": "document",
+    "icon": "📈",
+    "locationId": "engine-room",
+    "description": "A long paper strip with a wobbly pen line. At 21:40 the pen leans one way. At 22:14 it swings across to the other, and a pencilled note says LURCH 22:14. In the margin the engineer has also pencilled 'LEFT POST 21:45 BACK 22:00' and 'LEFT POST 22:30 BACK 22:45'.",
+    "discoveryLine": "The sea keeps a diary, and somebody has been writing naughty notes in its margin.",
+    "relatedFactIds": [
+      "ev-chart-flip",
+      "f-list-history",
+      "ev-ottilie-reports",
+      "ev-ottilie-second-visit"
+    ],
+    "relatedCharacters": [
+      "ottilie"
+    ],
+    "requires": {
+      "mode": "all",
+      "evidenceIds": [
+        "smashed-watch"
+      ],
+      "interrogated": [
+        {
+          "characterId": "ottilie",
+          "minExchanges": 2
+        }
+      ]
+    },
+    "lockedLine": "The chart is under glass and under a very deadpan glare. \"Come back when you know what you're asking. And when we've talked properly.\""
+  },
+  {
+    "id": "cheer-cylinder",
+    "name": "The Cheer-Box",
+    "kind": "physical",
+    "icon": "📯",
+    "locationId": "bridge",
+    "description": "A brass box holding an old wind-up phonograph and a wax cylinder labelled 'EMERGENCY CHEER (the one with the hiccup), recorded 1911'. The spring is nearly run down, as if it was wound for a single play. There is no clockwork timer: somebody has to stand here and start it by hand. The junction switch is on CHEER, and the seasick bucket beside it is bone dry. A brass plate on the chartroom door reads: KEYS: MASTER; CHIEF ENGINEER.",
+    "discoveryLine": "Somebody played the Commodore's voice from this box, tonight, and tidied up badly.",
+    "relatedFactIds": [
+      "f-cheer-box-bilge",
+      "f-chartroom-access-bilge",
+      "ev-cheer-played",
+      "ev-curtain-bilge"
+    ],
+    "relatedCharacters": [
+      "bilge",
+      "ottilie"
+    ],
+    "requires": {
+      "mode": "any",
+      "secretIds": [
+        "s-ottilie-bridge-visits",
+        "s-gherkina-at-door"
+      ]
+    },
+    "lockedLine": "Behind the velvet curtain, a locked door with a brass key plate. You need a reason to ask for that door to be opened."
+  },
+  {
+    "id": "route-sheet",
+    "name": "The Course Sheet",
+    "kind": "document",
+    "icon": "🗺️",
+    "locationId": "bridge",
+    "description": "A chart with a dashed red line. The real course is not Port Pottle: it turns hard at 22:14 and runs to Cape Kipper, and stops. Next to the dawn rendezvous: 'Lugger. Hand over 13 crocks. Collect from the wings.'",
+    "discoveryLine": "Nothing about this course is straight.",
+    "relatedFactIds": [
+      "f-route-dawn-bilge",
+      "f-zippelli-trunk-bilge",
+      "f-crock-gala"
+    ],
+    "relatedCharacters": [
+      "bilge",
+      "zippelli"
+    ],
+    "requires": {
+      "mode": "all",
+      "evidenceIds": [
+        "midnight-notes"
+      ],
+      "interrogated": [
+        {
+          "characterId": "boris",
+          "minExchanges": 2
+        }
+      ]
+    },
+    "lockedLine": "A chart table full of charts. None of them looks strange. You need a reason to hunt for a particular one."
+  },
+  {
+    "id": "crock-13",
+    "name": "Crock 13",
+    "kind": "physical",
+    "weapon": true,
+    "icon": "🏺",
+    "locationId": "ballroom",
+    "description": "Behind the prop trunk's false wall: padded trays of gold sovereigns and a rack of thirteen chalk-numbered cradles. Cradle 13 holds a stoneware crock with an orange toupee glued to it like a hat. Its false bottom is full of gold and stamped underneath with a tiny maker's mark: A.Z. The crock has a dent shaped like Barnabas.",
+    "discoveryLine": "A crock wearing a toupee. Never underestimate a hat.",
+    "relatedFactIds": [
+      "f-zippelli-trunk-zippelli",
+      "f-crock-gala",
+      "ev-bonk",
+      "ev-confrontation"
+    ],
+    "relatedCharacters": [
+      "zippelli",
+      "bilge",
+      "commodore-brine"
+    ],
+    "requires": {
+      "mode": "all",
+      "evidenceIds": [
+        "route-sheet"
+      ],
+      "secretIds": [
+        "s-zippelli-summons"
+      ]
+    },
+    "lockedLine": "Seventeen padlocks and a rabbit. Searching without cause would earn you a lawsuit and a bite."
+  },
+  {
+    "id": "turnip-recipe",
+    "name": "The Receipt for Nine Parts Turnip",
+    "kind": "document",
+    "icon": "🧾",
+    "locationId": "galley",
+    "description": "A recipe card in a weepy, tear-smudged hand: 'BRINE'S BITTER ORANGE (SECRET). 1 part orange. 9 parts turnip. Weep.' It is the cook's own working copy. Stapled to it, a note of sale the buyer had to sign before the original changed hands: 'Received, one recipe, for £500 paid. Boat deck, by the rail, 21:50. G. P.-P.'",
+    "discoveryLine": "The secret of Brine's Bitter Orange is a root vegetable.",
+    "relatedFactIds": [
+      "f-recipe-turnips-boris",
+      "ev-recipe-sale-boris"
+    ],
+    "relatedCharacters": [
+      "boris",
+      "gherkina"
+    ],
+    "requires": {
+      "interrogated": [
+        {
+          "characterId": "boris",
+          "minExchanges": 2
+        }
+      ]
+    },
+    "lockedLine": "The recipe drawers are guarded by a weeping giant: \"Not until you understand my pain.\""
+  },
+  {
+    "id": "goat-evidence",
+    "name": "The Evidence of Duchess",
+    "kind": "physical",
+    "icon": "🐐",
+    "locationId": "boat-deck",
+    "description": "Lifeboat 3 contains a heap of hay dusted with galley flour, a bucket, a trail of cloven hoofprints and a goat who is chewing a pink feather plume you have definitely seen on a young woman's hat.",
+    "discoveryLine": "The goat looks guilty. The goat looks very pleased with herself.",
+    "relatedFactIds": [
+      "f-goat-percy",
+      "ev-percy-sees-pair-percy"
+    ],
+    "relatedCharacters": [
+      "percy",
+      "boris"
+    ]
+  },
+  {
+    "id": "orange-lightning",
+    "name": "Orange Lightning",
+    "kind": "physical",
+    "weapon": true,
+    "icon": "🍶",
+    "locationId": "engine-room",
+    "description": "Behind the boiler, in the pump house, a copper still gurgles merrily. On the shelf stands a heavy round stoneware jug: 'ORANGE LIGHTNING (Strictly Medicinal)'. It smells of marmalade and regret, and the label says it is made from the Commodore's surplus.",
+    "discoveryLine": "Strictly medicinal, says the label. The smell disagrees.",
+    "relatedFactIds": [
+      "f-orange-still"
+    ],
+    "relatedCharacters": [
+      "ottilie"
+    ],
+    "requires": {
+      "searchedLocationIds": [
+        "engine-room"
+      ]
+    },
+    "lockedLine": "A bolted hatch behind the boiler, and a smell like a burnt breakfast. You will need a second look."
+  },
+  {
+    "id": "ships-log",
+    "name": "The Deck Log",
+    "kind": "document",
+    "icon": "📘",
+    "locationId": "bridge",
+    "description": "The Tallyho's deck log, in a square, captainly hand. '20:53. Master took the wheel. Helmsman stood down until the middle watch.' '21:40. Squall. Wireless lost. Heeling to starboard.' At 22:14 the course column has been scraped with a razor and inked over, fresher and blacker: 'Heavy sea on the port quarter. Hard-a-port. Course for Port Pottle.' Across the foot of the page, in the same fresh ink: 'Master at the wheel throughout the watch.' Every change of hand at the wheel is logged tonight, but one.",
+    "discoveryLine": "A man who never left his wheel had no need to write so.",
+    "relatedFactIds": [
+      "f-deck-log",
+      "ev-helmsman-stood-down",
+      "ev-great-lurch",
+      "f-route-dawn-bilge",
+      "ev-curtain-bilge"
+    ],
+    "relatedCharacters": [
+      "bilge",
+      "ottilie"
+    ],
+    "requires": {
+      "evidenceIds": [
+        "heel-chart"
+      ]
+    },
+    "lockedLine": "The deck log lies under a brass weight: a whole night of entries in a square hand. You would need to know which minute to look for."
+  }
+]
