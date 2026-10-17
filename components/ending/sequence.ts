@@ -60,7 +60,7 @@ export interface Cast {
  * Who is on stage for the current state:
  * - verdict: the accused alone (shocked when right, smug when wrong: ART_BIBLE beats);
  * - a character line: the speaker plus the most recent other speaker (so
- *   Archibald's interjection puts him beside Victoria), first-to-appear on the left;
+ *   a suspect's interjection puts them beside the one who spoke), first-to-appear on the left;
  * - a narrator line: the stage as it stood after the last character line;
  * - the escaped line: the real murderer alone, smug (MASTER_PLAN §36).
  */

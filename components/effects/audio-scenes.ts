@@ -1,7 +1,13 @@
+import type { CaseAudio } from "@/engine/presentation";
 import type { BedName, HeartbeatLevel } from "./audio";
 
-/** docs/SOUND_NOTES.md section 8C: which bed plays under which screen (null = silent bed). */
-export function bedForScreen(screen: string, endingPart: "scene" | "summary" = "scene"): BedName | null {
+/**
+ * docs/SOUND_NOTES.md section 8C: which bed plays under which screen (null = silent bed). Phase 3 (E9): a case's
+ * `audio.beds` wins for the screens it names (the end screen's summary still fades to silence).
+ */
+export function bedForScreen(screen: string, endingPart: "scene" | "summary" = "scene", caseAudio?: CaseAudio): BedName | null {
+  const own = caseAudio?.beds?.[screen as keyof NonNullable<CaseAudio["beds"]>];
+  if (own) return screen === "ending" && endingPart !== "scene" ? null : own;
   switch (screen) {
     case "title":
       return "rain_loop";

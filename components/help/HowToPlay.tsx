@@ -56,7 +56,7 @@ export function HowToPlayDialog({
         aria-modal="true"
         aria-labelledby={titleId}
         data-how-to-play
-        className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-[#fff8e7] text-black shadow-[8px_8px_0_#000]"
+        className="flex max-h-full w-full max-w-3xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-paper text-ink shadow-[8px_8px_0_#000]"
       >
         <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16">
           <h2 id={titleId} className="font-display text-3xl tracking-wider -rotate-1">
@@ -105,7 +105,7 @@ export function HowToPlayButton({ onOpen, variant = "fixed", className = "" }: {
         getAudio().play("ui_paper");
         onOpen();
       }}
-      className={`${variant === "fixed" ? "absolute right-[calc(var(--hud-right)+var(--hud-btn)+var(--hud-gap))] top-(--hud-top) z-[57] max-sm:px-2.5 max-sm:text-base" : ""} inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-[3px] border-black bg-yellow-300 px-3 font-display text-lg leading-none tracking-wider text-black shadow-[3px_3px_0_#000] hover:bg-yellow-200 ${className}`}
+      className={`${variant === "fixed" ? "absolute right-[calc(var(--hud-right)+var(--hud-btn)+var(--hud-gap))] top-(--hud-top) z-[57] max-sm:px-2.5 max-sm:text-base" : ""} inline-flex min-h-11 shrink-0 cursor-pointer items-center justify-center gap-1.5 whitespace-nowrap rounded-full border-[3px] border-black bg-accent px-3 font-display text-lg leading-none tracking-wider text-ink shadow-[3px_3px_0_#000] hover:bg-yellow-200 ${className}`}
     >
       <span aria-hidden className="text-base">
         📖
@@ -134,9 +134,9 @@ export function FirstTimePrompt() {
     <aside
       aria-label="New here?"
       data-first-time-prompt
-      className="relative mt-3 flex items-center gap-2 rounded-full border-[3px] border-black bg-[#fff8e7] py-0.5 pe-0.5 ps-4 text-left text-sm font-bold text-black shadow-[3px_3px_0_#000] max-sm:mt-2 short:mt-2"
+      className="relative mt-3 flex items-center gap-2 rounded-full border-[3px] border-black bg-paper py-0.5 pe-0.5 ps-4 text-left text-sm font-bold text-ink shadow-[3px_3px_0_#000] max-sm:mt-2 short:mt-2"
     >
-      <span aria-hidden className="absolute -top-[9px] left-1/2 size-3.5 short:hidden -translate-x-1/2 rotate-45 border-l-[3px] border-t-[3px] border-black bg-[#fff8e7]" />
+      <span aria-hidden className="absolute -top-[9px] left-1/2 size-3.5 short:hidden -translate-x-1/2 rotate-45 border-l-[3px] border-t-[3px] border-black bg-paper" />
       <p className="relative">New here? Start with How to Play!</p>
       <button
         type="button"

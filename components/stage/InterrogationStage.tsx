@@ -113,7 +113,7 @@ export function InterrogationStage({
 
   return (
     <div
-      className={`relative overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] ${className}`}
+      className={`relative overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,var(--backdrop)_60%,#120a24_100%)] ${className}`}
       data-stage
       data-lit={lit || undefined}
     >

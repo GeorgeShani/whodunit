@@ -3,11 +3,23 @@
 :root {
   --background: #1b1035;
   --foreground: #fff8e7;
+  /*
+   * Case theme palette tokens (case-two plan phase 3, engine/presentation.ts PALETTE_TOKENS). These are the defaults;
+   * a case's `theme.palette` overrides them on the game wrapper (components/game/CasePresentation.tsx).
+   */
+  --backdrop: #1b1035;
+  --paper: #fff8e7;
+  --ink: #000000;
+  --accent: oklch(90.5% 0.182 98.111); /* Tailwind yellow-300 */
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-backdrop: var(--backdrop);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-bangers);

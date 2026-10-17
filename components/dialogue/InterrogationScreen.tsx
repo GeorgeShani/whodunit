@@ -90,7 +90,7 @@ export function InterrogationScreen({
   };
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,#1b1035_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[linear-gradient(180deg,#3b1d6e_0%,var(--backdrop)_60%,#120a24_100%)] p-3 sm:p-4 short:p-2">
       {/* Room for the fixed mute toggle (phones) plus the HOW TO PLAY pill (sm+); the name truncates instead of wrapping (#12). */}
       <header className="mb-2 short:mb-1 flex min-w-0 items-center gap-2 pe-14 sm:mb-3 sm:gap-3 sm:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="min-h-12 short:min-h-11 shrink-0 px-3 sm:px-4">
@@ -98,7 +98,7 @@ export function InterrogationScreen({
           <span className="lg:hidden">Back</span>
         </CartoonButton>
         <h1
-          className="min-w-0 truncate font-display text-2xl tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl sm:[-webkit-text-stroke:1.5px_#000] sm:drop-shadow-[3px_3px_0_#000]"
+          className="min-w-0 truncate font-display text-2xl tracking-wide text-accent [-webkit-text-stroke:1px_#000] drop-shadow-[2px_2px_0_#000] sm:text-4xl sm:[-webkit-text-stroke:1.5px_#000] sm:drop-shadow-[3px_3px_0_#000]"
           title={suspect.name}
         >
           <span className="max-sm:hidden">{suspect.name}</span>
@@ -178,7 +178,7 @@ export function InterrogationScreen({
           </AnimatePresence>
 
           {busyWith && (
-            <p role="status" className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-base font-bold text-black">
+            <p role="status" className="rounded-lg border-2 border-black bg-yellow-100 px-3 py-1.5 text-base font-bold text-ink">
               ⏳ {busyWith}. Your question will keep.
             </p>
           )}
@@ -202,7 +202,7 @@ export function InterrogationScreen({
                 aria-describedby={hintId}
                 aria-invalid={over > 0 || undefined}
                 data-autofocus
-                className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-black shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
+                className="min-h-12 short:min-h-11 min-w-0 flex-1 rounded-xl border-[3px] border-black bg-white px-4 py-2 text-base font-medium text-ink shadow-[4px_4px_0_#000] focus:bg-yellow-50 aria-invalid:bg-red-50"
               />
               {onRetry && !text.trim() ? (
                 <CartoonButton type="button" tone="yellow" data-model-retry data-retry-wait={retryWait > 0 ? retryWait : undefined} aria-label={retryWait > 0 ? `Ask again in ${formatRetryWait(retryWait)}` : "Ask again"} className="min-h-12 short:min-h-11 px-4 text-base tabular-nums" disabled={locked || retryWait > 0} onClick={onRetry}>

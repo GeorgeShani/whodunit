@@ -47,7 +47,7 @@ function StingDialog({ clue, remaining, onDone }: { clue: FoundEvidence; remaini
           exit={{ opacity: 0 }}
         >
           <motion.div
-            className="relative flex w-full max-w-md flex-col items-center gap-3 rounded-3xl border-4 border-black bg-[#fff8e7] p-6 pt-16 text-center text-black shadow-[10px_10px_0_#000]"
+            className="relative flex w-full max-w-md flex-col items-center gap-3 rounded-3xl border-4 border-black bg-paper p-6 pt-16 text-center text-ink shadow-[10px_10px_0_#000]"
             initial={{ scale: 0, rotate: -12 }}
             animate={{ scale: [0, 1.15, 1], rotate: [-12, 4, 0] }}
             transition={{ duration: 0.45, times: [0, 0.6, 1], ease: "easeOut" }}

@@ -1,5 +1,6 @@
 "use client";
 
+import { useInSetting } from "@/components/game/CasePresentation";
 import type { PublicProgress } from "@/engine/progress";
 
 /** The notebook's Leads tab: open questions with their hints; closed ones struck through with a stamp. */
@@ -10,11 +11,11 @@ export function LeadsPanel({
   leads: PublicProgress["leads"];
   newLeadIds?: string[];
 }) {
+  const inSite = useInSetting();
   if (leads.length === 0) {
     return (
       <p className="font-semibold italic text-neutral-600">
-        No leads yet. Talk to the household and search the house: something will
-        turn up.
+        {inSite("No leads yet. Talk to the household and search the house: something will turn up.")}
       </p>
     );
   }
@@ -33,7 +34,7 @@ export function LeadsPanel({
             <p className="flex flex-wrap items-center gap-2 font-display text-xl tracking-wide">
               <span aria-hidden>❓</span> {l.title}
               {newLeadIds.includes(l.id) && (
-                <span className="rounded-full border-2 border-black bg-yellow-300 px-2 py-0.5 text-sm font-black uppercase">
+                <span className="rounded-full border-2 border-black bg-accent px-2 py-0.5 text-sm font-black uppercase">
                   New
                 </span>
               )}

@@ -18,6 +18,7 @@
  * - Hidden tab / pagehide suspends everything; a gesture or visibility
  *   change resumes it (iOS "interrupted" state included).
  */
+import type { CaseAudio } from "@/engine/presentation";
 import type { AudioCue } from "./emotion-map";
 
 export interface CueDef {
@@ -77,8 +78,30 @@ export const CUES: Record<AudioCue, CueDef> = {
 
 export const MUTE_KEY = "whodunit:muted";
 
-/** Scene beds (one at a time). */
-export type BedName = "rain_loop" | "bed_manor" | "bed_library";
+/** Scene beds (one at a time): the three default beds, or a case bed registered by registerCaseAudio. */
+export type BedName = "rain_loop" | "bed_manor" | "bed_library" | (string & {});
+
+const BED_VOLUME = 0.4;
+
+/** Phase 3 (E9): the current case's beds and cue file overrides, layered over CUES. */
+let caseCues: Record<string, CueDef> = {};
+
+/** Register a case's audio (case.json `audio`): its beds become looping cues, its cue overrides replace the files. */
+export function registerCaseAudio(audio: CaseAudio | undefined): void {
+  const next: Record<string, CueDef> = {};
+  for (const stem of Object.values(audio?.beds ?? {}))
+    if (stem && !(stem in CUES)) next[stem] = { files: [stem], volume: BED_VOLUME, minGapMs: 0, loop: true };
+  for (const [cue, files] of Object.entries(audio?.cues ?? {})) {
+    const base = CUES[cue as AudioCue];
+    if (base) next[cue] = { ...base, files };
+  }
+  caseCues = next;
+}
+
+/** A cue's definition: the case's override, else the global table. */
+export function cueDef(name: string): CueDef | undefined {
+  return caseCues[name] ?? CUES[name as AudioCue];
+}
 export type HeartbeatLevel = 0 | 1 | 2 | 3;
 const HEARTBEATS = [null, "heartbeat_slow", "heartbeat_mid", "heartbeat_fast"] as const;
 
@@ -677,7 +700,7 @@ export class AudioManager {
 
   /** Play a one-shot cue. Returns true if a sound actually started (or is queued behind its decode). */
   play(cue: AudioCue, opts: { gain?: number } = {}): boolean {
-    const def = CUES[cue];
+    const def = cueDef(cue);
     if (!def || def.loop || !this.unlocked || this.silenced) return false;
     const t = this.now();
     const last = this.lastPlayed.get(cue);
@@ -750,7 +773,7 @@ export class AudioManager {
   }
 
   private bedGain(name: BedName) {
-    return CUES[name].volume * this.duckFactor;
+    return (cueDef(name)?.volume ?? BED_VOLUME) * this.duckFactor;
   }
 
   private stopBedVoice(ms: number) {
@@ -767,7 +790,8 @@ export class AudioManager {
     }
     if (this.bedVoice && this.bedVoice !== want) this.stopBedVoice(this.bedFadeMs);
     if (!want) return;
-    const file = CUES[want].files[0];
+    const file = cueDef(want)?.files[0];
+    if (!file) return;
     const spec: VoiceSpec = { id: `bed:${want}`, file, gain: this.bedGain(want), loop: true, fadeMs: this.bedFadeMs };
     if (this.engine.start(spec)) {
       this.bedVoice = want;

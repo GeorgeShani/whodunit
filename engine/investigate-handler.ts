@@ -2,6 +2,7 @@
  * SERVER-ONLY. POST /api/investigate, end to end: validate -> restore the
  * shared signed state -> deterministic search -> public fields only -> new token.
  */
+import { inSetting, settingOf } from "./presentation";
 import type { LoadedCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { searchLocation } from "./investigation";
@@ -61,7 +62,7 @@ function handleInvestigateCore(
       status: 400,
       body: withNotice({
         found: [],
-        lines: [UNKNOWN_LOCATION_LINE],
+        lines: [inSetting(UNKNOWN_LOCATION_LINE, settingOf(caseData))],
         searchedLocationIds: [...game.searchedLocationIds],
         stateToken: saveSession(game, env),
         error: "unknown_location",

@@ -47,7 +47,7 @@ export function SuspectSelect({
   return (
     <main
       className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-8 sm:px-6 sm:py-10 ${
-        backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#7b1fa2_0%,#1b1035_70%)]"
+        backdrop ? "bg-backdrop bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#7b1fa2_0%,var(--backdrop)_70%)]"
       }`}
       style={backdropStyle(backdrop)}
     >
@@ -59,7 +59,7 @@ export function SuspectSelect({
         <h1
           data-autofocus
           tabIndex={-1}
-          className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl"
+          className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl"
         >
           PICK A SUSPECT!
         </h1>
@@ -73,7 +73,7 @@ export function SuspectSelect({
             <CartoonButton tone="red" onClick={onInvestigate} className="min-h-12 px-3 text-base">
               <span aria-hidden>🔍</span> Investigate
               {cluesFound !== undefined && (
-                <span className="ms-1 rounded-full border-2 border-black bg-yellow-300 px-2 py-0.5 text-sm font-black text-black" aria-label={`${cluesFound} clue${cluesFound === 1 ? "" : "s"}`}>
+                <span className="ms-1 rounded-full border-2 border-black bg-accent px-2 py-0.5 text-sm font-black text-ink" aria-label={`${cluesFound} clue${cluesFound === 1 ? "" : "s"}`}>
                   {cluesFound}
                 </span>
               )}
@@ -89,11 +89,11 @@ export function SuspectSelect({
           onClick={onAccuse}
           data-accuse-open
           {...(accuseReady ? {} : { "data-accuse-locked": true, "aria-label": "Accuse: case not ready" })}
-          className={`relative min-h-14 w-full max-w-sm font-display text-3xl tracking-widest sm:-my-4 sm:w-auto ${accuseReady ? "ring-4 ring-yellow-300" : "opacity-80 ring-4 ring-neutral-400"}`}
+          className={`relative min-h-14 w-full max-w-sm font-display text-3xl tracking-widest sm:-my-4 sm:w-auto ${accuseReady ? "ring-4 ring-accent" : "opacity-80 ring-4 ring-neutral-400"}`}
         >
           {accuseReady ? "⚖️ ACCUSE!" : <>🔒 ACCUSE</>}
           {!accuseReady && (
-            <span aria-hidden className="absolute -bottom-3 -right-2 rotate-[-6deg] rounded-md border-[3px] border-black bg-yellow-300 px-2 py-0.5 font-sans text-sm font-black uppercase tracking-normal text-black shadow-[2px_2px_0_#000]">
+            <span aria-hidden className="absolute -bottom-3 -right-2 rotate-[-6deg] rounded-md border-[3px] border-black bg-accent px-2 py-0.5 font-sans text-sm font-black uppercase tracking-normal text-ink shadow-[2px_2px_0_#000]">
               Case not ready
             </span>
           )}
@@ -115,7 +115,7 @@ export function SuspectSelect({
                 data-suspect-id={s.id}
                 whileHover={{ y: -8, rotate: i % 2 ? 1.5 : -1.5 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex w-full cursor-pointer flex-row items-center gap-4 rounded-3xl border-4 border-black bg-[#fff8e7] p-4 text-start text-black shadow-[6px_6px_0_#000] md:flex-col md:text-center"
+                className="flex w-full cursor-pointer flex-row items-center gap-4 rounded-3xl border-4 border-black bg-paper p-4 text-start text-ink shadow-[6px_6px_0_#000] md:flex-col md:text-center"
               >
                 <div className="flex h-40 w-[36%] max-w-44 shrink-0 items-end justify-center overflow-hidden rounded-2xl border-[3px] border-black bg-gradient-to-b from-sky-200 to-yellow-100 md:h-64 md:w-full md:max-w-none">
                   <Portrait suspect={s} emotion={emotion} className="h-36 md:h-60" decorative />

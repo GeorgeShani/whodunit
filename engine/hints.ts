@@ -13,6 +13,7 @@
  * lie's wording, what it means, or anything about the solution.
  * Cooldown: HINT_COOLDOWN_TURNS game turns between hints (the plan sets no cost).
  */
+import { inSetting, settingOf } from "./presentation";
 import type { LoadedCase } from "./case-schema";
 import { isLieBroken, revealedSecretIds } from "./testimony";
 import type { GameState, IntendedLie } from "./types";
@@ -82,7 +83,7 @@ export function takeHint(c: LoadedCase, game: GameState): HintResult {
   const wait = hintCooldown(game);
   if (wait > 0) return { kind: "cooldown", readyInTurns: wait };
   const all = hintCandidates(c, game);
-  if (!all.length) return { kind: "none", text: NO_HINT_LINE };
+  if (!all.length) return { kind: "none", text: inSetting(NO_HINT_LINE, settingOf(c)) };
   const hint = all.find((h) => !game.hintedLieIds.includes(h.lieId)) ?? all[0];
   if (!game.hintedLieIds.includes(hint.lieId)) game.hintedLieIds.push(hint.lieId);
   game.hintTurn = game.turn;
