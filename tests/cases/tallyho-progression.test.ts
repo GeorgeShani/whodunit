@@ -118,14 +118,26 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     expect([...new Set(owners)].sort()).toEqual(["bilge", "boris", "gherkina", "ottilie", "percy"]);
   });
 
-  it("features: both modules declared, the proof only in solution.json, no diagram art yet", () => {
+  it("features: both modules declared, the proof only in solution.json, the marmalade diagram wired to Toon's frames", () => {
     expect(c.features).toEqual(["time-misdirection", "ship-list"]);
     const tm = c.featureConfig!["time-misdirection"] as Record<string, unknown>;
     expect(Object.keys(tm).sort()).toEqual(["appearanceWords", "stagedClaims"]);
     expect(JSON.stringify(c.featureConfig)).not.toContain("provedBy");
     expect((c.solution.featureProof?.["time-misdirection"] as { provedBy?: string[] } | undefined)?.provedBy?.length).toBeGreaterThan(0);
-    const sl = c.featureConfig!["ship-list"] as { flipShownBy: string; diagrams?: unknown[] };
+    const sl = c.featureConfig!["ship-list"] as { flipShownBy: string; diagrams?: { evidenceId: string; frames: { label: string; image: string }[] }[] };
     expect(sl.flipShownBy).toBe("heel-chart");
-    expect(sl.diagrams ?? []).toEqual([]);
+    expect(sl.diagrams?.map((d) => d.evidenceId)).toEqual(["marmalade-run"]);
+    const frames = sl.diagrams![0].frames;
+    expect(frames.map((f) => f.image)).toEqual([
+      "/assets/cases/_tallyho/ship-list-marmalade-run-before.webp",
+      "/assets/cases/_tallyho/ship-list-marmalade-run-after.webp",
+    ]);
+    for (const f of frames) {
+      expect(existsSync(`assets${f.image.slice("/assets".length)}`)).toBe(true);
+      // T-61: neutral labels, no "before/after the Lurch" and no death time.
+      expect(f.label).not.toMatch(/\b(?:before|after)\s+the\s+Lurch\b|21[:.]5\d|22[:.]4[01]|\b(?:died|dead|death|body)\b/i);
+    }
+    expect(c.locations.every((l) => l.background === `/assets/cases/_tallyho/backgrounds/${l.id}.webp`)).toBe(true);
+    expect(c.theme?.logo).toBe("/assets/cases/_tallyho/logo.webp");
   });
 });
