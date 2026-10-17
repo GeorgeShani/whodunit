@@ -83,14 +83,14 @@ function unsolvedBeats(escaped: string): EndingBeat[] {
  * on E4): accusing the real murderer with the wrong story, or losing on the gate's sequence against them, plays
  * THEIR authored ending, so every loss has the same shape (an authored scene by the accused) and the generic lines
  * only cover a case without one. Cameos by the real murderer in somebody ELSE's wrong ending are still dropped
- * (#22): them gloating over an innocent's arrest would name the killer. The weapon/key evidence are never flashed
+ * (#22): them gloating over an innocent's arrest would name the killer; the same goes for an accomplice's cameos (G1). The weapon/key evidence are never flashed
  * unless the player cited them.
  */
 function lossBeats(c: LoadedCase, accusation: Accusation): EndingBeat[] {
   const accusedName = speakerName(c, accusation.murdererId);
   const authored = c.endings?.wrong[accusation.murdererId];
-  const accusedIsMurderer = accusation.murdererId === c.solution.murdererId;
-  const kept = accusedIsMurderer ? authored : authored?.filter((l) => l.speaker !== c.solution.murdererId);
+  const culprits = new Set([c.solution.murdererId, ...(c.solution.accompliceId ? [c.solution.accompliceId] : [])]);
+  const kept = culprits.has(accusation.murdererId) ? authored : authored?.filter((l) => !culprits.has(l.speaker));
   const mine = new Set([accusation.weaponId, ...accusation.keyEvidenceIds]);
   if (kept?.length) return kept.map((l) => ({ ...toBeat(c, l, "wrong"), evidenceIds: toBeat(c, l, "wrong").evidenceIds.filter((id) => mine.has(id)) }));
   return [

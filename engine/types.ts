@@ -650,6 +650,11 @@ export const AccusationSchema = z.strictObject({
   keyEvidenceIds: z.array(IdSchema).min(1).max(5),
   /** Revealed testimony (secret ids) cited as proof; required by cases whose solution sets minKeyTestimony. */
   keyTestimonyIds: z.array(IdSchema).max(3).optional(),
+  /**
+   * G1: "Did anyone help?". A suspect id names a helper; null is the explicit "No one helped". Absent (an old client)
+   * grades as null, so it is right exactly when the case has no accomplice.
+   */
+  accompliceId: IdSchema.nullable().optional(),
 });
 export type Accusation = z.infer<typeof AccusationSchema>;
 

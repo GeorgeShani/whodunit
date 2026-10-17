@@ -215,6 +215,10 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const s = c.solution;
   const murderer = c.characters.find((ch) => ch.id === s.murdererId);
   if (!murderer) issues.push({ file: SOL, path: "murdererId", message: `murderer "${s.murdererId}" is not a character in characters/` });
+  if (s.accompliceId !== undefined) {
+    if (!c.characters.some((ch) => ch.id === s.accompliceId)) issues.push({ file: SOL, path: "accompliceId", message: `accomplice "${s.accompliceId}" is not a character in characters/` });
+    else if (s.accompliceId === s.murdererId) issues.push({ file: SOL, path: "accompliceId", message: `the accomplice can't also be the murderer ("${s.accompliceId}")` });
+  }
   if (!evidenceIds.has(s.weaponId)) issues.push({ file: SOL, path: "weaponId", message: `weapon "${s.weaponId}" is not an evidence id in evidence.json` });
   if (!locationIds.has(s.locationId)) issues.push({ file: SOL, path: "locationId", message: `location "${s.locationId}" is not a location in case.json` });
   if (!motiveIds.has(s.motiveId)) issues.push({ file: SOL, path: "motiveId", message: `motive "${s.motiveId}" is not one of case.json motives[].id` });
@@ -272,7 +276,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   }
 
   for (const ch of c.characters) {
-    if (ch.id !== s.murdererId && ch.secrets.length === 0) {
+    if (ch.id !== s.murdererId && ch.id !== s.accompliceId && ch.secrets.length === 0) {
       issues.push({ file: charFile(ch.id), path: "secrets", message: `innocent "${ch.id}" needs at least one secret (red herrings keep the game fun)` });
     }
   }
@@ -410,7 +414,7 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
       const p = `secrets(${sec.id})`;
       if (sec.revealConditions) warnings.push({ file: charFile(ch.id), path: `${p}.revealConditions`, message: "is coreGuilt, so it is never revealed in interrogation: these reveal conditions are ignored (remove them)" });
       if (sec.testimonySummary) warnings.push({ file: charFile(ch.id), path: `${p}.testimonySummary`, message: "is coreGuilt, so it never becomes a testimony card: this summary is never shown" });
-      if (ch.id !== c.solution.murdererId) warnings.push({ file: charFile(ch.id), path: p, message: `is coreGuilt but ${ch.id} is not the solution's murderer (fine for an accomplice; check it is intended)` });
+      if (ch.id !== c.solution.murdererId && ch.id !== c.solution.accompliceId) warnings.push({ file: charFile(ch.id), path: p, message: `is coreGuilt but ${ch.id} is not the solution's murderer (fine for an accomplice; check it is intended)` });
     }
   }
 
