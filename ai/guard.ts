@@ -24,6 +24,7 @@ import { coreGuiltSecretIds, type CulpritAct, type GuiltProfile } from "@/engine
 import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
+import { caseWorld } from "./world";
 import { findGuiltLeak, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
 import { freshPick, recentReplies, repeatsRecentReply, sameAction, saidRecently } from "./delivery";
@@ -77,7 +78,8 @@ export interface GuardReply {
 }
 
 export interface GuardInput {
-  caseData: Pick<LoadedCase, "characters" | "victim"> & Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution">>;
+  caseData: Pick<LoadedCase, "characters" | "victim"> &
+    Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution" | "setting" | "orderLandmarks" | "orderWords">>;
   characterId: string;
   ctx: CharacterContext;
   directives: TurnDirectives;
@@ -242,7 +244,8 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   }
 
   // 4. Order of events (#26).
-  const order = checkOrder(said, g.ctx, g.directives.revealSecret ?? null);
+  const world = caseWorld(g.caseData);
+  const order = checkOrder(said, g.ctx, g.directives.revealSecret ?? null, world.order);
   if (!order.ok) {
     return {
       reason: "event_order",
@@ -271,8 +274,12 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   if (g.directives.breakdown && !isOutburst(r.dialogue)) {
     return { reason: "no_outburst", note: `This turn is your BREAKDOWN: burst out loud, panicked, furious or sobbing. Your dialogue must contain ${outburstRuleText()}. Still admit nothing new.`, detail: "" };
   }
-  const modern = findModernWord(said, g.heard);
-  if (modern) return { reason: "modern_word", note: `You used the modern word "${modern}". A 1920s character would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`, detail: modern };
+  const { setting } = caseWorld(g.caseData);
+  const modern = findModernWord(said, g.heard, setting.isDefault ? undefined : setting);
+  if (modern) {
+    const who = setting.isDefault ? "A 1920s character" : `Someone living ${setting.place} in ${setting.era}`;
+    return { reason: "modern_word", note: `You used the modern word "${modern}". ${who} would never say or repeat it; react with period bafflement ("A what, sir?") without the word.`, detail: modern };
+  }
   return null;
 }
 

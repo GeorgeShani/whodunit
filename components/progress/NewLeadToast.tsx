@@ -35,7 +35,7 @@ export function NewLeadToast({ lead, onDone, holdMs = NEW_LEAD_TOAST_MS }: { lea
             animate={{ y: 0, rotate: -1.5, opacity: 1 }}
             exit={{ y: 40, opacity: 0 }}
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
-            className="pointer-events-none max-w-sm rounded-2xl border-4 border-black bg-yellow-300 px-4 py-1.5 text-black shadow-[4px_4px_0_#000]"
+            className="pointer-events-none max-w-sm rounded-2xl border-4 border-black bg-accent px-4 py-1.5 text-ink shadow-[4px_4px_0_#000]"
           >
             <span className="block font-display text-xl leading-tight tracking-wider">{lead.state === "closed" ? "LEAD SOLVED!" : "NEW LEAD!"}</span>
             <span className="block text-sm font-bold leading-snug">{lead.title}</span>

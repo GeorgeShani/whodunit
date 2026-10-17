@@ -15,7 +15,7 @@ export function StagePreview({ suspects, art }: { suspects: PublicSuspect[]; art
   const b = suspects.find((s) => s.id === right) ?? suspects[0];
   if (!a || !b) return <p>No suspects.</p>;
   const pick = (value: string | undefined, set: (v: string) => void) => (
-    <select value={value} onChange={(e) => set(e.target.value)} className="rounded border-2 border-black bg-white px-2 text-black">
+    <select value={value} onChange={(e) => set(e.target.value)} className="rounded border-2 border-black bg-white px-2 text-ink">
       {suspects.map((s) => (
         <option key={s.id} value={s.id}>
           {s.name}
@@ -29,7 +29,7 @@ export function StagePreview({ suspects, art }: { suspects: PublicSuspect[]; art
         <strong>Stage preview (dev only)</strong>
         {pick(left, setLeft)}
         {pick(right, setRight)}
-        <select value={emotion} onChange={(e) => setEmotion(e.target.value as Emotion)} className="rounded border-2 border-black bg-white px-2 text-black">
+        <select value={emotion} onChange={(e) => setEmotion(e.target.value as Emotion)} className="rounded border-2 border-black bg-white px-2 text-ink">
           {EmotionSchema.options.map((e) => (
             <option key={e}>{e}</option>
           ))}

@@ -13,6 +13,7 @@
  * reading may mean h or h+12. Anything not in the allowed set fails the check,
  * and the caller retries once, then falls back.
  */
+import { bannedWordsRegex as bannedRegex, singularWord } from "@/engine/presentation";
 import type { CharacterContext } from "@/engine/context-builder";
 import type { TurnDirectives } from "./prompts/interrogation";
 
@@ -311,10 +312,25 @@ const MODERN_CASED = /\bAI\b/;
 /** "any prompt", "the prompt" (the model echoing a request for its prompt, #13) but not "a prompt reply" or "promptly". */
 const MODERN_PROMPT = /\b(?:any|the|your|my|this|that|some|no)\s+prompts?\b(?!\s+(?:reply|response|answer|payment|action|service|attention|departure|return|dispatch))/i;
 
+/** A case's vocabulary (setting.vocabulary): `allowed` wins over every list; `banned` adds words or phrases. */
+export interface Vocabulary {
+  allowed?: readonly string[];
+  banned?: readonly string[];
+}
+
 /** Returns the first modern/meta word found in the text, or null. */
-export function findModernWord(text: string, heard = ""): string | null {
+export function findModernWord(text: string, heard = "", vocab?: Vocabulary): string | null {
   // "prompt" is a fine old word ("a prompt reply"), so it is only banned when the detective just said it (an echo, #13) or used as a noun.
   const echo = /\bprompts?\b/i.test(heard) ? /\bprompts?\b/i.exec(text) : null;
-  const m = MODERN_WORDS.exec(text) ?? MODERN_CASED.exec(text) ?? MODERN_PROMPT.exec(text) ?? echo;
+  if (!vocab?.allowed?.length && !vocab?.banned?.length) {
+    const m = MODERN_WORDS.exec(text) ?? MODERN_CASED.exec(text) ?? MODERN_PROMPT.exec(text) ?? echo;
+    return m ? m[0] : null;
+  }
+  const allowed = new Set((vocab.allowed ?? []).map(singularWord));
+  const ok = (w: string) => !allowed.has(singularWord(w));
+  const listed = [...text.matchAll(new RegExp(MODERN_WORDS.source, "gi")), ...(bannedRegex(vocab.banned) ? text.matchAll(bannedRegex(vocab.banned)!) : [])]
+    .filter((m) => ok(m[0]))
+    .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))[0];
+  const m = listed ?? MODERN_CASED.exec(text) ?? MODERN_PROMPT.exec(text) ?? echo;
   return m ? m[0] : null;
 }

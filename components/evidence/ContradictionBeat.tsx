@@ -62,7 +62,7 @@ export function ContradictionBeat({ beat, onDone }: { beat: ContradictionBeatDat
             >
               {beat.title}
             </motion.p>
-            <p className="relative mt-3 rounded-2xl border-4 border-black bg-white px-4 py-2 text-center text-lg font-black text-black shadow-[5px_5px_0_#000]">
+            <p className="relative mt-3 rounded-2xl border-4 border-black bg-white px-4 py-2 text-center text-lg font-black text-ink shadow-[5px_5px_0_#000]">
               {beat.line}
             </p>
           </div>

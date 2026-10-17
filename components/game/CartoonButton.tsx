@@ -6,9 +6,9 @@ import { getAudio } from "@/components/effects/audio";
 type Tone = "red" | "yellow" | "white" | "violet";
 const TONES: Record<Tone, string> = {
   red: "bg-red-500 text-white hover:bg-red-400",
-  yellow: "bg-yellow-300 text-black hover:bg-yellow-200",
-  white: "bg-white text-black hover:bg-yellow-50",
-  violet: "bg-violet-400 text-black hover:bg-violet-300",
+  yellow: "bg-accent text-ink hover:bg-yellow-200",
+  white: "bg-white text-ink hover:bg-yellow-50",
+  violet: "bg-violet-400 text-ink hover:bg-violet-300",
 };
 
 export function CartoonButton({

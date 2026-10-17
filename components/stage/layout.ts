@@ -46,7 +46,7 @@ export function spriteBoxStyle(slot: StageSlot) {
   } as const;
 }
 
-/** Feet-to-head height of a character, % of frame height (Reginald ≈ 61.3%). */
+/** Feet-to-head height of a character, % of frame height (a regular build ≈ 61.3%). */
 export function figureHeightPct(portrait: string, pose = "neutral"): number | null {
   const a = ANCHORS.sprites[portrait]?.[pose];
   if (!a) return null;
@@ -60,17 +60,17 @@ function bodyHalfWidth(portrait: string): number | null {
 }
 
 const BASE_SHADOW_PCT = 32;
-const REFERENCE = "reginald";
+/** A regular build's rear body half-width in canvas px (neutral pose): BASE_SHADOW_PCT is the shadow at this width. */
+const REFERENCE_HALF_WIDTH = 165;
 
 /**
  * Contact-shadow width, % of the sprite box width: ≈32% for a regular build,
- * wider for wide characters (≈68% for Archibald), derived from anchors.json.
+ * wider for wide characters (≈66% for the widest cast member today), derived from anchors.json.
  */
 export function contactShadowPct(portrait: string): number {
-  const ref = bodyHalfWidth(REFERENCE);
   const me = bodyHalfWidth(portrait);
-  if (!ref || !me) return BASE_SHADOW_PCT;
-  return Math.min(72, Math.max(24, (BASE_SHADOW_PCT * me) / ref));
+  if (!me) return BASE_SHADOW_PCT;
+  return Math.min(72, Math.max(24, (BASE_SHADOW_PCT * me) / REFERENCE_HALF_WIDTH));
 }
 
 /**

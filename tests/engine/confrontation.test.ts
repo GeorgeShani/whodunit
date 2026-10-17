@@ -4,7 +4,7 @@ import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { CONFRONTATION_PRESSURE, MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS, openConfrontation, pairKey, spendExchange, testimonyToThrow, totalExchanges } from "@/engine/confrontation";
 import { createInitialGameState } from "@/engine/game-state";
-import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, tamperedTokenForTests, unverifiedPayload } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
@@ -90,11 +90,11 @@ describe("confrontation rules (MASTER_PLAN §32-33)", () => {
     openConfrontation(g, "victoria", "gregory");
     spendExchange(g);
     const token = tok(g);
-    const [v, body, sig] = token.split(".");
-    const p = JSON.parse(Buffer.from(body, "base64url").toString());
-    expect(p.pairTurns).toEqual({ "gregory|victoria": 1 });
-    p.pairTurns = {};
-    expect(decodeStateToken([v, Buffer.from(JSON.stringify(p)).toString("base64url"), sig].join("."), c, TEST_ENV)).toMatchObject({ ok: false, reason: "bad_signature" });
+    expect(unverifiedPayload(token)!.pairTurns).toEqual({ "gregory|victoria": 1 });
+    const forged = tamperedTokenForTests(token, (p) => {
+      p.pairTurns = {};
+    });
+    expect(decodeStateToken(forged, c, TEST_ENV)).toMatchObject({ ok: false, reason: "bad_signature" });
   });
 
   it("the addressed suspect throws their own admission at the partner only when it bears on the partner's lies", () => {

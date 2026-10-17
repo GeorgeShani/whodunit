@@ -24,6 +24,12 @@ import { callGrok, isModelDown, isQuotaFailure, type GrokFailure, type GrokResul
 import type { ModelDownKind } from "./model-down";
 import type { Contradiction } from "./interrogate-schema";
 import { buildSystemPrompt, buildUserMessage, type ConfrontDirective, type TurnDirectives } from "./prompts/interrogation";
+import { caseWorld } from "./world";
+
+const vocabOf = (c: Parameters<typeof caseWorld>[0]) => {
+  const s = caseWorld(c).setting;
+  return s.isDefault ? undefined : s;
+};
 import type { CharacterResponse } from "./schemas";
 
 type Env = Record<string, string | undefined>;
@@ -111,7 +117,8 @@ export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel" 
   const scrub = <T extends { text: string }>(m: T): T => (findGuiltLeak(m.text, guilt, characterId) ? { ...m, text: "(I have nothing more to say about that.)" } : m);
   ctx.memory = ctx.memory.map((m) => (m.speaker === "character" ? scrub(m) : m));
   ctx.statements = ctx.statements.map(scrub);
-  const system = buildSystemPrompt(ctx, directives);
+  const world = caseWorld(caseData);
+  const system = buildSystemPrompt(ctx, directives, world);
   const user = t.userMessage ? t.userMessage(ctx) : buildUserMessage(ctx, question, t.confrontation ? { partnerName: t.confrontation.partnerName } : {});
   // Canon post-check (#6): every clock time must come from this character's context (or what was just said to them).
   const heard = [question, t.confrontation?.partnerLine ?? ""].join(" ");
@@ -161,7 +168,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     response = { ...reply, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
     // #52: delivery variety, deterministic and free: trim an opener used N times in a row, swap a repeated action,
     // drop a sentence repeated from the last replies. Only removes or swaps delivery; never adds a fact.
-    const varied = varyDelivery(response, ctx, game.turn, (a) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a));
+    const varied = varyDelivery(response, ctx, game.turn, (a) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a, "", vocabOf(caseData)));
     if (varied.changes.length) {
       const { action: _a, ...rest } = response;
       void _a;
@@ -182,8 +189,8 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
       // deflection keyed to the character and their stress, no third call.
       // Authored voice.deflections are used only if they pass the same checks a model line would (#52).
       const isSafe = (line: string) =>
-        !findReplyGuiltLeak({ dialogue: line }, "", guard.guilt, characterId) && !findForbiddenPhrase(line, ch.forbiddenPhrases, forbiddenStateOf(guard)) && !findModernWord(line);
-      const isSafeAction = (a: string) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a);
+        !findReplyGuiltLeak({ dialogue: line }, "", guard.guilt, characterId) && !findForbiddenPhrase(line, ch.forbiddenPhrases, forbiddenStateOf(guard)) && !findModernWord(line, "", vocabOf(caseData));
+      const isSafeAction = (a: string) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a, "", vocabOf(caseData));
       const d = safeDeflection(ctx, rejected.reason, game.turn, isSafe, isSafeAction);
       response = { ...response, dialogue: d.dialogue, action: d.action, emotion: d.emotion, intensity: 0.6 };
     } else if (t.confrontation && !presentedEvidenceId) {

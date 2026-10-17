@@ -149,6 +149,19 @@ won: murdererCorrect && accompliceCorrect && weaponCorrect && motiveCorrect && h
 - Win: `correct.confession` already allows any speakers; `components/ending/sequence.ts` `castAt` already shows two actors. The `escaped` beat shows the doer alone (acceptable; revisit if art wants both).
 - `case-validation.ts`: "missing wrong ending" applies to the accomplice too; the "innocent needs a secret" rule (`ch.id !== s.murdererId` today) excludes both culprits; the opportunity rule also runs for `accompliceAct` (V5). None of these accomplice checks exist anywhere yet, not even in Blackwood's tests.
 
+**Built (G1, ahead of phase 5, so #62 can merge):**
+- `solution.accompliceId?` and `Accusation.accompliceId?: Id | null` (null is "No one helped"; absent grades as null).
+- Strict `gradeAccusation`. `accompliceCorrect` is on the grade only when the case has a helper or the player named one, so Blackwood's grade goldens are byte-identical. It never reaches the client.
+- `handleAccuse` rejects `unknown_suspect` and `accomplice_is_murderer`.
+- The token validates a stored helper.
+- `lossBeats` drops either culprit's cameo.
+- Validator: V4 for the helper; the helper is exempt from "innocent needs a secret" and from the coreGuilt warning.
+- H3 / DX14: `storedOutcomeBody` rebuilds with the helper, and `closed_games.accomplice_id` is a nullable column (migration `drizzle/0001_closed_games_accomplice.sql`).
+
+**Apply the migration (`npm run db:migrate`) before deploying this code.** Drizzle names every column in its selects and inserts, so the new code fails accusations closed (503) on an un-migrated table. Old code ignores the column.
+
+Still phase 5: the picker UI and the role wording, `AccuseVerdict`/`SolutionReveal`/summary rows, `accompliceAct`, `keyTestimonyGroups`, and the accomplice's core guilt. Until the picker lands, the client sends no helper answer, so a two-culprit case can't be won from the UI.
+
 ### 3.2 The always-visible "Did anyone help?" picker (decided)
 
 **Decided (Agatha):** the accuse screen always shows "Did anyone help?" with an explicit "No one helped" answer; nothing is preselected; **Submit stays disabled until an answer is picked.** Reason: an always-visible picker means single-culprit cases do not tip off that a case has an accomplice.
@@ -703,6 +716,7 @@ Facts: `TOKEN_VERSION = "v1"`; `verifiedPayload` rejects any other version; `Tok
 | **B** | v1 and v2 | **v2** (deflate-compressed payload, same HMAC secret and signing scheme, `v2.` prefix) | New tokens are smaller. Existing v1 tokens are re-encoded as v2 on the next action. |
 | **C** (later) | v2 only | v2 | Remove v1 once the v1 population has aged out (the session lifetime is one browser session; a few days is ample). |
 
+- **As built (phase 4):** A and B shipped in one release, so R11 applies once: a rollback to pre-v2 code would reset games holding a v2 token, with the in-character `RESET_NOTICE` (the same as any bad token). There's no crash and no other data loss. A v1 token still decodes and comes back as v2 on the next action. Trimming only drops the oldest chat memory, the longest history first, and only if a token would still be over the cap. `restoreSession` still treats an over-cap token as `malformed`, because the encoder never issues one.
 - **Rollback (R11):** if B is rolled back, tokens already issued as v2 would be rejected as malformed. Mitigation: A has been live long enough that the previous release (A) still decodes v2. The release plan forbids deploying B without A having been in production.
 - **Size budget (`TOKEN_BUDGET`, per case):** `engine/state-token.ts` computes the encoded size on every encode; above, say, 80% of the cap it **trims** oldest-first: memory entries beyond a lower count, old statement text to its summary, then old `claims`. It never trims facts, secrets, evidence, or progress state (the things the engine needs for correctness). `restoreSession` no longer treats "too big" as `malformed`. Compression may make trimming unnecessary (Q8); trimming stays as the safety net because the token travels in every request body and the right ceiling should be checked against platform request-size limits (R1; not verified here).
 - **`MAX_*` constants in the schema.** With per-case confrontation limits the schema ceiling must be raised and the case value enforced at runtime (3.6); a token with `turnsUsed` above the case value is rejected by `spendExchange`, not by the schema.
@@ -768,7 +782,7 @@ Owners follow the studio roles in `docs/MASTER_PLAN.md`: Dexter (engineering), A
 | 1 | **Progression** | **DONE.** Engine (`5831a5e..4709822`), UI (`5610094`), Blackwood data (#36), authoring guide (#35). Left over: see 3.7 (simulator confront move; optional atoms) which sit in phases 5 and 8. | done | about 20 shipped | |
 | 2 | **Decisions and golden snapshots** | George answers the remaining open questions that block phase 3 onward (Q3, Q7); Blackwood golden snapshots (with progression); the max-chat token fixture; the "no source change for a new case" CI check | S | 2 | |
 | 3 | **Case-agnostic hardening** | `setting` (place, decade, dateLine, site, authority, roster, vocabulary), `theme` + theme provider, `orderLandmarks` (Blackwood's five move to its data), per-case `ABSENCE`/`MOVEMENT` word lists for the order check (design 3.6, audit DX5), per-case audio hook (the clue-art resolver is already built, F12), `REFERENCE`, `ART_DEFAULTS`, widen the case-agnostic test | L | 10 to 14 | 2 |
-| 4 | **Token v2** | Release A (decode v1+v2, encode v1), Release B (encode v2, deflate, budget trimming), tests; plan Release C | M | 4 to 6 | 2 |
+| 4 | **Token v2** | **BUILT (this PR).** Releases A and B shipped together: the code decodes v1 and v2 and encodes v2 (deflateRaw level 9, the same HMAC and key, an inflate cap of 512 KB), with oldest-memory trimming as a safety net only. Worst-case max-chat tokens are 22.4K at 4 suspects (was 63.8K) and 32.6K at 6 suspects (cap 60K), in `tests/fixtures/token/max-chat.json`. Release C (drop v1) is still to plan. | M | 4 to 6 | 2 |
 | 5 | **Two-culprit grading and the picker** | `accompliceId`/`accompliceAct` in solution, accusation, token; `gradeAccusation`; verdict, reveal and summary row; `lossBeats`; the picker UI with role wording (3.2); validator rules V4 to V6; core guilt and the guilt check for the accomplice (3.9, DX1 to DX4, DX10, DX11; V33, V34); fixture `two-hands`; `keyTestimonyGroups` (required for Tallyho per the audit, Q9) | M | 10 to 13 | 3, 4 |
 | 6 | **Feature framework and the two modules** | `engine/features/*`; `time-misdirection`; `ship-list`; client slots; module tests | M | 6 to 9 | 5 |
 | 7 | **6-suspect UI and confrontation** | `suspectLayout`, compact cards, accuse grid, Notebook Testimony tab, per-case confrontation limits, per-pair chips and counter, `check:overflow` updated | M | 7 to 10 | 5 |
@@ -776,6 +790,15 @@ Owners follow the studio roles in `docs/MASTER_PLAN.md`: Dexter (engineering), A
 | 9 | **Tallyho content, art and sound** | JSON (Agatha, in `cases/_tallyho`), art and anchors (Toon), ship beds and cue overrides (Toon), timeline generator; stays under the `_` prefix until phase 11 | L | 12 to 20 (mostly JSON) | 8 for validation; art can start earlier |
 | 10 | **Case unlock** (3.8) | `unlockedBy` in schema, registry and validator (V31); `lib/solved-store.ts` + tests; `CaseGate` / `LockedScreen`; "NEXT CASE" on the win screen and "Next case" on the title; `markSolved` on a win | S to M | 4 to 6 | 3 |
 | 11 | **Release hardening** | live soak and fixes, `check:overflow` screenshots reviewed, accessibility pass, `publish:case` (rename to `tallyho`), verify the unlock end to end on a real device (win Blackwood, land on Tallyho), analytics decision (Q13) | S to M | 3 to 5 | 9, 10 |
+
+**Phase 3 left-overs (tracked in [#63](https://github.com/GeorgeShani/whodunit/issues/63), later sweep):** these Blackwood-flavoured bits are still hard-coded:
+- the model-down lines in `ai/model-down.ts` ("The old house creaks…", "The line is still dead… rooms of the house");
+- `CONFRONT_LINES.unknown_character` ("You glance around the hall");
+- the lights example in the default `ORDER_RULE` and in the event_time retry note in `ai/guard.ts`;
+- the gradient colours `#2a1650` and `#3b1d6e`;
+- the shocked badge (`bg-yellow-300`, `components/effects/emotion-map.ts`).
+
+Audio stays flat in `assets/audio/` until Q14 is decided.
 
 **Totals:** remaining engineering is about **58 to 79 commits** (the audit's section 3.9 adds 3 to 4 to phase 5) (phases 2 to 8, 10 and 11); progression's roughly 20 are already shipped (the first plan counted 60 to 85 with it). **Critical path:** 3 -> 5 -> 6 -> 8 -> 9 -> 11. Phases 4 and 7 run in parallel with it, and the scaffold/template/validator-move part of phase 8 can start right after phase 3, so Agatha gets the tooling before Tallyho content (phase 9) starts. Art (phase 9) can start as soon as the design is approved, since it depends only on `docs/ART_BIBLE.md` and the asset list in `TALLYHO_DESIGN.md` section 10.
 

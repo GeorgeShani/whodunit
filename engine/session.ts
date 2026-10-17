@@ -3,6 +3,7 @@
  * so every route (interrogate, investigate, later confront/accuse) shares the
  * SAME token format and reset behaviour.
  */
+import { inSetting, settingOf } from "./presentation";
 import type { LoadedCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
 import { decodeStateToken, encodeStateToken, newGameId, type DecodeOptions, type Env } from "./state-token";
@@ -37,7 +38,7 @@ export function restoreSession(
   const game = createInitialGameState(caseData);
   game.gameId = newGameId();
   if (decoded.reason === "missing") return { game };
-  return { game, notice: decoded.reason === "expired" ? COLD_CASE_NOTICE : RESET_NOTICE, resetReason: decoded.reason };
+  return { game, notice: decoded.reason === "expired" ? inSetting(COLD_CASE_NOTICE, settingOf(caseData)) : RESET_NOTICE, resetReason: decoded.reason };
 }
 
 export function saveSession(game: GameState, env?: Env): string {

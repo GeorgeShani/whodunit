@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { loadCase } from "@/engine/case-loader";
 import { AssetPathSchema } from "@/engine/types";
 import { getPublicCaseView } from "@/engine/public-view";
-import { ART_DEFAULTS, assetExists, resolveCaseArt, resolveStageArt } from "@/lib/case-art";
+import { DEFAULT_BACKDROPS, assetExists, resolveCaseArt, resolveStageArt } from "@/lib/case-art";
 import { FIXTURES_DIR } from "../helpers/fixture";
 
 describe("case art resolution", () => {
@@ -23,12 +23,19 @@ describe("case art resolution", () => {
   it("drops art whose file doesn't exist", async () => {
     const base = getPublicCaseView(await loadCase("harbor-light", FIXTURES_DIR));
     const view = resolveCaseArt({ ...base, backdrops: { interrogation: "/assets/backgrounds/nope.webp" }, locations: base.locations.map((l) => ({ ...l, background: "/assets/backgrounds/nope.webp" })) });
-    expect(view.backdrops).toEqual({});
+    expect(view.backdrops).toEqual(DEFAULT_BACKDROPS); // the missing interrogation art is dropped; the shared default stays
     expect(view.locations.every((l) => !l.background)).toBe(true);
   });
 
-  it("every stopgap default points at a real asset", () => {
-    for (const b of Object.values(ART_DEFAULTS)) for (const p of Object.values(b)) expect(assetExists(p as string), p).toBe(true);
+  it("theme art that doesn't exist is dropped; art that exists is kept", async () => {
+    const base = getPublicCaseView(await loadCase("harbor-light", FIXTURES_DIR));
+    const gone = resolveCaseArt({ ...base, theme: { palette: { accent: "#ffcc00" }, logo: "/assets/cases/harbor-light/nope.webp" } });
+    expect(gone.theme).toEqual({ palette: { accent: "#ffcc00" } });
+    expect(resolveCaseArt(base).theme).toBeUndefined();
+  });
+
+  it("every shared default points at a real asset", () => {
+    for (const p of Object.values(DEFAULT_BACKDROPS)) expect(assetExists(p as string), p).toBe(true);
   });
 
   it.each(["/assets/../secret.webp", "https://evil.test/x.webp", "/assets/backgrounds/x.webp?x=1", "assets/x.webp", "/assets/x.exe", "/assets/a/..b/x.png"])(

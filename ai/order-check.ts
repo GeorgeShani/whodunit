@@ -12,6 +12,7 @@
  * mapped is left alone: the check only rejects a clear conflict.
  */
 import type { CharacterContext } from "@/engine/context-builder";
+import type { OrderLandmark, OrderWords } from "@/engine/presentation";
 import { buildSubjects } from "./canon-check";
 
 interface LandmarkDef {
@@ -21,8 +22,11 @@ interface LandmarkDef {
   say: RegExp;
   /** How a knowledge statement describes it. */
   fact: RegExp;
+  /** Which matching fact times it (default the earliest). */
+  pick?: "earliest" | "latest";
 }
 
+/** The default landmarks, for a case with no `orderLandmarks` (phase 3: identical to before; `[]` turns them off). */
 const LANDMARKS: LandmarkDef[] = [
   {
     id: "blackout",
@@ -53,6 +57,8 @@ const LANDMARKS: LandmarkDef[] = [
     label: "the lights come back on",
     say: /\blights?\s+(?:came|come|went|were)\s+(?:back\s+on|on\s+again|restored)|\bpower\s+(?:came|returned)\s+back|\blights?\s+(?:were\s+)?restored\b/gi,
     fact: /\blights?\b[^.]{0,30}\b(?:come|came)\s+back|restored/i,
+    // "lights come back on" also matches the blackout's own statement ("They stay out until 21:38"): the blackout is its earliest, restored its latest.
+    pick: "latest",
   },
 ];
 
@@ -68,23 +74,63 @@ export interface Landmark {
   minute: number;
 }
 
-/** The evening's landmarks, timed from what this character knows (earliest matching fact wins). */
-export function landmarksOf(ctx: CharacterContext): Landmark[] {
+/** Words that make a clause a claim about the speaker's (or someone's) own absence / movement. */
+const ABSENCE =
+  /\b(?:slipp?ed\s+(?:away|out|off)|stepp?ed\s+(?:away|out)|left\s+(?:the\s+)?(?:dining\s+room|room|table|fire)|(?:went|going|gone|nipped|popped)\s+(?:off\s+)?to\s+(?:use\s+|make\s+)?(?:the\s+)?(?:servants'?\s+)?(?:tele)?phone|(?:was|were|am|is)\s+(?:away|gone|absent|on\s+the\s+(?:servants'?\s+)?(?:tele)?phone)|(?:tele)?phon(?:ed|ing)|(?:tele)?phone\s+call|(?:was|were)\s+(?:out\s+of|not\s+in)\s+the\s+(?:dining\s+)?room|absent|away)\b/i;
+/** Knowledge statements describing a person's own comings and goings. */
+const MOVEMENT = /\b(?:leav(?:e|es|ing)|left|away|slip|telephon|phone|return|comes?\s+back|came\s+back|back\s+to|step|excus|goes?\s+to|went\s+to)/i;
+
+/** The default landmarks written as case data (`orderLandmarks`): what a case would author to keep today's check. */
+export const defaultOrderLandmarks = (): OrderLandmark[] =>
+  LANDMARKS.map((l) => ({ id: l.id, label: l.label, say: [l.say.source], fact: [l.fact.source], ...(l.pick ? { pick: l.pick } : {}) }));
+
+/** One case's compiled order check: its landmarks and its absence/movement words. */
+export interface OrderConfig {
+  landmarks: LandmarkDef[];
+  absence: RegExp;
+  movement: RegExp;
+}
+
+const DEFAULT_ORDER: OrderConfig = { landmarks: LANDMARKS, absence: ABSENCE, movement: MOVEMENT };
+const alt = (ps: readonly string[]) => ps.map((p) => `(?:${p})`).join("|");
+const extend = (base: RegExp, extra: readonly string[] | undefined) => (extra?.length ? new RegExp(`${base.source}|\\b(?:${alt(extra)})\\b`, "i") : base);
+const compiled = new WeakMap<object, OrderConfig>();
+
+/**
+ * The order check for a case (compiled once per case object): its `orderLandmarks` (else the defaults; `[]` = none)
+ * and the default absence/movement words plus its `orderWords`. Patterns are validated by the schema (SafePattern).
+ */
+export function orderConfig(c?: { orderLandmarks?: readonly OrderLandmark[]; orderWords?: OrderWords } | null): OrderConfig {
+  if (!c || (c.orderLandmarks === undefined && c.orderWords === undefined)) return DEFAULT_ORDER;
+  const hit = compiled.get(c);
+  if (hit) return hit;
+  const cfg: OrderConfig = {
+    landmarks:
+      c.orderLandmarks?.map((l) => ({ id: l.id, label: l.label, say: new RegExp(`\\b(?:${alt(l.say)})`, "gi"), fact: new RegExp(alt(l.fact), "i"), ...(l.pick ? { pick: l.pick } : {}) })) ??
+      LANDMARKS,
+    absence: extend(ABSENCE, c.orderWords?.absence),
+    movement: extend(MOVEMENT, c.orderWords?.movement),
+  };
+  compiled.set(c, cfg);
+  return cfg;
+}
+
+/** The evening's landmarks, timed from what this character knows (earliest matching fact wins unless `pick` is "latest"). */
+export function landmarksOf(ctx: CharacterContext, cfg: OrderConfig = DEFAULT_ORDER): Landmark[] {
   const out: Landmark[] = [];
-  for (const def of LANDMARKS) {
+  for (const def of cfg.landmarks) {
     const hits = ctx.knowledge
       .filter((k) => def.fact.test(k.statement))
       .map((k) => hm(k.time) ?? hm(k.from))
       .filter((m): m is number => m !== null);
-    // "lights come back on" also matches the blackout's own statement ("They stay out until 21:38"): the blackout is its earliest, restored its latest.
-    if (hits.length) out.push({ id: def.id, label: def.label, minute: def.id === "lights-back" ? Math.max(...hits) : Math.min(...hits) });
+    if (hits.length) out.push({ id: def.id, label: def.label, minute: def.pick === "latest" ? Math.max(...hits) : Math.min(...hits) });
   }
   return out.sort((a, b) => a.minute - b.minute);
 }
 
 /** "THE EVENING IN ORDER" prompt lines (public landmarks only, from the character's own knowledge). */
-export function orderLines(ctx: CharacterContext): string[] {
-  const ls = landmarksOf(ctx);
+export function orderLines(ctx: CharacterContext, cfg: OrderConfig = DEFAULT_ORDER): string[] {
+  const ls = landmarksOf(ctx, cfg);
   if (ls.length < 2) return [];
   return [
     "THE EVENING IN ORDER (landmarks you can use; the order and the times are fixed):",
@@ -96,11 +142,11 @@ export function orderLines(ctx: CharacterContext): string[] {
 export const ORDER_RULE =
   "Say WHEN you did something with the clock time from WHAT YOU KNOW, or tie it to ONE landmark from THE EVENING IN ORDER exactly as it is listed there. Never invent a stretch of time between two events (\"from after the lights went out till the candles\") and never put an event before one that comes first in that list.";
 
-/** Words that make a clause a claim about the speaker's (or someone's) own absence / movement. */
-const ABSENCE =
-  /\b(?:slipp?ed\s+(?:away|out|off)|stepp?ed\s+(?:away|out)|left\s+(?:the\s+)?(?:dining\s+room|room|table|fire)|(?:went|going|gone|nipped|popped)\s+(?:off\s+)?to\s+(?:use\s+|make\s+)?(?:the\s+)?(?:servants'?\s+)?(?:tele)?phone|(?:was|were|am|is)\s+(?:away|gone|absent|on\s+the\s+(?:servants'?\s+)?(?:tele)?phone)|(?:tele)?phon(?:ed|ing)|(?:tele)?phone\s+call|(?:was|were)\s+(?:out\s+of|not\s+in)\s+the\s+(?:dining\s+)?room|absent|away)\b/i;
-/** Knowledge statements describing a person's own comings and goings. */
-const MOVEMENT = /\b(?:leav(?:e|es|ing)|left|away|slip|telephon|phone|return|comes?\s+back|came\s+back|back\s+to|step|excus|goes?\s+to|went\s+to)/i;
+/** ORDER_RULE for a case: its example names the default landmarks, so a case with its own list gets the rule without it. */
+export const orderRule = (cfg: OrderConfig): string =>
+  cfg === DEFAULT_ORDER
+    ? ORDER_RULE
+    : "Say WHEN you did something with the clock time from WHAT YOU KNOW, or tie it to ONE landmark from THE EVENING IN ORDER exactly as it is listed there. Never invent a stretch of time between two landmarks and never put an event before one that comes first in that list.";
 
 interface Mention {
   def: LandmarkDef;
@@ -108,9 +154,9 @@ interface Mention {
   end: number;
 }
 
-function mentions(text: string): Mention[] {
+function mentions(text: string, landmarks: readonly LandmarkDef[]): Mention[] {
   const out: Mention[] = [];
-  for (const def of LANDMARKS) {
+  for (const def of landmarks) {
     for (const m of text.matchAll(new RegExp(def.say.source, "gi"))) out.push({ def, start: m.index ?? 0, end: (m.index ?? 0) + m[0].length });
   }
   out.sort((a, b) => a.start - b.start);
@@ -131,15 +177,15 @@ export interface OrderResult {
  * movements: the window it describes must overlap when they really were away; "after X" needs a
  * movement at or after X, "before X" one at or before X (1 minute of slack).
  */
-export function checkOrder(dialogue: string, ctx: CharacterContext, revealing?: { description: string } | null): OrderResult {
-  const landmarks = new Map(landmarksOf(ctx).map((l) => [l.id, l.minute]));
+export function checkOrder(dialogue: string, ctx: CharacterContext, revealing?: { description: string } | null, cfg: OrderConfig = DEFAULT_ORDER): OrderResult {
+  const landmarks = new Map(landmarksOf(ctx, cfg).map((l) => [l.id, l.minute]));
   const subjects = buildSubjects(ctx);
   const offending: string[] = [];
   let hint: string | undefined;
   const sentences = dialogue.split(/(?<=[.!?;])\s+|\n+/);
   for (const sentence of sentences) {
-    if (!ABSENCE.test(sentence)) continue;
-    const ms = mentions(sentence).filter((m) => landmarks.has(m.def.id));
+    if (!cfg.absence.test(sentence)) continue;
+    const ms = mentions(sentence, cfg.landmarks).filter((m) => landmarks.has(m.def.id));
     if (ms.length === 0) continue;
     const named = subjects.filter((s) => s.key !== ctx.persona.id && !s.key.startsWith("loc:") && s.re.test(sentence)).map((s) => s.key);
     const first = /\b(?:I|I'm|I'd|I've|me|my|myself)\b/.test(sentence);
@@ -147,7 +193,7 @@ export function checkOrder(dialogue: string, ctx: CharacterContext, revealing?: 
     if (!first && named.length === 0) continue; // nobody to hold the claim against
     // Only statements where THEY are the one moving ("Ann leaves ...", "Ann returns"), not "... leaving Ann".
     const whoSubject = subjects.find((s) => s.key === who);
-    const subjectMoves = whoSubject ? new RegExp(`(?:${whoSubject.re.source})[^.;]{0,40}?(?:${MOVEMENT.source})`, "i") : MOVEMENT;
+    const subjectMoves = whoSubject ? new RegExp(`(?:${whoSubject.re.source})[^.;]{0,40}?(?:${cfg.movement.source})`, "i") : cfg.movement;
     const moves = ctx.knowledge
       .filter((k) => subjectMoves.test(k.statement))
       .flatMap((k) => [hm(k.time), hm(k.from), hm(k.to)])
@@ -158,7 +204,7 @@ export function checkOrder(dialogue: string, ctx: CharacterContext, revealing?: 
     if (who === ctx.persona.id)
       for (const sec of [...ctx.secrets, ...(revealing ? [revealing] : [])])
         for (const part of sec.description.split(/(?<=[.!?;])\s+/))
-          if (MOVEMENT.test(part)) for (const t of part.match(/\b\d{1,2}:\d{2}\b/g) ?? []) moves.push(hm(t)!);
+          if (cfg.movement.test(part)) for (const t of part.match(/\b\d{1,2}:\d{2}\b/g) ?? []) moves.push(hm(t)!);
     if (moves.length === 0) continue;
     const lo = Math.min(...moves);
     const hi = Math.max(...moves);
@@ -185,7 +231,7 @@ export function checkOrder(dialogue: string, ctx: CharacterContext, revealing?: 
     if (bad) {
       offending.push(bad);
       const real = lo === hi ? clock(lo) : `${clock(lo)} to ${clock(hi)}`;
-      hint = `${who === ctx.persona.id ? "You were" : "They were"} actually away between ${real}; ${[...landmarks].map(([id, m]) => `${LANDMARKS.find((d) => d.id === id)!.label} at ${clock(m)}`).join(", ")}.`;
+      hint = `${who === ctx.persona.id ? "You were" : "They were"} actually away between ${real}; ${[...landmarks].map(([id, m]) => `${cfg.landmarks.find((d) => d.id === id)!.label} at ${clock(m)}`).join(", ")}.`;
     }
   }
   return { ok: offending.length === 0, offending, ...(hint ? { hint } : {}) };

@@ -121,7 +121,7 @@ export function ManualContent({
   const sections = extra ? [manual.sections[0]!, extra, ...manual.sections.slice(1)] : manual.sections;
   const sub = Math.min(level + 1, 5) as Level;
   return (
-    <div className="space-y-3 text-base leading-relaxed text-black">
+    <div className="space-y-3 text-base leading-relaxed text-ink">
       {manual.intro.length > 0 && (
         <div className="space-y-2 font-semibold">
           <Blocks blocks={manual.intro} level={sub} />

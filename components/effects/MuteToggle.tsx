@@ -46,7 +46,7 @@ export function MuteToggle() {
       title={muted ? "Sound off (click to unmute)" : "Sound on (click to mute)"}
       data-mute-toggle
       onClick={() => getAudio().toggleMuted()}
-      className="fixed right-(--hud-right) top-(--hud-top) z-[60] flex size-(--hud-btn) cursor-pointer items-center justify-center rounded-full border-[3px] border-black bg-white text-xl text-black shadow-[3px_3px_0_#000] hover:bg-yellow-100 aria-pressed:bg-neutral-300"
+      className="fixed right-(--hud-right) top-(--hud-top) z-[60] flex size-(--hud-btn) cursor-pointer items-center justify-center rounded-full border-[3px] border-black bg-white text-xl text-ink shadow-[3px_3px_0_#000] hover:bg-yellow-100 aria-pressed:bg-neutral-300"
     >
       <span aria-hidden>{muted ? "🔇" : "🔊"}</span>
     </button>

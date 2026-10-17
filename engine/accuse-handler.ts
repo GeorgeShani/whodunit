@@ -7,6 +7,7 @@
  * This is the only place solution or ending data leaves the server (and only
  * on a win: a loss never carries the solution or per-field verdict).
  */
+import { inSetting, settingOf } from "./presentation";
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { citeCaps, gradeAccusation } from "./accusation";
 import type { LoadedCase } from "./case-schema";
@@ -23,6 +24,8 @@ export const ACCUSE_LINES = {
   unknownCase: "You knock at the door of a house that isn't there. Wrong address, detective.",
   badState: "Your notebook has gone missing! You can't accuse anyone without your notes. Start the questioning afresh.",
   unknownSuspect: "You point dramatically at... a hat stand. Nobody by that name is in this house.",
+  /** G1: the same suspect named as the murderer and as their own helper. */
+  accompliceIsMurderer: "Nobody helps themselves to a murder, detective. Name someone else as the helper, or say no one helped.",
   unknownMotive: "That's not a motive anyone here could have, detective.",
   notDiscovered: "You can't cite a clue you haven't found, detective. Check your notebook.",
   testimonyNotRevealed: "You can't cite a confession nobody has made, detective. Check the testimony in your notebook.",
@@ -82,7 +85,7 @@ export interface AccusedStore {
  * Structural so the engine stays free of database code.
  */
 export interface ClosedGamesStore {
-  closeGame(input: { gameId: string; caseId: string; outcome: "won" | "lost"; accusedId: string | null }): Promise<{
+  closeGame(input: { gameId: string; caseId: string; outcome: "won" | "lost"; accusedId: string | null; accompliceId: string | null }): Promise<{
     inserted: boolean;
     record: StoredClose;
   }>;
@@ -91,6 +94,8 @@ export interface ClosedGamesStore {
 export interface StoredClose {
   outcome: "won" | "lost";
   accusedId: string | null;
+  /** G1: the named helper (null: "no one", or a row written before the column existed). */
+  accompliceId?: string | null;
 }
 
 interface AccuseDeps {
@@ -104,7 +109,8 @@ interface AccuseDeps {
 /**
  * The reply for a game the closed-games record already holds, when the full accusation is not at hand (the cache
  * record missed). Same 409 "case_closed" as a cached replay. A WIN replays the win with the solution (it was earned
- * in this game); the accusation shown is the solution's, since only the outcome and the accused are stored. A LOSS
+ * in this game); the accusation shown is the solution's, helper included (G1: without it a two-culprit win would
+ * re-grade as "no one helped", a loss), since only the outcome, the accused and the helper are stored. A LOSS
  * carries the stored outcome and the accused's reaction only: no solution, no verdict, no cited clues.
  */
 function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: StoredClose, sentToken: string, env?: Env): AccuseResponseBody {
@@ -113,6 +119,7 @@ function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: Stored
     const s = caseData.solution;
     const accusation: Accusation = {
       murdererId: s.murdererId,
+      ...(s.accompliceId ? { accompliceId: s.accompliceId } : {}),
       weaponId: s.weaponId,
       motiveId: s.motiveId,
       keyEvidenceIds: s.keyEvidenceIds.slice(0, citeCaps(s).evidence),
@@ -171,7 +178,10 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
   if (!gate.unlocked) return { status: 403, body: { error: "accuse_locked", line: gate.line ?? ACCUSE_LINES.locked, stateToken: saveSession(game, env) } };
 
   const reject = (error: string, line: string): AccuseResult => ({ status: 400, body: { error, line, stateToken: saveSession(game, env) } });
-  if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", ACCUSE_LINES.unknownSuspect);
+  if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", inSetting(ACCUSE_LINES.unknownSuspect, settingOf(caseData)));
+  const helper = accusation.accompliceId ?? null;
+  if (helper !== null && !caseData.characters.some((c) => c.id === helper)) return reject("unknown_suspect", inSetting(ACCUSE_LINES.unknownSuspect, settingOf(caseData)));
+  if (helper !== null && helper === accusation.murdererId) return reject("accomplice_is_murderer", ACCUSE_LINES.accompliceIsMurderer);
   if (!caseData.motives.some((m) => m.id === accusation.motiveId)) return reject("unknown_motive", ACCUSE_LINES.unknownMotive);
   const discovered = new Set(game.discoveredEvidenceIds);
   const cited = [...new Set(accusation.keyEvidenceIds)];
@@ -191,7 +201,7 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
   if (closed) {
     let committed: Awaited<ReturnType<ClosedGamesStore["closeGame"]>>;
     try {
-      committed = await closed.closeGame({ gameId, caseId: caseData.id, outcome, accusedId: clean.murdererId });
+      committed = await closed.closeGame({ gameId, caseId: caseData.id, outcome, accusedId: clean.murdererId, accompliceId: helper });
     } catch {
       return { status: 503, body: { error: "record_unavailable", line: systemLine(caseData, "recordDown"), stateToken } };
     }

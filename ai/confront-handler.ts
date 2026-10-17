@@ -12,6 +12,7 @@
  *  - the detective may hold up one discovered clue or revealed testimony to A
  *    in the same exchange (the ordinary present rules; it still counts as one).
  */
+import { inSetting, settingOf } from "@/engine/presentation";
 import type { LoadedCase } from "@/engine/case-schema";
 import { confrontationCaps } from "@/engine/confront-caps";
 import { CONFRONTATION_PRESSURE, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
@@ -97,7 +98,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
   const heldToken = notice ? saveSession(game, env) : (stateToken ?? saveSession(game, env));
   const caps = confrontationCaps(caseData);
   const gate = openConfrontation(game, aId, bId, caps);
-  if (!gate.ok) return { status: gate.reason === "same_character" ? 400 : 409, body: base({ lines: [], line: CONFRONT_LINES[gate.reason], error: gate.reason, stateToken: saveSession(game, env) }) };
+  if (!gate.ok) return { status: gate.reason === "same_character" ? 400 : 409, body: base({ lines: [], line: inSetting(CONFRONT_LINES[gate.reason], settingOf(caseData)), error: gate.reason, stateToken: saveSession(game, env) }) };
 
   const gatedExchange = async (): Promise<{ status: number; body: ConfrontResponseBody }> => {
     // Cost protection, before anything is spent: an exchange is two model turns (ai/model-gate.ts).

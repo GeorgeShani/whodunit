@@ -13,6 +13,7 @@
 import { z } from "zod";
 import { MAX_CASE_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 import { EndingsSchema } from "./endings";
+import { CaseAudioSchema, OrderLandmarkSchema, OrderWordsSchema, SettingSchema, ThemeSchema } from "./presentation";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
 import {
@@ -155,6 +156,16 @@ export const CaseEnvelopeSchema = z.strictObject({
   howToPlayTips: z.array(HowToPlayTipSchema).max(MAX_HOW_TO_PLAY_TIPS).optional(),
   /** Optional confrontation caps; omitted fields use the global defaults (6 per pair, 12 per game). */
   confrontation: ConfrontationCapsSchema.optional(),
+  /** Phase 3 (engine/presentation.ts): in-world wording. Omitted: the default (first-case) wording. */
+  setting: SettingSchema.optional(),
+  /** Phase 3 (Q7): presentation only (palette tokens, logo, title art). Omitted: the default theme. */
+  theme: ThemeSchema.optional(),
+  /** Phase 3: order-of-events landmarks (ai/order-check.ts). Omitted: the engine's default five; [] turns the check off. */
+  orderLandmarks: z.array(OrderLandmarkSchema).max(12).optional(),
+  /** Phase 3 (DX5): extra absence/movement words for the order check, added to the defaults. */
+  orderWords: OrderWordsSchema.optional(),
+  /** Phase 3 (E9): per-screen beds and cue file overrides. Omitted: the default sound. */
+  audio: CaseAudioSchema.optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 

@@ -40,7 +40,7 @@ export function CaseNotReady({
         aria-modal="true"
         aria-labelledby={titleId}
         data-case-not-ready
-        className="w-full max-w-md rounded-3xl border-4 border-black bg-[#fff8e7] p-5 text-black shadow-[8px_8px_0_#000]"
+        className="w-full max-w-md rounded-3xl border-4 border-black bg-paper p-5 text-ink shadow-[8px_8px_0_#000]"
       >
         <h2
           id={titleId}

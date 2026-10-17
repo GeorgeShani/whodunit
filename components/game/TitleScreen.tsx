@@ -9,7 +9,20 @@ import { backdropStyle } from "./backdrop";
 
 // Title card art: docs/ART_BIBLE.md §7.0 (assets/title/ -> /assets/title/ via sync:assets).
 // Phones (max-sm): tighter tagline + button and less bottom padding so the stack clears the mansion base.
-export function TitleScreen({ tagline, backdrop, onStart, onHowToPlay }: { tagline: string; backdrop?: string; onStart: () => void; /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void }) {
+export function TitleScreen({
+  tagline,
+  backdrop,
+  logo,
+  logoAlt,
+  onStart,
+  onHowToPlay,
+}: {
+  tagline: string;
+  backdrop?: string;
+  /** Phase 3 (theme.logo): replaces the WHODUNIT?! logo. */
+  logo?: string;
+  logoAlt?: string;
+  onStart: () => void; /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void }) {
   // #9: no endless sunburst spin or button pulse under prefers-reduced-motion.
   const reduced = useReducedMotion() ?? false;
   // A first tap anywhere but START unlocks audio and lets the noir theme play once over the rain (never before a gesture).
@@ -22,7 +35,7 @@ export function TitleScreen({ tagline, backdrop, onStart, onHowToPlay }: { tagli
     audio.play("theme_noir_minor");
   };
   return (
-    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-[#1b1035] bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6dvh] text-center max-sm:pb-[3dvh] short:py-3" style={backdropStyle(backdrop)}>
+    <main onPointerDownCapture={onFirstTap} className="relative flex min-h-0 flex-1 flex-col items-center justify-between overflow-hidden bg-backdrop bg-[url(/assets/title/title_bg.webp)] bg-cover bg-center px-6 py-[6dvh] text-center max-sm:pb-[3dvh] short:py-3" style={backdropStyle(backdrop)}>
       <div aria-hidden className="pointer-events-none absolute left-1/2 top-[22%] w-[130vmin] -translate-x-1/2 -translate-y-1/2">
         <motion.img
           src="/assets/title/sunburst.webp"
@@ -39,11 +52,11 @@ export function TitleScreen({ tagline, backdrop, onStart, onHowToPlay }: { tagli
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 260, damping: 12 }}
       >
-        <Image src="/assets/title/title_logo.webp" alt="WHODUNIT?!" width={1478} height={380} priority className="h-auto w-full" />
+        <Image src={logo ?? "/assets/title/title_logo.webp"} alt={logo ? (logoAlt ?? "") : "WHODUNIT?!"} width={1478} height={380} priority className="h-auto w-full" />
       </motion.h1>
       <div className="relative flex flex-col items-center">
         <motion.p
-          className="relative max-w-xl rounded-2xl border-4 border-black bg-white px-6 py-3 text-lg font-bold text-black shadow-[6px_6px_0_#000] max-sm:max-w-80 max-sm:px-4 max-sm:py-2 max-sm:text-sm max-sm:shadow-[4px_4px_0_#000] sm:text-xl short:py-1.5 short:text-base"
+          className="relative max-w-xl rounded-2xl border-4 border-black bg-white px-6 py-3 text-lg font-bold text-ink shadow-[6px_6px_0_#000] max-sm:max-w-80 max-sm:px-4 max-sm:py-2 max-sm:text-sm max-sm:shadow-[4px_4px_0_#000] sm:text-xl short:py-1.5 short:text-base"
           initial={{ y: 40, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
@@ -85,7 +98,7 @@ export function TitleScreen({ tagline, backdrop, onStart, onHowToPlay }: { tagli
               audio.play("ui_paper");
               onHowToPlay();
             }}
-            className="relative mt-4 min-h-12 cursor-pointer rounded-full border-[3px] border-black bg-white px-6 py-2 font-display text-xl tracking-widest text-black shadow-[4px_4px_0_#000] hover:bg-yellow-100 active:translate-y-1 active:shadow-[1px_1px_0_#000] max-sm:mt-3 max-sm:text-lg short:mt-0"
+            className="relative mt-4 min-h-12 cursor-pointer rounded-full border-[3px] border-black bg-white px-6 py-2 font-display text-xl tracking-widest text-ink shadow-[4px_4px_0_#000] hover:bg-yellow-100 active:translate-y-1 active:shadow-[1px_1px_0_#000] max-sm:mt-3 max-sm:text-lg short:mt-0"
           >
             <span aria-hidden>❓</span> HOW TO PLAY
           </button>
