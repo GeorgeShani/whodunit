@@ -1,0 +1,2033 @@
+{
+ "search:dining-room@fresh": {
+  "body": {
+   "found": [],
+   "lines": [
+    "Crime scene first, detective! Procedure! Start where his lordship fell, and the dining room will still be here when you get back."
+   ],
+   "locationId": "dining-room",
+   "locked": true,
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": []
+  },
+  "status": 200
+ },
+ "search:dining-room@mid": {
+  "body": {
+   "found": [
+    {
+     "description": "The only key to the library. When the door was forced it was not in the lock, not on his lordship and nowhere in the library. It turns up, sooty, at the bottom of the coal scuttle beside the dining-room hearth.",
+     "discoveryLine": "A key at the bottom of the coal scuttle! Keys don't usually climb in there by themselves.",
+     "icon": "🗝️",
+     "id": "library-key",
+     "kind": "physical",
+     "name": "The Missing Library Key"
+    }
+   ],
+   "lines": [
+    "Dinner for three, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
+    "The fire has sulked down to embers, and the hearth wears the smug look of a fireplace that knows something.",
+    "The grate is keeping a second helping to itself. Find what the hearth is hiding first, and ask who saw what lay on that desk."
+   ],
+   "locationId": "dining-room",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 3,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 1,
+       "need": 2
+      },
+      "suspects": {
+       "have": 4,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [
+     "dining-room"
+    ],
+    "leads": [
+     {
+      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "id": "lead-weapon",
+      "state": "closed",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "closedLine": "The key, found. It had been sulking in the coal.",
+      "id": "lead-keyhole",
+      "state": "closed",
+      "title": "Where does a key go when it leaves a locked room?"
+     },
+     {
+      "closedLine": "The dining-room hearth gave up its first secret.",
+      "id": "lead-fireplace",
+      "state": "closed",
+      "title": "Where does the candlestick live?"
+     },
+     {
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
+      "id": "lead-letter",
+      "state": "open",
+      "title": "A letter on the desk at 21:12, gone by 21:32"
+     },
+     {
+      "closedLine": "The boots had been in the hall after all.",
+      "id": "lead-boots",
+      "state": "closed",
+      "title": "The gardener never looks up from his boots"
+     },
+     {
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "id": "lead-alibi",
+      "state": "open",
+      "title": "Who was really with whom during the blackout?"
+     },
+     {
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "id": "lead-eyewitness",
+      "state": "open",
+      "title": "Did anyone see who stood at the library door?"
+     }
+    ],
+    "lockedLocationIds": [],
+    "newLeadIds": [
+     "lead-keyhole"
+    ],
+    "questioned": {
+     "counts": {
+      "archibald": 2,
+      "gregory": 2,
+      "reginald": 2,
+      "victoria": 2
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "library",
+    "hall",
+    "dining-room"
+   ]
+  },
+  "status": 200
+ },
+ "search:garden@fresh": {
+  "body": {
+   "found": [],
+   "lines": [
+    "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms.",
+    "Beside the garden door lies a storm lantern, snuffed out and abandoned. Somebody came in out of the dark in a hurry, and left their light behind.",
+    "You search the flowerbeds again and find mud, more mud, and a snail who refuses to answer questions. The lantern has told you all it is going to."
+   ],
+   "locationId": "garden",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "A storm lantern lies snuffed out beside the garden door. Who came in out of the dark? The hall by that door may remember.",
+      "id": "lead-lantern",
+      "state": "open",
+      "title": "A snuffed lantern by the garden door"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [
+     "lead-lantern"
+    ],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "garden"
+   ]
+  },
+  "status": 200
+ },
+ "search:garden@mid": {
+  "body": {
+   "found": [],
+   "lines": [
+    "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms.",
+    "Beside the garden door lies a storm lantern, snuffed out and abandoned. Somebody came in out of the dark in a hurry, and left their light behind.",
+    "You search the flowerbeds again and find mud, more mud, and a snail who refuses to answer questions. The lantern has told you all it is going to."
+   ],
+   "locationId": "garden",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 2,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 1,
+       "need": 2
+      },
+      "suspects": {
+       "have": 4,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "id": "lead-weapon",
+      "state": "closed",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "The library door was locked and the key was gone. Keys do not walk. Somebody carried it out, so where would they put it?",
+      "id": "lead-keyhole",
+      "state": "open",
+      "title": "Where does a key go when it leaves a locked room?"
+     },
+     {
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
+      "id": "lead-letter",
+      "state": "open",
+      "title": "A letter on the desk at 21:12, gone by 21:32"
+     },
+     {
+      "closedLine": "The lantern's owner left a footprint behind. People never think of the floor.",
+      "id": "lead-lantern",
+      "state": "closed",
+      "title": "A snuffed lantern by the garden door"
+     },
+     {
+      "closedLine": "The boots had been in the hall after all.",
+      "id": "lead-boots",
+      "state": "closed",
+      "title": "The gardener never looks up from his boots"
+     },
+     {
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "id": "lead-alibi",
+      "state": "open",
+      "title": "Who was really with whom during the blackout?"
+     },
+     {
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "id": "lead-eyewitness",
+      "state": "open",
+      "title": "Did anyone see who stood at the library door?"
+     }
+    ],
+    "lockedLocationIds": [],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 2,
+      "gregory": 2,
+      "reginald": 2,
+      "victoria": 2
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "library",
+    "hall",
+    "garden"
+   ]
+  },
+  "status": 200
+ },
+ "search:hall@fresh": {
+  "body": {
+   "found": [],
+   "lines": [
+    "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+    "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles.",
+    "The draughty hall has more to say, but you don't yet know what to ask it. Poke about outside, or ask someone who watches their feet."
+   ],
+   "locationId": "hall",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "id": "lead-eyewitness",
+      "state": "open",
+      "title": "Did anyone see who stood at the library door?"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [
+     "lead-eyewitness"
+    ],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "hall"
+   ]
+  },
+  "status": 200
+ },
+ "search:hall@mid": {
+  "body": {
+   "found": [],
+   "lines": [
+    "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here."
+   ],
+   "locationId": "hall",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 2,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 1,
+       "need": 2
+      },
+      "suspects": {
+       "have": 4,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "id": "lead-weapon",
+      "state": "closed",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "The library door was locked and the key was gone. Keys do not walk. Somebody carried it out, so where would they put it?",
+      "id": "lead-keyhole",
+      "state": "open",
+      "title": "Where does a key go when it leaves a locked room?"
+     },
+     {
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
+      "id": "lead-letter",
+      "state": "open",
+      "title": "A letter on the desk at 21:12, gone by 21:32"
+     },
+     {
+      "closedLine": "The boots had been in the hall after all.",
+      "id": "lead-boots",
+      "state": "closed",
+      "title": "The gardener never looks up from his boots"
+     },
+     {
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "id": "lead-alibi",
+      "state": "open",
+      "title": "Who was really with whom during the blackout?"
+     },
+     {
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "id": "lead-eyewitness",
+      "state": "open",
+      "title": "Did anyone see who stood at the library door?"
+     }
+    ],
+    "lockedLocationIds": [],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 2,
+      "gregory": 2,
+      "reginald": 2,
+      "victoria": 2
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "library",
+    "hall"
+   ]
+  },
+  "status": 200
+ },
+ "search:kitchen@fresh": {
+  "body": {
+   "found": [],
+   "lines": [
+    "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves.",
+    "The servants' telephone hangs a little crooked on its hook, with a soggy shred of cigar stuck to the mouthpiece. Somebody has been chewing on their calls.",
+    "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, nothing else to find."
+   ],
+   "locationId": "kitchen",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "id": "lead-alibi",
+      "state": "open",
+      "title": "Who was really with whom during the blackout?"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [
+     "lead-alibi"
+    ],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "kitchen"
+   ]
+  },
+  "status": 200
+ },
+ "search:kitchen@mid": {
+  "body": {
+   "found": [],
+   "lines": [
+    "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves.",
+    "The servants' telephone hangs a little crooked on its hook, with a soggy shred of cigar stuck to the mouthpiece. Somebody has been chewing on their calls.",
+    "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, nothing else to find."
+   ],
+   "locationId": "kitchen",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 2,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 1,
+       "need": 2
+      },
+      "suspects": {
+       "have": 4,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "id": "lead-weapon",
+      "state": "closed",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "The library door was locked and the key was gone. Keys do not walk. Somebody carried it out, so where would they put it?",
+      "id": "lead-keyhole",
+      "state": "open",
+      "title": "Where does a key go when it leaves a locked room?"
+     },
+     {
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
+      "id": "lead-letter",
+      "state": "open",
+      "title": "A letter on the desk at 21:12, gone by 21:32"
+     },
+     {
+      "closedLine": "The boots had been in the hall after all.",
+      "id": "lead-boots",
+      "state": "closed",
+      "title": "The gardener never looks up from his boots"
+     },
+     {
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "id": "lead-alibi",
+      "state": "open",
+      "title": "Who was really with whom during the blackout?"
+     },
+     {
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "id": "lead-eyewitness",
+      "state": "open",
+      "title": "Did anyone see who stood at the library door?"
+     }
+    ],
+    "lockedLocationIds": [],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 2,
+      "gregory": 2,
+      "reginald": 2,
+      "victoria": 2
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "library",
+    "hall",
+    "kitchen"
+   ]
+  },
+  "status": 200
+ },
+ "search:library@fresh": {
+  "body": {
+   "found": [
+    {
+     "description": "A heavy silver candlestick, one of the pair from the dining table, standing on Lord Blackwood's desk. The base is dented and has been hastily wiped, but dried blood is still caught in the engraved crest. Its fresh white candle is bent and has burned down only a few millimetres, about five minutes of burning, and wax is spattered across the desk as though it fell while lit.",
+     "discoveryLine": "Heavy silver, a fresh dent and a suspiciously short candle. Somebody's been using the good candlesticks for bad things!",
+     "icon": "🕯️",
+     "id": "silver-candlestick",
+     "kind": "physical",
+     "name": "Silver Candlestick"
+    }
+   ],
+   "lines": [
+    "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
+   ],
+   "locationId": "library",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 1,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "id": "lead-weapon",
+      "state": "closed",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     }
+    ],
+    "lockedLocationIds": [],
+    "newLeadIds": [
+     "lead-weapon"
+    ],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "library"
+   ]
+  },
+  "status": 200
+ },
+ "search:library@mid": {
+  "body": {
+   "found": [],
+   "lines": [
+    "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here."
+   ],
+   "locationId": "library",
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 2,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 1,
+       "need": 2
+      },
+      "suspects": {
+       "have": 4,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "id": "lead-weapon",
+      "state": "closed",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     },
+     {
+      "hint": "The library door was locked and the key was gone. Keys do not walk. Somebody carried it out, so where would they put it?",
+      "id": "lead-keyhole",
+      "state": "open",
+      "title": "Where does a key go when it leaves a locked room?"
+     },
+     {
+      "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
+      "id": "lead-letter",
+      "state": "open",
+      "title": "A letter on the desk at 21:12, gone by 21:32"
+     },
+     {
+      "closedLine": "The boots had been in the hall after all.",
+      "id": "lead-boots",
+      "state": "closed",
+      "title": "The gardener never looks up from his boots"
+     },
+     {
+      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "id": "lead-alibi",
+      "state": "open",
+      "title": "Who was really with whom during the blackout?"
+     },
+     {
+      "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+      "id": "lead-eyewitness",
+      "state": "open",
+      "title": "Did anyone see who stood at the library door?"
+     }
+    ],
+    "lockedLocationIds": [],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 2,
+      "gregory": 2,
+      "reginald": 2,
+      "victoria": 2
+     },
+     "need": 2
+    }
+   },
+   "searchedLocationIds": [
+    "library",
+    "hall"
+   ]
+  },
+  "status": 200
+ },
+ "view@fresh": {
+  "progress": {
+   "accuse": {
+    "checklist": {
+     "clues": {
+      "have": 0,
+      "need": 3
+     },
+     "leads": {
+      "have": 0,
+      "need": 2
+     },
+     "secrets": {
+      "have": 0,
+      "need": 2
+     },
+     "suspects": {
+      "have": 0,
+      "need": 3
+     }
+    },
+    "citeCap": {
+     "evidence": 3,
+     "testimony": 2
+    },
+    "citeTestimony": true,
+    "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+    "unlocked": false
+   },
+   "confront": {
+    "finished": [],
+    "pairUsed": {},
+    "perPair": 6,
+    "total": 12,
+    "totalUsed": 0
+   },
+   "freshLocationIds": [],
+   "leads": [
+    {
+     "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+     "id": "lead-weapon",
+     "state": "open",
+     "title": "What struck his lordship down?"
+    },
+    {
+     "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+     "id": "lead-motive",
+     "state": "open",
+     "title": "Who gains from his death?"
+    }
+   ],
+   "lockedLocationIds": [
+    "dining-room"
+   ],
+   "newLeadIds": [],
+   "questioned": {
+    "counts": {
+     "archibald": 0,
+     "gregory": 0,
+     "reginald": 0,
+     "victoria": 0
+    },
+    "need": 2
+   }
+  },
+  "view": {
+   "backdrops": {},
+   "evidence": [],
+   "locations": [
+    {
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "id": "library",
+     "name": "The Library",
+     "searchFlavor": {
+      "emptyLine": "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here.",
+      "lines": [
+       "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+       "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
+      ]
+     }
+    },
+    {
+     "description": "Long table, a pair of silver candlesticks and a roaring hearth.",
+     "id": "dining-room",
+     "lockedLine": "Crime scene first, detective! Procedure! Start where his lordship fell, and the dining room will still be here when you get back.",
+     "name": "The Dining Room",
+     "searchFlavor": {
+      "emptyLine": "You count the pudding bowls again. Still three. Still nobody finished the trifle. Nothing new here.",
+      "lines": [
+       "Dinner for three, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
+       "The fire has sulked down to embers, and the hearth wears the smug look of a fireplace that knows something."
+      ]
+     }
+    },
+    {
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "id": "hall",
+     "name": "The Hall",
+     "searchFlavor": {
+      "emptyLine": "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here.",
+      "lines": [
+       "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+       "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
+      ]
+     }
+    },
+    {
+     "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters.",
+     "id": "garden",
+     "name": "The Garden",
+     "searchFlavor": {
+      "emptyLine": "You search the flowerbeds again and find mud, more mud, and a snail who refuses to answer questions. The lantern has told you all it is going to.",
+      "lines": [
+       "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms.",
+       "Beside the garden door lies a storm lantern, snuffed out and abandoned. Somebody came in out of the dark in a hurry, and left their light behind."
+      ]
+     }
+    },
+    {
+     "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage.",
+     "id": "kitchen",
+     "name": "Kitchen & Servants' Quarters",
+     "searchFlavor": {
+      "emptyLine": "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, nothing else to find.",
+      "lines": [
+       "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves.",
+       "The servants' telephone hangs a little crooked on its hook, with a soggy shred of cigar stuck to the mouthpiece. Somebody has been chewing on their calls."
+      ]
+     }
+    }
+   ],
+   "meta": {
+    "howToPlayTips": [
+     "The road is flooded and nobody is leaving tonight. Whoever did it is still under this roof.",
+     "Question the staff as carefully as the family. Everyone at the manor is hiding something.",
+     "Not every secret here is about the murder. Plenty of people are lying for their own reasons.",
+     "The evening ran to the minute. Note every time you're given and check it against the others.",
+     "Search the rooms early, then come back: when a room shows ✨ Something new, search it again.",
+     "One suspect's confession can shake another's story loose. Show testimony to the others."
+    ],
+    "id": "blackwood",
+    "intro": "Thunder rattles the windows of Blackwood Manor. The lights failed at ten past nine, the road has flooded, and nobody is going anywhere tonight.\n\nYou were expected for dinner, but the storm had other ideas. Your motor stalled in the floodwater at the foot of the drive, and by the time you squelched up to the front door, at a quarter to ten, the lights were back on, the police had been telephoned and could not get through, and Lord Blackwood lay dead in his own locked library. The key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+    "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
+    "title": "Murder at Blackwood Manor"
+   },
+   "motives": [
+    {
+     "description": "Someone faced disgrace, or prison, if Lord Blackwood talked.",
+     "id": "business-ruin",
+     "label": "Business ruin"
+    },
+    {
+     "description": "Someone stood to gain from Lord Blackwood's fortune.",
+     "id": "inheritance",
+     "label": "Inheritance"
+    },
+    {
+     "description": "Someone had a score to settle with his lordship.",
+     "id": "revenge",
+     "label": "Revenge"
+    },
+    {
+     "description": "Someone had been quietly helping themselves, and his lordship was getting close.",
+     "id": "stolen-money",
+     "label": "Stolen money"
+    },
+    {
+     "description": "Someone wanted to be free of Lord Blackwood, whatever it cost.",
+     "id": "unhappy-marriage",
+     "label": "Unhappy marriage"
+    }
+   ],
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "suspects": [
+    {
+     "bio": "Lord Blackwood's loud, cigar-chomping business partner, staying the night. Wears a waistcoat under considerable strain.",
+     "emotion": {
+      "composure": 0.5,
+      "emotion": "defensive",
+      "intensity": 0.7
+     },
+     "id": "archibald",
+     "name": "Archibald Crane",
+     "portrait": "archibald",
+     "poses": [],
+     "role": "The Business Partner"
+    },
+    {
+     "bio": "The Blackwoods' gardener, sacked that very morning. Soaked, shaking, and not keen on talking.",
+     "emotion": {
+      "composure": 0.2,
+      "emotion": "scared",
+      "intensity": 0.9
+     },
+     "id": "gregory",
+     "name": "Gregory",
+     "portrait": "gregory",
+     "poses": [],
+     "role": "The Gardener"
+    },
+    {
+     "bio": "Butler to the Blackwoods for twenty years, starched from collar to soul. Knows where every spoon is, and most of the secrets.",
+     "emotion": {
+      "composure": 0.6,
+      "emotion": "nervous",
+      "intensity": 0.6
+     },
+     "id": "reginald",
+     "name": "Reginald",
+     "portrait": "reginald",
+     "poses": [],
+     "role": "The Butler"
+    },
+    {
+     "bio": "Lord Blackwood's elegant wife, now his widow. Famous for her parties, her pearls and her fainting spells, which are always perfectly timed.",
+     "emotion": {
+      "composure": 0.85,
+      "emotion": "sad",
+      "intensity": 0.5
+     },
+     "id": "victoria",
+     "name": "Victoria Blackwood",
+     "portrait": "victoria",
+     "poses": [],
+     "role": "The Lady of the Manor"
+    }
+   ],
+   "victim": {
+    "aliases": [
+     "his lordship",
+     "Lord Blackwood",
+     "Edmund"
+    ],
+    "causeOfDeath": "A single heavy blow to the head. His monocle is still in shock.",
+    "description": "Master of Blackwood Manor: rich, sharp-tongued and famously hard to please. Everyone in the house owed him something, and he never let them forget it.",
+    "foundAt": "21:32",
+    "foundAtLocationId": "library",
+    "id": "lord-blackwood",
+    "name": "Lord Blackwood"
+   },
+   "weaponsMarked": true
+  }
+ },
+ "view@mid": {
+  "progress": {
+   "accuse": {
+    "checklist": {
+     "clues": {
+      "have": 2,
+      "need": 3
+     },
+     "leads": {
+      "have": 0,
+      "need": 2
+     },
+     "secrets": {
+      "have": 1,
+      "need": 2
+     },
+     "suspects": {
+      "have": 4,
+      "need": 3
+     }
+    },
+    "citeCap": {
+     "evidence": 3,
+     "testimony": 2
+    },
+    "citeTestimony": true,
+    "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+    "unlocked": false
+   },
+   "confront": {
+    "finished": [],
+    "pairUsed": {},
+    "perPair": 6,
+    "total": 12,
+    "totalUsed": 0
+   },
+   "freshLocationIds": [],
+   "leads": [
+    {
+     "closedLine": "A candlestick! The butler will be mortified about the polish.",
+     "id": "lead-weapon",
+     "state": "closed",
+     "title": "What struck his lordship down?"
+    },
+    {
+     "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+     "id": "lead-motive",
+     "state": "open",
+     "title": "Who gains from his death?"
+    },
+    {
+     "hint": "The library door was locked and the key was gone. Keys do not walk. Somebody carried it out, so where would they put it?",
+     "id": "lead-keyhole",
+     "state": "open",
+     "title": "Where does a key go when it leaves a locked room?"
+    },
+    {
+     "hint": "Reginald saw a letter lying open on his lordship's desk at 21:12. By 21:32 the letter was gone. Papers do not walk off either.",
+     "id": "lead-letter",
+     "state": "open",
+     "title": "A letter on the desk at 21:12, gone by 21:32"
+    },
+    {
+     "closedLine": "The boots had been in the hall after all.",
+     "id": "lead-boots",
+     "state": "closed",
+     "title": "The gardener never looks up from his boots"
+    },
+    {
+     "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+     "id": "lead-alibi",
+     "state": "open",
+     "title": "Who was really with whom during the blackout?"
+    },
+    {
+     "hint": "The hall has a clear view of the library door. If somebody was lurking about in the dark, they may have seen more than they let on.",
+     "id": "lead-eyewitness",
+     "state": "open",
+     "title": "Did anyone see who stood at the library door?"
+    }
+   ],
+   "lockedLocationIds": [],
+   "newLeadIds": [],
+   "questioned": {
+    "counts": {
+     "archibald": 2,
+     "gregory": 2,
+     "reginald": 2,
+     "victoria": 2
+    },
+    "need": 2
+   }
+  },
+  "view": {
+   "backdrops": {},
+   "evidence": [
+    {
+     "description": "A heavy silver candlestick, one of the pair from the dining table, standing on Lord Blackwood's desk. The base is dented and has been hastily wiped, but dried blood is still caught in the engraved crest. Its fresh white candle is bent and has burned down only a few millimetres, about five minutes of burning, and wax is spattered across the desk as though it fell while lit.",
+     "discoveryLine": "Heavy silver, a fresh dent and a suspiciously short candle. Somebody's been using the good candlesticks for bad things!",
+     "icon": "🕯️",
+     "id": "silver-candlestick",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Silver Candlestick",
+     "weapon": true
+    },
+    {
+     "description": "One clear print of a hobnailed gardening boot in wet garden mud, on the flagstones of the dark alcove beside the hall's garden door. The toes point at the library door, six paces away. No other mud leads further along the hall or into the library.",
+     "discoveryLine": "A boot print! Big, muddy, and pointing straight at the library door like an accusing finger.",
+     "icon": "👣",
+     "id": "muddy-footprint",
+     "kind": "observation",
+     "locationId": "hall",
+     "name": "Muddy Footprint"
+    }
+   ],
+   "locations": [
+    {
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "id": "library",
+     "name": "The Library",
+     "searchFlavor": {
+      "emptyLine": "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here.",
+      "lines": [
+       "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+       "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
+      ]
+     }
+    },
+    {
+     "description": "Long table, a pair of silver candlesticks and a roaring hearth.",
+     "id": "dining-room",
+     "lockedLine": "Crime scene first, detective! Procedure! Start where his lordship fell, and the dining room will still be here when you get back.",
+     "name": "The Dining Room",
+     "searchFlavor": {
+      "emptyLine": "You count the pudding bowls again. Still three. Still nobody finished the trifle. Nothing new here.",
+      "lines": [
+       "Dinner for three, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
+       "The fire has sulked down to embers, and the hearth wears the smug look of a fireplace that knows something."
+      ]
+     }
+    },
+    {
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "id": "hall",
+     "name": "The Hall",
+     "searchFlavor": {
+      "emptyLine": "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here.",
+      "lines": [
+       "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+       "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
+      ]
+     }
+    },
+    {
+     "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters.",
+     "id": "garden",
+     "name": "The Garden",
+     "searchFlavor": {
+      "emptyLine": "You search the flowerbeds again and find mud, more mud, and a snail who refuses to answer questions. The lantern has told you all it is going to.",
+      "lines": [
+       "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms.",
+       "Beside the garden door lies a storm lantern, snuffed out and abandoned. Somebody came in out of the dark in a hurry, and left their light behind."
+      ]
+     }
+    },
+    {
+     "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage.",
+     "id": "kitchen",
+     "name": "Kitchen & Servants' Quarters",
+     "searchFlavor": {
+      "emptyLine": "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, nothing else to find.",
+      "lines": [
+       "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves.",
+       "The servants' telephone hangs a little crooked on its hook, with a soggy shred of cigar stuck to the mouthpiece. Somebody has been chewing on their calls."
+      ]
+     }
+    }
+   ],
+   "meta": {
+    "howToPlayTips": [
+     "The road is flooded and nobody is leaving tonight. Whoever did it is still under this roof.",
+     "Question the staff as carefully as the family. Everyone at the manor is hiding something.",
+     "Not every secret here is about the murder. Plenty of people are lying for their own reasons.",
+     "The evening ran to the minute. Note every time you're given and check it against the others.",
+     "Search the rooms early, then come back: when a room shows ✨ Something new, search it again.",
+     "One suspect's confession can shake another's story loose. Show testimony to the others."
+    ],
+    "id": "blackwood",
+    "intro": "Thunder rattles the windows of Blackwood Manor. The lights failed at ten past nine, the road has flooded, and nobody is going anywhere tonight.\n\nYou were expected for dinner, but the storm had other ideas. Your motor stalled in the floodwater at the foot of the drive, and by the time you squelched up to the front door, at a quarter to ten, the lights were back on, the police had been telephoned and could not get through, and Lord Blackwood lay dead in his own locked library. The key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+    "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
+    "title": "Murder at Blackwood Manor"
+   },
+   "motives": [
+    {
+     "description": "Someone faced disgrace, or prison, if Lord Blackwood talked.",
+     "id": "business-ruin",
+     "label": "Business ruin"
+    },
+    {
+     "description": "Someone stood to gain from Lord Blackwood's fortune.",
+     "id": "inheritance",
+     "label": "Inheritance"
+    },
+    {
+     "description": "Someone had a score to settle with his lordship.",
+     "id": "revenge",
+     "label": "Revenge"
+    },
+    {
+     "description": "Someone had been quietly helping themselves, and his lordship was getting close.",
+     "id": "stolen-money",
+     "label": "Stolen money"
+    },
+    {
+     "description": "Someone wanted to be free of Lord Blackwood, whatever it cost.",
+     "id": "unhappy-marriage",
+     "label": "Unhappy marriage"
+    }
+   ],
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "suspects": [
+    {
+     "bio": "Lord Blackwood's loud, cigar-chomping business partner, staying the night. Wears a waistcoat under considerable strain.",
+     "emotion": {
+      "composure": 0.5,
+      "emotion": "defensive",
+      "intensity": 0.7
+     },
+     "id": "archibald",
+     "name": "Archibald Crane",
+     "portrait": "archibald",
+     "poses": [],
+     "role": "The Business Partner"
+    },
+    {
+     "bio": "The Blackwoods' gardener, sacked that very morning. Soaked, shaking, and not keen on talking.",
+     "emotion": {
+      "composure": 0.2,
+      "emotion": "scared",
+      "intensity": 0.9
+     },
+     "id": "gregory",
+     "name": "Gregory",
+     "portrait": "gregory",
+     "poses": [],
+     "role": "The Gardener"
+    },
+    {
+     "bio": "Butler to the Blackwoods for twenty years, starched from collar to soul. Knows where every spoon is, and most of the secrets.",
+     "emotion": {
+      "composure": 0.6,
+      "emotion": "nervous",
+      "intensity": 0.6
+     },
+     "id": "reginald",
+     "name": "Reginald",
+     "portrait": "reginald",
+     "poses": [],
+     "role": "The Butler"
+    },
+    {
+     "bio": "Lord Blackwood's elegant wife, now his widow. Famous for her parties, her pearls and her fainting spells, which are always perfectly timed.",
+     "emotion": {
+      "composure": 0.85,
+      "emotion": "sad",
+      "intensity": 0.5
+     },
+     "id": "victoria",
+     "name": "Victoria Blackwood",
+     "portrait": "victoria",
+     "poses": [],
+     "role": "The Lady of the Manor"
+    }
+   ],
+   "victim": {
+    "aliases": [
+     "his lordship",
+     "Lord Blackwood",
+     "Edmund"
+    ],
+    "causeOfDeath": "A single heavy blow to the head. His monocle is still in shock.",
+    "description": "Master of Blackwood Manor: rich, sharp-tongued and famously hard to please. Everyone in the house owed him something, and he never let them forget it.",
+    "foundAt": "21:32",
+    "foundAtLocationId": "library",
+    "id": "lord-blackwood",
+    "name": "Lord Blackwood"
+   },
+   "weaponsMarked": true
+  }
+ },
+ "view@open": {
+  "progress": {
+   "accuse": {
+    "checklist": {
+     "clues": {
+      "have": 4,
+      "need": 3
+     },
+     "leads": {
+      "have": 2,
+      "need": 2
+     },
+     "secrets": {
+      "have": 8,
+      "need": 2
+     },
+     "suspects": {
+      "have": 4,
+      "need": 3
+     }
+    },
+    "citeCap": {
+     "evidence": 3,
+     "testimony": 2
+    },
+    "citeTestimony": true,
+    "unlocked": true
+   },
+   "confront": {
+    "finished": [],
+    "pairUsed": {},
+    "perPair": 6,
+    "total": 12,
+    "totalUsed": 0
+   },
+   "freshLocationIds": [],
+   "leads": [
+    {
+     "closedLine": "A candlestick! The butler will be mortified about the polish.",
+     "id": "lead-weapon",
+     "state": "closed",
+     "title": "What struck his lordship down?"
+    },
+    {
+     "closedLine": "Paper never lies, though it does burn.",
+     "id": "lead-motive",
+     "state": "closed",
+     "title": "Who gains from his death?"
+    },
+    {
+     "closedLine": "The key, found. It had been sulking in the coal.",
+     "id": "lead-keyhole",
+     "state": "closed",
+     "title": "Where does a key go when it leaves a locked room?"
+    },
+    {
+     "closedLine": "The dining-room hearth gave up its first secret.",
+     "id": "lead-fireplace",
+     "state": "closed",
+     "title": "Where does the candlestick live?"
+    },
+    {
+     "closedLine": "The letter, rescued from the flames and only slightly toasted.",
+     "id": "lead-letter",
+     "state": "closed",
+     "title": "A letter on the desk at 21:12, gone by 21:32"
+    },
+    {
+     "closedLine": "The lantern's owner left a footprint behind. People never think of the floor.",
+     "id": "lead-lantern",
+     "state": "closed",
+     "title": "A snuffed lantern by the garden door"
+    },
+    {
+     "closedLine": "The boots had been in the hall after all.",
+     "id": "lead-boots",
+     "state": "closed",
+     "title": "The gardener never looks up from his boots"
+    },
+    {
+     "closedLine": "One story has a hole in it, and now everybody can see through.",
+     "id": "lead-alibi",
+     "state": "closed",
+     "title": "Who was really with whom during the blackout?"
+    },
+    {
+     "closedLine": "A witness, at last, and a lightning flash and its flickers to thank for it.",
+     "id": "lead-eyewitness",
+     "state": "closed",
+     "title": "Did anyone see who stood at the library door?"
+    }
+   ],
+   "lockedLocationIds": [],
+   "newLeadIds": [],
+   "questioned": {
+    "counts": {
+     "archibald": 2,
+     "gregory": 2,
+     "reginald": 2,
+     "victoria": 2
+    },
+    "need": 2
+   }
+  },
+  "view": {
+   "backdrops": {},
+   "evidence": [
+    {
+     "description": "A heavy silver candlestick, one of the pair from the dining table, standing on Lord Blackwood's desk. The base is dented and has been hastily wiped, but dried blood is still caught in the engraved crest. Its fresh white candle is bent and has burned down only a few millimetres, about five minutes of burning, and wax is spattered across the desk as though it fell while lit.",
+     "discoveryLine": "Heavy silver, a fresh dent and a suspiciously short candle. Somebody's been using the good candlesticks for bad things!",
+     "icon": "🕯️",
+     "id": "silver-candlestick",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Silver Candlestick",
+     "weapon": true
+    },
+    {
+     "description": "One clear print of a hobnailed gardening boot in wet garden mud, on the flagstones of the dark alcove beside the hall's garden door. The toes point at the library door, six paces away. No other mud leads further along the hall or into the library.",
+     "discoveryLine": "A boot print! Big, muddy, and pointing straight at the library door like an accusing finger.",
+     "icon": "👣",
+     "id": "muddy-footprint",
+     "kind": "observation",
+     "locationId": "hall",
+     "name": "Muddy Footprint"
+    },
+    {
+     "description": "A charred letter on a solicitor's notepaper, found in the ashes of the dining-room fireplace. Legible fragments: '...the new will, drawn as you instructed, leaves Lady Victoria two hundred pounds a year and nothing further...'; '...I shall call at ten tomorrow for your signature...'; '...as to the household accounts, the discrepancies do point to your butler, and I advise an audit...'",
+     "discoveryLine": "Rescued from the flames, only slightly toasted! Somebody wanted these words gone. Somebody failed.",
+     "icon": "✉️",
+     "id": "burned-letter",
+     "kind": "document",
+     "locationId": "dining-room",
+     "name": "Burned Letter"
+    },
+    {
+     "description": "The only key to the library. When the door was forced it was not in the lock, not on his lordship and nowhere in the library. It turns up, sooty, at the bottom of the coal scuttle beside the dining-room hearth.",
+     "discoveryLine": "A key at the bottom of the coal scuttle! Keys don't usually climb in there by themselves.",
+     "icon": "🗝️",
+     "id": "library-key",
+     "kind": "physical",
+     "locationId": "dining-room",
+     "name": "The Missing Library Key"
+    }
+   ],
+   "locations": [
+    {
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "id": "library",
+     "name": "The Library",
+     "searchFlavor": {
+      "emptyLine": "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here.",
+      "lines": [
+       "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+       "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
+      ]
+     }
+    },
+    {
+     "description": "Long table, a pair of silver candlesticks and a roaring hearth.",
+     "id": "dining-room",
+     "lockedLine": "Crime scene first, detective! Procedure! Start where his lordship fell, and the dining room will still be here when you get back.",
+     "name": "The Dining Room",
+     "searchFlavor": {
+      "emptyLine": "You count the pudding bowls again. Still three. Still nobody finished the trifle. Nothing new here.",
+      "lines": [
+       "Dinner for three, abandoned mid-pudding. A lone silver candlestick stands on the table, looking for its other half.",
+       "The fire has sulked down to embers, and the hearth wears the smug look of a fireplace that knows something."
+      ]
+     }
+    },
+    {
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "id": "hall",
+     "name": "The Hall",
+     "searchFlavor": {
+      "emptyLine": "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here.",
+      "lines": [
+       "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+       "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
+      ]
+     }
+    },
+    {
+     "description": "Lawns, greenhouse and potting shed, lashed by the storm. The garden door leads into the hall; the kitchen door leads into the servants' quarters.",
+     "id": "garden",
+     "name": "The Garden",
+     "searchFlavor": {
+      "emptyLine": "You search the flowerbeds again and find mud, more mud, and a snail who refuses to answer questions. The lantern has told you all it is going to.",
+      "lines": [
+       "Rain, mud, a sulking greenhouse and one extremely soggy scarecrow. The storm has rinsed away everything but the worms.",
+       "Beside the garden door lies a storm lantern, snuffed out and abandoned. Somebody came in out of the dark in a hurry, and left their light behind."
+      ]
+     }
+    },
+    {
+     "description": "Kitchen, the butler's pantry, and the manor's only telephone on the wall of the servants' passage.",
+     "id": "kitchen",
+     "name": "Kitchen & Servants' Quarters",
+     "searchFlavor": {
+      "emptyLine": "You check the bread bin, the biscuit tin and behind the mangle. Plenty of crumbs, nothing else to find.",
+      "lines": [
+       "Copper pans gleam, a kettle grumbles on the range, and the whole place smells of boiled cabbage and nerves.",
+       "The servants' telephone hangs a little crooked on its hook, with a soggy shred of cigar stuck to the mouthpiece. Somebody has been chewing on their calls."
+      ]
+     }
+    }
+   ],
+   "meta": {
+    "howToPlayTips": [
+     "The road is flooded and nobody is leaving tonight. Whoever did it is still under this roof.",
+     "Question the staff as carefully as the family. Everyone at the manor is hiding something.",
+     "Not every secret here is about the murder. Plenty of people are lying for their own reasons.",
+     "The evening ran to the minute. Note every time you're given and check it against the others.",
+     "Search the rooms early, then come back: when a room shows ✨ Something new, search it again.",
+     "One suspect's confession can shake another's story loose. Show testimony to the others."
+    ],
+    "id": "blackwood",
+    "intro": "Thunder rattles the windows of Blackwood Manor. The lights failed at ten past nine, the road has flooded, and nobody is going anywhere tonight.\n\nYou were expected for dinner, but the storm had other ideas. Your motor stalled in the floodwater at the foot of the drive, and by the time you squelched up to the front door, at a quarter to ten, the lights were back on, the police had been telephoned and could not get through, and Lord Blackwood lay dead in his own locked library. The key is nowhere to be found.\n\nThe butler is polishing things that are already clean. The lady of the house keeps fainting. The business partner is shouting. The gardener won't look anyone in the eye. Grab your magnifying glass, detective: someone in this house is a murderer.",
+    "tagline": "A dark and stormy night. A locked library. Four suspects, and every one of them is hiding something.",
+    "title": "Murder at Blackwood Manor"
+   },
+   "motives": [
+    {
+     "description": "Someone faced disgrace, or prison, if Lord Blackwood talked.",
+     "id": "business-ruin",
+     "label": "Business ruin"
+    },
+    {
+     "description": "Someone stood to gain from Lord Blackwood's fortune.",
+     "id": "inheritance",
+     "label": "Inheritance"
+    },
+    {
+     "description": "Someone had a score to settle with his lordship.",
+     "id": "revenge",
+     "label": "Revenge"
+    },
+    {
+     "description": "Someone had been quietly helping themselves, and his lordship was getting close.",
+     "id": "stolen-money",
+     "label": "Stolen money"
+    },
+    {
+     "description": "Someone wanted to be free of Lord Blackwood, whatever it cost.",
+     "id": "unhappy-marriage",
+     "label": "Unhappy marriage"
+    }
+   ],
+   "progress": {
+    "accuse": {
+     "checklist": {
+      "clues": {
+       "have": 0,
+       "need": 3
+      },
+      "leads": {
+       "have": 0,
+       "need": 2
+      },
+      "secrets": {
+       "have": 0,
+       "need": 2
+      },
+      "suspects": {
+       "have": 0,
+       "need": 3
+      }
+     },
+     "citeCap": {
+      "evidence": 3,
+      "testimony": 2
+     },
+     "citeTestimony": true,
+     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "unlocked": false
+    },
+    "confront": {
+     "finished": [],
+     "pairUsed": {},
+     "perPair": 6,
+     "total": 12,
+     "totalUsed": 0
+    },
+    "freshLocationIds": [],
+    "leads": [
+     {
+      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "id": "lead-weapon",
+      "state": "open",
+      "title": "What struck his lordship down?"
+     },
+     {
+      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "id": "lead-motive",
+      "state": "open",
+      "title": "Who gains from his death?"
+     }
+    ],
+    "lockedLocationIds": [
+     "dining-room"
+    ],
+    "newLeadIds": [],
+    "questioned": {
+     "counts": {
+      "archibald": 0,
+      "gregory": 0,
+      "reginald": 0,
+      "victoria": 0
+     },
+     "need": 2
+    }
+   },
+   "suspects": [
+    {
+     "bio": "Lord Blackwood's loud, cigar-chomping business partner, staying the night. Wears a waistcoat under considerable strain.",
+     "emotion": {
+      "composure": 0.5,
+      "emotion": "defensive",
+      "intensity": 0.7
+     },
+     "id": "archibald",
+     "name": "Archibald Crane",
+     "portrait": "archibald",
+     "poses": [],
+     "role": "The Business Partner"
+    },
+    {
+     "bio": "The Blackwoods' gardener, sacked that very morning. Soaked, shaking, and not keen on talking.",
+     "emotion": {
+      "composure": 0.2,
+      "emotion": "scared",
+      "intensity": 0.9
+     },
+     "id": "gregory",
+     "name": "Gregory",
+     "portrait": "gregory",
+     "poses": [],
+     "role": "The Gardener"
+    },
+    {
+     "bio": "Butler to the Blackwoods for twenty years, starched from collar to soul. Knows where every spoon is, and most of the secrets.",
+     "emotion": {
+      "composure": 0.6,
+      "emotion": "nervous",
+      "intensity": 0.6
+     },
+     "id": "reginald",
+     "name": "Reginald",
+     "portrait": "reginald",
+     "poses": [],
+     "role": "The Butler"
+    },
+    {
+     "bio": "Lord Blackwood's elegant wife, now his widow. Famous for her parties, her pearls and her fainting spells, which are always perfectly timed.",
+     "emotion": {
+      "composure": 0.85,
+      "emotion": "sad",
+      "intensity": 0.5
+     },
+     "id": "victoria",
+     "name": "Victoria Blackwood",
+     "portrait": "victoria",
+     "poses": [],
+     "role": "The Lady of the Manor"
+    }
+   ],
+   "victim": {
+    "aliases": [
+     "his lordship",
+     "Lord Blackwood",
+     "Edmund"
+    ],
+    "causeOfDeath": "A single heavy blow to the head. His monocle is still in shock.",
+    "description": "Master of Blackwood Manor: rich, sharp-tongued and famously hard to please. Everyone in the house owed him something, and he never let them forget it.",
+    "foundAt": "21:32",
+    "foundAtLocationId": "library",
+    "id": "lord-blackwood",
+    "name": "Lord Blackwood"
+   },
+   "weaponsMarked": true
+  }
+ }
+}
