@@ -896,6 +896,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
             citeTestimony={progress.accuse.citeTestimony}
             weaponsMarked={view.weaponsMarked}
             citeCap={progress.accuse.citeCap}
+            askHelper={view.askHelper === true}
             onSubmit={onAccuse}
             onBack={() => go("suspects")}
             {...(manual

@@ -37,6 +37,11 @@ function Section({ n, title, hint, children }: { n: number; title: string; hint?
  * The accusation form (Phase 8): murderer (suspect cards), weapon (a discovered
  * clue), motive (the case's public options) and 1-5 clues as proof. Validated
  * here and again on the server; submitting asks "Are you sure? This ends the case."
+ *
+ * Phase 5 (case-two plan 3.2, D3): a case with `accuse.askHelper` gets role wording, "Who struck the fatal blow?",
+ * then "Did anyone help?" with an explicit "No one helped". Nothing is preselected, Submit stays disabled until it is
+ * answered, and the confirm dialog says the roles in words. The flag is public case data, the same in every game, so
+ * it says nothing about the answer. Without it the form is the single-culprit one, unchanged.
  */
 export function AccuseScreen({
   suspects,
@@ -48,6 +53,7 @@ export function AccuseScreen({
   citeTestimony = false,
   weaponsMarked = false,
   citeCap,
+  askHelper = false,
   onSubmit,
   onBack,
   onHowGraded,
@@ -65,6 +71,8 @@ export function AccuseScreen({
   weaponsMarked?: boolean;
   /** E2: "Cite up to N" clues / confessions (progress.accuse.citeCap); absent = the absolute maxima. */
   citeCap?: { evidence: number; testimony: number };
+  /** Phase 5: ask "Did anyone help?" (public case flag, view.askHelper). */
+  askHelper?: boolean;
   onSubmit: (a: Accusation) => void;
   onBack: () => void;
   /** Opens How to Play at "How accusations are graded" (absent: no link). */
@@ -76,6 +84,10 @@ export function AccuseScreen({
   const weapons = weaponChoices(evidence, weaponsMarked);
   const [errors, setErrors] = useState<string[]>([]);
   const [confirming, setConfirming] = useState(false);
+  /** Sections after the helper question shift down by one when it is shown. */
+  const n = (k: number) => (askHelper && k >= 2 ? k + 1 : k);
+  const helperMissing = askHelper && draft.accompliceId === undefined;
+  const nameOf = (id: string | null | undefined) => suspects.find((s) => s.id === id)?.name ?? "";
   const set = (d: Partial<AccusationDraft>) => {
     setDraft((x) => ({ ...x, ...d }));
     setErrors([]);
@@ -94,7 +106,10 @@ export function AccuseScreen({
       testimonyIds: testimonies.map((t) => t.id),
       requireTestimony: citeTestimony,
       ...(citeCap ? { caps: citeCap } : {}),
+      askHelper,
     });
+  /** Picking the helper as the one who struck the blow clears the helper answer (Submit disables again). */
+  const pickMurderer = (id: string) => set({ murdererId: id, ...(draft.accompliceId === id ? { accompliceId: undefined } : {}) });
 
   return (
     <main className="relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,#7f1d1d_0%,var(--backdrop)_70%)]">
@@ -129,7 +144,7 @@ export function AccuseScreen({
         </p>
       )}
 
-      <Section n={1} title="Who did it?">
+      <Section n={1} title={askHelper ? "Who struck the fatal blow?" : "Who did it?"}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4" role="radiogroup" aria-labelledby="accuse-1">
           {suspects.map((s) => (
             <button
@@ -139,7 +154,7 @@ export function AccuseScreen({
               aria-checked={draft.murdererId === s.id}
               data-accuse-suspect={s.id}
               disabled={busy}
-              onClick={() => set({ murdererId: s.id })}
+              onClick={() => pickMurderer(s.id)}
               className={`${pick(draft.murdererId === s.id)} flex flex-col items-center p-2`}
             >
               <span className="flex h-36 w-full items-end justify-center overflow-hidden rounded-xl border-2 border-black bg-gradient-to-b from-sky-200 to-yellow-100">
@@ -151,8 +166,44 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={2} title="With what?" hint={weaponsMarked ? "The murder weapon, from the possible weapons you have found." : "The murder weapon, from the clues in your notebook."}>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="accuse-2">
+      {askHelper && (
+        <Section n={2} title="Did anyone help?" hint="Name one helper, or tell us no one did.">
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby="accuse-2" data-accuse-helpers>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={draft.accompliceId === null}
+              data-accuse-helper="none"
+              disabled={busy}
+              onClick={() => set({ accompliceId: null })}
+              className={`${pick(draft.accompliceId === null)} min-h-12 px-4 py-2 font-display text-xl tracking-wide`}
+            >
+              No one helped
+            </button>
+            {suspects.map((s) => {
+              const struck = draft.murdererId === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  role="radio"
+                  aria-checked={draft.accompliceId === s.id}
+                  data-accuse-helper={s.id}
+                  disabled={busy || struck}
+                  onClick={() => set({ accompliceId: s.id })}
+                  className={`${pick(draft.accompliceId === s.id)} min-h-12 px-4 py-2 font-display text-xl tracking-wide`}
+                >
+                  {s.name}
+                  {struck && <span className="block font-sans text-sm font-bold">struck the blow</span>}
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+      )}
+
+      <Section n={n(2)} title="With what?" hint={weaponsMarked ? "The murder weapon, from the possible weapons you have found." : "The murder weapon, from the clues in your notebook."}>
+        <div className="flex flex-wrap gap-2" role="radiogroup" aria-labelledby={`accuse-${n(2)}`}>
           {weapons.length === 0 && <p className="text-base font-semibold text-yellow-100">No possible weapon in your notebook yet. Keep searching.</p>}
           {weapons.map((e) => (
             <button
@@ -171,8 +222,8 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={3} title="Why?">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-labelledby="accuse-3">
+      <Section n={n(3)} title="Why?">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2" role="radiogroup" aria-labelledby={`accuse-${n(3)}`}>
           {motives.map((m) => (
             <button
               key={m.id}
@@ -191,7 +242,7 @@ export function AccuseScreen({
         </div>
       </Section>
 
-      <Section n={4} title="Your proof" hint={`Cite up to ${maxProof} clues that prove it (${draft.keyEvidenceIds.length} chosen). Only cite what supports your case.`}>
+      <Section n={n(4)} title="Your proof" hint={`Cite up to ${maxProof} clues that prove it (${draft.keyEvidenceIds.length} chosen). Only cite what supports your case.`}>
         <div className="flex flex-wrap gap-2">
           {evidence.map((e) => {
             const on = draft.keyEvidenceIds.includes(e.id);
@@ -215,7 +266,7 @@ export function AccuseScreen({
 
       {citeTestimony && (
         <Section
-          n={5}
+          n={n(5)}
           title="A confession"
           hint={`Clues alone won't do. Cite up to ${maxTestimony} confessions someone gave you (${(draft.keyTestimonyIds ?? []).length} chosen).`}
         >
@@ -274,10 +325,16 @@ export function AccuseScreen({
       {/* The submit button stays in reach however far the form is scrolled, in a bar BELOW the scroll area (CTA_BAR):
           nothing scrolls under it, so it never covers the form. */}
       <div data-cta-bar className={CTA_BAR}>
+        {helperMissing && (
+          <p id="accuse-helper-needed" data-accuse-helper-needed className="w-full text-center text-base font-bold text-yellow-100 sm:w-auto">
+            Say whether anyone helped
+          </p>
+        )}
         <CartoonButton
           tone="red"
           className="min-h-14 w-full max-w-md font-display text-3xl tracking-widest short:min-h-12 short:text-2xl sm:w-auto"
-          disabled={busy}
+          disabled={busy || helperMissing}
+          {...(helperMissing ? { "aria-describedby": "accuse-helper-needed" } : {})}
           onClick={() => {
             const r = check();
             if (!r.ok) {
@@ -294,6 +351,7 @@ export function AccuseScreen({
       <AnimatePresence>
         {confirming && (
           <ConfirmDialog
+            {...(askHelper && draft.murdererId ? { roles: rolesLine(nameOf(draft.murdererId), draft.accompliceId ? nameOf(draft.accompliceId) : null) } : {})}
             onCancel={() => setConfirming(false)}
             onConfirm={() => {
               const r = check();
@@ -308,7 +366,12 @@ export function AccuseScreen({
 }
 
 /** "Are you sure?" — a real modal (#25): focus trapped, Escape = "Not yet", focus returns to the button that opened it. */
-function ConfirmDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfirm: () => void }) {
+/** Phase 5: the roles in words for the confirm dialog ("Amadeo struck the blow. Horatio helped."). */
+export function rolesLine(murderer: string, helper: string | null): string {
+  return `${murderer} struck the blow. ${helper ? `${helper} helped.` : "No one helped."}`;
+}
+
+function ConfirmDialog({ roles, onCancel, onConfirm }: { roles?: string; onCancel: () => void; onConfirm: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
   useModal(ref, { onClose: onCancel });
   return (
@@ -323,6 +386,11 @@ function ConfirmDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfir
         <p id="confirm-accuse" className="font-display text-4xl tracking-wide text-red-600">
           Are you sure?
         </p>
+        {roles && (
+          <p data-confirm-roles className="mt-2 font-display text-2xl tracking-wide">
+            {roles}
+          </p>
+        )}
         <p className="mt-2 font-bold">This ends the case. There&apos;s no taking it back.</p>
         <div className="mt-4 flex flex-wrap justify-center gap-3">
           <CartoonButton tone="white" className="min-h-12 px-5 text-base" onClick={onCancel}>

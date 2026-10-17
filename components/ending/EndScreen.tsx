@@ -133,6 +133,12 @@ export function EndScreen({
           <dl className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-base">
             <dt className="font-black uppercase text-neutral-600">Murderer</dt>
             <dd className="font-bold">{s.murderer.name}</dd>
+            {s.accomplice && (
+              <>
+                <dt className="font-black uppercase text-neutral-600">Helper</dt>
+                <dd className="font-bold">{s.accomplice.name}</dd>
+              </>
+            )}
             <dt className="font-black uppercase text-neutral-600">Weapon</dt>
             <dd className="font-bold">{s.weapon.name}</dd>
             <dt className="font-black uppercase text-neutral-600">Motive</dt>

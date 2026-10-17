@@ -242,6 +242,33 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     });
   }
 
+  // Phase 5 (V5, V6): the accomplice's act has an opportunity like the murder; a case with an accomplice must ask
+  // "Did anyone help?" (or it can't be won); testimony groups are subsets of keyTestimonyIds.
+  if (s.accompliceAct) {
+    const act = s.accompliceAct;
+    if (!s.accompliceId) issues.push({ file: SOL, path: "accompliceAct", message: "accompliceAct needs an accompliceId" });
+    if (!locationIds.has(act.locationId)) issues.push({ file: SOL, path: "accompliceAct.locationId", message: `location "${act.locationId}" is not a location in case.json` });
+    else if (s.accompliceId && characterIds.has(s.accompliceId) && !wasPresent(c, s.accompliceId, act.locationId, act.time)) {
+      issues.push({
+        file: SOL,
+        path: "accompliceAct",
+        message: `accomplice "${s.accompliceId}" had no opportunity: no timeline entry places them in "${act.locationId}" within ${OPPORTUNITY_WINDOW_MINUTES} min of ${act.time}`,
+      });
+    }
+  }
+  if (s.accompliceId && !c.accuse?.askHelper) {
+    issues.push({ file: "case.json", path: "accuse.askHelper", message: `the solution has an accomplice ("${s.accompliceId}") but the accuse form doesn't ask "Did anyone help?" (set accuse.askHelper: true), so the case can't be won` });
+  }
+  (s.keyTestimonyGroups ?? []).forEach((g, k) =>
+    g.forEach((id, j) => {
+      if (!(s.keyTestimonyIds ?? []).includes(id)) issues.push({ file: SOL, path: `keyTestimonyGroups.${k}.${j}`, message: `"${id}" is not in keyTestimonyIds` });
+    }),
+  );
+  // One citation per group at least, and the accuse form only asks for testimony when minKeyTestimony >= 1.
+  if (s.keyTestimonyGroups && (s.minKeyTestimony ?? 0) < s.keyTestimonyGroups.length) {
+    issues.push({ file: SOL, path: "keyTestimonyGroups", message: `${s.keyTestimonyGroups.length} groups need minKeyTestimony >= ${s.keyTestimonyGroups.length} (it is ${s.minKeyTestimony ?? 0})` });
+  }
+
   // E3: when the case marks weapon candidates, the real weapon must be one, or the picker hides the answer.
   if (c.evidence.some((e) => e.weapon) && !c.evidence.find((e) => e.id === s.weaponId)?.weapon) {
     issues.push({ file: "evidence.json", path: s.weaponId, message: `evidence marks weapon candidates ("weapon": true) but the solution's weapon "${s.weaponId}" is not one, so the accuse form would not offer it` });

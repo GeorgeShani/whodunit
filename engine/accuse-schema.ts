@@ -39,6 +39,8 @@ export interface EndingPayload {
 
 export interface AccuseVerdict {
   murdererCorrect: boolean;
+  /** Phase 5: only for a case that asks "Did anyone help?" or has an accomplice (a win, so always true). */
+  accompliceCorrect?: boolean;
   weaponCorrect: boolean;
   motiveCorrect: boolean;
   /** Enough cited clues are key evidence (solution.minKeyEvidence, default 1). */
@@ -51,6 +53,8 @@ export interface AccuseVerdict {
 /** The full solution, revealed only after the case is over. */
 export interface SolutionReveal {
   murderer: { id: string; name: string };
+  /** Phase 5: the helper, only in a two-culprit case (the reveal is win-only). */
+  accomplice?: { id: string; name: string };
   weapon: { id: string; name: string };
   motive: { id: string; label: string };
   location: { id: string; name: string };
@@ -83,6 +87,8 @@ export interface AccuseResponseBody {
 /** Client-side check before submitting (the server re-checks everything). */
 export interface AccusationDraft {
   murdererId?: string;
+  /** Phase 5 (3.2): undefined = not answered yet, null = "No one helped", an id = that suspect. */
+  accompliceId?: string | null;
   weaponId?: string;
   motiveId?: string;
   keyEvidenceIds: string[];
@@ -102,10 +108,17 @@ export function validateAccusationDraft(
     requireTestimony?: boolean;
     /** E2: the case's "Cite up to N" (progress.accuse.citeCap); absent = the absolute maxima. */
     caps?: { evidence: number; testimony: number };
+    /** Phase 5: the case asks "Did anyone help?" (an answer is required, and it can't be the murderer). */
+    askHelper?: boolean;
   },
 ): { ok: true; accusation: Accusation } | { ok: false; errors: string[] } {
   const errors: string[] = [];
-  if (!d.murdererId || !options.suspectIds.includes(d.murdererId)) errors.push("Pick the murderer.");
+  if (!d.murdererId || !options.suspectIds.includes(d.murdererId)) errors.push(options.askHelper ? "Pick who struck the fatal blow." : "Pick the murderer.");
+  if (options.askHelper) {
+    if (d.accompliceId === undefined) errors.push("Say whether anyone helped.");
+    else if (d.accompliceId !== null && !options.suspectIds.includes(d.accompliceId)) errors.push("Pick a helper from the suspects, or say no one helped.");
+    else if (d.accompliceId !== null && d.accompliceId === d.murdererId) errors.push("The helper can't be the one who struck the blow.");
+  }
   if (!d.weaponId || !options.evidenceIds.includes(d.weaponId)) errors.push("Pick the weapon from your clues.");
   if (!d.motiveId || !options.motiveIds.includes(d.motiveId)) errors.push("Pick a motive.");
   const ids = [...new Set(d.keyEvidenceIds)];
@@ -121,6 +134,13 @@ export function validateAccusationDraft(
   if (errors.length) return { ok: false, errors };
   return {
     ok: true,
-    accusation: { murdererId: d.murdererId!, weaponId: d.weaponId!, motiveId: d.motiveId!, keyEvidenceIds: ids, ...(testimony.length ? { keyTestimonyIds: testimony } : {}) },
+    accusation: {
+      murdererId: d.murdererId!,
+      ...(options.askHelper ? { accompliceId: d.accompliceId ?? null } : {}),
+      weaponId: d.weaponId!,
+      motiveId: d.motiveId!,
+      keyEvidenceIds: ids,
+      ...(testimony.length ? { keyTestimonyIds: testimony } : {}),
+    },
   };
 }

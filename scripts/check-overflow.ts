@@ -500,12 +500,21 @@ async function run(): Promise<number> {
               await checkCta(p, "accuse");
               await p.locator("[data-accuse-suspect]").first().click({ force: true });
               await checkCta(p, "accuse (picked)");
+              // Phase 5: the "Did anyone help?" picker (cases with accuse.askHelper): the hint beside the disabled
+              // Submit, then an answer, so both CTA-bar states are audited.
+              if (await p.locator("[data-accuse-helper]").count()) {
+                await label(p, "accuse helper picker");
+                await checkCta(p, "accuse (helper unanswered)");
+                await p.locator('[data-accuse-helper="none"]').click({ force: true });
+                await checkCta(p, "accuse (helper answered)");
+              }
               await checkHelp(p, "accuse");
             } else ctaIssues.push(`${shotVp} accuse: the restored session did not open the accuse form`);
           }
         } else {
         await label(p, "accuse form");
         await p.locator("[data-accuse-suspect]").first().click({ force: true });
+        if (await p.locator("[data-accuse-helper]").count()) await p.locator('[data-accuse-helper="none"]').click({ force: true });
         await p.locator("[data-accuse-weapon]").first().click({ force: true });
         await p.locator("[data-accuse-motive]").first().click({ force: true });
         await p.locator("[data-accuse-proof]").first().click({ force: true });
