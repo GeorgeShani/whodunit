@@ -5,6 +5,7 @@
 import { inSetting, settingOf } from "./presentation";
 import type { LoadedCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
+import { clueFeatures } from "./features/registry";
 import { searchLocation } from "./investigation";
 import { attachProgress } from "./route-progress";
 import { isCaseClosed, systemLine, restoreSession, saveSession } from "./session";
@@ -17,7 +18,7 @@ export const UNKNOWN_CASE_LINE =
   "You knock at the door of a house that isn't there. Wrong address, detective.";
 export const BAD_REQUEST_LINE = "You scribble in your notebook, but even you can't read it. Try that again, detective.";
 
-const toFound = (e: Evidence): FoundEvidence => ({
+const toFound = (c: LoadedCase, e: Evidence, features = clueFeatures(c, e.id)): FoundEvidence => ({
   id: e.id,
   name: e.name,
   description: e.description,
@@ -25,6 +26,7 @@ const toFound = (e: Evidence): FoundEvidence => ({
   ...(e.image ? { image: e.image } : {}),
   ...(e.icon ? { icon: e.icon } : {}),
   ...(e.discoveryLine ? { discoveryLine: e.discoveryLine } : {}),
+  ...(features ? { features } : {}),
 });
 
 export function handleInvestigate(
@@ -75,7 +77,7 @@ function handleInvestigateCore(
     status: 200,
     body: withNotice({
       locationId: r.locationId,
-      found: r.newlyFound.map(toFound),
+      found: r.newlyFound.map((e) => toFound(caseData, e)),
       lines: r.lines,
       searchedLocationIds: [...game.searchedLocationIds],
       ...(r.locked ? { locked: true } : {}),

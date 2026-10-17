@@ -877,6 +877,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
             searched={searched}
             lines={searchLines}
             backdrop={view.backdrops.investigate}
+            {...(view.features ? { features: view.features } : {})}
             pendingId={searchingId}
             otherBusy={pendingId !== null}
             lockedLocationIds={progress.lockedLocationIds}

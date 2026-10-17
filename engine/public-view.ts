@@ -6,6 +6,7 @@
  * the player has not discovered, and the endings (endings.json). Pure (no fs), so client components may import
  * its TYPES.
  */
+import { clueFeatures, publicFeatures } from "./features/registry";
 import { publicSetting, type CaseAudio, type PublicSetting, type Theme } from "./presentation";
 import type { CaseBackdrops, LoadedCase, MotiveOption, Victim } from "./case-schema";
 import { createInitialGameState } from "./game-state";
@@ -24,7 +25,10 @@ export interface PublicSuspect {
   emotion: EmotionalState;
 }
 
-export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "icon" | "discoveryLine" | "weapon">;
+export type PublicEvidence = Pick<Evidence, "id" | "name" | "description" | "kind" | "locationId" | "image" | "icon" | "discoveryLine" | "weapon"> & {
+  /** Phase 6: this clue's public feature extras, by module name (engine/features registry `publicClue`). */
+  features?: Record<string, unknown>;
+};
 
 export interface PublicCaseMeta {
   id: string;
@@ -71,6 +75,8 @@ export interface PublicCaseView {
   theme?: Theme;
   /** Phase 3 (E9): beds and cue overrides (only when the case writes `audio`). */
   audio?: CaseAudio;
+  /** Phase 6: each declared feature module's public slice (`publicConfig`), by module name. */
+  features?: Record<string, unknown>;
 }
 
 export function initialDiscoveredEvidenceIds(c: LoadedCase): string[] {
@@ -83,9 +89,9 @@ export function toPublicLocation(l: Location): PublicLocation {
   return rest as PublicLocation;
 }
 
-export function toPublicEvidence(e: Evidence): PublicEvidence {
+export function toPublicEvidence(e: Evidence, features?: Record<string, unknown>): PublicEvidence {
   const { id, name, description, kind, locationId, image, icon, discoveryLine, weapon } = e;
-  return { id, name, description, kind, locationId, image, ...(icon ? { icon } : {}), ...(discoveryLine ? { discoveryLine } : {}), ...(weapon ? { weapon: true } : {}) };
+  return { id, name, description, kind, locationId, image, ...(icon ? { icon } : {}), ...(discoveryLine ? { discoveryLine } : {}), ...(weapon ? { weapon: true } : {}), ...(features ? { features } : {}) };
 }
 
 export function getPublicCaseView(
@@ -93,6 +99,7 @@ export function getPublicCaseView(
   options: { discoveredEvidenceIds?: readonly string[]; portraitPoses?: Record<string, string[]> } = {},
 ): PublicCaseView {
   const discovered = new Set(options.discoveredEvidenceIds ?? initialDiscoveredEvidenceIds(c));
+  const features = publicFeatures(c);
   return {
     meta: { id: c.id, title: c.title, tagline: c.tagline, intro: c.intro, ...(c.howToPlayTips?.length ? { howToPlayTips: [...c.howToPlayTips] } : {}) },
     motives: c.motives.map(({ id, label, description }) => ({ id, label, ...(description ? { description } : {}) })),
@@ -111,12 +118,13 @@ export function getPublicCaseView(
         emotion: { ...ch.initialEmotion },
       };
     }),
-    evidence: c.evidence.filter((e) => discovered.has(e.id)).map(toPublicEvidence),
+    evidence: c.evidence.filter((e) => discovered.has(e.id)).map((e) => toPublicEvidence(e, clueFeatures(c, e.id))),
     weaponsMarked: c.evidence.some((e) => e.weapon),
     ...(c.accuse?.askHelper ? { askHelper: true as const } : {}),
     progress: publicProgress(c, createInitialGameState(c)),
     ...(c.setting ? { setting: publicSetting(c.setting) } : {}),
     ...(c.theme ? { theme: structuredClone(c.theme) } : {}),
     ...(c.audio ? { audio: structuredClone(c.audio) } : {}),
+    ...(features ? { features } : {}),
   };
 }

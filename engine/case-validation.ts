@@ -11,6 +11,7 @@ import { coreGuiltSecretIds, guiltProfile, guiltProfiles } from "./core-guilt";
 import { compileForbiddenPhrase, unlessRevealedIds } from "@/ai/forbidden-phrases";
 import { findGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
 import { knowledgeGate } from "./knowledge-gate";
+import { checkFeatureConfig, featureWarnings } from "./features/registry";
 import { checkPresentation } from "./presentation-validation";
 
 /**
@@ -318,6 +319,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
 
   issues.push(...checkProgression(c));
   issues.push(...checkPresentation(c));
+  issues.push(...checkFeatureConfig(c));
   return issues;
 }
 
@@ -457,6 +459,7 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   warnings.push(...checkGuiltLeakPaths(c));
   warnings.push(...checkGuardDataWarnings(c));
   warnings.push(...culpritEndingWarnings(c));
+  warnings.push(...featureWarnings(c));
 
   const summaryNeeded = new Set<string>();
   for (const ch of c.characters) {
