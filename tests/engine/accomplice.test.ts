@@ -12,7 +12,7 @@ import { ACCUSE_LINES, handleAccuse, type AccusedStore, type ClosedGamesStore } 
 import { gradeAccusation } from "@/engine/accusation";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
-import { checkCaseReferences } from "@/engine/case-validation";
+import { checkCaseReferences, culpritEndingWarnings } from "@/engine/case-validation";
 import { createInitialGameState } from "@/engine/game-state";
 import { RESET_NOTICE, restoreSession } from "@/engine/session";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
@@ -173,5 +173,28 @@ describe("G1 endings never leak the helper", () => {
     const s = structuredClone(one);
     s.endings!.wrong.gregory = [...s.endings!.wrong.gregory, cameo];
     expect(JSON.stringify((await accuse(s, { ...WIN, murdererId: "gregory" })).body.ending)).toContain(cameo.text);
+  });
+
+  it("DX11: a culprit's own wrong ending drops the OTHER culprit's cameo, keeps their own lines, and the validator warns", async () => {
+    const c = structuredClone(two);
+    const helper = c.solution.accompliceId!;
+    const doer = c.solution.murdererId;
+    const byHelper = { speaker: helper, text: "Steady on. We agreed you'd keep quiet." };
+    const byDoer = { speaker: doer, text: "Say nothing, you fool." };
+    c.endings!.wrong[doer] = [...c.endings!.wrong[doer], byHelper];
+    c.endings!.wrong[helper] = [...c.endings!.wrong[helper], byDoer];
+    const own = c.endings!.wrong[doer][0].text;
+    const doerLoss = await accuse(c, { ...WIN, accompliceId: null }); // right doer, no helper: a loss
+    expect(doerLoss.body.ending?.outcome).toBe("lost");
+    expect(JSON.stringify(doerLoss.body.ending)).toContain(own);
+    expect(JSON.stringify(doerLoss.body.ending)).not.toContain(byHelper.text);
+    expect(JSON.stringify((await accuse(c, { ...WIN, murdererId: helper, accompliceId: null })).body.ending)).not.toContain(byDoer.text);
+    expect(culpritEndingWarnings(c).map((w) => w.path)).toEqual([`wrong.${doer}.${c.endings!.wrong[doer].length - 1}`, `wrong.${helper}.${c.endings!.wrong[helper].length - 1}`]);
+    const named = structuredClone(two);
+    const helperName = named.characters.find((x) => x.id === helper)!.name;
+    named.endings!.wrong[doer] = [...named.endings!.wrong[doer], { speaker: doer, text: `Ask ${helperName}, not me.` }];
+    expect(culpritEndingWarnings(named).some((w) => /names the other culprit/.test(w.message))).toBe(true);
+    expect(culpritEndingWarnings(two)).toEqual([]);
+    expect(culpritEndingWarnings(one)).toEqual([]);
   });
 });
