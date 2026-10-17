@@ -47,7 +47,7 @@ Plus three **robustness problems that would hurt case two specifically**: the si
 
 **Decisions made** (George and Agatha; section "Decisions made" below): strict two-culprit grading with an always-asked helper picker; confrontation caps 4 per pair / 16 total; case two unlocks after solving Blackwood (no chooser); Tallyho's setting, vocabulary and authority (the purser).
 
-**Open questions that still shape the build** (full list in section 10.2): Q3 whether confrontation exchanges count towards the talk gate (settled: only for the addressed suspect, DX8); Q7 how far per-case theming (colours, logo) goes; Q8 to Q16 (token compression, `keyTestimonyGroups`, balance, analytics, assets, validator rollout, `publish:case`); and the new Q17 (an escape hatch for players who lose their browser storage).
+**Open questions that still shape the build** (full list in section 10.2): Q3 whether confrontation exchanges count towards the talk gate (settled: only for the addressed suspect, DX8); Q7 how far per-case theming (colours, logo) goes; Q8 to Q16 except Q12 (decided: no half-right line) (token compression, `keyTestimonyGroups`, balance, analytics, assets, validator rollout, `publish:case`); and the new Q17 (an escape hatch for players who lose their browser storage).
 
 ## Decisions made (George and Agatha)
 
@@ -63,6 +63,9 @@ These were open questions in earlier revisions. Each is now a decision; the depe
 | Q6 | **The in-world authority is the purser**, a neutral, non-suspect, offstage figure; there are no police on board until port. The authority noun is a **per-case field**. | Agatha | The captain cannot be the authority because Captain Bilge is a suspect; "the constable" does not exist at sea. | 4.4, V32, `engine/session.ts` lines |
 | Q6 | **The vocabulary check (the "telephone is not modern" rule from #26) reads the per-case list**, not a hard-coded one. | Agatha | Blackwood's "telephone is fine" exemption must not leak into, or block, another era. | 4.4, `ai/canon-check.ts` |
 | Q6 | **`orderLandmarks` are per-case in `case.json`** for Tallyho: the storm, the wave at 22:14, the cheer at 22:38, the body found at 22:55. | Agatha | The order check only knows Blackwood's five landmarks today (F9), so it would be inert for Tallyho. | 4.4, `ai/order-check.ts`, V13 |
+| Q12 / audit D7 | **No "half right" loss line.** No loss line, recap or ending says which culprit the player had right. | George (2026-10-18) | It leaks across replays (#22, audit T-39). | 3.2, design 4.6/4.7, phase 5 (G2) |
+| audit D3 | **Role wording on the accuse form, every case:** *"Who struck the fatal blow?"* then *"Did anyone help?"*; the confirm dialog repeats the roles in words. | George (2026-10-18) | A two-culprit player never loses on a wording guess (audit T-38). | 3.2, phase 5 |
+| audit D6 | **Dame Gherkina's pickle offer is £200,000**, not £2,000,000. | George (2026-10-18) | Period scale for 1936 (audit T-30). | Phase 2 data, `f-pickle-offer` |
 | Q7 | *Partly resolved by the Q6 decision:* the `setting` block (era, place, authority, vocabulary) is settled. **Theme colours / logo scope stays open** as the narrowed Q7. | Agatha | Her decision did not cover colours or title art. | 4.4, 10.2 |
 
 
@@ -158,7 +161,7 @@ won: murdererCorrect && accompliceCorrect && weaponCorrect && motiveCorrect && h
 - **Wire format.** `AccusationDraft.accompliceId` is `string | null | undefined`: `undefined` = not answered (client blocks submit), `null` = "No one helped", an id = that suspect. `validateAccusationDraft` (`engine/accuse-schema.ts`) fails with "Say whether anyone helped." on `undefined`. The new client always sends `accompliceId` as an id or `null`; the server treats an absent field (an old tab, an old test) as `null`, so single-culprit grading is unchanged and stale clients keep working.
 - Shown for **every** case, including single-culprit ones (in a single-culprit case the right answer is "No one helped"). Blackwood players get one extra tap.
 - `ConfirmDialog` repeats the full accusation (murderer, helper or "no one", weapon, motive) before "This ends the case."
-- **Role wording (audit T-38, needs George's OK):** with strict roles a two-culprit player must never lose on a wording guess. "Who did it?" gains the hint *"The one who struck the fatal blow."* and the confirm dialog says the roles in words ("Amadeo struck the blow. Horatio helped." style, names from data). Same text in every case, so it tips nothing off.
+- **Role wording (audit T-38 / D3, decided by George, 2026-10-18):** with strict roles a two-culprit player must never lose on a wording guess. The form asks *"Who struck the fatal blow?"* then *"Did anyone help?"*, and the confirm dialog says the roles in words ("Amadeo struck the blow. Horatio helped." style, names from data). Same text in every case, so it tips nothing off.
 - On phones the helper picker uses name-only chips (no portraits) to save height; the sticky submit bar is unchanged.
 
 ### 3.3 Time-misdirection (a watch and a recording)
@@ -819,7 +822,7 @@ Q1, Q2, Q4, Q5 and Q6 were decided and moved to "Decisions made" near the top; t
 | Q9 | **`keyTestimonyGroups`** (S) and the pending-reveal fallback after N failures (M)? | Yes to both. **Audit:** both are required for Tallyho, not nice-to-have: groups make the strict two-culprit win cite a witness to each half, and the fallback is the safety net for guilt-check false positives (DX3/DX4) on gate-critical reveals | phase 5 |
 | Q10 | **Testimony-triggered reveals** (G4) and a `lieBrokenIds` atom (G8)? Not needed for Tallyho. | Testimony reveals are **already built** (audit correction); `lieBrokenIds`: defer | |
 | Q11 | **Length and balance**: is a 32-action floor (about 45 to 70 typical) right for a public game? | Playtest before deciding; the gate values are data | phase 11 |
-| Q12 | **A "half right" loss line** (one culprit correct)? | Keep it off: it leaks (#22). The generic loss only | phase 5 |
+| Q12 | **A "half right" loss line** (one culprit correct)? | **DECIDED (George, 2026-10-18): off.** It leaks (#22). The generic loss only | phase 5 |
 | Q13 | **Analytics** (where players stall)? No dependency exists today. | Decide privacy stance; start with the soak script, not client telemetry | phase 11 |
 | Q14 | **Namespace assets per case** or stay flat with collision checks? | Flat + checks now; namespace if a third case arrives | phase 3 |
 | Q15 | **Validator strictness rollout** (R16): warnings first, then errors? Who owns the per-case `lint` allowances? | Warn first for one case cycle, then promote | phase 8 |
