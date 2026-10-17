@@ -1,0 +1,190 @@
+{
+  "correct": {
+    "confession": [
+      {
+        "speaker": "zippelli",
+        "text": "Zippelli objects! Zippelli was sealed in glass before forty witnesses and a wax seal! Zippelli has the most famous alibi on the seven seas!",
+        "pauseMs": 1200,
+        "emotion": "smug"
+      },
+      {
+        "speaker": "narrator",
+        "text": "The detective sets a stoneware crock on the table. It is wearing the Commodore's toupee.",
+        "pauseMs": 1400,
+        "evidenceIds": [
+          "crock-13"
+        ]
+      },
+      {
+        "speaker": "zippelli",
+        "text": "...Ah. The hat.",
+        "pauseMs": 1500,
+        "emotion": "shocked"
+      },
+      {
+        "speaker": "zippelli",
+        "text": "Very well! Yes! I did it. Not Zippelli, I. At 21:52, with crock thirteen, while the old fool was waving gold at me and promising the gallows at midnight. And then the marmalade, detective. The MARMALADE. My greatest escape, ruined by MARMALADE!",
+        "pauseMs": 1800,
+        "emotion": "panicked",
+        "evidenceIds": [
+          "marmalade-run"
+        ]
+      },
+      {
+        "speaker": "zippelli",
+        "text": "I set his watch to 22:41 and walked out. The rest was not my department. Ask the man with the key to the chartroom.",
+        "pauseMs": 1600,
+        "emotion": "angry"
+      },
+      {
+        "speaker": "bilge",
+        "text": "I did not make an error. I altered the course of events.",
+        "pauseMs": 1600,
+        "emotion": "defensive",
+        "evidenceIds": [
+          "cheer-cylinder"
+        ]
+      },
+      {
+        "speaker": "bilge",
+        "text": "At 22:36 I gave the Chief my wheel, stepped behind the curtain and started the Old Man's cheer from the Cheer-Box. Hiccup and all. A master does not leave his wheel, detective. Except, it seems, once.",
+        "pauseMs": 1800,
+        "emotion": "sad"
+      }
+    ],
+    "recap": [
+      {
+        "speaker": "narrator",
+        "text": "The Commodore died at 21:52, not 22:41. The Great Zippelli struck him with crock 13 in the stateroom, at the quarter-to-ten meeting the Commodore had called himself.",
+        "pauseMs": 1400,
+        "evidenceIds": [
+          "crock-13"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "The jar on the desk burst while the ship leaned to starboard, and the marmalade set by the starboard wall. At 22:14 the Great Lurch swung her to port, and the sea chest skated across the room until it hit the body and stopped on his coat-tail. He was already lying there.",
+        "pauseMs": 1600,
+        "evidenceIds": [
+          "marmalade-run",
+          "heel-chart"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "Zippelli set the watch to 22:41 and smashed it. At 22:38, while he sat sealed in glass before the whole saloon, Captain Bilge played the Commodore's recorded cheer over the Voice-Horns, so the ship would swear he was alive.",
+        "pauseMs": 1600,
+        "evidenceIds": [
+          "smashed-watch",
+          "cheer-cylinder"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "The cargo was gold, hidden in false-bottomed crocks and bound for a lugger off Cape Kipper at dawn. The Commodore found crock 13, meant to expose them both at midnight, and never reached it.",
+        "pauseMs": 1600,
+        "evidenceIds": [
+          "route-sheet",
+          "midnight-notes"
+        ]
+      },
+      {
+        "speaker": "narrator",
+        "text": "The purser has the statements, the police have a long morning ahead of them, and Duchess the goat has eaten the purser's pencil. Case closed, detective.",
+        "pauseMs": 1400
+      }
+    ]
+  },
+  "wrong": {
+    "gherkina": [
+      {
+        "speaker": "gherkina",
+        "text": "Me? Pickled in suspicion, am I? I have never been so insulted, and I once lost a county fair to a jar of chutney!",
+        "pauseMs": 1000,
+        "emotion": "angry"
+      },
+      {
+        "speaker": "gherkina",
+        "text": "You'll be hearing from my solicitors, detective. They are very sharp. Like a good malt vinegar.",
+        "pauseMs": 1400,
+        "emotion": "defensive"
+      }
+    ],
+    "bilge": [
+      {
+        "speaker": "bilge",
+        "text": "I beg your pardon? A master of this vessel, accused on his own deck? Most irregular.",
+        "pauseMs": 1000,
+        "emotion": "angry"
+      },
+      {
+        "speaker": "bilge",
+        "text": "Note it in your book, detective: you have run aground. I shall be on my bridge, where I always am.",
+        "pauseMs": 1400,
+        "emotion": "defensive"
+      }
+    ],
+    "percy": [
+      {
+        "speaker": "percy",
+        "text": "Me? Oh! But I loved him! (Mostly.) I wouldn't hurt a fly, ask anyone. Ask the goat. I mean, there isn't a goat.",
+        "pauseMs": 1000,
+        "emotion": "shocked"
+      },
+      {
+        "speaker": "percy",
+        "text": "I think I shall go and lie down in my cabin. My real cabin. Truly.",
+        "pauseMs": 1400,
+        "emotion": "sad"
+      }
+    ],
+    "zippelli": [
+      {
+        "speaker": "zippelli",
+        "text": "Zippelli? Accused? The audacity! Zippelli has escaped from shackles, sharks and the Bank of England, and now this?",
+        "pauseMs": 1000,
+        "emotion": "angry"
+      },
+      {
+        "speaker": "zippelli",
+        "text": "You have no proof that would fill a top hat, detective. Zippelli bids you good night.",
+        "pauseMs": 1400,
+        "emotion": "smug"
+      }
+    ],
+    "ottilie": [
+      {
+        "speaker": "ottilie",
+        "text": "No.",
+        "pauseMs": 800,
+        "emotion": "suspicious"
+      },
+      {
+        "speaker": "ottilie",
+        "text": "Gladys says you're wrong. Gladys is never wrong. I'm going back to my boiler.",
+        "pauseMs": 1400,
+        "emotion": "angry"
+      }
+    ],
+    "boris": [
+      {
+        "speaker": "boris",
+        "text": "Me? Oh, detective, my heart, it is a fallen souffle! I could not kill a lobster without saying sorry first!",
+        "pauseMs": 1000,
+        "emotion": "panicked"
+      },
+      {
+        "speaker": "boris",
+        "text": "I shall go and weep into the custard. It is all I am good for now.",
+        "pauseMs": 1400,
+        "emotion": "sad"
+      }
+    ]
+  },
+  "escapedLine": "THE MURDERER SLIPPED THE NET!",
+  "sloppyRemark": {
+    "speaker": "narrator",
+    "text": "Case closed, detective, though a few of those exhibits had no business in the evidence bag. The purser has filed them under 'Miscellaneous, Sticky'.",
+    "pauseMs": 1600
+  }
+}

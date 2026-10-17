@@ -1,0 +1,787 @@
+{
+  "id": "_tallyho",
+  "title": "Murder Cruise on the S.S. Tallyho",
+  "tagline": "A storm at sea. A cheer at 22:38. A marmalade king bonked at the Gala, and six guests who all have something to hide.",
+  "intro": "The summer of 1936, the Bay of Bother, and a thunderstorm the size of a county. The private steam yacht S.S. Tallyho is wallowing through the Commodore's Last Tally-Ho Gala: a band, a buffet, a magician in a glass chest, and a Midnight Announcement that nobody is allowed to know about.\n\nYou came aboard as a guest and spent the evening flat on your back in a forward cabin, seasick from nine o'clock, hearing nothing but the storm. At ten past eleven the purser knocks. Commodore Barnabas \"Barnacle\" Brine, the Marmalade King, is dead in his stateroom.\n\nAt 22:38 the whole ship heard him bellow his famous cheer, \"TALLY-HO! SPREAD THE BRINE!\", over the Voice-Horns. At 22:55 his niece opened his door and found him bonked on the head among a great deal of marmalade, his orange toupee gone and his pocket-watch smashed at 22:41. Whatever hit him has vanished.\n\nThe wireless died in the squall, there is no doctor aboard, and the police take over when the Tallyho makes port in the morning. Until then the purser keeps the inquiry, and he has asked you to find out what happened. Six people had a reason to want the Commodore quiet. Every one of them is lying about something.",
+  "dayStartsAt": "18:00",
+  "knowledgeGate": "explicit",
+  "systemLines": {
+    "caseClosed": "The purser has everyone's statements, and the police take over when we make port.",
+    "caseClosedSearch": "The purser has locked every door below decks. There is nothing left to find tonight.",
+    "recordDown": "The purser's pen has run dry and the ink is everywhere. The record will have to wait a moment; your notes are safe. Make your accusation again shortly."
+  },
+  "victim": {
+    "id": "commodore-brine",
+    "name": "Commodore Barnabas \"Barnacle\" Brine",
+    "aliases": [
+      "the Commodore",
+      "Barnacle",
+      "Barnabas",
+      "Uncle Barnabas",
+      "the Old Man",
+      "the Marmalade King"
+    ],
+    "description": "The Marmalade King: owner of Brine's Bitter Orange and of the S.S. Tallyho. Small, round and very loud, with an orange swirl toupee, a brass trumpet and a cheer that could rattle portholes.",
+    "foundAtLocationId": "cabin-deck",
+    "foundAt": "22:55",
+    "causeOfDeath": "A single BONK to the head with something heavy and round, which has vanished. So has his orange toupee."
+  },
+  "locations": [
+    {
+      "id": "cabin-deck",
+      "name": "The Cabin Deck and Stateroom",
+      "description": "A narrow mahogany corridor of brass-numbered doors with a Voice-Horn in the ceiling. At the end lies the Owner's Stateroom: a desk, a brass-bound sea chest, a porthole under the starboard lifeboats, and a carpet drowned in marmalade.",
+      "searchFlavor": {
+        "lines": [
+          "The marmalade is up to your ankles and has opinions.",
+          "Brass numbers, sticky doorknobs and a sign that says ENTER AT PERIL. You entered. So far, no peril."
+        ],
+        "emptyLine": "The stateroom has told you everything it is willing to tell, for now. The marmalade disagrees, loudly."
+      }
+    },
+    {
+      "id": "ballroom",
+      "name": "The Grand Saloon",
+      "description": "The Gala in full swing: a band, a buffet, a sloshing tank-stage with a glass chest, and a greenroom behind it where the headliner's prop trunk waits in the wings. A Voice-Horn hangs over the bandstand.",
+      "searchFlavor": {
+        "lines": [
+          "The buffet, the band, the trunk. The trunk is locked with seventeen padlocks and a rabbit.",
+          "Forty guests, one tank-stage and a rubber shark that has seen things."
+        ],
+        "emptyLine": "Nothing here but cold canapes and a rabbit giving you a look."
+      }
+    },
+    {
+      "id": "bridge",
+      "name": "The Bridge and Chartroom",
+      "description": "A brass wheel with a lashing rope on one spoke, the engine-room telegraph, and a chart table with the deck log under a brass weight. Aft of the wheel hangs a velvet curtain, and behind it the chartroom door, kept locked.",
+      "searchFlavor": {
+        "lines": [
+          "Rain hammers the windows. The wheel creaks. The compass points firmly at nothing you can use.",
+          "Charts, dividers and a cap on a peg. A very orderly bridge for such a disorderly night."
+        ],
+        "emptyLine": "The bridge has nothing more to say. The wheel keeps its own counsel."
+      },
+      "requires": {
+        "interrogated": [
+          {
+            "characterId": "bilge",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "lockedLine": "A brass chain across the bridge ladder, and a sign in a square hand: NO ADMITTANCE WITHOUT A PROPER WORD WITH THE MASTER."
+    },
+    {
+      "id": "galley",
+      "name": "The Galley",
+      "description": "A steaming brass-and-copper kitchen. Crates of numbered crocks, a rack of knives, recipe drawers, a weeping giant, and a Voice-Horn dangling over the stove.",
+      "searchFlavor": {
+        "lines": [
+          "Steam, copper pans and crates of crocks stacked for midnight. Somewhere a souffle is sobbing.",
+          "A cleaver quivers gently in the door frame, as if it has had a long night too."
+        ],
+        "emptyLine": "Only pans and onions left to search, and the onions are making you cry."
+      },
+      "requires": {
+        "interrogated": [
+          {
+            "characterId": "boris",
+            "minExchanges": 1
+          }
+        ]
+      },
+      "lockedLine": "A cleaver quivers in the door frame. A tearful voice: \"Ask first. Search after.\""
+    },
+    {
+      "id": "engine-room",
+      "name": "The Engine Room",
+      "description": "A roaring boiler named Gladys, a wall of dials, a heel recorder ticking out its paper strip and, behind a bolted hatch, the pump house. The air smells of hot oil and, faintly, burnt breakfast.",
+      "searchFlavor": {
+        "lines": [
+          "Gladys roars. The dials quiver. A smell like a burnt breakfast drifts from behind a hatch.",
+          "Grease, steam and a heel recorder scratching away like a nervous clerk."
+        ],
+        "emptyLine": "Gladys has nothing further to add, and says so at great volume."
+      },
+      "requires": {
+        "interrogated": [
+          {
+            "characterId": "ottilie",
+            "minExchanges": 1
+          }
+        ]
+      },
+      "lockedLine": "The hatch is bolted. A hand-painted sign: NO ENTRY WITHOUT A WORD FIRST. THE SPANNER IS NOT A JOKE."
+    },
+    {
+      "id": "boat-deck",
+      "name": "The Boat Deck",
+      "description": "Wind, spray and creaking lifeboats on their davits. The rail looks down on the Owner's Stateroom porthole. In lifeboat 3, something bleats.",
+      "searchFlavor": {
+        "lines": [
+          "The wind tries to take your hat. The lifeboats creak. One of them bleats.",
+          "Spray, hay and a strong smell of goat. Hay? Goat?"
+        ],
+        "emptyLine": "Nothing up here now but weather, and one very pleased goat."
+      },
+      "requires": {
+        "leadIds": [
+          "lead-boat-deck"
+        ]
+      },
+      "lockedLine": "The storm hatch is dogged shut. There is no good reason to go up there yet. Somebody on this ship has one."
+    }
+  ],
+  "facts": [
+    {
+      "id": "f-voice-horns",
+      "statement": "The Tallyho's Voice-Horn network: brass horns hang in the Grand Saloon, the cabin-deck corridor, the galley and the bridge wing. The Commodore speaks into the trumpet in his stateroom and the horns carry his voice.",
+      "category": "object"
+    },
+    {
+      "id": "f-horn-junction-bilge",
+      "statement": "The Voice-Horns are fed from a junction box in the chartroom, behind the bridge; a switch there chooses what they carry.",
+      "category": "object",
+      "locationId": "bridge",
+      "hiddenUntil": {
+        "secretIds": [],
+        "lieIds": [
+          "l-bilge-owner-cheer"
+        ]
+      }
+    },
+    {
+      "id": "f-horn-junction-ottilie",
+      "statement": "The Voice-Horns are fed from a junction box in the chartroom, behind the bridge; a switch there chooses what they carry. Ottilie services it.",
+      "category": "object",
+      "locationId": "bridge",
+      "hiddenUntil": {
+        "secretIds": [
+          "s-ottilie-bridge-visits"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-cheer-tradition",
+      "statement": "Tradition: at the drum-roll-and-shark moment of the Plunge (22:38 on the printed programme) the Commodore bellows 'TALLY-HO! SPREAD THE BRINE!' down his stateroom trumpet.",
+      "category": "background"
+    },
+    {
+      "id": "f-plunge-programme",
+      "statement": "Printed programme: 22:00 band; 22:15 The Great Zippelli's Half-Hour Plunge (chained in a sealed glass chest, visible to the whole saloon until 22:49); 22:38 drum roll, rubber shark and the Commodore's cheer; midnight, The Announcement.",
+      "category": "background"
+    },
+    {
+      "id": "f-cheer-box-bilge",
+      "statement": "In the chartroom stands the Cheer-Box, an old wind-up phonograph holding a wax cylinder of the Commodore's cheer, kept for nights his voice gives out. It is started by hand and has no timer.",
+      "category": "object",
+      "locationId": "bridge",
+      "hiddenUntil": {
+        "secretIds": [],
+        "lieIds": [
+          "l-bilge-owner-cheer"
+        ]
+      }
+    },
+    {
+      "id": "f-cheer-box-ottilie",
+      "statement": "In the chartroom stands the Cheer-Box, an old wind-up phonograph holding a wax cylinder of the Commodore's cheer, kept for nights his voice gives out. It is started by hand and has no timer. Ottilie services it.",
+      "category": "object",
+      "locationId": "bridge",
+      "hiddenUntil": {
+        "secretIds": [
+          "s-ottilie-bridge-visits"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-chartroom-access-bilge",
+      "statement": "Behind the velvet curtain aft of the bridge wheel, the chartroom door is kept locked. Two keys open it: the Master's, on the Captain's belt, and the Chief Engineer's, for servicing the Cheer-Box and the junction box.",
+      "category": "object",
+      "locationId": "bridge",
+      "hiddenUntil": {
+        "secretIds": [],
+        "lieIds": [
+          "l-bilge-owner-cheer"
+        ]
+      }
+    },
+    {
+      "id": "f-chartroom-access-ottilie",
+      "statement": "Behind the velvet curtain aft of the bridge wheel, the chartroom door is kept locked. Two keys open it: the Master's, on the Captain's belt, and the Chief Engineer's, which Ottilie holds for servicing the Cheer-Box and the junction box.",
+      "category": "object",
+      "locationId": "bridge",
+      "hiddenUntil": {
+        "secretIds": [
+          "s-ottilie-bridge-visits"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-list-history",
+      "statement": "From the squall at 21:40 the Tallyho leaned to starboard. At the Great Lurch at 22:14 she swung over and leaned to port for the rest of the night.",
+      "category": "timeline"
+    },
+    {
+      "id": "f-zippelli-allergy",
+      "statement": "The Great Zippelli is famously, violently allergic to oranges. The galley is forbidden to serve marmalade within ten feet of his stage.",
+      "category": "background"
+    },
+    {
+      "id": "f-stateroom-sign",
+      "statement": "On Gala nights the Commodore hangs a sign on his door: 'WRITING SPEECH, ENTER AT PERIL.' Nobody has ever dared to ignore it. Rumour says it is backed by a bucket of marmalade on a pulley.",
+      "category": "background"
+    },
+    {
+      "id": "f-no-doctor",
+      "statement": "There is no doctor aboard. Nobody qualified can say how long the Commodore had been dead.",
+      "category": "background"
+    },
+    {
+      "id": "f-announcement-rumours",
+      "statement": "Everyone aboard has a theory about The Announcement at midnight: an heir, a sale, a scandal.",
+      "category": "motive"
+    },
+    {
+      "id": "f-pickle-offer",
+      "statement": "Dame Gherkina offered two hundred thousand pounds for Brine's Marmalade last Tuesday. The Commodore refused, in public, in rhyme.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "gherkina",
+        "commodore-brine"
+      ]
+    },
+    {
+      "id": "f-crock-gala",
+      "statement": "Two dozen stoneware crocks of Brine's Triple-Strength are the Gala favours, stacked in the galley for midnight. The crates come up from the Captain's stores.",
+      "category": "object",
+      "locationId": "galley"
+    },
+    {
+      "id": "f-tallyho-scrap",
+      "statement": "The Commodore means to sell the Tallyho to the breakers at Port Pottle after this cruise. The crew would be paid off.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "commodore-brine"
+      ]
+    },
+    {
+      "id": "f-new-will",
+      "statement": "The Commodore's new will, to be signed at midnight, leaves Percy nothing; everything goes to the crew pension fund.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "percy",
+        "commodore-brine"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-percy-new-will"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-recipe-turnips-boris",
+      "statement": "The Brine's 'secret bitter-orange recipe' is nine parts turnip. Boris cooks it that way.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "boris"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-boris-recipe-sale"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-recipe-turnips-gherkina",
+      "statement": "The Brine's 'secret bitter-orange recipe' is nine parts turnip. Dame Gherkina means to tell the world.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "gherkina"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-gherkina-recipe-buy"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-orange-still",
+      "statement": "Ottilie brews Orange Lightning from surplus marmalade in the pump house, behind the engine room.",
+      "category": "background",
+      "locationId": "engine-room",
+      "involvesCharacterIds": [
+        "ottilie"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-ottilie-still"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-goat-percy",
+      "statement": "A goat called Duchess lives in lifeboat 3, smuggled aboard by Percy. Boris slips her turnip peelings.",
+      "category": "background",
+      "locationId": "boat-deck",
+      "involvesCharacterIds": [
+        "percy",
+        "boris"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-percy-goat"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-goat-boris",
+      "statement": "A goat called Duchess lives in lifeboat 3, smuggled aboard by Percy. Boris slips her turnip peelings.",
+      "category": "background",
+      "locationId": "boat-deck",
+      "involvesCharacterIds": [
+        "percy",
+        "boris"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-boris-recipe-sale"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-commodore-schedule",
+      "statement": "What the Commodore told the Captain on the bridge: he would see 'your magician friend' at a quarter to ten and the Captain at half past eleven, before the Announcement at midnight.",
+      "category": "timeline",
+      "involvesCharacterIds": [
+        "commodore-brine",
+        "bilge"
+      ]
+    },
+    {
+      "id": "f-zippelli-trunk-zippelli",
+      "statement": "The Great Zippelli's prop trunk, in the saloon wings, has a false wall with padded trays for 'cargo'.",
+      "category": "object",
+      "locationId": "ballroom",
+      "involvesCharacterIds": [
+        "zippelli"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-zippelli-smuggling"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-zippelli-trunk-bilge",
+      "statement": "The Great Zippelli's prop trunk, in the saloon wings, has a false wall with padded trays for 'cargo'.",
+      "category": "object",
+      "locationId": "ballroom",
+      "involvesCharacterIds": [
+        "zippelli"
+      ],
+      "hiddenUntil": {
+        "secretIds": [],
+        "lieIds": [
+          "l-zippelli-trunk"
+        ]
+      }
+    },
+    {
+      "id": "f-route-dawn-bilge",
+      "statement": "The Tallyho is not headed straight for Port Pottle. Since the 22:14 turn she has been heading for Cape Kipper, where at dawn she meets a lugger to hand over the crocks.",
+      "category": "timeline",
+      "involvesCharacterIds": [
+        "bilge"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-bilge-smuggling"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-route-dawn-zippelli",
+      "statement": "The Tallyho is not headed straight for Port Pottle. Since the 22:14 turn she has been heading for Cape Kipper, where at dawn she meets a lugger to take the crocks from the wings.",
+      "category": "timeline",
+      "involvesCharacterIds": [
+        "zippelli"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-zippelli-smuggling"
+        ],
+        "lieIds": []
+      }
+    },
+    {
+      "id": "f-pratt-appointment",
+      "statement": "A note slipped under Dame Gherkina's plate at dinner: 'Half past ten, my stateroom. Bring your cheque book. B.B.'",
+      "category": "timeline",
+      "involvesCharacterIds": [
+        "gherkina",
+        "commodore-brine"
+      ],
+      "hiddenUntil": {
+        "secretIds": [
+          "s-gherkina-at-door"
+        ],
+        "lieIds": [
+          "l-gherkina-door"
+        ]
+      }
+    },
+    {
+      "id": "f-zippelli-fee",
+      "statement": "The Commodore halved Zippelli's fee last week and re-printed the posters: 'THE BRINE DIP, starring a Man Who Gets Wet.' Zippelli has not forgiven it.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "zippelli",
+        "commodore-brine"
+      ]
+    },
+    {
+      "id": "f-percy-heir",
+      "statement": "Percy is the Commodore's only living relative and everyone assumes she inherits the marmalade empire.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "percy",
+        "commodore-brine"
+      ]
+    },
+    {
+      "id": "f-boris-sack",
+      "statement": "The Commodore has threatened to sack Boris three times this cruise for 'insufficient orange'.",
+      "category": "motive",
+      "involvesCharacterIds": [
+        "boris",
+        "commodore-brine"
+      ]
+    },
+    {
+      "id": "f-bilge-seasick",
+      "statement": "Captain Bilge is violently seasick in any swell and keeps a bucket in the chartroom.",
+      "category": "background",
+      "involvesCharacterIds": [
+        "bilge"
+      ]
+    },
+    {
+      "id": "f-deck-log",
+      "statement": "The Captain keeps the Tallyho's deck log himself, in his own hand, on the bridge chart table. Every change of hand at the wheel is logged.",
+      "category": "object",
+      "locationId": "bridge",
+      "involvesCharacterIds": [
+        "bilge"
+      ]
+    }
+  ],
+  "motives": [
+    {
+      "id": "inheritance",
+      "label": "The will",
+      "description": "Someone stood to inherit the marmalade fortune, or to lose it."
+    },
+    {
+      "id": "takeover",
+      "label": "The pickle war",
+      "description": "A rival business wanted the empire, or feared it."
+    },
+    {
+      "id": "recipe",
+      "label": "The recipe",
+      "description": "Somebody's secret was about to be exposed in front of the world."
+    },
+    {
+      "id": "scrap-yard",
+      "label": "The scrap yard",
+      "description": "A livelihood was about to be sold off for scrap."
+    },
+    {
+      "id": "grudge",
+      "label": "The insult",
+      "description": "A public humiliation somebody could not forgive."
+    },
+    {
+      "id": "smuggling",
+      "label": "The cargo",
+      "description": "Something valuable was being carried that should not have been."
+    }
+  ],
+  "guiltCheck": {
+    "ignoreNameTokens": [],
+    "keepNameTokens": []
+  },
+  "leads": [
+    {
+      "id": "lead-bonk",
+      "title": "What did the bonking?",
+      "hint": "The Commodore was brained by something round and heavy, and his toupee is missing. Where does a murderer hide a toupee?",
+      "closesWhen": {
+        "evidenceIds": [
+          "crock-13"
+        ]
+      },
+      "closedLine": "A crock with a toupee on it. Never underestimate a hat."
+    },
+    {
+      "id": "lead-time",
+      "title": "When did he really die?",
+      "hint": "Everyone is certain of 22:41. When everyone is certain, check.",
+      "closesWhen": {
+        "evidenceIds": [
+          "marmalade-run"
+        ]
+      },
+      "closedLine": "The watch lied. The marmalade didn't."
+    },
+    {
+      "id": "lead-announcement",
+      "title": "What was the Midnight Announcement?",
+      "hint": "Six people were afraid of a speech nobody had heard.",
+      "closesWhen": {
+        "evidenceIds": [
+          "midnight-notes"
+        ]
+      },
+      "closedLine": "Five items, five ruined evenings, and a great deal of orange crayon."
+    },
+    {
+      "id": "lead-tilt",
+      "title": "Which way was downhill?",
+      "hint": "The watch lies in a sticky corner, yet the marmalade pooled somewhere else. Somewhere below decks, a machine keeps a record of which way the ship leans.",
+      "opensWhen": {
+        "evidenceIds": [
+          "smashed-watch"
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "heel-chart"
+        ]
+      },
+      "closedLine": "Starboard, then port. The sea keeps better minutes than any watch."
+    },
+    {
+      "id": "lead-voice",
+      "title": "Was that really the Commodore's cheer?",
+      "hint": "Every witness mentions the hiccup. Did the Commodore ever hiccup before?",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "percy",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "boris",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "gherkina",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "ottilie",
+            "minExchanges": 2
+          }
+        ],
+        "mode": "any"
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "cheer-cylinder"
+        ]
+      },
+      "closedLine": "It wasn't him. It was his phonograph."
+    },
+    {
+      "id": "lead-boat-deck",
+      "title": "What is going on above deck?",
+      "hint": "Three people came back smelling of the open air: hay, sea spray, cold wind. Something is going on up there.",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "percy",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "boris",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "gherkina",
+            "minExchanges": 2
+          }
+        ],
+        "mode": "any"
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "goat-evidence"
+        ]
+      },
+      "closedLine": "A goat. In a lifeboat. Wearing somebody's feather."
+    },
+    {
+      "id": "lead-crock13",
+      "title": "Whose crock was it?",
+      "hint": "The Commodore asked who packed Crock 13, and was told where the crates come from. What else comes from the same place?",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "boris",
+            "minExchanges": 2
+          }
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "route-sheet"
+        ]
+      },
+      "closedLine": "Thirteen crocks, one lugger, and a course that is anything but straight."
+    },
+    {
+      "id": "lead-smell",
+      "title": "Why does the engine room smell like burnt breakfast?",
+      "hint": "Marmalade, gin and regret.",
+      "opensWhen": {
+        "searchedLocationIds": [
+          "engine-room"
+        ]
+      },
+      "closesWhen": {
+        "evidenceIds": [
+          "orange-lightning"
+        ]
+      },
+      "closedLine": "Strictly medicinal. Strictly."
+    },
+    {
+      "id": "lead-recipe",
+      "title": "Two old enemies can't look each other in the eye.",
+      "hint": "Two people who hate each other's trade avoid each other's eyes. That is not hate.",
+      "opensWhen": {
+        "interrogated": [
+          {
+            "characterId": "gherkina",
+            "minExchanges": 2
+          },
+          {
+            "characterId": "boris",
+            "minExchanges": 2
+          }
+        ],
+        "mode": "any"
+      },
+      "closesWhen": {
+        "secretIds": [
+          "s-gherkina-recipe-buy"
+        ]
+      },
+      "closedLine": "The Pickle Queen's secret weapon: a root vegetable."
+    },
+    {
+      "id": "lead-alibi",
+      "title": "Who was where at the BONK?",
+      "hint": "Somebody heard a hollow BONK long before the cheer. Place every suspect at that minute.",
+      "opensWhen": {
+        "mode": "any",
+        "secretIds": [
+          "s-gherkina-recipe-buy",
+          "s-boris-saw-shadows",
+          "s-percy-goat"
+        ]
+      },
+      "closesWhen": {
+        "mode": "all",
+        "secretIds": [
+          "s-ottilie-bridge-visits",
+          "s-gherkina-recipe-buy",
+          "s-boris-saw-shadows",
+          "s-percy-goat"
+        ]
+      },
+      "closedLine": "Three on the boat deck, two on the bridge. Count again, detective."
+    },
+    {
+      "id": "lead-stager",
+      "title": "Who put words in the Commodore's mouth?",
+      "hint": "Somebody made the ship hear him at 22:38. Find out how, and who stood behind the curtain.",
+      "opensWhen": {
+        "evidenceIds": [
+          "cheer-cylinder"
+        ]
+      },
+      "closesWhen": {
+        "mode": "all",
+        "evidenceIds": [
+          "cheer-cylinder"
+        ],
+        "secretIds": [
+          "s-ottilie-curtain"
+        ]
+      },
+      "closedLine": "A click, a hiss, a whirr, and a hiccup. Nobody hiccups on cue."
+    },
+    {
+      "id": "lead-motive",
+      "title": "What was worth killing for?",
+      "hint": "Five people stood to lose something by midnight. Which loss was worth a man's life?",
+      "closesWhen": {
+        "mode": "all",
+        "evidenceIds": [
+          "route-sheet",
+          "crock-13"
+        ]
+      },
+      "closedLine": "Not the will, not the pickles, not the turnips. Something heavier."
+    }
+  ],
+  "accuseGate": {
+    "minEvidence": 8,
+    "minSuspectsQuestioned": {
+      "count": 6,
+      "minExchanges": 4
+    },
+    "minRevealedSecrets": 10,
+    "closedLeadIds": [
+      "lead-time",
+      "lead-alibi",
+      "lead-stager",
+      "lead-motive"
+    ],
+    "lockedLines": {
+      "evidence": "You have hunches and a notebook of sticky fingerprints. Find more clues before you accuse anyone.",
+      "suspects": "You haven't properly grilled everyone. Six suspects, six stories: get through all of them first.",
+      "secrets": "Too few of them have cracked. Keep pressing. Everyone aboard has something to hide.",
+      "leads": "Open questions on your board: when did he really die, who was where at the BONK, who spoke for him, and what was worth killing for?",
+      "default": "Not yet, detective. A real case needs a real proof."
+    }
+  },
+  "howToPlayTips": [
+    "The wireless is dead and the next port is hours away. Whoever did it is still aboard.",
+    "Everyone aboard is lying about something, and most of the lies have nothing to do with the murder.",
+    "The ship leans with the storm. Note which way, and when it changed.",
+    "Write down every time you are given and check it against the others. Certainty is not proof.",
+    "Some doors open only after a proper word with the person who keeps them.",
+    "Show a clue to the person it embarrasses most. Their story may change.",
+    "A revealed secret becomes a testimony card. Show it to someone whose story it contradicts."
+  ],
+  "confrontation": {
+    "perPair": 4,
+    "total": 16
+  }
+}
