@@ -4,7 +4,6 @@
  * (mocked model), present evidence, engine reveal, broken lie, and case
  * isolation of the signed token.
  */
-import { createHash, createHmac } from "node:crypto";
 import { beforeAll, describe, expect, it } from "vitest";
 import { handleInterrogate } from "@/ai/interrogate-handler";
 import { buildCharacterContext } from "@/engine/context-builder";
@@ -14,7 +13,7 @@ import { createInitialGameState } from "@/engine/game-state";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { getPublicCaseView } from "@/engine/public-view";
 import { RESET_NOTICE } from "@/engine/session";
-import { decodeStateToken, encodeStateToken, peekStateTokenCaseId } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, peekStateTokenCaseId, signPayloadForTests, unverifiedPayload } from "@/engine/state-token";
 import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 import { FIXTURES_DIR } from "../helpers/fixture";
 
@@ -122,13 +121,9 @@ describe("second case: harbor-light", () => {
   it("legacy tokens without caseId map to the legacy (default) case only", () => {
     // Re-sign a payload with caseId removed, as tokens looked before multi-case.
     const token = encodeStateToken(createInitialGameState(hl), TEST_ENV);
-    const [v, body] = token.split(".");
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+    const payload = unverifiedPayload(token)!;
     delete payload.caseId;
-    const newBody = Buffer.from(JSON.stringify(payload)).toString("base64url");
-    const key = createHash("sha256").update(TEST_ENV.GAME_STATE_SECRET).digest();
-    const sig = createHmac("sha256", key).update(`${v}.${newBody}`).digest("base64url");
-    const legacy = `${v}.${newBody}.${sig}`;
+    const legacy = signPayloadForTests(payload, TEST_ENV, "v1");
 
     expect(peekStateTokenCaseId(legacy, TEST_ENV)).toBeUndefined();
     expect(peekStateTokenCaseId(legacy, TEST_ENV, { legacyCaseId: "harbor-light" })).toBe("harbor-light");

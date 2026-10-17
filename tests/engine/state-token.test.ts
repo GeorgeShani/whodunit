@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
-import { decodeStateToken, encodeStateToken, stateKeySource } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, stateKeySource, tamperedTokenForTests, unverifiedPayload } from "@/engine/state-token";
 import { FIXTURE_ID, FIXTURES_DIR } from "../helpers/fixture";
 
 let c: LoadedCase;
@@ -27,7 +27,6 @@ function played() {
   return g;
 }
 
-const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
 
 describe("state token", () => {
   it("round-trips the runtime state", () => {
@@ -44,11 +43,11 @@ describe("state token", () => {
   });
 
   it("rejects a tampered payload (e.g. stress edited to 0 / secrets added)", () => {
-    const [v, body, sig] = encodeStateToken(played(), ENV).split(".");
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString());
-    payload.characters.reginald.stress = 0;
-    payload.discoveredEvidenceIds.push("burned-letter");
-    expect(decodeStateToken(`${v}.${b64(payload)}.${sig}`, c, ENV)).toEqual({ ok: false, reason: "bad_signature" });
+    const forged = tamperedTokenForTests(encodeStateToken(played(), ENV), (payload: any) => {
+      payload.characters.reginald.stress = 0;
+      payload.discoveredEvidenceIds.push("burned-letter");
+    });
+    expect(decodeStateToken(forged, c, ENV)).toEqual({ ok: false, reason: "bad_signature" });
   });
 
   it("rejects a token signed with another key", () => {
@@ -78,7 +77,7 @@ describe("state token", () => {
     const t = encodeStateToken(played(), xenv);
     expect(decodeStateToken(t, c, xenv).ok).toBe(true);
     expect(decodeStateToken(t, c, {})).toEqual({ ok: false, reason: "bad_signature" });
-    const decoded = Buffer.from(t.split(".")[1], "base64url").toString() + t;
+    const decoded = JSON.stringify(unverifiedPayload(t)) + t;
     expect(decoded).not.toContain("xai-super-secret-test-key");
   });
 });

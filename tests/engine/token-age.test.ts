@@ -1,4 +1,3 @@
-import { createHash, createHmac } from "node:crypto";
 import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { GET as health } from "@/app/api/health/route";
 import { handleInterrogate } from "@/ai/interrogate-handler";
@@ -8,7 +7,7 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { COLD_CASE_NOTICE, RESET_NOTICE, restoreSession } from "@/engine/session";
-import { decodeStateToken, encodeStateToken, isExpired, LEGACY_TOKEN_GRACE_UNTIL, STATE_TOKEN_MAX_AGE_MS } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, isExpired, LEGACY_TOKEN_GRACE_UNTIL, signPayloadForTests, STATE_TOKEN_MAX_AGE_MS, unverifiedPayload } from "@/engine/state-token";
 import { ACCUSED_TTL_SECONDS } from "@/lib/accused-store";
 import { mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
@@ -35,14 +34,11 @@ const at = (ms: number) => vi.useFakeTimers({ now: ms, toFake: ["Date"] });
 
 /** Re-sign a token's payload after editing it (as a token issued by older code would look). */
 function resign(token: string, edit: (p: Record<string, unknown>) => void): string {
-  const [v, body] = token.split(".");
-  const p = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+  const p = unverifiedPayload(token)!;
   edit(p);
-  const nb = Buffer.from(JSON.stringify(p)).toString("base64url");
-  const key = createHash("sha256").update(TEST_ENV.GAME_STATE_SECRET).digest();
-  return `${v}.${nb}.${createHmac("sha256", key).update(`${v}.${nb}`).digest("base64url")}`;
+  return signPayloadForTests(p, TEST_ENV, "v1");
 }
-const payloadOf = (t: string) => JSON.parse(Buffer.from(t.split(".")[1], "base64url").toString("utf8"));
+const payloadOf = (t: string) => unverifiedPayload(t)!;
 const midGame = () => {
   const g = createInitialGameState(c);
   g.discoveredEvidenceIds.push("silver-candlestick");

@@ -1,15 +1,36 @@
 {
-  "suspects": 4,
-  "tokenChars": 63765,
-  "tokenCharsPerSuspect": 15941,
-  "projectedTokenCharsAt6": 95648,
-  "tokenCap": 60000,
-  "longestPromptChars": 30911,
-  "longestPromptEstTokens": 7728,
-  "promptCharsBySuspect": {
-    "archibald": 29372,
-    "gregory": 27450,
-    "reginald": 30911,
-    "victoria": 30159
+  "suspects4": {
+    "suspects": 4,
+    "tokenChars": 22417,
+    "v1TokenChars": 63765,
+    "tokenCharsPerSuspect": 5604,
+    "projectedTokenCharsAt6": 33626,
+    "tokenCap": 60000,
+    "longestPromptChars": 30555,
+    "longestPromptEstTokens": 7639,
+    "promptCharsBySuspect": {
+      "archibald": 29058,
+      "gregory": 27337,
+      "reginald": 30555,
+      "victoria": 29595
+    }
+  },
+  "suspects6": {
+    "suspects": 6,
+    "tokenChars": 32609,
+    "v1TokenChars": 96583,
+    "tokenCharsPerSuspect": 5435,
+    "projectedTokenCharsAt6": 32609,
+    "tokenCap": 60000,
+    "longestPromptChars": 31517,
+    "longestPromptEstTokens": 7879,
+    "promptCharsBySuspect": {
+      "archibald": 30020,
+      "gregory": 28299,
+      "reginald": 31517,
+      "victoria": 30557,
+      "archibaldx2": 24820,
+      "gregoryx3": 22947
+    }
   }
 }
