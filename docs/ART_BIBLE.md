@@ -475,3 +475,143 @@ Non-neutral poses use the xAI image edit endpoint with that character's approved
 
 ### Evidence icons v0.1
 Five icons (4 Blackwood clues + fallback) drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) because the image API was out of credits at the time; one pass each, checked at 256 px and 64 px on light and dark backgrounds (`toon-drafts/evidence_contact.png`).
+
+## 10. S.S. Tallyho (case two) — v0.1
+
+Case two is a 1936 private steam yacht in a thunderstorm at sea. Same cartoon rules as Blackwood (§1–§3): the character style and avoid blocks are reused **verbatim**; only the backgrounds get a sea palette (night navy, slate teal, mahogany, tarnished brass) instead of the manor's plum and bottle green. Blackwood's assets and default theme are untouched.
+
+Case id is `_tallyho` while it is a draft, so every file lives in `assets/cases/_tallyho/` (the theme validator requires theme art in the case's own folder). If the folder is renamed on publish, the paths move with it.
+
+### 10.1 Theme (Q7) and contrast
+
+`case.json` block (Agatha owns the file; not added in the art PR):
+
+```json
+"theme": {
+  "palette": { "backdrop": "#0c1a2e", "paper": "#f6ecd2", "ink": "#16120e", "accent": "#f2a93b" },
+  "logo": "/assets/cases/_tallyho/logo.webp",
+  "titleArt": "/assets/cases/_tallyho/title.webp"
+}
+```
+
+| Token | Hex | Role |
+|---|---|---|
+| backdrop | `#0c1a2e` | night-sea navy |
+| paper | `#f6ecd2` | cream chart paper |
+| ink | `#16120e` | warm black |
+| accent | `#f2a93b` | marmalade brass |
+
+WCAG ratios (same formula as `engine/presentation.ts contrastRatio`, checked with `contrastFailures`, 0 failures):
+
+| Pair (validator) | Ratio | Min |
+|---|---|---|
+| ink on paper | 15.84:1 | 4.5 |
+| accent on backdrop | 8.74:1 | 4.5 |
+| paper on backdrop | 14.84:1 | 4.5 |
+| ink on accent (buttons, not checked by the validator) | 9.33:1 | 4.5 |
+
+Accent on paper is about 1.7:1, the same as Blackwood's yellow on paper: use accent as a fill on paper, never as text.
+
+### 10.2 Logo and title art
+
+- `logo.webp` 1478×380 RGBA (62 KB), the same box as `assets/title/title_logo.webp`. "S.S. TALLYHO" in Bangers (SIL OFL), drawn per letter with the WHODUNIT?! geometry (`toon-drafts/og/make_og.py` tiles, 17 px black outline, per-letter tilt and bounce, whole word tilted 4°). Fill: cream `#FFEEB2` → marmalade `#F7A634` → `#D65016`; navy-black `#060E1E` drop shadow (15, 18). Dots sit on the baseline. Builder: `toon-drafts/tallyho/logo.py`.
+
+- `title.webp` 1920×1080 q80 (159 KB): the yacht small and low on curling cartoon waves in a storm, a huge orange moon at the upper right, upper-middle sky left open for the logo, bolt painted in at the left (no separate flash frame, like the Blackwood title). Grade `grade(sat=0.92, hi=0.15, vig=0.35, center=(0.5, 0.5))`.
+
+### 10.3 Locked background style prompt (Tallyho)
+
+```
+Original 1940s theatrical cartoon background painting in the classic ink-and-paint animation style: hand-painted cel background with a soft gouache look, soft dark brown-black ink linework that is thinner and softer than character outlines, slightly exaggerated rubbery cartoon perspective and wobbly shapes. The interior of a 1930s private steam yacht. DARK, MUTED, desaturated palette of deep night-sea navy, slate teal, mahogany brown, tarnished brass and cool blue-violet shadows; dramatic chiaroscuro with deep cast shadows; warm amber lamplight pools (#E8A64A) glowing against cool navy shade; a stormy sea at night visible through round brass portholes or windows, with diagonal rain streaks and a lightning-lit sky. Empty stage-like set with no people. Cinematic 16:9 wide shot, eye-level camera, straight-on view.
+```
+
+Negative: §7's locked background negative, unchanged (the engine room drops "faces" so the boiler can have one). Each scene block ends with the §7 stage clause (floor meets the back wall at about 55%, open centre, empty bottom quarter). Scene blocks: `toon-drafts/tallyho/prompts.py`.
+
+### 10.4 Backgrounds
+
+`assets/cases/_tallyho/backgrounds/<locationId>.webp`, 1920×1080 q80, graded with §7's gameplay `grade()`. They follow the §7 sprite placement rule (feet at 74% of frame height). Wire them with each location's `background` field (the conventional `assets/backgrounds/<id>.webp` fallback is Blackwood's flat namespace, so it is not used).
+
+| Location id | Size | Contents |
+|---|---|---|
+| `cabin-deck` | 123 KB | mahogany corridor, portholes, ceiling speaking-horn, stateroom door at the end with a blank card and a bucket on a pulley |
+| `ballroom` | 156 KB | Grand Saloon: chandelier, empty bandstand with horn, buffet with crocks, glass tank and chest on a low stage, padlocked trunk in the wings |
+| `bridge` | 149 KB | storm windows, wheel with a lashed spoke, cap on a peg, engine telegraph, chart table with log and brass weight, velvet curtain over a locked door |
+| `galley` | 158 KB | copper pots, range with horn, crates of crocks, cleaver in the block, recipe drawers, checkered floor |
+| `engine-room` | 138 KB | boiler with a sleepy face, dial wall, drum recorder with a paper strip, small bolted hatch |
+| `boat-deck` | 197 KB | exterior: wet deck, lifeboats on davits (one with straw), rail and storm sea, funnel |
+
+Not made yet (lean pass): the stateroom variants, `_lightning` frames and window masks. The resting frames have painted lightning in the windows, so a flash should use the CSS brightness trick from §7.0 until flash frames exist.
+
+### 10.5 Characters (neutral only in v0.1)
+
+`assets/cases/_tallyho/characters/<id>/neutral.webp`, the §8 sprite spec unchanged: 784×1224 RGBA, feet on y=1200, feet centre x=392, facing left, one uniform scale per character (heights against Reginald below). Lossy WebP q86, alpha q90. Prompt: §2 style + description + pose + facing line + §3 avoid list. Dame Gherkina wears green, so she is generated on a **pure magenta (#FF00FF)** key: the style line swaps green for magenta and the avoid list swaps "green clothing" for "magenta, pink or purple clothing". The other five use the green key.
+
+The other six poses (talking, angry, nervous, shocked, smug, sad) and the `anchors.json` entries come next, as image edits from these neutrals (§ Prompt assembly). The engine loads sprites from `assets/characters/<portrait>/` today, so these need either a per-case sprite path or a move there before they show in game.
+
+| id | Height vs Reginald | Scale | Size |
+|---|---|---|---|
+| `gherkina` | 0.86 | 0.8083 | 78 KB |
+| `bilge` | 0.97 | 1.006 | 51 KB |
+| `percy` | 0.6 | 0.6201 | 65 KB |
+| `zippelli` | 0.99 | 0.9566 | 62 KB |
+| `ottilie` | 0.66 | 0.7269 | 53 KB |
+| `boris` | 0.95 | 0.9741 | 116 KB |
+
+#### LOCKED CHARACTER DESCRIPTION — gherkina
+
+```
+Dame Gherkina Piccalilli-Pratt, an original cartoon rival tycoon: a medium-height, stately, pear-shaped grand dame in her sixties with an imperious upright posture, a long haughty nose, sharp narrow eyes, a tight thin knowing smile, and silver-grey hair in tight curls. On her head sits a tall hat shaped exactly like a glass pickle jar with a gold screw lid on top and one fat green gherkin floating inside. She wears a floor-length bottle-green velvet gown with a high white lace collar, a triple string of large cream pearls and black evening gloves, and holds a thick black leather cheque book under one arm. Powdered pale skin.
+```
+
+`Pose: neutral — standing grand and upright, nose high, one gloved hand resting on the cheque book under her arm, the other at her side, a cool superior expression, mouth closed.`
+
+#### LOCKED CHARACTER DESCRIPTION — bilge
+
+```
+Captain Horatio Bilge, an original cartoon ship's captain: a tall, square-shouldered, barrel-chested middle-aged man with a rigid ramrod-straight posture, a big square lantern jaw, a short neat grey beard along the jawline, a bulbous pink nose, small stern eyes under thick bristly grey eyebrows. He wears a knee-length double-breasted navy-blue bridge greatcoat with two rows of brass buttons, gold braid rings on the cuffs and gold shoulder boards, a white-topped peaked captain's cap with a black visor and a gold badge, navy trousers and polished black boots. Ruddy peach skin.
+```
+
+`Pose: neutral — standing stiff and upright at attention, chest out, both arms straight down at his sides, chin raised, a stern self-assured expression, mouth closed.`
+
+#### LOCKED CHARACTER DESCRIPTION — percy
+
+```
+Persimmon "Percy" Brine, an original cartoon heiress: a small, short, round young woman with a round apple-cheeked face, enormous sparkly innocent eyes with long lashes, a tiny button nose, rosy cheeks and bouncy strawberry-blonde ringlets. She wears an enormous wide-brimmed cream hat with one huge fluffy pink ostrich plume, a frilly peach-and-cream tea dress with puffed sleeves, white ankle socks and little black Mary Jane shoes. She clutches a small beaded pink drawstring purse with three orange carrots (tops cut off) poking out of it. Light peach skin.
+```
+
+`Pose: neutral — standing with her knees together and toes slightly turned in, holding the little purse in front of her with both hands, a sweet wide-eyed innocent smile, mouth closed.`
+
+#### LOCKED CHARACTER DESCRIPTION — zippelli
+
+```
+The Great Zippelli, an original cartoon stage magician and escape artist: a very tall, very thin man with a long narrow face, a sharp pointed chin, a huge waxed black handlebar moustache curled into tight spirals at the tips, glossy black hair swept up into a tall dramatic pompadour, arched eyebrows and large bright confident eyes. He wears a knee-length black opera cape with a scarlet satin lining and a high stand-up collar over a midnight-purple sequinned tailcoat, a white shirt front, a big scarlet bow tie, black trousers, white gloves and pointed shiny black shoes. A short loop of steel chain hangs from one wrist like a bracelet. Olive-tan skin.
+```
+
+`Pose: neutral — standing tall and upright with his chest puffed out, one gloved hand on his hip, the other arm at his side, the cape hanging closed behind him, a confident showman's grin with mouth closed.`
+
+#### LOCKED CHARACTER DESCRIPTION — ottilie
+
+```
+Chief Engineer Ottilie Wrenchley, an original cartoon ship's engineer: a short, compact, sturdy square-built woman in her thirties with broad shoulders and strong forearms, a square deadpan face with heavy-lidded unimpressed eyes, a flat straight mouth, a small upturned nose with a smudge of black grease, and short cropped copper-red hair under a knotted red kerchief, with round brass-rimmed goggles pushed up on her forehead. She wears oil-stained dark-blue boiler-suit overalls with rolled-up sleeves, a wide brown leather tool belt and heavy black work boots, and holds a huge oversized steel spanner pointing down at her side. Light peach skin.
+```
+
+`Pose: neutral — standing square and planted with feet apart, the big spanner hanging from one hand at her side, the other hand on her tool belt, a flat bored deadpan expression, mouth closed.`
+
+#### LOCKED CHARACTER DESCRIPTION — boris
+
+```
+Chef Boris Buttercrumb, an original cartoon ship's chef: a huge, very tall and very wide pear-shaped gentle giant with a big soft round belly, sloping round shoulders and chubby arms, a big round soft face with large teary watery eyes, a bulbous nose, rosy cheeks, a wobbly double chin and a bushy brown walrus moustache. He wears a very tall puffy white chef's toque, a white double-breasted chef's jacket, a long white apron dusted with flour, a red neckerchief, grey-and-white checked trousers and black clogs. He holds a tall golden puffed souffle in a white ramekin on one flat palm. Flour smudges on his cheeks. Light peach skin.
+```
+
+`Pose: neutral — standing heavily with his belly forward, the souffle held up on one palm close to his chest, the other hand at his side, a gentle soft-hearted wobbly smile, eyes slightly teary, mouth closed.`
+
+### 10.6 Ship-list diagram frames
+
+For the `ship-list` module (#72): `assets/cases/_tallyho/ship-list-<evidenceId>-before.webp` and `-after.webp`, 1200×900 (4:3), opaque warm chart paper, no baked text, vital content inside a 7% margin, q88 (about 36 KB each). One diagram clue: `marmalade-run`. Both frames are the same top-down plan of the stateroom as found (bow up, so port is left with a red lamp and starboard is right with a green lamp; door aft). Only the cues change: a stern-view heel gauge with a downhill arrow leans one way per frame, and the marks that the downhill direction explains are drawn at full strength while the rest are dimmed. Labels come from data. Code-drawn: `toon-drafts/tallyho/shiplist.py`.
+
+### 10.7 Generation log
+
+- Image API check 2026-10-18: HTTP 200 (credits restored). One test call.
+- Characters: `grok-imagine-image-2.0`, 2:3, one text-to-image call each, all six v1 kept.
+- Backgrounds and title: `grok-imagine-image-quality`, 16:9 2k, one call each, all seven v1 kept.
+- Total: 14 calls (1 test + 13 assets), no retries. Logo, ship-list frames and contact sheet are code-drawn.
+- Preview: `docs/art/tallyho_contact.jpg`.
