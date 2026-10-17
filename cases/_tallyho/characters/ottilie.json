@@ -263,8 +263,10 @@
       "text": "\\b(?:I|me)\\b[^.!?]{0,30}\\b(?:left\\s+(?:my\\s+)?post|went\\s+up\\s+to\\s+the\\s+bridge|on\\s+the\\s+bridge|took\\s+the\\s+wheel|held\\s+the\\s+wheel)\\b",
       "regex": true,
       "unlessRevealed": "s-ottilie-bridge-visits",
-      "unlessShown": "heel-chart",
-      "note": "First person only. Lifted by the chart too, which breaks l-ottilie-engine (DX7 approximated)."
+      "unlessBroken": [
+        "l-ottilie-engine"
+      ],
+      "note": "First person only. Lifted when the visits are admitted or her engine-room story breaks (DX7)."
     },
     {
       "text": "\\b(?:click(?:ed)?|hiss(?:ed)?|whirr(?:ed|ing)?)\\b|\\bbehind\\s+the\\s+curtain\\b",
@@ -276,8 +278,10 @@
       "text": "\\bCheer-Box\\b|\\b(?:chartroom|Chief\\s+Engineer['’]s)\\s+key\\b",
       "regex": true,
       "unlessRevealed": "s-ottilie-bridge-visits",
-      "unlessShown": "heel-chart",
-      "note": "The Box and her key, hidden with her bridge visits."
+      "unlessBroken": [
+        "l-ottilie-engine"
+      ],
+      "note": "The Box and her key, hidden with her bridge visits (DX7)."
     }
   ],
   "voice": {

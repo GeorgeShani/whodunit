@@ -263,8 +263,10 @@
       "text": "\\b(?:I|we)\\b[^.!?]{0,30}\\b(?:hid|hide|hiding|kept|keeping|smuggled|fed|feeding)\\b[^.!?]{0,30}\\b(?:goat|Duchess)\\b|\\b(?:goat|Duchess)\\b[^.!?]{0,30}\\bin\\s+the\\s+lifeboat\\b",
       "regex": true,
       "unlessRevealed": "s-percy-goat",
-      "unlessShown": "goat-evidence",
-      "note": "The guilty claim. Lifted by the goat itself too (it breaks l-percy-cabin; DX7 approximated)."
+      "unlessBroken": [
+        "l-percy-cabin"
+      ],
+      "note": "The guilty claim. Lifted when the goat is admitted or her cabin story breaks (DX7)."
     },
     {
       "text": "\\bnew\\s+will\\b",

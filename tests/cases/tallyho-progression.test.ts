@@ -104,4 +104,17 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
       expect(won({ ...full, murdererId: full.accompliceId!, accompliceId: full.murdererId })).toBe(false);
     });
   });
+
+  it("lie-keyed phrases lift on their owner's own broken lie (DX7), with no shown-clue stand-ins left", () => {
+    const owners: string[] = [];
+    for (const ch of c.characters) {
+      const lies = new Set(ch.intendedLies.map((l) => l.id));
+      for (const p of ch.forbiddenPhrases) {
+        expect(p.unlessShown).toBeUndefined();
+        for (const id of p.unlessBroken ?? []) expect(lies.has(id)).toBe(true);
+        if (p.unlessBroken) owners.push(ch.id);
+      }
+    }
+    expect([...new Set(owners)].sort()).toEqual(["bilge", "boris", "gherkina", "ottilie", "percy"]);
+  });
 });

@@ -281,15 +281,19 @@
       "text": "\\bbonk\\b[^.!?]{0,40}\\b(?:21[:.]5[2-6]|nine\\s*fifty[-\\s]?(?:two|three|four|five|six)|(?:eight|seven|six|five|four)\\s+minutes\\s+to\\s+ten|(?:fifty[-\\s]?(?:two|three|four|five|six))\\s+minutes\\s+past\\s+nine)\\b|\\b(?:21[:.]5[2-6]|nine\\s*fifty[-\\s]?(?:two|three|four|five|six)|(?:eight|seven|six|five|four)\\s+minutes\\s+to\\s+ten|(?:fifty[-\\s]?(?:two|three|four|five|six))\\s+minutes\\s+past\\s+nine)\\b[^.!?]{0,40}\\bbonk\\b",
       "regex": true,
       "unlessRevealed": "s-gherkina-recipe-buy",
-      "unlessShown": "turnip-recipe",
-      "note": "The timed BONK. Audit also lifts it on l-gherkina-saloon broken (DX7); the receipt is the clue that breaks it."
+      "unlessBroken": [
+        "l-gherkina-saloon"
+      ],
+      "note": "The timed BONK. Lifted when the purchase is admitted or her saloon story breaks (DX7)."
     },
     {
       "text": "\\b(?:knock(?:s|ed|ing)?|st(?:oo|an)ds?|stood|wait(?:s|ed|ing)?|listen(?:s|ed|ing)?)\\b[^.!?]{0,40}\\b(?:door|stateroom)\\b",
       "regex": true,
       "unlessRevealed": "s-gherkina-at-door",
-      "unlessShown": "midnight-notes",
-      "note": "Standing at the door. Lifted by the notes too, which break l-gherkina-door."
+      "unlessBroken": [
+        "l-gherkina-door"
+      ],
+      "note": "Standing at the door. Lifted when she admits it or her door story breaks (DX7)."
     },
     {
       "text": "\\bturnips?\\b",

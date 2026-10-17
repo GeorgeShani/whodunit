@@ -277,8 +277,10 @@
       "text": "\\b(?:sold|sell|sells|selling)\\b[^.!?]{0,30}\\brecipe\\b",
       "regex": true,
       "unlessRevealed": "s-boris-recipe-sale",
-      "unlessShown": "turnip-recipe",
-      "note": "The sale. Lifted by the receipt too, which breaks l-boris-galley (DX7 approximated)."
+      "unlessBroken": [
+        "l-boris-galley"
+      ],
+      "note": "The sale. Lifted when the sale is admitted or his galley story breaks (DX7)."
     },
     {
       "text": "\\b(?:shadows?|silhouettes?)\\b",
