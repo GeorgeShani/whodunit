@@ -1,5 +1,6 @@
 "use client";
 
+import { SCREEN_ACTIONS, SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
 import { StressMeter } from "@/components/stress/StressMeter";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
@@ -52,19 +53,19 @@ export function SuspectSelect({
       style={backdropStyle(backdrop)}
     >
       {/* Phones: back link (the mute toggle and the How to Play button own the top-right corner), then the title, then a two-button action bar. */}
-      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-3 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
+      <div className={`${SCREEN_HEADER} max-w-6xl`}>
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to the case file" className="order-1 min-h-12 shrink-0 text-base">
           <span aria-hidden>←</span> Case file
         </CartoonButton>
         <h1
           data-autofocus
           tabIndex={-1}
-          className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl"
+          className={`${SCREEN_TITLE} font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl`}
         >
           PICK A SUSPECT!
         </h1>
         {onInvestigate ? (
-          <div className="order-3 grid basis-full grid-cols-2 gap-3 sm:flex sm:basis-auto sm:items-center sm:gap-2">
+          <div className={`${SCREEN_ACTIONS} grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-2`}>
             {onOpenNotebook && (
               <CartoonButton tone="white" onClick={onOpenNotebook} aria-haspopup="dialog" className="min-h-12 px-3 text-base">
                 <span aria-hidden>📓</span> Notebook
@@ -80,7 +81,7 @@ export function SuspectSelect({
             </CartoonButton>
           </div>
         ) : (
-          <span className="hidden w-20 sm:block" />
+          <span className={SCREEN_HEADER_SPACER} />
         )}
       </div>
       {onAccuse && (

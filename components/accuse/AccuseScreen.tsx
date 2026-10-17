@@ -1,5 +1,6 @@
 "use client";
 
+import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
 import { weaponChoices } from "./weapon-choices";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
@@ -114,15 +115,15 @@ export function AccuseScreen({
   return (
     <main className="relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,#7f1d1d_0%,var(--backdrop)_70%)]">
       <div className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-6 pt-3 sm:px-6 sm:pt-6">
-      <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
+      <div className={`${SCREEN_HEADER} max-w-5xl`}>
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 data-autofocus tabIndex={-1} className="order-2 basis-full text-center font-display text-5xl leading-none tracking-wider text-red-500 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className={`${SCREEN_TITLE} font-display text-5xl leading-none tracking-wider text-red-500 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl`}>
           ACCUSE!
         </h1>
-        <span className="order-3 hidden w-40 sm:block" />
+        <span className={SCREEN_HEADER_SPACER} />
       </div>
       {onHowGraded && (
         <p className="-mt-2 text-center">

@@ -1,5 +1,6 @@
 "use client";
 
+import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
 import { motion } from "framer-motion";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
@@ -43,15 +44,15 @@ export function InvestigateScreen({
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className="flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
+      <div className={`${SCREEN_HEADER} max-w-6xl`}>
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 data-autofocus tabIndex={-1} className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className={`${SCREEN_TITLE} font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:text-6xl`}>
           INVESTIGATE!
         </h1>
-        <span className="order-3 hidden w-40 sm:block" />
+        <span className={SCREEN_HEADER_SPACER} />
       </div>
       <p className="max-w-2xl text-balance text-center text-base font-semibold text-yellow-100">
         Pick a room and search it from top to bottom. Anything you find can be shoved under a suspect&apos;s nose.
