@@ -23,6 +23,7 @@
  * Prints the game id so the row can be checked in Supabase: select * from closed_games where game_id = '<id>';
  * Never prints tokens in full, never reads any credential.
  */
+import { inflateRawSync } from "node:zlib";
 const args = process.argv.slice(2);
 const BASE = (args.find((a) => !a.startsWith("--")) ?? "https://whodunit-game.vercel.app").replace(/\/$/, "");
 const DRY_RUN = args.includes("--dry-run");
@@ -36,7 +37,9 @@ const NETWORK_RETRY_WAIT_MS = 3000;
 const short = (t) => (typeof t === "string" ? `${t.slice(0, 12)}…(${t.length})` : String(t));
 const gameIdOf = (t) => {
   try {
-    return JSON.parse(Buffer.from(t.split(".")[1], "base64url").toString("utf8")).gameId ?? null;
+    const [v, body] = t.split(".");
+    const raw = Buffer.from(body, "base64url"); // v1: JSON; v2: deflated JSON (engine/state-token.ts)
+    return JSON.parse((v === "v1" ? raw : inflateRawSync(raw, { maxOutputLength: 512 * 1024 })).toString("utf8")).gameId ?? null;
   } catch {
     return null;
   }

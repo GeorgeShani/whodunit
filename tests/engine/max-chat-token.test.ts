@@ -5,11 +5,12 @@
  * confrontation exchanges spent, a stored accusation. It measures the encoded state token and the longest
  * interrogation prompt (system + user) at that state, and pins them in tests/fixtures/token/max-chat.json.
  *
- * Fails when the token or the longest prompt grows more than GROWTH over the pinned numbers. The plan's cap
- * (STATE_LIMITS.tokenChars, 60K: over it the game resets) is a known gap today, pinned with it.fails until phase 4. After an intended change, re-pin with
+ * Fails when the token or the longest prompt grows more than GROWTH over the pinned numbers, or the token passes the cap
+ * (STATE_LIMITS.tokenChars, 60K). Phase 4 (token v2, deflate) added the 6-suspect state and closed the cap gap; v1TokenChars
+ * records the same state in the old v1 format for comparison. After an intended change, re-pin with
  * `UPDATE_MAX_CHAT=1 npx vitest run tests/engine/max-chat-token.test.ts`.
  */
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
 import { prepareTurn } from "@/ai/perform-turn";
@@ -18,7 +19,7 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { CLAIM_LIMITS, MAX_CONFRONTATION_TURNS } from "@/engine/constants";
 import { coreGuiltSecretIds } from "@/engine/core-guilt";
 import { createInitialGameState } from "@/engine/game-state";
-import { encodeStateToken, STATE_LIMITS } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, signPayloadForTests, STATE_LIMITS, unverifiedPayload } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { TEST_ENV } from "../helpers/grok-mock";
 
@@ -28,17 +29,45 @@ const GROWTH = 0.05;
 let c: LoadedCase;
 beforeAll(async () => {
   c = await loadCase("blackwood");
+  // Words in their real frequencies across the case's prose (about 1,400 distinct): deflate gets ~2.75x on this, less than
+  // on the authored prose itself (~4x), so the fixture is the pessimistic side of real dialogue. Only sizes are committed.
+  vocab = JSON.stringify([c.intro, c.locations, c.characters.map((ch) => [ch.bio, ch.personality, ch.voice]), c.facts.map((f) => f.statement), c.timeline.map((t) => t.statement)])
+    .replace(/[^A-Za-z' ,.]/g, " ")
+    .split(/\s+/)
+    .filter(Boolean);
 });
 
-/** Deterministic filler prose of exactly n characters. */
+/**
+ * Deterministic filler prose of exactly n characters. Phase 4: words drawn by a seeded PRNG from the case's prose, so it
+ * compresses like real dialogue or worse (the phase-2 repeating sentence flattered deflate).
+ */
+let vocab: string[] = [];
+/** Every call draws fresh words (reset per state, so a state is deterministic); `seed` only varies the start. */
+let draws = 0;
 const text = (n: number, seed: number) => {
-  const words = "the candle guttered while the storm rattled every window and somebody in the hall said nothing at all".split(" ");
+  let x = ((seed + 1 + ++draws * 7919) * 2654435761) >>> 0 || 1;
   let s = "";
-  for (let i = seed; s.length < n; i++) s += (s ? " " : "") + words[i % words.length];
+  while (s.length < n) {
+    x ^= x << 13;
+    x ^= x >>> 17;
+    x ^= x << 5;
+    x >>>= 0;
+    s += (s ? " " : "") + vocab[x % vocab.length];
+  }
   return s.slice(0, n);
 };
 
-function maxChatState(): GameState {
+/** The case with `extra` more suspects: copies of the first ones with every id of theirs renamed (a 6-suspect stand-in). */
+function withSuspects(base: LoadedCase, total: number): LoadedCase {
+  const extra = base.characters.slice(0, total - base.characters.length).map((ch, i) => {
+    const id = `${ch.id}x${i + 2}`;
+    return JSON.parse(JSON.stringify(ch).replaceAll(ch.id, id)) as LoadedCase["characters"][number];
+  });
+  return { ...base, characters: [...base.characters, ...extra] };
+}
+
+function maxChatState(c: LoadedCase): GameState {
+  draws = 0;
   const core = coreGuiltSecretIds(c);
   const g = createInitialGameState(c);
   g.turn = 999;
@@ -89,17 +118,19 @@ function maxChatState(): GameState {
   return g;
 }
 
-function measure() {
-  const g = maxChatState();
+function measure(c: LoadedCase) {
+  const g = maxChatState(c);
   const token = encodeStateToken(g, TEST_ENV);
+  const v1 = signPayloadForTests(unverifiedPayload(token), TEST_ENV, "v1");
   const prompts = c.characters.map((ch) => {
-    const p = prepareTurn({ caseData: c, game: structuredClone(g), characterId: ch.id, question: text(300, 1), move: {} });
+    const p = prepareTurn({ caseData: c, game: structuredClone(g), characterId: ch.id, question: "Tell me again exactly where you were when the lights went out tonight.", move: {} });
     return { id: ch.id, chars: p.system.length + p.user.length };
   });
   const longest = prompts.reduce((a, b) => (b.chars > a.chars ? b : a));
   return {
     suspects: c.characters.length,
     tokenChars: token.length,
+    v1TokenChars: v1.length,
     tokenCharsPerSuspect: Math.round(token.length / c.characters.length),
     projectedTokenCharsAt6: Math.round((token.length / c.characters.length) * 6),
     tokenCap: STATE_LIMITS.tokenChars,
@@ -109,23 +140,32 @@ function measure() {
   };
 }
 
-describe("max-chat token fixture (case-two plan phase 2)", () => {
+type Measure = ReturnType<typeof measure>;
+const pinnedAll = () => JSON.parse(readFileSync(FILE, "utf8")) as Record<string, Measure>;
+
+describe.each([4, 6])("max-chat token fixture, %i suspects (case-two plan phases 2 and 4)", (n) => {
+  const cs = () => (n === c.characters.length ? c : withSuspects(c, n));
+  const key = `suspects${n}`;
+
   it("does not grow past the pinned sizes", () => {
-    const m = measure();
-    if (process.env.UPDATE_MAX_CHAT === "1") writeFileSync(FILE, JSON.stringify(m, null, 2) + "\n");
-    const pinned = JSON.parse(readFileSync(FILE, "utf8")) as ReturnType<typeof measure>;
-    expect(m.tokenChars, `token grew more than ${GROWTH * 100}% (pinned ${pinned.tokenChars})`).toBeLessThanOrEqual(
-      Math.floor(pinned.tokenChars * (1 + GROWTH)),
-    );
+    const m = measure(cs());
+    if (process.env.UPDATE_MAX_CHAT === "1") writeFileSync(FILE, JSON.stringify({ ...(existsSync(FILE) ? pinnedAll() : {}), [key]: m }, null, 2) + "\n");
+    const pinned = pinnedAll()[key];
+    expect(pinned, `no pinned numbers for ${key}: run with UPDATE_MAX_CHAT=1`).toBeDefined();
+    expect(m.tokenChars, `token grew more than ${GROWTH * 100}% (pinned ${pinned.tokenChars})`).toBeLessThanOrEqual(Math.floor(pinned.tokenChars * (1 + GROWTH)));
     expect(m.longestPromptChars, `longest prompt grew more than ${GROWTH * 100}% (pinned ${pinned.longestPromptChars})`).toBeLessThanOrEqual(
       Math.floor(pinned.longestPromptChars * (1 + GROWTH)),
     );
   });
 
-  // KNOWN GAP (plan R1, F5): the synthetic worst case is already over the 60K cap with Blackwood's 4 suspects, so a
-  // real game at every maximum would reset. Phase 4 (token v2: deflate + budget trimming) must make this pass; when it
-  // does, `it.fails` turns red: change it to `it` and keep it.
-  it.fails("is under the token cap (STATE_LIMITS.tokenChars): phase 4 makes this pass", () => {
-    expect(measure().tokenChars).toBeLessThanOrEqual(STATE_LIMITS.tokenChars);
+  // Phase 4 closed the known gap (plan R1, F5): the worst case fits under the cap (STATE_LIMITS.tokenChars) with 6 suspects.
+  it("is under the token cap and decodes back to the same game", () => {
+    const k = cs();
+    const m = measure(k);
+    expect(m.tokenChars).toBeLessThanOrEqual(STATE_LIMITS.tokenChars);
+    const token = encodeStateToken(maxChatState(k), TEST_ENV);
+    const back = decodeStateToken(token, k, TEST_ENV);
+    expect(back.ok).toBe(true);
+    if (back.ok) expect(encodeStateToken(back.game, TEST_ENV).length).toBeLessThanOrEqual(Math.ceil(token.length * 1.01));
   });
 });

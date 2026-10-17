@@ -6,7 +6,7 @@ import { CharacterResponseSchema } from "@/ai/schemas";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
-import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, tamperedTokenForTests } from "@/engine/state-token";
 import { forbiddenPromptStrings } from "../helpers/leak-scan";
 import { goodReply, mockGrok, mockHangingGrok, TEST_ENV } from "../helpers/grok-mock";
 
@@ -168,11 +168,10 @@ describe("handleInterrogate", () => {
   it("a tampered state token is rejected: state resets and an in-character notice is returned", async () => {
     mockGrok({ content: goodReply({ stressDelta: 0 }) });
     const first = await run(ask);
-    const [v, body, sig] = first.body.stateToken!.split(".");
-    const payload = JSON.parse(Buffer.from(body, "base64url").toString());
+    const forged = tamperedTokenForTests(first.body.stateToken!, (payload: any) => {
     payload.discoveredEvidenceIds.push("burned-letter", "library-key");
     payload.characters.reginald.revealedSecretIds = ["s-reginald-theft"];
-    const forged = `${v}.${Buffer.from(JSON.stringify(payload)).toString("base64url")}.${sig}`;
+    });
     const r = await run({ ...ask, stateToken: forged, presentedEvidenceId: "burned-letter" });
     expect(r.body.notice).toBe(RESET_NOTICE);
     expect(r.body.error).toBe("evidence_not_discovered"); // forged discovery did not stick

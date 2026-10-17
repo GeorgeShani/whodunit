@@ -4,7 +4,6 @@
  * lies (breaksOnSecretIds / breaksOnFactIds) with the evidence stress bump.
  * Deterministic: the engine decides, the model only performs.
  */
-import { createHash, createHmac } from "node:crypto";
 import { beforeAll, describe, expect, it } from "vitest";
 import { handleInterrogate } from "@/ai/interrogate-handler";
 import { handleInvestigate } from "@/engine/investigate-handler";
@@ -13,7 +12,7 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext } from "@/engine/context-builder";
 import { createInitialGameState } from "@/engine/game-state";
 import { planTurn, STRESS_RULES } from "@/engine/interrogation";
-import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, signPayloadForTests, unverifiedPayload } from "@/engine/state-token";
 import { brokenLieIds, isLieBroken, publicTestimonies, revealedSecretIds, testimonyFallback } from "@/engine/testimony";
 import { IntendedLieSchema, type GameState } from "@/engine/types";
 import { FIXTURES_DIR } from "../helpers/fixture";
@@ -121,12 +120,9 @@ describe("testimony cards", () => {
 
 describe("signed state", () => {
   const resign = (token: string, mutate: (p: any) => void) => {
-    const [v, body] = token.split(".");
-    const p = JSON.parse(Buffer.from(body, "base64url").toString("utf8"));
+    const p = unverifiedPayload(token)! as any;
     mutate(p);
-    const nb = Buffer.from(JSON.stringify(p)).toString("base64url");
-    const key = createHash("sha256").update(TEST_ENV.GAME_STATE_SECRET).digest();
-    return `${v}.${nb}.${createHmac("sha256", key).update(`${v}.${nb}`).digest("base64url")}`;
+    return signPayloadForTests(p, TEST_ENV, "v1");
   };
 
   it("round-trips the case-wide revealed set and per-character testimony", () => {

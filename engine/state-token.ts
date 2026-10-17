@@ -24,6 +24,7 @@
  * single-player game: they can only reach states the server itself issued.
  */
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
+import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { z } from "zod";
 import type { LoadedCase } from "./case-schema";
 import { confrontationCaps } from "./confront-caps";
@@ -46,7 +47,31 @@ import {
 /** Environment lookup (process.env by default; tests pass plain objects). */
 export type Env = Record<string, string | undefined>;
 
-const TOKEN_VERSION = "v1";
+/**
+ * Token formats (case-two plan 7.2). v1: `v1.<base64url(JSON)>.<sig>`. v2 (phase 4): `v2.<base64url(deflateRaw(JSON))>.<sig>`,
+ * the same payload schema, key and HMAC over `<version>.<body>`. New tokens are v2; v1 tokens from games already in
+ * progress still decode, and are re-issued as v2 on the next action.
+ */
+const TOKEN_VERSION = "v2";
+const DECODABLE_VERSIONS = new Set(["v1", "v2"]);
+/** Inflate limit for a v2 body (a 60K token can never legitimately inflate past this; guards against a deflate bomb). */
+const MAX_PAYLOAD_BYTES = 512 * 1024;
+
+/** Body bytes for a payload in a token version. */
+function packBody(json: string, version: string): string {
+  const raw = Buffer.from(json, "utf8");
+  return (version === "v1" ? raw : deflateRawSync(raw, { level: 9 })).toString("base64url");
+}
+
+/** Payload JSON from a token body (null when it doesn't unpack). Run only AFTER the signature has been checked. */
+function unpackBody(body: string, version: string): string | null {
+  try {
+    const buf = Buffer.from(body, "base64url");
+    return (version === "v1" ? buf : inflateRawSync(buf, { maxOutputLength: MAX_PAYLOAD_BYTES })).toString("utf8");
+  } catch {
+    return null;
+  }
+}
 const KEY_LABEL = "whodunit/game-state-token/v1";
 const DEV_KEY_LABEL = "whodunit/dev-only-insecure-game-state-key";
 
@@ -215,9 +240,51 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
 
 /** Serialise + sign the runtime state. */
 export function encodeStateToken(game: GameState, env?: Env): string {
-  const body = Buffer.from(JSON.stringify(toPayload(game, env)), "utf8").toString("base64url");
-  const data = `${TOKEN_VERSION}.${body}`;
+  const payload = toPayload(game, env);
+  let token = signedToken(JSON.stringify(payload), TOKEN_VERSION, env);
+  // Safety net (plan 7.2 budget): a token over the cap would reset the game on the next request, so drop the oldest chat
+  // memory (the longest history first) until it fits. Never progress, secrets, evidence or statements. With deflate the
+  // 6-suspect worst case is about half the cap (tests/engine/max-chat-token.test.ts), so this should never run.
+  while (token.length > STATE_LIMITS.tokenChars) {
+    const longest = Object.values(payload.characters).reduce((a, b) => (b.memory.length > a.memory.length ? b : a));
+    if (!longest || longest.memory.length === 0) break;
+    longest.memory = longest.memory.slice(Math.max(1, Math.floor(longest.memory.length / 4)));
+    token = signedToken(JSON.stringify(payload), TOKEN_VERSION, env);
+  }
+  return token;
+}
+
+function signedToken(json: string, version: string, env?: Env): string {
+  const data = `${version}.${packBody(json, version)}`;
   return `${data}.${sign(data, env).toString("base64url")}`;
+}
+
+/**
+ * TESTS AND TOOLS ONLY: re-sign an edited payload (needs the server key, like encode), e.g. to build a token as older
+ * code issued it (`version` "v1"). Never exposed to a client.
+ */
+export function signPayloadForTests(payload: unknown, env: Env | undefined, version: "v1" | "v2" = TOKEN_VERSION): string {
+  return signedToken(JSON.stringify(payload), version, env);
+}
+
+/** The payload of a token WITHOUT checking its signature (tests, diagnostics: never trust it). */
+export function unverifiedPayload(token: string): Record<string, unknown> | null {
+  const [v, body] = token.split(".");
+  if (!v || !body || !DECODABLE_VERSIONS.has(v)) return null;
+  const json = unpackBody(body, v);
+  try {
+    return json === null ? null : (JSON.parse(json) as Record<string, unknown>);
+  } catch {
+    return null;
+  }
+}
+
+/** Replace a token's body with an edited payload but keep its signature (tests: the signature must then fail). */
+export function tamperedTokenForTests(token: string, edit: (p: Record<string, unknown>) => void): string {
+  const [v, , sig] = token.split(".");
+  const p = unverifiedPayload(token) ?? {};
+  edit(p);
+  return `${v}.${packBody(JSON.stringify(p), v)}.${sig}`;
 }
 
 export type DecodeResult =
@@ -243,14 +310,16 @@ function verifiedPayload(token: string | undefined, env?: Env): { ok: true; p: T
   if (!token) return { ok: false, reason: "missing" };
   if (token.length > STATE_LIMITS.tokenChars) return { ok: false, reason: "malformed" };
   const parts = token.split(".");
-  if (parts.length !== 3 || parts[0] !== TOKEN_VERSION) return { ok: false, reason: "malformed" };
+  if (parts.length !== 3 || !DECODABLE_VERSIONS.has(parts[0])) return { ok: false, reason: "malformed" };
   const expected = sign(`${parts[0]}.${parts[1]}`, env);
   const given = Buffer.from(parts[2], "base64url");
   if (given.length !== expected.length || !timingSafeEqual(given, expected)) return { ok: false, reason: "bad_signature" };
 
   let raw: unknown;
   try {
-    raw = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+    const json = unpackBody(parts[1], parts[0]);
+    if (json === null) return { ok: false, reason: "invalid_payload" };
+    raw = JSON.parse(json);
   } catch {
     return { ok: false, reason: "invalid_payload" };
   }

@@ -8,7 +8,7 @@ import { buildCharacterContext } from "@/engine/context-builder";
 import { createInitialGameState } from "@/engine/game-state";
 import { commitTurn, planTurn } from "@/engine/interrogation";
 import { acceptsExplanation, CLAIM_LIMITS, extractClaims, questionTouchesLie, RELIEF, sameWord } from "@/engine/memory";
-import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, unverifiedPayload } from "@/engine/state-token";
 import type { GameState } from "@/engine/types";
 import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
@@ -150,11 +150,11 @@ describe("memory in the signed token", () => {
 });
 
 describe("sealed memory (no spoilers in the readable token)", () => {
-  const payload = (t: string) => JSON.parse(Buffer.from(t.split(".")[1], "base64url").toString("utf8"));
+  const payload = (t: string) => unverifiedPayload(t)!;
   it("told-lie ids are encrypted: the signed-but-readable payload never names a lie", () => {
     const g = fresh((x) => (x.characters.victoria.liesToldIds = ["l-victoria-together"]));
     const t = encodeStateToken(g, TEST_ENV);
-    expect(Buffer.from(t.split(".")[1], "base64url").toString("utf8")).not.toContain("l-victoria");
+    expect(JSON.stringify(unverifiedPayload(t))).not.toContain("l-victoria");
     expect(payload(t).sealed).toEqual(expect.any(String));
     expect(decode(t).characters.victoria.liesToldIds).toEqual(["l-victoria-together"]);
     // Another key cannot open it (and cannot forge the signature either).
