@@ -37,7 +37,8 @@
           "Brass numbers, sticky doorknobs and a sign that says ENTER AT PERIL. You entered. So far, no peril."
         ],
         "emptyLine": "The stateroom has told you everything it is willing to tell, for now. The marmalade disagrees, loudly."
-      }
+      },
+      "background": "/assets/cases/_tallyho/backgrounds/cabin-deck.webp"
     },
     {
       "id": "ballroom",
@@ -49,7 +50,8 @@
           "Forty guests, one tank-stage and a rubber shark that has seen things."
         ],
         "emptyLine": "Nothing here but cold canapes and a rabbit giving you a look."
-      }
+      },
+      "background": "/assets/cases/_tallyho/backgrounds/ballroom.webp"
     },
     {
       "id": "bridge",
@@ -70,7 +72,8 @@
           }
         ]
       },
-      "lockedLine": "A brass chain across the bridge ladder, and a sign in a square hand: NO ADMITTANCE WITHOUT A PROPER WORD WITH THE MASTER."
+      "lockedLine": "A brass chain across the bridge ladder, and a sign in a square hand: NO ADMITTANCE WITHOUT A PROPER WORD WITH THE MASTER.",
+      "background": "/assets/cases/_tallyho/backgrounds/bridge.webp"
     },
     {
       "id": "galley",
@@ -91,7 +94,8 @@
           }
         ]
       },
-      "lockedLine": "A cleaver quivers in the door frame. A tearful voice: \"Ask first. Search after.\""
+      "lockedLine": "A cleaver quivers in the door frame. A tearful voice: \"Ask first. Search after.\"",
+      "background": "/assets/cases/_tallyho/backgrounds/galley.webp"
     },
     {
       "id": "engine-room",
@@ -112,7 +116,8 @@
           }
         ]
       },
-      "lockedLine": "The hatch is bolted. A hand-painted sign: NO ENTRY WITHOUT A WORD FIRST. THE SPANNER IS NOT A JOKE."
+      "lockedLine": "The hatch is bolted. A hand-painted sign: NO ENTRY WITHOUT A WORD FIRST. THE SPANNER IS NOT A JOKE.",
+      "background": "/assets/cases/_tallyho/backgrounds/engine-room.webp"
     },
     {
       "id": "boat-deck",
@@ -130,7 +135,8 @@
           "lead-boat-deck"
         ]
       },
-      "lockedLine": "The storm hatch is dogged shut. There is no good reason to go up there yet. Somebody on this ship has one."
+      "lockedLine": "The storm hatch is dogged shut. There is no good reason to go up there yet. Somebody on this ship has one.",
+      "background": "/assets/cases/_tallyho/backgrounds/boat-deck.webp"
     }
   ],
   "facts": [
@@ -950,5 +956,124 @@
       "left\\s+the\\s+(?:bridge|saloon|galley)"
     ]
   },
-  "accuse": { "askHelper": true }
+  "accuse": { "askHelper": true },
+  "features": [
+    "time-misdirection",
+    "ship-list"
+  ],
+  "featureConfig": {
+    "time-misdirection": {
+      "stagedClaims": [
+        {
+          "time": "22:41",
+          "kind": "death",
+          "factIds": [
+            "ev-percy-finds-body",
+            "ev-captain-arrives"
+          ],
+          "evidenceIds": [
+            "smashed-watch"
+          ]
+        },
+        {
+          "time": "22:38",
+          "kind": "alive",
+          "factIds": [
+            "ev-cheer-heard-saloon",
+            "ev-cheer-heard-galley",
+            "ev-cheer-heard-bridge-ottilie",
+            "ev-door-silence",
+            "ev-captain-arrives",
+            "f-cheer-tradition"
+          ],
+          "evidenceIds": []
+        }
+      ],
+      "appearanceWords": [
+        "watch",
+        "clock",
+        "dial",
+        "hands",
+        "crown",
+        "read",
+        "reads",
+        "says",
+        "said",
+        "stopped",
+        "showed",
+        "programme",
+        "heard",
+        "horn",
+        "horns",
+        "Voice-Horn",
+        "bellow",
+        "sounded"
+      ]
+    },
+    "ship-list": {
+      "history": [
+        {
+          "from": "19:30",
+          "list": "level",
+          "degrees": 0
+        },
+        {
+          "from": "21:40",
+          "list": "starboard",
+          "degrees": 8
+        },
+        {
+          "from": "22:14",
+          "list": "port",
+          "degrees": 6
+        }
+      ],
+      "flipShownBy": "heel-chart",
+      "locationTilt": {
+        "cabin-deck": {
+          "asFound": "port"
+        },
+        "ballroom": {
+          "asFound": "port"
+        },
+        "bridge": {
+          "asFound": "port"
+        },
+        "galley": {
+          "asFound": "port"
+        },
+        "engine-room": {
+          "asFound": "port"
+        },
+        "boat-deck": {
+          "asFound": "port"
+        }
+      },
+      "diagrams": [
+        {
+          "evidenceId": "marmalade-run",
+          "frames": [
+            {
+              "label": "Leaning starboard (21:40 to 22:14): downhill is the starboard wall",
+              "image": "/assets/cases/_tallyho/ship-list-marmalade-run-before.webp"
+            },
+            {
+              "label": "Leaning port (from 22:14): downhill is the port side",
+              "image": "/assets/cases/_tallyho/ship-list-marmalade-run-after.webp"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "theme": {
+    "palette": {
+      "backdrop": "#0c1a2e",
+      "paper": "#f6ecd2",
+      "ink": "#16120e",
+      "accent": "#f2a93b"
+    },
+    "logo": "/assets/cases/_tallyho/logo.webp",
+    "titleArt": "/assets/cases/_tallyho/title.webp"
+  }
 }
