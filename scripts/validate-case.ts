@@ -12,6 +12,7 @@ import { validateCase } from "../engine/case-loader";
 import { checkCaseWarnings, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
 import { fastestPath } from "../engine/progression-validation";
 import { guiltProfiles } from "../engine/core-guilt";
+import { featureAssetPaths } from "../engine/features/registry";
 import { checkPresentationAssets } from "../engine/presentation-validation";
 import { CUES } from "../components/effects/audio";
 
@@ -69,6 +70,8 @@ async function main() {
     for (const p of guiltProfiles(d))
       console.log(`   guilt check (${p.role ?? "murderer"} ${p.murdererId}): window ${hhmm(p.window[0])}-${hhmm(p.window[1])}; coreObjects: ${p.coreObjects.join(", ") || "(none)"}.`);
     if (d.solution.accompliceId && !d.solution.accompliceAct) console.log(`   guilt check: no accompliceAct, so ${d.solution.accompliceId} has only data-flagged coreGuilt (no accomplice profile).`);
+    // Phase 6: art a feature module points at (ship-list diagram frames).
+    for (const f of featureAssetPaths(d)) if (!assetExists(f.path)) console.log(`   ⚠ featureConfig.${f.feature}: ${f.path} not found under assets/`);
     const warnings = checkCaseWarnings(d);
     for (const w of warnings) console.log(`   ⚠ ${formatIssue(w)}`);
     console.log(`   knowledge gate: ${d.knowledgeGate}${warnings.length ? `, ${warnings.length} design warning(s) above` : ", no design warnings"}.`);

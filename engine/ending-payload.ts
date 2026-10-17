@@ -14,6 +14,7 @@ import type { AccuseVerdict, EndingBeat, EndingPayload, SolutionReveal } from ".
 import type { AccusationGrade } from "./accusation";
 import type { LoadedCase } from "./case-schema";
 import type { EndingLine } from "./endings";
+import { clueFeatures } from "./features/registry";
 import { toPublicEvidence, type PublicEvidence } from "./public-view";
 import type { Accusation } from "./types";
 
@@ -134,7 +135,7 @@ export function endingEvidence(c: LoadedCase, ending: EndingPayload, reveal: Sol
   // A loss names only what the player themselves cited plus clues its own beats flash: never the weapon or key evidence.
   if (!reveal) {
     const mine = new Set<string>([...ending.beats.flatMap((b) => b.evidenceIds), accusation.weaponId, ...accusation.keyEvidenceIds]);
-    return c.evidence.filter((e) => mine.has(e.id)).map(toPublicEvidence);
+    return c.evidence.filter((e) => mine.has(e.id)).map((e) => toPublicEvidence(e, clueFeatures(c, e.id)));
   }
   const ids = new Set<string>([
     ...ending.beats.flatMap((b) => b.evidenceIds),
@@ -143,5 +144,5 @@ export function endingEvidence(c: LoadedCase, ending: EndingPayload, reveal: Sol
     accusation.weaponId,
     ...accusation.keyEvidenceIds,
   ]);
-  return c.evidence.filter((e) => ids.has(e.id)).map(toPublicEvidence);
+  return c.evidence.filter((e) => ids.has(e.id)).map((e) => toPublicEvidence(e, clueFeatures(c, e.id)));
 }
