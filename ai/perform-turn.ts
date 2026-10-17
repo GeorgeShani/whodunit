@@ -7,7 +7,7 @@
  */
 import type { LoadedCase } from "@/engine/case-schema";
 import { buildCharacterContext, type CharacterContext } from "@/engine/context-builder";
-import { coreGuiltSecretIds, guiltProfile } from "@/engine/core-guilt";
+import { coreGuiltSecretIds, guiltProfiles } from "@/engine/core-guilt";
 import { commitTurn, planTurn, type PresentMove, type TurnPlan } from "@/engine/interrogation";
 import { stressBand, type StressReading } from "@/engine/stress";
 import { publicTestimonies } from "@/engine/testimony";
@@ -17,8 +17,8 @@ import { fixArticles } from "./text-fixes";
 import { canonTimes, findModernWord } from "./canon-check";
 import { varyDelivery } from "./delivery";
 import { findForbiddenPhrase, forbiddenStateOf } from "./forbidden-phrases";
-import { findGuiltLeak, findReplyGuiltLeak } from "./guilt-check";
-import { checkReply, CONTRACT_REASONS, logReject, safeDeflection, type GuardInput, type GuardVerdict } from "./guard";
+import { findGuiltLeak, findReplyGuiltLeakAny } from "./guilt-check";
+import { checkReply, CONTRACT_REASONS, logReject, profilesOf, safeDeflection, type GuardInput, type GuardVerdict } from "./guard";
 import { variedConfrontationFallback } from "./confront-check";
 import { callGrok, isModelDown, isQuotaFailure, type GrokFailure, type GrokResult } from "./grok";
 import type { ModelDownKind } from "./model-down";
@@ -113,8 +113,10 @@ export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel" 
   const ctx = buildCharacterContext({ caseData, game }, characterId, plan.revealSecretId ? { revealingSecretIds: [plan.revealSecretId] } : {});
   // Guilt-leak check (ai/guilt-check.ts): nobody confesses the murder before the accusation. A token from before this
   // rule may still hold such a line in the conversation; it is not replayed to the model.
-  const guilt = guiltProfile(caseData);
-  const scrub = <T extends { text: string }>(m: T): T => (findGuiltLeak(m.text, guilt, characterId) ? { ...m, text: "(I have nothing more to say about that.)" } : m);
+  // DX2: the murderer's profile first, then the accomplice's (when the case has one).
+  const guilts = guiltProfiles(caseData);
+  const guilt = guilts[0]!;
+  const scrub = <T extends { text: string }>(m: T): T => (guilts.some((p) => findGuiltLeak(m.text, p, characterId)) ? { ...m, text: "(I have nothing more to say about that.)" } : m);
   ctx.memory = ctx.memory.map((m) => (m.speaker === "character" ? scrub(m) : m));
   ctx.statements = ctx.statements.map(scrub);
   const world = caseWorld(caseData);
@@ -128,6 +130,7 @@ export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel" 
     ctx,
     directives,
     guilt,
+    guilts,
     allowedTimes: canonTimes(ctx, directives, heard),
     heard,
     promptText: `${system}\n${user}`,
@@ -168,7 +171,7 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
     response = { ...reply, dialogue: fixArticles(grok.response.dialogue), ...(grok.response.action ? { action: fixArticles(grok.response.action) } : {}), evidenceReactions: grok.response.evidenceReactions.filter((r) => r.evidenceId === presentedEvidenceId).slice(0, 1) };
     // #52: delivery variety, deterministic and free: trim an opener used N times in a row, swap a repeated action,
     // drop a sentence repeated from the last replies. Only removes or swaps delivery; never adds a fact.
-    const varied = varyDelivery(response, ctx, game.turn, (a) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a, "", vocabOf(caseData)));
+    const varied = varyDelivery(response, ctx, game.turn, (a) => !findReplyGuiltLeakAny({ dialogue: "", action: a }, "", profilesOf(guard), characterId) && !findModernWord(a, "", vocabOf(caseData)));
     if (varied.changes.length) {
       const { action: _a, ...rest } = response;
       void _a;
@@ -189,8 +192,8 @@ export async function performTurn(t: TurnInput): Promise<TurnOutput | TurnUnavai
       // deflection keyed to the character and their stress, no third call.
       // Authored voice.deflections are used only if they pass the same checks a model line would (#52).
       const isSafe = (line: string) =>
-        !findReplyGuiltLeak({ dialogue: line }, "", guard.guilt, characterId) && !findForbiddenPhrase(line, ch.forbiddenPhrases, forbiddenStateOf(guard)) && !findModernWord(line, "", vocabOf(caseData));
-      const isSafeAction = (a: string) => !findReplyGuiltLeak({ dialogue: "", action: a }, "", guard.guilt, characterId) && !findModernWord(a, "", vocabOf(caseData));
+        !findReplyGuiltLeakAny({ dialogue: line }, "", profilesOf(guard), characterId) && !findForbiddenPhrase(line, ch.forbiddenPhrases, forbiddenStateOf(guard)) && !findModernWord(line, "", vocabOf(caseData));
+      const isSafeAction = (a: string) => !findReplyGuiltLeakAny({ dialogue: "", action: a }, "", profilesOf(guard), characterId) && !findModernWord(a, "", vocabOf(caseData));
       const d = safeDeflection(ctx, rejected.reason, game.turn, isSafe, isSafeAction);
       response = { ...response, dialogue: d.dialogue, action: d.action, emotion: d.emotion, intensity: 0.6 };
     } else if (t.confrontation && !presentedEvidenceId) {

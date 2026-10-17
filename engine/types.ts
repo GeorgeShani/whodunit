@@ -424,15 +424,21 @@ export type IntendedLie = z.infer<typeof IntendedLieSchema>;
 /**
  * A phrase this character must never say (#46), enforced by the guard on every reply. `text` is a plain phrase
  * (matched case-insensitively as whole words, any whitespace between words) or, with `regex: true`, a JavaScript
- * regex compiled with `new RegExp(text, "i")` (lookbehind allowed). It stops applying once the speaker's own secret
- * `unlessRevealed` is revealed, counting a secret revealed in the current exchange. `note` is for authors only and is
+ * regex compiled with `new RegExp(text, "i")` (lookbehind allowed). It stops applying once a secret in `unlessRevealed`
+ * is revealed or a lie in `unlessBroken` breaks, counting the current exchange. `note` is for authors only and is
  * never sent to the model.
  */
 export const ForbiddenPhraseSchema = z
   .strictObject({
     text: NonEmptyText,
     regex: z.boolean().default(false),
-    unlessRevealed: IdSchema.optional(),
+    /** DX7: one secret id or several (any character's): the entry is lifted once ANY of them is revealed. */
+    unlessRevealed: z.union([IdSchema, z.array(IdSchema).min(1)]).optional(),
+    /**
+     * DX7: the speaker's own lie ids: the entry is lifted once ANY of them breaks (exposed or retired), this exchange's
+     * break included. For a phrase that becomes admissible when a story falls, not only when a secret is revealed.
+     */
+    unlessBroken: z.array(IdSchema).min(1).optional(),
     /**
      * E12 (DX7): the entry applies only ONCE any of these secrets (any character's) is revealed, including in the
      * current exchange. For a story that breaks when a secret comes out: the exposed lie can't be repeated word for word.

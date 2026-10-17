@@ -25,7 +25,7 @@ import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
 import { caseWorld } from "./world";
-import { findGuiltLeak, findReplyGuiltLeak, guiltRetryNote, speakerNamesOf } from "./guilt-check";
+import { findGuiltLeak, findReplyGuiltLeakAny, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
 import { freshPick, recentReplies, repeatsRecentReply, sameAction, saidRecently } from "./delivery";
 import type { ConfrontDirective, TurnDirectives } from "./prompts/interrogation";
@@ -56,15 +56,18 @@ export const CONTRACT_REASONS: ReadonlySet<GuardReason> = new Set(["guilt_leak",
  * E8: the culprit acts this speaker may state as fact: those described by a secret they have revealed (or reveal this
  * turn), a testimony card they have been shown, or the card presented to them now (guiltProfile.coverActs).
  */
-export function coveredActs(g: Pick<GuardInput, "ctx" | "directives" | "guilt">): Set<CulpritAct> {
+export function coveredActs(g: Pick<GuardInput, "ctx" | "directives" | "guilt">, profile: GuiltProfile = g.guilt): Set<CulpritAct> {
   const held = [
     ...g.ctx.secrets.map((s) => s.id),
     ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : []),
     ...(g.directives.presentedTestimony ? [g.directives.presentedTestimony.id] : []),
     ...(g.ctx.testimonyShown ?? []).map((t) => t.id),
   ];
-  return new Set(held.flatMap((id) => g.guilt.coverActs?.[id] ?? []));
+  return new Set(held.flatMap((id) => profile.coverActs?.[id] ?? []));
 }
+
+/** DX2: the guilt profiles a guard input checks against (the murderer's alone unless `guilts` is given). */
+export const profilesOf = (g: Pick<GuardInput, "guilt" | "guilts">): readonly GuiltProfile[] => (g.guilts?.length ? g.guilts : [g.guilt]);
 
 /** E8: the corrective note for an over-claim. Quotes only the model's own sentence. */
 export function overClaimNote(sentence: string): string {
@@ -84,6 +87,8 @@ export interface GuardInput {
   ctx: CharacterContext;
   directives: TurnDirectives;
   guilt: GuiltProfile;
+  /** DX2: every culprit's profile (guiltProfiles: the murderer's, then the accomplice's). Omitted: just `guilt`. */
+  guilts?: readonly GuiltProfile[];
   allowedTimes: CanonTimes;
   /** What the character just heard (question + partner line): names and times in it may be echoed. */
   heard: string;
@@ -166,7 +171,7 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
   // 1. Core guilt first: a line admitting the killing is never accepted, whatever else it gets right.
   // Dialogue (third-person self-naming included), the action field, and a bare "yes" to a spelled-out accusation (#45).
   const admits = (r.admits ?? []).map((a) => a.trim()).filter(Boolean);
-  const leak = findReplyGuiltLeak(r, g.heard, g.guilt, g.characterId, { speakerNames: speakerNamesOf(g.caseData, g.characterId) });
+  const leak = findReplyGuiltLeakAny(r, g.heard, profilesOf(g), g.characterId, { speakerNames: speakerNamesOf(g.caseData, g.characterId) });
   if (leak) return { reason: "guilt_leak", note: guiltRetryNote(leak, victim), detail: leak.text.slice(0, 120) };
   if (admits.some((a) => /^killing$/i.test(a))) {
     return { reason: "guilt_leak", note: guiltRetryNote({ kind: "killing", text: r.dialogue }, victim), detail: "admits:killing" };
@@ -207,8 +212,10 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
     };
   }  // 2a'. E8: the generic third-person over-claim (a non-culprit stating a culprit act as fact), after the case's own
   // forbidden phrases so a data entry still names its reason; acts covered by a held secret or card pass.
-  if (g.characterId !== g.guilt.murdererId) {
-    const oc = findGuiltLeak(r.dialogue, g.guilt, g.characterId, { speakerNames: speakerNamesOf(g.caseData, g.characterId), overClaim: { covered: coveredActs(g) } });
+  // DX2: per culprit, so an innocent can't state the accomplice's act as fact either (each profile's own cover).
+  for (const p of profilesOf(g)) {
+    if (g.characterId === p.murdererId) continue;
+    const oc = findGuiltLeak(r.dialogue, p, g.characterId, { speakerNames: speakerNamesOf(g.caseData, g.characterId), overClaim: { covered: coveredActs(g, p) } });
     if (oc?.overClaim) return { reason: "over_claim", note: overClaimNote(oc.text), detail: `over_claim:${oc.kind}:${oc.text.slice(0, 100)}` };
   }
 

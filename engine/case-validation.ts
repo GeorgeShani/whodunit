@@ -7,7 +7,10 @@ import { MAX_CONFRONTATION_TOTAL } from "./constants";
 import { gameMinutes } from "./time";
 import type { TimelineEntry } from "./types";
 import { checkProgression, progressionWarnings } from "./progression-validation";
-import { coreGuiltSecretIds, guiltProfile } from "./core-guilt";
+import { coreGuiltSecretIds, guiltProfile, guiltProfiles } from "./core-guilt";
+import { compileForbiddenPhrase, unlessRevealedIds } from "@/ai/forbidden-phrases";
+import { findGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
+import { knowledgeGate } from "./knowledge-gate";
 import { checkPresentation } from "./presentation-validation";
 
 /**
@@ -170,7 +173,12 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     // #46 forbidden phrases: switches and lifts reference real ids.
     ch.forbiddenPhrases.forEach((fp, j) => {
       // E13: any character's secret may lift an entry; a card shown to the speaker may too (evidence, or another's testimony).
-      if (fp.unlessRevealed) ref(allSecretIds, "secret", fp.unlessRevealed, f, `forbiddenPhrases.${j}.unlessRevealed`);
+      const unless = fp.unlessRevealed === undefined ? [] : typeof fp.unlessRevealed === "string" ? [fp.unlessRevealed] : fp.unlessRevealed;
+      unless.forEach((id, k) => ref(allSecretIds, "secret", id, f, `forbiddenPhrases.${j}.unlessRevealed${Array.isArray(fp.unlessRevealed) ? `.${k}` : ""}`));
+      // DX7: lifted when one of the speaker's OWN stories breaks.
+      fp.unlessBroken?.forEach((id, k) => {
+        if (!ch.intendedLies.some((l) => l.id === id)) issues.push({ file: f, path: `forbiddenPhrases.${j}.unlessBroken.${k}`, message: `unknown lie "${id}": unlessBroken lists ${ch.id}'s own intendedLies ids` });
+      });
       if (fp.unlessShown) {
         const sp = `forbiddenPhrases.${j}.unlessShown`;
         if (!evidenceIds.has(fp.unlessShown) && !allSecretIds.has(fp.unlessShown)) issues.push({ file: f, path: sp, message: `unknown evidence or testimony (secret) id "${fp.unlessShown}"` });
@@ -179,7 +187,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
       // E12: switched on by any character's secret; never by the one that also lifts it.
       fp.onlyAfterRevealed?.forEach((id, k) => {
         ref(allSecretIds, "secret", id, f, `forbiddenPhrases.${j}.onlyAfterRevealed.${k}`);
-        if (id === fp.unlessRevealed) issues.push({ file: f, path: `forbiddenPhrases.${j}.onlyAfterRevealed.${k}`, message: `"${id}" both switches this phrase on and lifts it, so it never applies` });
+        if (unless.includes(id)) issues.push({ file: f, path: `forbiddenPhrases.${j}.onlyAfterRevealed.${k}`, message: `"${id}" both switches this phrase on and lifts it, so it never applies` });
       });
     });
     ch.intendedLies.forEach((l, j) => {
@@ -380,8 +388,9 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.onlyAfterRevealed`, message: "every listed secret is core guilt and is never revealed, so this phrase never applies" });
       if (fp.unlessShown && core.has(fp.unlessShown))
         warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessShown`, message: `"${fp.unlessShown}" is core guilt: its card is never shown, so this phrase is always forbidden` });
-      if (fp.unlessRevealed && core.has(fp.unlessRevealed))
-        warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${fp.unlessRevealed}" is core guilt and is never revealed, so this phrase is always forbidden; drop unlessRevealed` });
+      const unless = fp.unlessRevealed === undefined ? [] : typeof fp.unlessRevealed === "string" ? [fp.unlessRevealed] : fp.unlessRevealed;
+      for (const id of unless.filter((x) => core.has(x)))
+        warnings.push({ file: charFile(ch.id), path: `forbiddenPhrases.${j}.unlessRevealed`, message: `"${id}" is core guilt and is never revealed, so it never lifts this phrase; drop it from unlessRevealed` });
     });
   warnings.push(...howToPlayTipWarnings(c));
   // #52: voice variants. Duplicates waste a rotation slot; a long opener is not an opener; one variant cannot rotate.
@@ -446,6 +455,7 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
   }
 
   warnings.push(...checkGuiltLeakPaths(c));
+  warnings.push(...checkGuardDataWarnings(c));
 
   const summaryNeeded = new Set<string>();
   for (const ch of c.characters) {
@@ -556,6 +566,95 @@ export function checkGuiltLeakPaths(c: LoadedCase): CaseIssue[] {
         }
       }
     }
+  }
+  return out;
+}
+
+/**
+ * Guard-data self-tests (case-two plan 3.9). All warnings; data-driven and case-agnostic.
+ *  V33 (DX4): no REVEALABLE secret's testimonySummary or description, spoken by its owner, trips the guilt check
+ *      (any culprit's profile, guiltProfiles). Such a reveal would be rejected forever: a soft-lock (R6).
+ *  V34 (DX10): (a) a forbiddenPhrases entry lifted by `unlessRevealed` that matches the statement of a fact its
+ *      character can see while those secrets are still locked (the fact's hiddenUntil lists another key, or it has
+ *      none and isn't one of those secrets' own facts): the phrase would block a fact the prompt carries. (b) a
+ *      hiddenUntil fact with two or more knowers whose keys are owned by different knowers (a key of one unhides it
+ *      for every knower).
+ */
+export function checkGuardDataWarnings(c: LoadedCase): CaseIssue[] {
+  const out: CaseIssue[] = [];
+  const charFile = (id: string) => `characters/${id}.json`;
+  const core = coreGuiltSecretIds(c);
+  const profiles = guiltProfiles(c);
+  for (const ch of c.characters) {
+    const speakerNames = speakerNamesOf(c, ch.id);
+    for (const sec of ch.secrets) {
+      if (core.has(sec.id)) continue;
+      for (const field of ["testimonySummary", "description"] as const) {
+        const text = sec[field];
+        if (!text) continue;
+        for (const p of profiles) {
+          const leak = findGuiltLeak(text, p, ch.id, { speakerNames });
+          if (leak)
+            out.push({
+              file: charFile(ch.id),
+              path: `secrets(${sec.id}).${field}`,
+              message: `spoken by ${ch.id}, trips the guilt check (${p.role ?? "murderer"} ${p.murdererId}, ${leak.kind}): "${leak.text.slice(0, 100)}". This reveal would be rejected every time (a soft-lock); reword it or narrow the guilt data`,
+            });
+        }
+      }
+    }
+  }
+  const facts = [...c.facts, ...c.timeline];
+  const factById = new Map(facts.map((f) => [f.id, f]));
+  const ownerOfSecret = new Map(c.characters.flatMap((ch) => ch.secrets.map((x) => [x.id, ch.id] as const)));
+  const ownerOfLie = new Map(c.characters.flatMap((ch) => ch.intendedLies.map((l) => [l.id, ch.id] as const)));
+  for (const ch of c.characters) {
+    ch.forbiddenPhrases.forEach((fp, j) => {
+      const unless = unlessRevealedIds(fp);
+      if (!unless.length) return;
+      // The most the character can see while the entry is still live (every `unless` secret locked, every `unlessBroken`
+      // lie standing, the `unlessShown` item unseen): every other secret revealed (own ones whose prerequisites don't
+      // need an `unless` one), every other card and clue shown.
+      const keep = new Set(unless);
+      const lies = ch.intendedLies.filter((l) => fp.unlessBroken?.includes(l.id));
+      lies.forEach((l) => l.breaksOnSecretIds.forEach((id) => keep.add(id)));
+      const needs = (id: string, seen = new Set<string>()): boolean => {
+        if (keep.has(id)) return true;
+        if (seen.has(id)) return false;
+        seen.add(id);
+        return (ch.secrets.find((x) => x.id === id)?.revealConditions?.afterSecretIds ?? []).some((x) => needs(x, seen));
+      };
+      const own = ch.secrets.filter((x) => !core.has(x.id) && !needs(x.id)).map((x) => x.id);
+      const noShow = new Set([...lies.flatMap((l) => l.brokenByEvidenceIds), ...(fp.unlessShown ? [fp.unlessShown] : [])]);
+      const heard = c.characters.flatMap((o) => (o.id === ch.id ? [] : o.secrets.filter((x) => !core.has(x.id) && !keep.has(x.id) && !noShow.has(x.id)).map((x) => x.id)));
+      const gate = knowledgeGate(c, ch, { revealedSecretIds: own, testimonyShownIds: heard, evidenceShownIds: c.evidence.map((e) => e.id).filter((id) => !noShow.has(id)) });
+      const re = compileForbiddenPhrase(fp);
+      for (const id of ch.knownFactIds) {
+        const f = factById.get(id);
+        if (!f || gate.withheldFactIds.has(id)) continue;
+        const m = re.exec(f.statement);
+        if (m)
+          out.push({
+            file: charFile(ch.id),
+            path: `forbiddenPhrases.${j}`,
+            message: `matches "${m[0].slice(0, 60)}" in fact ${f.id}, which ${ch.id} can see while ${unless.join("/")} is still locked: the guard would reject what the prompt tells them`,
+          });
+      }
+    });
+  }
+  for (const f of facts) {
+    if (!f.hiddenUntil) continue;
+    const knowers = new Set(c.characters.filter((ch) => ch.knownFactIds.includes(f.id)).map((ch) => ch.id));
+    if (knowers.size < 2) continue;
+    const owners = new Set(
+      [...f.hiddenUntil.secretIds.map((k) => ownerOfSecret.get(k)), ...f.hiddenUntil.lieIds.map((k) => ownerOfLie.get(k))].filter((o): o is string => !!o && knowers.has(o)),
+    );
+    if (owners.size >= 2)
+      out.push({
+        file: c.facts.includes(f) ? "case.json" : "timeline.json",
+        path: `${f.id}.hiddenUntil`,
+        message: `its keys belong to different knowers (${[...owners].join(", ")}): one knower's key unhides it for every knower; split the fact per knower`,
+      });
   }
   return out;
 }

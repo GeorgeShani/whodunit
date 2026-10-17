@@ -7,7 +7,10 @@
  *   engine reveals in the current exchange (otherwise every revealing turn would be deflected).
  * - `onlyAfterRevealed` (E12): the entry applies only once one of those secrets is revealed (any character's, this
  *   exchange included): a lie that breaks on a secret can't be told again after it breaks.
- * - `unlessRevealed` may name ANY character's secret (E13): lifted once it is revealed anywhere in the game.
+ * - `unlessRevealed` may name ANY character's secret (E13): lifted once it is revealed anywhere in the game. DX7: it
+ *   may be an array, lifted once ANY of them is revealed.
+ * - `unlessBroken` (DX7): the speaker's own lie ids, lifted once ANY of them is exposed or retired (this exchange's
+ *   break included).
  * - `unlessShown` (E13): lifted once that evidence or testimony card has been shown to the speaker (this exchange's
  *   presented item included).
  * The entry's `note` is for authors and never reaches the model.
@@ -39,12 +42,29 @@ export interface ForbiddenState {
   revealedIds: readonly string[];
   /** Evidence and testimony ids shown to the speaker (this exchange's presented item included). */
   shownIds?: readonly string[];
+  /** DX7: the speaker's lies that have broken (exposed or retired), this exchange's included. */
+  brokenLieIds?: readonly string[];
 }
+
+/** DX7: `unlessRevealed` as a list (a single id or an array in the data). */
+export const unlessRevealedIds = (p: Pick<ForbiddenPhrase, "unlessRevealed">): readonly string[] =>
+  p.unlessRevealed === undefined ? [] : typeof p.unlessRevealed === "string" ? [p.unlessRevealed] : p.unlessRevealed;
 
 /** The state for a guard turn: the speaker's revealed secrets, every revealed secret in the game, and this exchange's reveal. */
 export function forbiddenStateOf(g: {
-  ctx: { secrets: readonly { id: string }[]; evidenceShown?: readonly { id: string }[]; testimonyShown?: readonly { id: string }[] };
-  directives: { revealSecret?: { id: string }; presentedEvidence?: { id: string }; presentedTestimony?: { id: string } };
+  ctx: {
+    secrets: readonly { id: string }[];
+    evidenceShown?: readonly { id: string }[];
+    testimonyShown?: readonly { id: string }[];
+    intendedLies?: readonly { id: string; status: string }[];
+  };
+  directives: {
+    revealSecret?: { id: string };
+    presentedEvidence?: { id: string };
+    presentedTestimony?: { id: string };
+    exposedLieIds?: readonly string[];
+    retiredLieIds?: readonly string[];
+  };
   revealedAnyIds?: readonly string[];
 }): ForbiddenState {
   const d = g.directives;
@@ -58,12 +78,20 @@ export function forbiddenStateOf(g: {
         ...(d.presentedTestimony ? [d.presentedTestimony.id] : []),
       ]),
     ],
+    brokenLieIds: [
+      ...new Set([
+        ...(g.ctx.intendedLies ?? []).filter((l) => l.status !== "maintain").map((l) => l.id),
+        ...(d.exposedLieIds ?? []),
+        ...(d.retiredLieIds ?? []),
+      ]),
+    ],
   };
 }
 
 /** True when the entry applies in this state. */
 export function isPhraseLive(p: ForbiddenPhrase, st: ForbiddenState): boolean {
-  if (p.unlessRevealed && st.revealedIds.includes(p.unlessRevealed)) return false;
+  if (unlessRevealedIds(p).some((id) => st.revealedIds.includes(id))) return false;
+  if (p.unlessBroken?.some((id) => (st.brokenLieIds ?? []).includes(id))) return false;
   if (p.unlessShown && (st.shownIds ?? []).includes(p.unlessShown)) return false;
   if (p.onlyAfterRevealed && !p.onlyAfterRevealed.some((id) => st.revealedIds.includes(id))) return false;
   return true;

@@ -11,6 +11,7 @@ import { CLUE_ART_DIR, CLUE_FALLBACK_ICON } from "../lib/clue-art";
 import { validateCase } from "../engine/case-loader";
 import { checkCaseWarnings, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
 import { fastestPath } from "../engine/progression-validation";
+import { guiltProfiles } from "../engine/core-guilt";
 import { checkPresentationAssets } from "../engine/presentation-validation";
 import { CUES } from "../components/effects/audio";
 
@@ -63,6 +64,11 @@ async function main() {
     const path_ = fastestPath(d);
     if (path_ !== null) console.log(`   progression: ${d.leads?.length ?? 0} lead(s), accuse gate ${d.accuseGate ? "on" : "off"}; fastest legal path: ${path_} actions (confrontations included).`);
     else if (d.leads?.length || d.accuseGate) console.log("   progression: fastest legal path could not be computed (the gate may be unreachable, or the search budget ran out).");
+    // DX4: what the guilt check protects, per culprit, so an author can see why a line is rejected.
+    const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+    for (const p of guiltProfiles(d))
+      console.log(`   guilt check (${p.role ?? "murderer"} ${p.murdererId}): window ${hhmm(p.window[0])}-${hhmm(p.window[1])}; coreObjects: ${p.coreObjects.join(", ") || "(none)"}.`);
+    if (d.solution.accompliceId && !d.solution.accompliceAct) console.log(`   guilt check: no accompliceAct, so ${d.solution.accompliceId} has only data-flagged coreGuilt (no accomplice profile).`);
     const warnings = checkCaseWarnings(d);
     for (const w of warnings) console.log(`   ⚠ ${formatIssue(w)}`);
     console.log(`   knowledge gate: ${d.knowledgeGate}${warnings.length ? `, ${warnings.length} design warning(s) above` : ", no design warnings"}.`);
