@@ -783,5 +783,171 @@
   "confrontation": {
     "perPair": 4,
     "total": 16
+  },
+  "setting": {
+    "place": "aboard a private steam yacht at sea in a storm",
+    "decade": "the 1930s",
+    "dateLine": "the summer of 1936",
+    "site": "the ship",
+    "household": "the passengers",
+    "authority": {
+      "noun": "the purser",
+      "policeAboard": false,
+      "note": "the police take over when we make port"
+    },
+    "roster": "Others aboard:",
+    "vocabulary": {
+      "allowed": [
+        "disc",
+        "gramophone",
+        "wireless",
+        "telegraph",
+        "galley",
+        "purser",
+        "phonograph",
+        "okay"
+      ],
+      "banned": [
+        "phones",
+        "apps",
+        "radar",
+        "sonar",
+        "cassette",
+        "walkie-talkie",
+        "teenager",
+        "intercom",
+        "loudspeaker",
+        "tape",
+        "tape recorder",
+        "nylon",
+        "ballpoint",
+        "biro",
+        "Dramamine",
+        "smoking gun",
+        "serial killer"
+      ]
+    }
+  },
+  "orderLandmarks": [
+    {
+      "id": "retires",
+      "label": "the Commodore goes to polish his Speech",
+      "say": [
+        "\\b(?:went|gone|retired|left|went off|goes)\\s+(?:down\\s+)?to\\s+(?:polish|write|work on)\\s+(?:the|his)\\s+speech\\b",
+        "\\bpolish(?:ing)?\\s+(?:the|his)\\s+speech\\b"
+      ],
+      "fact": [
+        "\\bpolish the Speech\\b"
+      ],
+      "expectTime": "21:33"
+    },
+    {
+      "id": "storm",
+      "label": "the squall hits (the ship heels to starboard)",
+      "say": [
+        "\\bthe\\s+squall\\b",
+        "\\b(?:squall|storm)\\s+(?:hit|struck|broke|came in|blew up)\\b",
+        "\\bwhen\\s+it\\s+(?:broke|hit)\\b",
+        "\\bheeled\\s+(?:over\\s+)?to\\s+starboard\\b",
+        "\\bthe\\s+wireless\\s+(?:died|went|cut out)\\b"
+      ],
+      "fact": [
+        "\\bsquall hits\\b"
+      ],
+      "expectTime": "21:40"
+    },
+    {
+      "id": "bonk",
+      "label": "the hollow BONK",
+      "say": [
+        "\\b(?:the|that|a)\\s+(?:hollow\\s+|distant\\s+)?bonk\\b",
+        "\\b(?:the|that|a)\\s+(?:distant\\s+)?gong\\b"
+      ],
+      "fact": [
+        "\\bBONK\\b"
+      ],
+      "expectTime": "21:52"
+    },
+    {
+      "id": "wave",
+      "label": "the Great Lurch (the big wave; the ship swings over to port)",
+      "say": [
+        "\\b(?:the\\s+)?great\\s+lurch\\b",
+        "\\bthe\\s+lurch\\b",
+        "\\bthe\\s+(?:big|rogue|great)\\s+wave\\b",
+        "\\b(?:she|the ship|the tallyho|the yacht)\\s+(?:lurched|rolled|flipped|swung|heeled)\\s+(?:over\\s+)?(?:to\\s+)?port\\b",
+        "\\bhard-a-port\\b",
+        "\\beverything\\s+slid\\b"
+      ],
+      "fact": [
+        "\\bgreat lurch\\b",
+        "\\bLURCH 22:14\\b"
+      ],
+      "expectTime": "22:14"
+    },
+    {
+      "id": "plunge",
+      "label": "the Plunge begins (Zippelli sealed in the glass chest)",
+      "say": [
+        "\\bthe\\s+plunge\\s+(?:began|begins|started|starts)\\b",
+        "\\b(?:chained|sealed|locked)\\s+(?:him\\s+|zippelli\\s+)?in(?:to)?\\s+(?:the|his|that)\\s+(?:glass\\s+)?chest\\b",
+        "\\bwent\\s+under\\s+glass\\b"
+      ],
+      "fact": [
+        "\\bsits sealed in the glass chest\\b"
+      ],
+      "expectTime": "22:17"
+    },
+    {
+      "id": "cheer",
+      "label": "the cheer over the horns at the shark",
+      "say": [
+        "\\b(?:the|that|his)\\s+(?:shark|drum-?roll|hiccup(?:ing|y)?)\\s+cheer\\b",
+        "\\bcheer(?:ed)?\\s+(?:at|for|over)\\s+the\\s+(?:shark|drum-?roll)\\b",
+        "\\bthe\\s+horns?\\s+(?:bellowed|blared|boomed|went off)\\b",
+        "\\bcheer\\s+with\\s+(?:a|the|that)\\s+hiccup\\b",
+        "\\bthe\\s+(?:commodore's\\s+|old man's\\s+|uncle's\\s+|his\\s+)?cheer\\b(?!\\s+at\\s+dinner)"
+      ],
+      "fact": [
+        "\\bbellows?\\b[^.]{0,40}\\b(?:cheer|TALLY-HO)"
+      ],
+      "expectTime": "22:38"
+    },
+    {
+      "id": "escape",
+      "label": "Zippelli bursts out of the chest",
+      "say": [
+        "\\b(?:burst|broke|bursts|came|got|popped)\\s+out\\s+of\\s+(?:the|his|that)\\s+(?:glass\\s+)?chest\\b",
+        "\\bthe\\s+(?:great\\s+)?escape\\b"
+      ],
+      "fact": [
+        "\\bbursts out of the chest\\b"
+      ],
+      "expectTime": "22:49"
+    },
+    {
+      "id": "body",
+      "label": "the body is found (Percy screams)",
+      "say": [
+        "\\b(?:body|corpse)\\s+(?:was\\s+|is\\s+|had\\s+been\\s+)?(?:found|discovered)\\b",
+        "\\b(?:found|discovered|finds)\\s+(?:him|the commodore|uncle|the old man|the body)\\s+(?:dead|lying|on\\s+the\\s+floor|in\\s+the\\s+stateroom|like\\s+that)\\b",
+        "\\b(?:the|percy's|her)\\s+scream\\b",
+        "\\bpercy\\s+screamed\\b"
+      ],
+      "fact": [
+        "\\bfinds the Commodore dead\\b"
+      ],
+      "expectTime": "22:55"
+    }
+  ],
+  "orderWords": {
+    "absence": [
+      "went\\s+(?:up|down|below|aft|forward)\\s+to\\s+the\\s+(?:boat\\s+deck|bridge|galley|engine\\s+room|cabin\\s+deck|saloon|chartroom)",
+      "left\\s+the\\s+(?:bridge|saloon|galley|engine\\s+room|greenroom)"
+    ],
+    "movement": [
+      "went\\s+(?:up|down|below|aft|forward)",
+      "left\\s+the\\s+(?:bridge|saloon|galley)"
+    ]
   }
 }

@@ -255,11 +255,6 @@
       "note": "Nobody saw anyone touch the Cheer-Box."
     },
     {
-      "text": "\\b(?:radar|sonar|walkie-talkie|teenagers?|soft-serve|intercoms?|loudspeakers?|tape\\s+recorders?|nylons?|ballpoints?|biros?|Dramamine|serial\\s+killers?|smoking\\s+guns?|cassettes?)\\b",
-      "regex": true,
-      "note": "Period words (1936), on top of the engine's default anachronism list."
-    },
-    {
       "text": "\\byou\\s+(?:were\\s+there|saw\\s+it|heard\\s+it)\\b[^.!?]{0,20}\\bdetective\\b|\\bdetective\\b[^.!?]{0,10}\\byou\\s+(?:were\\s+there|saw\\s+it|heard\\s+it)\\b",
       "regex": true,
       "note": "The detective was seasick in a forward cabin all evening and witnessed nothing."

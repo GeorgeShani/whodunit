@@ -1,16 +1,20 @@
 /**
  * Tallyho draft (cases/_tallyho, docs/cases/TALLYHO_DESIGN.md): the data validates, the gate is the approved one, the
- * fastest legal path is 32 actions and no reachable state opens ACCUSE while the win is impossible. The engine's own
+ * fastest legal path is 32 actions, no reachable state opens ACCUSE while the win is impossible, and only the doer
+ * named as murderer with the stager named as helper wins (G1). The engine's own
  * searches run out of budget at six suspects, so this uses the exhaustive searches in ./tallyho-search.
  *
  * solution.json is kept out of git while the case is a draft (no solution files committed), so this suite skips when
- * it is absent. Regenerate it locally from the design doc (section 4.1) to run it.
+ * it is absent. Regenerate it locally from the design doc (section 4.1) to run it. The culprits are read from it, so this
+ * file names neither.
  */
 import { existsSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
+import { gradeAccusation } from "@/engine/accusation";
 import { checkCaseReferences, checkCaseWarnings } from "@/engine/case-validation";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
+import type { Accusation } from "@/engine/types";
 import { tallyhoAccuseOpenWithoutWin, tallyhoFastestPath } from "./tallyho-search";
 
 const HAS_SOLUTION = existsSync("cases/_tallyho/solution.json");
@@ -52,5 +56,52 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
 
   it.skipIf(!FULL)("and nothing shorter does (TALLYHO_FULL_SEARCH=1)", { timeout: 1_200_000 }, () => {
     expect(tallyhoFastestPath(c)?.actions).toBe(32);
+  });
+
+  describe("two-culprit grading (G1)", () => {
+    let full: Accusation;
+    const won = (a: Accusation) => gradeAccusation(c.solution, a).won;
+    beforeAll(() => {
+      const s = c.solution;
+      full = {
+        murdererId: s.murdererId,
+        accompliceId: s.accompliceId!,
+        weaponId: s.weaponId,
+        motiveId: s.motiveId,
+        keyEvidenceIds: s.keyEvidenceIds.slice(0, s.minKeyEvidence ?? 1),
+        keyTestimonyIds: (s.keyTestimonyIds ?? []).slice(0, Math.max(1, s.minKeyTestimony ?? 0)),
+      };
+    });
+
+    it("the solution names a helper who is a suspect and not the murderer", () => {
+      expect(c.characters.map((ch) => ch.id)).toContain(c.solution.accompliceId);
+      expect(c.solution.accompliceId).not.toBe(c.solution.murdererId);
+    });
+
+    it("the murderer plus the helper, with the proof, wins", () => {
+      expect(won(full)).toBe(true);
+    });
+
+    it("the murderer alone (no helper answer) is not a full win", () => {
+      const alone: Accusation = { ...full };
+      delete alone.accompliceId;
+      const g = gradeAccusation(c.solution, alone);
+      expect(g.murdererCorrect).toBe(true);
+      expect(g.won).toBe(false);
+    });
+
+    it('the murderer plus "no one helped" loses', () => {
+      expect(won({ ...full, accompliceId: null })).toBe(false);
+    });
+
+    it("the murderer plus any wrong helper loses", () => {
+      const wrong = c.characters.map((ch) => ch.id).filter((id) => id !== c.solution.murdererId && id !== c.solution.accompliceId);
+      expect(wrong).toHaveLength(4);
+      for (const id of wrong) expect(won({ ...full, accompliceId: id })).toBe(false);
+    });
+
+    it("swapped roles lose", () => {
+      expect(won({ ...full, murdererId: full.accompliceId!, accompliceId: full.murdererId })).toBe(false);
+    });
   });
 });
