@@ -117,4 +117,15 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     }
     expect([...new Set(owners)].sort()).toEqual(["bilge", "boris", "gherkina", "ottilie", "percy"]);
   });
+
+  it("features: both modules declared, the proof only in solution.json, no diagram art yet", () => {
+    expect(c.features).toEqual(["time-misdirection", "ship-list"]);
+    const tm = c.featureConfig!["time-misdirection"] as Record<string, unknown>;
+    expect(Object.keys(tm).sort()).toEqual(["appearanceWords", "stagedClaims"]);
+    expect(JSON.stringify(c.featureConfig)).not.toContain("provedBy");
+    expect((c.solution.featureProof?.["time-misdirection"] as { provedBy?: string[] } | undefined)?.provedBy?.length).toBeGreaterThan(0);
+    const sl = c.featureConfig!["ship-list"] as { flipShownBy: string; diagrams?: unknown[] };
+    expect(sl.flipShownBy).toBe("heel-chart");
+    expect(sl.diagrams ?? []).toEqual([]);
+  });
 });
