@@ -456,6 +456,7 @@ export function checkCaseWarnings(c: LoadedCase): CaseIssue[] {
 
   warnings.push(...checkGuiltLeakPaths(c));
   warnings.push(...checkGuardDataWarnings(c));
+  warnings.push(...culpritEndingWarnings(c));
 
   const summaryNeeded = new Set<string>();
   for (const ch of c.characters) {
@@ -656,5 +657,25 @@ export function checkGuardDataWarnings(c: LoadedCase): CaseIssue[] {
         message: `its keys belong to different knowers (${[...owners].join(", ")}): one knower's key unhides it for every knower; split the fact per knower`,
       });
   }
+  return out;
+}
+
+/** DX11 / design T-55: a culprit's own wrong ending never confirms a role: no line by the other culprit (it is never
+ * played) and no line naming them. Two-culprit cases only. */
+export function culpritEndingWarnings(c: Pick<LoadedCase, "solution" | "characters" | "endings">): CaseIssue[] {
+  const out: CaseIssue[] = [];
+  const culpritIds = [c.solution.murdererId, ...(c.solution.accompliceId ? [c.solution.accompliceId] : [])];
+  if (culpritIds.length > 1 && c.endings)
+    for (const id of culpritIds) {
+      const other = c.characters.find((ch) => ch.id !== id && culpritIds.includes(ch.id));
+      if (!other) continue;
+      const names = [other.name, ...(other.aliases ?? [])].filter((n) => n.length > 2);
+      (c.endings.wrong[id] ?? []).forEach((l, k) => {
+        const path = `wrong.${id}.${k}`;
+        if (l.speaker === other.id) out.push({ file: "endings.json", path, message: `a line by the other culprit (${other.id}) in ${id}'s own wrong ending is never played (DX11)` });
+        else if (names.some((n) => new RegExp(`\\b${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(l.text)))
+          out.push({ file: "endings.json", path, message: `${id}'s own wrong ending names the other culprit (${other.id}): a loss must not confirm a role (design T-55)` });
+      });
+    }
   return out;
 }
