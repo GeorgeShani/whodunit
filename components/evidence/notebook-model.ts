@@ -24,7 +24,7 @@ export function addContradiction(notes: ContradictionNotes, c: Contradiction): C
   return { ...notes, [key]: { ...(notes[key] ?? {}), [c.characterId]: c.characterName } };
 }
 
-/** "contradicts Victoria Blackwood's story" lines for one card. */
+/** "contradicts Mrs Doe's story" lines for one card. */
 export function contradictionLines(notes: ContradictionNotes, item: NotebookItem): string[] {
   return Object.values(notes[itemKey(item)] ?? {}).map((name) => `Contradicts ${name}'s story`);
 }

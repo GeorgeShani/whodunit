@@ -4,7 +4,7 @@
  *
  * Location background: location.background -> assets/backgrounds/<locationId>.webp
  * if that file exists -> none (the card shows an icon).
- * Screen backdrops: case.backdrops.<screen> -> ART_DEFAULTS[caseId] -> none
+ * Screen backdrops: case.backdrops.<screen> -> DEFAULT_BACKDROPS (shared art, no case id) -> none
  * (each screen keeps its built-in look).
  * Interrogation stage (ART_BIBLE §7): backdrops.interrogation -> the background
  * of the room where the victim was found -> none; plus the conventional
@@ -16,13 +16,10 @@ import type { CaseBackdrops } from "@/engine/case-schema";
 import type { PublicCaseView, StageArt } from "@/engine/public-view";
 
 /**
- * Stopgap art for cases whose authored data doesn't name a backdrop yet.
- * Case data always wins; remove an entry once the case file sets the field.
+ * Shared default backdrops for a case that names none (phase 3: was a per-case-id table). ART_BIBLE §7.2: the manor
+ * entrance hall behind suspect selection. Case data always wins (`backdrops.suspects`).
  */
-export const ART_DEFAULTS: Record<string, CaseBackdrops> = {
-  // ART_BIBLE §7.2: manor entrance hall for suspect selection (until case.json sets backdrops.suspects).
-  blackwood: { suspects: "/assets/backgrounds/manor.webp" },
-};
+export const DEFAULT_BACKDROPS: CaseBackdrops = { suspects: "/assets/backgrounds/manor.webp" };
 
 /** Does /assets/<...> exist in assets/ (the source that sync:assets copies to public/)? */
 export function assetExists(assetPath: string, root = process.cwd()): boolean {
@@ -51,8 +48,7 @@ export function resolveStageArt(background: string | undefined, root = process.c
 }
 
 export function resolveCaseArt(view: PublicCaseView, root = process.cwd()): PublicCaseView {
-  const defaults = ART_DEFAULTS[view.meta.id] ?? {};
-  const merged: CaseBackdrops = { ...defaults, ...view.backdrops };
+  const merged: CaseBackdrops = { ...DEFAULT_BACKDROPS, ...view.backdrops };
   const backdrops = Object.fromEntries(Object.entries(merged).filter(([, p]) => p && assetExists(p, root))) as CaseBackdrops;
   const locations = view.locations.map((l) => {
     const conventional = `/assets/backgrounds/${l.id}.webp`;
@@ -64,5 +60,12 @@ export function resolveCaseArt(view: PublicCaseView, root = process.cwd()): Publ
   const scene = locations.find((l) => l.id === view.victim.foundAtLocationId);
   const crimeScene = scene && "background" in scene ? scene.background : undefined;
   const stage = resolveStageArt(backdrops.interrogation ?? crimeScene, root);
-  return { ...view, backdrops, ...(stage ? { stage } : {}), locations };
+  // Theme art (logo, title art) that is missing falls back to the default look, like a missing backdrop.
+  const theme = view.theme && {
+    ...view.theme,
+    ...(view.theme.logo && !assetExists(view.theme.logo, root) ? { logo: undefined } : {}),
+    ...(view.theme.titleArt && !assetExists(view.theme.titleArt, root) ? { titleArt: undefined } : {}),
+  };
+  if (theme) for (const k of ["logo", "titleArt"] as const) if (theme[k] === undefined) delete theme[k];
+  return { ...view, backdrops, ...(stage ? { stage } : {}), locations, ...(theme ? { theme } : {}) };
 }
