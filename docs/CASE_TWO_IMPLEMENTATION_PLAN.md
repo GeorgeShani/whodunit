@@ -202,10 +202,11 @@ Still phase 5: the picker UI and the role wording, `AccuseVerdict`/`SolutionReve
       { "time": "22:41", "factIds": ["f-..."], "evidenceIds": ["smashed-watch"], "kind": "death" },
       { "time": "22:38", "factIds": ["ev-..."], "kind": "alive" }
     ],
-    "appearanceWords": ["watch", "clock", "read", "says", "said", "stopped", "hands", "programme", "heard", "horn", "bellow"],
-    "provedBy": ["marmalade-run", "cheer-cylinder"]
+    "appearanceWords": ["watch", "clock", "read", "says", "said", "stopped", "hands", "programme", "heard", "horn", "bellow"]
   }
 }
+// solution.json (gitignored, server-only; Marvin on #72: no key-evidence id in committed case.json)
+"featureProof": { "time-misdirection": { "provedBy": ["marmalade-run", "cheer-cylinder"] } }
 ```
 
 | Hook | What it does |

@@ -17,12 +17,18 @@ beforeAll(async () => {
   bw = await loadCase("blackwood");
 });
 const paths = (issues: { path?: string }[]) => issues.map((i) => i.path ?? "");
-const withFeatures = (features: string[], featureConfig: Record<string, unknown>): LoadedCase => ({ ...structuredClone(bw), features, featureConfig });
+/** time-misdirection's proof (the key clue proving the true time) lives in the SOLUTION, never in case.json. */
+const PROOF = () => ({ "time-misdirection": { provedBy: [bw.solution.keyEvidenceIds[0]] } });
+const withFeatures = (features: string[], featureConfig: Record<string, unknown>, featureProof?: Record<string, unknown>): LoadedCase => {
+  const c: LoadedCase = { ...structuredClone(bw), features, featureConfig };
+  const proof = featureProof ?? (features.includes("time-misdirection") ? PROOF() : undefined);
+  if (proof) c.solution = { ...c.solution, featureProof: proof };
+  return c;
+};
 
 const TM = () => ({
   stagedClaims: [{ time: "22:41", kind: "death", factIds: [bw.timeline[0].id], evidenceIds: [bw.evidence[0].id] }],
   appearanceWords: ["watch", "clock", "read", "showed", "stopped"],
-  provedBy: [bw.solution.keyEvidenceIds[0]],
 });
 const SL = () => ({
   history: [
@@ -65,26 +71,53 @@ describe("time-misdirection (3.3)", () => {
   it("a well-formed config validates", () => {
     const c = withFeatures(["time-misdirection"], { "time-misdirection": TM() });
     // proof-of-when: the key clue points at a fact holding the murder minute
-    const ok = checkFeatureConfig(c).filter((i) => i.path !== "featureConfig.time-misdirection.provedBy");
+    const ok = checkFeatureConfig(c).filter((i) => i.path !== "featureProof.time-misdirection.provedBy");
     expect(ok).toEqual([]);
   });
   it("rejects a staged time inside the opportunity window, unknown ids, non-key proofs and an unproved true time", () => {
     const cfg = {
       ...TM(),
       stagedClaims: [{ time: bw.solution.time, kind: "death", factIds: ["f-nope"], evidenceIds: ["e-nope"] }],
-      provedBy: ["muddy-footprint"],
     };
-    const c = withFeatures(["time-misdirection"], { "time-misdirection": cfg });
+    const c = withFeatures(["time-misdirection"], { "time-misdirection": cfg }, { "time-misdirection": { provedBy: ["muddy-footprint"] } });
     c.evidence.find((e) => e.id === "muddy-footprint")!.relatedFactIds = [];
     expect(paths(checkFeatureConfig(c))).toEqual(
       expect.arrayContaining([
         "featureConfig.time-misdirection.stagedClaims.0.time",
         "featureConfig.time-misdirection.stagedClaims.0.factIds.0",
         "featureConfig.time-misdirection.stagedClaims.0.evidenceIds.0",
-        "featureConfig.time-misdirection.provedBy.0",
-        "featureConfig.time-misdirection.provedBy",
+        "featureProof.time-misdirection.provedBy.0",
+        "featureProof.time-misdirection.provedBy",
       ]),
     );
+  });
+  it("provedBy is solution data: an error in case.json, required in solution.json featureProof, never public (V18)", () => {
+    const key = bw.solution.keyEvidenceIds[0];
+    // (Blackwood's first key clue does not prove the time, so its proof-of-when error is filtered here.)
+    const inCase = checkFeatureConfig(withFeatures(["time-misdirection"], { "time-misdirection": { ...TM(), provedBy: [key] } })).filter(
+      (i) => i.path !== "featureProof.time-misdirection.provedBy",
+    );
+    expect(inCase.map((i) => [i.file, i.path])).toEqual([["case.json", "featureConfig.time-misdirection.provedBy"]]);
+    expect(inCase[0].message).toMatch(/solution\.json featureProof\.time-misdirection\.provedBy/);
+    expect(paths(checkCaseReferences(withFeatures(["time-misdirection"], { "time-misdirection": { ...TM(), provedBy: [key] } })))).toContain(
+      "featureConfig.time-misdirection.provedBy",
+    );
+    const missing = checkFeatureConfig(withFeatures(["time-misdirection"], { "time-misdirection": TM() }, {}));
+    expect(missing.map((i) => [i.file, i.path])).toEqual([["solution.json", "featureProof.time-misdirection"]]);
+    expect(paths(checkFeatureConfig(withFeatures(["time-misdirection"], { "time-misdirection": TM() }, { "time-misdirection": { provedBy: [] } })))).toEqual([
+      "featureProof.time-misdirection.provedBy",
+    ]);
+    // A proof for an undeclared feature, or for a module that takes none, is an error.
+    expect(paths(checkFeatureConfig(withFeatures([], {}, { "time-misdirection": { provedBy: [key] } })))).toEqual(["featureProof.time-misdirection"]);
+    expect(paths(checkFeatureConfig(withFeatures(["ship-list"], { "ship-list": SL() }, { "ship-list": { provedBy: [key] } })))).toEqual([
+      "featureProof.ship-list",
+    ]);
+    // The client never sees the proof: no featureProof in the case view or the public slices.
+    const c = withFeatures(["time-misdirection", "ship-list"], { "time-misdirection": TM(), "ship-list": SL() });
+    const view = JSON.stringify(getPublicCaseView(c, { discoveredEvidenceIds: c.evidence.map((e) => e.id) }));
+    expect(view).not.toContain("featureProof");
+    expect(view).not.toContain("provedBy");
+    expect(JSON.stringify(publicFeatures(c) ?? {})).not.toContain(key);
   });
   it("warns about the alibi shape (data-driven, from located timeline entries)", () => {
     const w = featureWarnings(withFeatures(["time-misdirection"], { "time-misdirection": TM() }));

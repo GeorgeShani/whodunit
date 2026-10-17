@@ -1,7 +1,8 @@
 /**
  * Phase 6 (4.1): every registered feature module, by name. The loader contract: a case's `features` names only
  * registered modules, each declared module has a `featureConfig` entry that parses against its `configSchema`, and no
- * config exists for an undeclared one (all load errors, never silently ignored).
+ * config exists for an undeclared one (all load errors, never silently ignored). A module's solution-bearing part
+ * (`proof`) lives in solution.json `featureProof.<name>`, never in case.json; it is validated here, server-side only.
  */
 import type { LoadedCase } from "../case-schema";
 import type { CaseIssue } from "../case-validation";
@@ -9,16 +10,16 @@ import { shipList } from "./ship-list";
 import { timeMisdirection } from "./time-misdirection";
 import type { FeatureCanonHit, FeatureLine, FeatureModule } from "./types";
 
-export const FEATURES: Readonly<Record<string, FeatureModule<never>>> = {
-  [timeMisdirection.name]: timeMisdirection as FeatureModule<never>,
-  [shipList.name]: shipList as FeatureModule<never>,
+export const FEATURES: Readonly<Record<string, FeatureModule<never, never>>> = {
+  [timeMisdirection.name]: timeMisdirection as unknown as FeatureModule<never, never>,
+  [shipList.name]: shipList as unknown as FeatureModule<never, never>,
 };
 
 type FeatureCase = Pick<LoadedCase, "features" | "featureConfig">;
 
 /** The case's declared modules with their parsed config (only those that parse; checkFeatureConfig reports the rest). */
-export function caseFeatures(c: FeatureCase): { mod: FeatureModule<never>; config: never }[] {
-  const out: { mod: FeatureModule<never>; config: never }[] = [];
+export function caseFeatures(c: FeatureCase): { mod: FeatureModule<never, never>; config: never }[] {
+  const out: { mod: FeatureModule<never, never>; config: never }[] = [];
   for (const name of c.features ?? []) {
     const mod = FEATURES[name];
     const r = mod?.configSchema.safeParse(c.featureConfig?.[name]);
@@ -40,13 +41,33 @@ export function checkFeatureConfig(c: LoadedCase): CaseIssue[] {
     if (!mod) return issues.push({ file: "case.json", path, message: `unknown feature "${name}" (registered: ${Object.keys(FEATURES).join(", ")})` });
     if (c.featureConfig?.[name] === undefined)
       return issues.push({ file: "case.json", path: `featureConfig.${name}`, message: `feature "${name}" is declared but has no config` });
-    const r = mod.configSchema.safeParse(c.featureConfig[name]);
+    const raw = c.featureConfig[name];
+    // Solution data never sits in committed case.json: name the move instead of a bare "unrecognized key".
+    const misplaced = (mod.proof?.keys ?? []).filter((k) => !!raw && typeof raw === "object" && k in raw);
+    for (const k of misplaced)
+      issues.push({
+        file: "case.json",
+        path: `featureConfig.${name}.${k}`,
+        message: `"${k}" is solution data: move it to solution.json featureProof.${name}.${k} (server-only)`,
+      });
+    const r = mod.configSchema.safeParse(misplaced.length ? Object.fromEntries(Object.entries(raw as object).filter(([k]) => !misplaced.includes(k))) : raw);
     if (!r.success) {
       for (const e of r.error.issues)
         issues.push({ file: "case.json", path: `featureConfig.${name}${e.path.length ? `.${e.path.join(".")}` : ""}`, message: e.message });
       return;
     }
-    issues.push(...mod.validate(c, r.data as never));
+    let proof: unknown;
+    const rawProof = c.solution.featureProof?.[name];
+    if (mod.proof && rawProof !== undefined) {
+      const pr = mod.proof.schema.safeParse(rawProof);
+      if (!pr.success) {
+        for (const e of pr.error.issues)
+          issues.push({ file: "solution.json", path: `featureProof.${name}${e.path.length ? `.${e.path.join(".")}` : ""}`, message: e.message });
+        return;
+      }
+      proof = pr.data;
+    }
+    issues.push(...mod.validate(c, r.data as never, proof as never));
     // V18: the case-level public slice never carries a solution id (people, weapon, motive, key clues/testimony).
     const s = c.solution;
     const secret = new Set(
@@ -64,6 +85,13 @@ export function checkFeatureConfig(c: LoadedCase): CaseIssue[] {
   });
   for (const name of Object.keys(c.featureConfig ?? {}))
     if (!seen.has(name)) issues.push({ file: "case.json", path: `featureConfig.${name}`, message: `config for "${name}", which "features" does not declare` });
+  for (const name of Object.keys(c.solution.featureProof ?? {}))
+    if (!seen.has(name) || !FEATURES[name]?.proof)
+      issues.push({
+        file: "solution.json",
+        path: `featureProof.${name}`,
+        message: seen.has(name) ? `feature "${name}" takes no proof` : `proof for "${name}", which case.json "features" does not declare`,
+      });
   return issues;
 }
 

@@ -3,7 +3,8 @@
  * must never state as fact. Config in case.json `featureConfig["time-misdirection"]` (SERVER-ONLY; nothing public):
  *  - stagedClaims: each staged time, the facts/clues that carry it, and what it pretends ("death" / "alive");
  *  - appearanceWords: words that frame a time as what something SHOWED ("the watch said 22:41");
- *  - provedBy: the key clues that prove the true time.
+ *  - provedBy: the key clues that prove the true time. SOLUTION DATA: in solution.json
+ *    `featureProof["time-misdirection"].provedBy`, never in case.json (an error there).
  * validate: staged times are outside the opportunity window, ids exist, provedBy are key evidence, and one of them
  * points at a fact whose range holds the murder minute (proof-of-when). warn: the alibi shape (exactly one suspect
  * alone at the murder minute; the culprits accompanied at each staged time). canonCheck: a sentence with a staged time
@@ -29,12 +30,16 @@ export const TimeMisdirectionConfigSchema = z.strictObject({
     )
     .min(1),
   appearanceWords: z.array(z.string().trim().min(2)).min(1),
-  provedBy: z.array(IdSchema).min(1),
 });
 export type TimeMisdirectionConfig = z.infer<typeof TimeMisdirectionConfigSchema>;
+/** solution.json `featureProof["time-misdirection"]`. */
+export const TimeMisdirectionProofSchema = z.strictObject({ provedBy: z.array(IdSchema).min(1) });
+export type TimeMisdirectionProof = z.infer<typeof TimeMisdirectionProofSchema>;
 
 const F = "case.json";
 const P = "featureConfig.time-misdirection";
+const SF = "solution.json";
+const SP = "featureProof.time-misdirection";
 const clock = (t: string) => {
   const [h, m] = t.split(":").map(Number);
   return h * 60 + m;
@@ -51,7 +56,7 @@ const DEATH =
 const ALIVE = /\b(?:alive|living|still\s+breathing|breathing|cheered|cheering|spoke|speaking|called\s+out|shouted|sang)\b/i;
 const esc = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-function validate(c: LoadedCase, cfg: TimeMisdirectionConfig): CaseIssue[] {
+function validate(c: LoadedCase, cfg: TimeMisdirectionConfig, proof?: TimeMisdirectionProof): CaseIssue[] {
   const out: CaseIssue[] = [];
   const day = c.dayStartsAt ?? "12:00";
   const facts = new Map([...c.facts, ...c.timeline].map((f) => [f.id, f]));
@@ -68,12 +73,16 @@ function validate(c: LoadedCase, cfg: TimeMisdirectionConfig): CaseIssue[] {
     s.factIds.forEach((id, k) => facts.has(id) || out.push({ file: F, path: `${p}.factIds.${k}`, message: `unknown fact "${id}"` }));
     s.evidenceIds.forEach((id, k) => evidence.has(id) || out.push({ file: F, path: `${p}.evidenceIds.${k}`, message: `unknown evidence "${id}"` }));
   });
-  cfg.provedBy.forEach((id, k) => {
-    if (!evidence.has(id)) out.push({ file: F, path: `${P}.provedBy.${k}`, message: `unknown evidence "${id}"` });
+  if (!proof) {
+    out.push({ file: SF, path: SP, message: `no proof: add { "provedBy": [<key evidence>] } here (server-only; never in case.json)` });
+    return out;
+  }
+  proof.provedBy.forEach((id, k) => {
+    if (!evidence.has(id)) out.push({ file: SF, path: `${SP}.provedBy.${k}`, message: `unknown evidence "${id}"` });
     else if (!c.solution.keyEvidenceIds.includes(id))
-      out.push({ file: F, path: `${P}.provedBy.${k}`, message: `"${id}" is not key evidence (solution.keyEvidenceIds)` });
+      out.push({ file: SF, path: `${SP}.provedBy.${k}`, message: `"${id}" is not key evidence (solution.keyEvidenceIds)` });
   });
-  const proves = cfg.provedBy.some((id) =>
+  const proves = proof.provedBy.some((id) =>
     (evidence.get(id)?.relatedFactIds ?? []).some((fid) => {
       const f = facts.get(fid);
       const r = f && range(f, day);
@@ -82,8 +91,8 @@ function validate(c: LoadedCase, cfg: TimeMisdirectionConfig): CaseIssue[] {
   );
   if (!proves)
     out.push({
-      file: F,
-      path: `${P}.provedBy`,
+      file: SF,
+      path: `${SP}.provedBy`,
       message: `no provedBy clue points (relatedFactIds) at a fact whose time holds the murder minute ${c.solution.time}: the true time is asserted, not proved`,
     });
   return out;
@@ -149,9 +158,10 @@ function canonCheck(_c: LoadedCase, cfg: TimeMisdirectionConfig, line: { said: s
   return null;
 }
 
-export const timeMisdirection: FeatureModule<TimeMisdirectionConfig> = {
+export const timeMisdirection: FeatureModule<TimeMisdirectionConfig, TimeMisdirectionProof> = {
   name: "time-misdirection",
   configSchema: TimeMisdirectionConfigSchema,
+  proof: { schema: TimeMisdirectionProofSchema, keys: ["provedBy"] },
   validate,
   warn,
   canonCheck,

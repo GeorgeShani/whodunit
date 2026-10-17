@@ -22,11 +22,16 @@ export interface FeatureCanonHit {
   detail: string;
 }
 
-export interface FeatureModule<C = unknown> {
+export interface FeatureModule<C = unknown, P = unknown> {
   name: string;
   configSchema: z.ZodType<C>;
-  /** Load-time errors (validate:case and the loader fail on them). */
-  validate(c: LoadedCase, cfg: C): CaseIssue[];
+  /**
+   * The solution-bearing part of the config, read from solution.json `featureProof.<name>` (SERVER-ONLY). Its keys are
+   * an error in case.json `featureConfig`. Never passed to `publicConfig` / `publicClue`, so it cannot reach a client.
+   */
+  proof?: { schema: z.ZodType<P>; keys: readonly string[] };
+  /** Load-time errors (validate:case and the loader fail on them). `proof` is the parsed featureProof entry, if any. */
+  validate(c: LoadedCase, cfg: C, proof?: P): CaseIssue[];
   /** Design warnings (validate:case lists them; `--strict` fails on them). */
   warn?(c: LoadedCase, cfg: C): CaseIssue[];
   /** E4: reject a reply line; null = fine. */
