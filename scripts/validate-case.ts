@@ -11,6 +11,8 @@ import { CLUE_ART_DIR, CLUE_FALLBACK_ICON } from "../lib/clue-art";
 import { validateCase } from "../engine/case-loader";
 import { checkCaseWarnings, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
 import { fastestPath } from "../engine/progression-validation";
+import { checkPresentationAssets } from "../engine/presentation-validation";
+import { CUES } from "../components/effects/audio";
 
 /** Does an illustration for this clue exist under assets/evidence/ (same lookup order as lib/clue-art.ts)? */
 function clueArtExists(caseId: string, e: { id: string; image?: string | undefined }): boolean {
@@ -31,8 +33,13 @@ async function main() {
     process.exit(2);
   }
 
-  const result = await validateCase(caseId, casesDir);
+  let result = await validateCase(caseId, casesDir);
   const where = path.relative(process.cwd(), path.join(casesDir, caseId)) || caseId;
+  // Phase 3: theme art and audio files must exist (errors, like a schema problem).
+  if (result.data) {
+    const missing = checkPresentationAssets(result.data, { exists: (p) => assetExists(p), cueNames: Object.keys(CUES) });
+    if (missing.length) result = { caseId, issues: missing };
+  }
   if (result.data) {
     const d = result.data;
     console.log(`✅ Case "${caseId}" is valid (${where})`);

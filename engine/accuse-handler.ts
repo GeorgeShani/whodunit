@@ -7,6 +7,7 @@
  * This is the only place solution or ending data leaves the server (and only
  * on a win: a loss never carries the solution or per-field verdict).
  */
+import { inSetting, settingOf } from "./presentation";
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { citeCaps, gradeAccusation } from "./accusation";
 import type { LoadedCase } from "./case-schema";
@@ -171,7 +172,7 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
   if (!gate.unlocked) return { status: 403, body: { error: "accuse_locked", line: gate.line ?? ACCUSE_LINES.locked, stateToken: saveSession(game, env) } };
 
   const reject = (error: string, line: string): AccuseResult => ({ status: 400, body: { error, line, stateToken: saveSession(game, env) } });
-  if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", ACCUSE_LINES.unknownSuspect);
+  if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", inSetting(ACCUSE_LINES.unknownSuspect, settingOf(caseData)));
   if (!caseData.motives.some((m) => m.id === accusation.motiveId)) return reject("unknown_motive", ACCUSE_LINES.unknownMotive);
   const discovered = new Set(game.discoveredEvidenceIds);
   const cited = [...new Set(accusation.keyEvidenceIds)];

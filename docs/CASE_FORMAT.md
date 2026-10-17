@@ -121,9 +121,42 @@ cases/<caseId>/
   - Fallback 2: an icon.
 - **`backdrops.title | suspects | interrogation | investigate`**: whole-screen backdrops.
   - Each falls back to the screen's built-in look.
-  - `lib/case-art.ts` `ART_DEFAULTS` can hold a stopgap per case; case data always wins.
+  - `lib/case-art.ts` `DEFAULT_BACKDROPS` is the shared default (the manor hall behind suspect selection); case data always wins.
 - `validate:case` warns (it doesn't fail) when an art path doesn't exist under `assets/`.
 - Sprites need no field: they resolve from `assets/characters/<portrait ?? characterId>/`.
+
+### Presentation (optional, case-two plan phase 3)
+
+Every block is optional; omitted, the case gets the default (first-case) wording, look, sound and order check, byte for byte. Source: `engine/presentation.ts`.
+
+```jsonc
+"setting": {
+  "place": "aboard a private steam yacht at sea in a storm",  // era rule: "You live {place} in {dateLine ?? decade}."
+  "decade": "the 1930s", "dateLine": "the summer of 1936",
+  "site": "the ship",              // replaces "house" in the engine's and screens' site lines ("in this ship", "Investigate the ship!")
+  "household": "the passengers",   // replaces "the household"
+  "authority": { "noun": "the purser", "policeAboard": false, "note": "the police take over when we make port" },  // never a suspect
+  "roster": "Others aboard:",      // prompt line before the other characters
+  "vocabulary": { "allowed": ["gramophone", "wireless"], "banned": ["phones", "tape recorder"] }  // allowed wins; banned is whole-word, plural-aware
+},
+"theme": {                         // presentation only: no fonts, layouts, components or CSS
+  "palette": { "backdrop": "#0b2a3a", "paper": "#fdf6e3", "ink": "#000000", "accent": "#ffd23f" },  // named tokens only, #rgb/#rrggbb
+  "logo": "/assets/cases/<id>/logo.webp", "titleArt": "/assets/cases/<id>/title.webp"             // under assets/cases/<id>/
+},
+"orderLandmarks": [                // replaces the default five (lights out, candles, scream, body found, lights back); [] turns the order check off
+  { "id": "wave", "label": "the big wave", "say": ["(?:great\\s+)?lurch"], "fact": ["great lurch"], "pick": "earliest", "expectTime": "22:14" }
+],
+"orderWords": { "absence": ["went\\s+below"], "movement": ["below", "on\\s+deck"] },  // added to the default absence/movement words
+"audio": { "beds": { "title": "bed_ship_hum" }, "cues": { "siren": ["ship_horn"] } }      // file stems in assets/audio/ (.mp3 and .ogg)
+```
+
+Patterns are regex sources (case-insensitive, at most 600 characters, no nested quantifiers). The validator checks:
+- vocabulary: no word both allowed and banned, no allowed meta word (AI, JSON, prompt, ...), no banned word in any authored text;
+- the authority is no suspect's name, alias or role;
+- every palette (the case's tokens over the defaults) passes contrast 4.5:1 for ink on paper, accent on backdrop and paper on backdrop;
+- theme art lives under `/assets/cases/<id>/` and exists;
+- audio files exist and cue names are real cues;
+- landmark ids are unique, every `fact` pattern matches a fact or timeline statement, and `expectTime` matches the minute the facts give.
 
 ### Fact
 

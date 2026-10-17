@@ -8,6 +8,7 @@ import { gameMinutes } from "./time";
 import type { TimelineEntry } from "./types";
 import { checkProgression, progressionWarnings } from "./progression-validation";
 import { coreGuiltSecretIds, guiltProfile } from "./core-guilt";
+import { checkPresentation } from "./presentation-validation";
 
 /**
  * Opportunity rule: some timeline entry with `locationId` = solution.locationId
@@ -277,6 +278,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   }
 
   issues.push(...checkProgression(c));
+  issues.push(...checkPresentation(c));
   return issues;
 }
 

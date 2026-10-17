@@ -169,7 +169,10 @@ export function contrastFailures(p: Palette): { fg: PaletteToken; bg: PaletteTok
 
 /** CSS custom properties for a theme's overrides (only the tokens the case sets; the rest inherit app/globals.css). */
 export function themeStyle(t: Theme | undefined): Record<string, string> {
-  return Object.fromEntries(Object.entries(t?.palette ?? {}).map(([k, v]) => [`--${k}`, v]));
+  const out: Record<string, string> = Object.fromEntries(Object.entries(t?.palette ?? {}).map(([k, v]) => [`--${k}`, v]));
+  // The page colour behind the stage (safe areas) follows the backdrop.
+  if (t?.palette?.backdrop) out["--background"] = t.palette.backdrop;
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -234,3 +237,50 @@ export const CaseAudioSchema = z.strictObject({
   cues: z.record(z.string().regex(/^[a-z_]+$/), z.array(AudioStem).min(1).max(4)).optional(),
 });
 export type CaseAudio = z.infer<typeof CaseAudioSchema>;
+
+/**
+ * A default (first-case) line in a case's setting: "house" becomes the site's noun and "the household" its people.
+ * No setting: the line unchanged. Used for the engine's and screens' few site-flavoured lines.
+ */
+export function inSetting(line: string, s: Pick<PublicSetting, "site" | "household"> | undefined): string {
+  if (!s) return line;
+  const noun = siteNoun(s.site);
+  return line.replace(/\b([Tt])he household\b/g, (_, t: string) => (t === "T" ? cap(s.household) : s.household)).replace(/\bhouse\b/g, noun);
+}
+
+/** The public setting of a case, or undefined when it writes none (so default lines stay byte-identical). */
+export const settingOf = (c: { setting?: Setting } | undefined): PublicSetting | undefined => (c?.setting ? publicSetting(c.setting) : undefined);
+
+// ---------------------------------------------------------------------------
+// Vocabulary helpers (shared by ai/canon-check.ts and the validator)
+// ---------------------------------------------------------------------------
+
+/** Meta words no case may allow (the validator rejects them in `vocabulary.allowed`). */
+export const META_WORDS = [
+  "emoji",
+  "ai",
+  "json",
+  "llm",
+  "chatbot",
+  "system prompt",
+  "prompt",
+  "prompt injection",
+  "language model",
+  "artificial intelligence",
+  "debug",
+  "developer",
+];
+
+/** Lower-case, single-spaced, without a plural "s" ("Phones" -> "phone"). */
+export const singularWord = (w: string) => w.toLowerCase().replace(/\s+/g, " ").replace(/s$/, "");
+const escRe = (x: string) => x.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const bannedCache = new WeakMap<readonly string[], RegExp | null>();
+
+/** Whole words or phrases, case-insensitive, plural-aware ("phones" bans phone/phones, not "telephone" or "gramophone"). Global. */
+export function bannedWordsRegex(banned: readonly string[] | undefined): RegExp | null {
+  if (!banned?.length) return null;
+  if (bannedCache.has(banned)) return bannedCache.get(banned)!;
+  const re = new RegExp(`\\b(?:${banned.map((w) => escRe(singularWord(w)).replace(/ /g, "\\s+") + "(?:e?s)?").join("|")})\\b`, "gi");
+  bannedCache.set(banned, re);
+  return re;
+}

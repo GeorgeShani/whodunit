@@ -13,6 +13,7 @@
  * reading may mean h or h+12. Anything not in the allowed set fails the check,
  * and the caller retries once, then falls back.
  */
+import { bannedWordsRegex as bannedRegex, singularWord } from "@/engine/presentation";
 import type { CharacterContext } from "@/engine/context-builder";
 import type { TurnDirectives } from "./prompts/interrogation";
 
@@ -317,20 +318,6 @@ export interface Vocabulary {
   banned?: readonly string[];
 }
 
-/** Meta words no case may allow (the validator rejects them in `vocabulary.allowed`). */
-export const META_WORDS = ["emoji", "ai", "json", "llm", "chatbot", "system prompt", "prompt", "prompt injection", "language model", "artificial intelligence", "debug", "developer"];
-
-const singular = (w: string) => w.toLowerCase().replace(/\s+/g, " ").replace(/s$/, "");
-const bannedCache = new WeakMap<readonly string[], RegExp | null>();
-/** Whole words or phrases, case-insensitive, plural-aware ("phones" bans phone/phones, not "telephone" or "gramophone"). */
-function bannedRegex(banned: readonly string[] | undefined): RegExp | null {
-  if (!banned?.length) return null;
-  if (bannedCache.has(banned)) return bannedCache.get(banned)!;
-  const re = new RegExp(`\\b(?:${banned.map((w) => esc(singular(w)).replace(/ /g, "\\s+") + "(?:e?s)?").join("|")})\\b`, "gi");
-  bannedCache.set(banned, re);
-  return re;
-}
-
 /** Returns the first modern/meta word found in the text, or null. */
 export function findModernWord(text: string, heard = "", vocab?: Vocabulary): string | null {
   // "prompt" is a fine old word ("a prompt reply"), so it is only banned when the detective just said it (an echo, #13) or used as a noun.
@@ -339,8 +326,8 @@ export function findModernWord(text: string, heard = "", vocab?: Vocabulary): st
     const m = MODERN_WORDS.exec(text) ?? MODERN_CASED.exec(text) ?? MODERN_PROMPT.exec(text) ?? echo;
     return m ? m[0] : null;
   }
-  const allowed = new Set((vocab.allowed ?? []).map(singular));
-  const ok = (w: string) => !allowed.has(singular(w));
+  const allowed = new Set((vocab.allowed ?? []).map(singularWord));
+  const ok = (w: string) => !allowed.has(singularWord(w));
   const listed = [...text.matchAll(new RegExp(MODERN_WORDS.source, "gi")), ...(bannedRegex(vocab.banned) ? text.matchAll(bannedRegex(vocab.banned)!) : [])]
     .filter((m) => ok(m[0]))
     .sort((a, b) => (a.index ?? 0) - (b.index ?? 0))[0];

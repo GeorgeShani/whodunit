@@ -6,6 +6,7 @@
  * the player has not discovered, and the endings (endings.json). Pure (no fs), so client components may import
  * its TYPES.
  */
+import { publicSetting, type CaseAudio, type PublicSetting, type Theme } from "./presentation";
 import type { CaseBackdrops, LoadedCase, MotiveOption, Victim } from "./case-schema";
 import { createInitialGameState } from "./game-state";
 import { publicProgress, type PublicProgress } from "./progress";
@@ -62,6 +63,12 @@ export interface PublicCaseView {
   weaponsMarked: boolean;
   /** Starting progress (leads, locked rooms, accuse checklist). Routes return the live one with every token. */
   progress: PublicProgress;
+  /** Phase 3: the site's wording for screens (only when the case writes `setting`). */
+  setting?: PublicSetting;
+  /** Phase 3 (Q7): palette overrides, logo and title art (only when the case writes `theme`). */
+  theme?: Theme;
+  /** Phase 3 (E9): beds and cue overrides (only when the case writes `audio`). */
+  audio?: CaseAudio;
 }
 
 export function initialDiscoveredEvidenceIds(c: LoadedCase): string[] {
@@ -105,5 +112,8 @@ export function getPublicCaseView(
     evidence: c.evidence.filter((e) => discovered.has(e.id)).map(toPublicEvidence),
     weaponsMarked: c.evidence.some((e) => e.weapon),
     progress: publicProgress(c, createInitialGameState(c)),
+    ...(c.setting ? { setting: publicSetting(c.setting) } : {}),
+    ...(c.theme ? { theme: structuredClone(c.theme) } : {}),
+    ...(c.audio ? { audio: structuredClone(c.audio) } : {}),
   };
 }

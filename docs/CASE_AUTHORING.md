@@ -281,6 +281,6 @@ From [TD §11]; all absent from `engine/` on `main`:
 
 - **A second culprit:** `solution.accompliceId`, `Accusation.accompliceId`, an always-visible optional "did anyone help?" picker, strict role grading, both culprits' lines dropped from loss endings, an accomplice opportunity check (`accompliceAct`). Needed for Tallyho (doer + stager). **PLANNED.**
 - `revealConditions.testimonyIds` (testimony-triggered secret reveals), `keyTestimonyGroups`, `lieBrokenIds` in a `Condition`, `solution.stagedTime`/`staging`. **PLANNED / nice-to-have.**
-- Per-case theme, per-case sound beds, a clue-art resolver, a case scaffold command, case-defined order landmarks, per-case era text in prompts. **PLANNED**; nothing in the data format yet.
+- Per-case `setting` (era text, site wording, vocabulary), `theme`, `audio`, `orderLandmarks` / `orderWords`: **built** (phase 3, `docs/CASE_FORMAT.md` "Presentation"). A case scaffold command: **PLANNED**.
 
 If your story needs one of these, file it in the design doc's "schema gaps" section with the smallest proposed change, the way Tallyho does.
