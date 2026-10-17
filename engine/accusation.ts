@@ -1,7 +1,8 @@
 /**
  * SERVER-ONLY (takes the CaseSolution). Grades a player's accusation.
  *
- * Rule (George): a WIN needs the correct murderer, weapon AND motive, AND
+ * Rule (George): a WIN needs the correct murderer, weapon AND motive, AND the right "Did anyone help?" answer (G1,
+ * strict roles: the case's accompliceId, or "no one" (null or absent) when the case has none), AND
  * at least `minKeyEvidence` (default 1) cited ids from solution.keyEvidenceIds, AND
  * at least `minKeyTestimony` (default 0) cited ids from solution.keyTestimonyIds.
  * Extra non-key evidence never changes won/lost. Time and place are not graded, but are returned
@@ -17,6 +18,12 @@ import type { Accusation } from "./types";
 export interface AccusationGrade {
   won: boolean;
   murdererCorrect: boolean;
+  /**
+   * G1: the helper answer matches solution.accompliceId (null = no one). Present only when the case has an accomplice
+   * or the player named one; absent means neither side has a helper (trivially right), which keeps single-culprit
+   * grades exactly as before. Internal: never sent to the client (no half-right line on a loss).
+   */
+  accompliceCorrect?: boolean;
   weaponCorrect: boolean;
   motiveCorrect: boolean;
   /** Cited ids that are key evidence (deduplicated, in citation order). */
@@ -54,6 +61,7 @@ export function gradeAccusation(solution: CaseSolution, accusation: Accusation):
   const key = new Set(solution.keyEvidenceIds);
   const keyEvidenceCited = cited.filter((id) => key.has(id));
   const murdererCorrect = accusation.murdererId === solution.murdererId;
+  const accompliceCorrect = (accusation.accompliceId ?? null) === (solution.accompliceId ?? null);
   const weaponCorrect = accusation.weaponId === solution.weaponId;
   const motiveCorrect = accusation.motiveId === solution.motiveId;
   const hasKeyEvidence = keyEvidenceCited.length >= (solution.minKeyEvidence ?? 1);
@@ -61,12 +69,13 @@ export function gradeAccusation(solution: CaseSolution, accusation: Accusation):
   const keyTestimonyCited = [...new Set(accusation.keyTestimonyIds ?? [])].filter((id) => keyTestimony.has(id));
   const hasKeyTestimony = keyTestimonyCited.length >= (solution.minKeyTestimony ?? 0);
   const unsupportedCited = unsupportedCitations(solution, accusation);
-  const won = murdererCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence && hasKeyTestimony;
+  const won = murdererCorrect && accompliceCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence && hasKeyTestimony;
   return {
     won,
     ...(won ? { rating: unsupportedCited.length ? ("sloppy" as const) : ("clean" as const) } : {}),
     unsupportedCited,
     murdererCorrect,
+    ...(solution.accompliceId !== undefined || accusation.accompliceId != null ? { accompliceCorrect } : {}),
     weaponCorrect,
     motiveCorrect,
     keyEvidenceCited,

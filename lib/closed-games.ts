@@ -25,6 +25,8 @@ export interface ClosedGameRecord {
   caseId: string;
   outcome: ClosedOutcome;
   accusedId: string | null;
+  /** G1: the named helper; null for "no one" and for rows written before migration 0001. */
+  accompliceId: string | null;
   closedAt: Date | null;
 }
 
@@ -33,6 +35,8 @@ export interface CloseGameInput {
   caseId: string;
   outcome: ClosedOutcome;
   accusedId: string | null;
+  /** G1: optional so a caller without a helper answer stores null. */
+  accompliceId?: string | null;
 }
 
 export interface ClosedGamesRepo {
@@ -48,6 +52,7 @@ const toRecord = (r: typeof closedGames.$inferSelect): ClosedGameRecord => ({
   caseId: r.caseId,
   outcome: r.outcome,
   accusedId: r.accusedId ?? null,
+  accompliceId: r.accompliceId ?? null,
   closedAt: r.closedAt ?? null,
 });
 
@@ -73,7 +78,7 @@ function postgresClosedGamesRaw(db: AnyPgDb): ClosedGamesRepo {
     async closeGame(input) {
       const inserted = await db
         .insert(closedGames)
-        .values({ gameId: input.gameId, caseId: input.caseId, outcome: input.outcome, accusedId: input.accusedId })
+        .values({ gameId: input.gameId, caseId: input.caseId, outcome: input.outcome, accusedId: input.accusedId, accompliceId: input.accompliceId ?? null })
         .onConflictDoNothing({ target: closedGames.gameId })
         .returning();
       if (inserted[0]) return { inserted: true, record: toRecord(inserted[0]) };
@@ -96,7 +101,7 @@ export function memoryClosedGames(): ClosedGamesRepo & { rows: Map<string, Close
     async closeGame(input) {
       const existing = rows.get(input.gameId);
       if (existing) return { inserted: false, record: existing };
-      const record: ClosedGameRecord = { ...input, closedAt: new Date() };
+      const record: ClosedGameRecord = { ...input, accompliceId: input.accompliceId ?? null, closedAt: new Date() };
       rows.set(input.gameId, record);
       return { inserted: true, record };
     },

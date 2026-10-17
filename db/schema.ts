@@ -15,6 +15,8 @@ export const closedGames = pgTable(
     caseId: text("case_id").notNull(),
     outcome: text("outcome", { enum: ["won", "lost"] }).notNull(),
     accusedId: text("accused_id"),
+    /** G1: the helper the player named (null: "no one helped", and every row from before 0001). */
+    accompliceId: text("accomplice_id"),
     closedAt: timestamp("closed_at", { withTimezone: true }).defaultNow(),
   },
   (t) => [check("closed_games_outcome_check", sql`${t.outcome} in ('won', 'lost')`)],

@@ -11,6 +11,11 @@ import { GameTimeSchema, IdSchema } from "./types";
 export const CaseSolutionSchema = z.strictObject({
   /** Character id of the murderer. */
   murdererId: IdSchema,
+  /**
+   * G1 (case-two plan 3.1, D2): the character who helped the murderer, in a two-culprit case. Strict roles: a win needs
+   * murdererId as the murderer AND this id as the accomplice. Absent: nobody helped (every single-culprit case).
+   */
+  accompliceId: IdSchema.optional(),
   /** Evidence id of the murder weapon. */
   weaponId: IdSchema,
   /** Location id where the murder happened. */

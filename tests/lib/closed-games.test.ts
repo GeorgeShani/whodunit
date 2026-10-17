@@ -15,6 +15,8 @@ import { memoryClosedGames, postgresClosedGames, type ClosedGamesRepo } from "@/
 
 const MIGRATION = "drizzle/0000_closed_games.sql";
 const migrationSql = readFileSync(MIGRATION, "utf8");
+/** G1: the nullable helper column (H3). */
+const accompliceSql = readFileSync("drizzle/0001_closed_games_accomplice.sql", "utf8");
 /** PGlite boots a WASM Postgres per instance: give those tests room. */
 const SLOW = { timeout: 60_000 };
 
@@ -52,6 +54,7 @@ contract("in-memory", () => memoryClosedGames());
 contract("PGlite + committed migration SQL", async () => {
   const pg = new PGlite();
   await pg.exec(migrationSql);
+  await pg.exec(accompliceSql);
   return postgresClosedGames(drizzlePglite(pg) as never);
 });
 
@@ -74,10 +77,10 @@ describe("migration SQL", SLOW, () => {
     const pg = new PGlite();
     await pg.exec(migrationSql); // Marvin's manual apply: no journal record
     const db = drizzlePglite(pg);
-    await migratePglite(db, { migrationsFolder: "drizzle" }); // re-applies 0000 harmlessly and records it
+    await migratePglite(db, { migrationsFolder: "drizzle" }); // re-applies 0000 harmlessly and records it, then applies 0001
     await migratePglite(db, { migrationsFolder: "drizzle" }); // nothing new
     const n = await pg.query<{ n: number }>(`select count(*)::int as n from drizzle.__drizzle_migrations`);
-    expect(n.rows[0].n).toBe(1);
+    expect(n.rows[0].n).toBe(2);
     const t = await pg.query<{ rls: boolean; policies: number }>(
       `select c.relrowsecurity as rls, (select count(*)::int from pg_policies where tablename = 'closed_games') as policies from pg_class c where c.relname = 'closed_games'`,
     );
@@ -94,10 +97,27 @@ describe("migration SQL", SLOW, () => {
     await pg.exec(`reset role`);
     expect((await pg.query(`select * from closed_games`)).rows).toHaveLength(1);
   });
+  it("G1: 0001 adds the nullable helper column idempotently; rows from before it read as null; old code is unaffected", async () => {
+    expect(accompliceSql).toMatch(/ALTER TABLE "closed_games" ADD COLUMN IF NOT EXISTS "accomplice_id" text;/);
+    expect(accompliceSql).not.toMatch(/NOT NULL|DEFAULT|DROP/i);
+    const pg = new PGlite();
+    await pg.exec(migrationSql);
+    // A row the pre-G1 code wrote (it names its columns, so it never sees the new one).
+    await pg.exec(`insert into closed_games (game_id, case_id, outcome, accused_id) values ('old', 'blackwood', 'won', 'victoria')`);
+    await pg.exec(accompliceSql);
+    await pg.exec(accompliceSql); // a manual apply, then db:migrate: harmless
+    await pg.exec(`insert into closed_games (game_id, case_id, outcome, accused_id) values ('old2', 'blackwood', 'lost', 'gregory')`);
+    const repo = postgresClosedGames(drizzlePglite(pg) as never);
+    expect(await repo.getClosed("old")).toMatchObject({ outcome: "won", accusedId: "victoria", accompliceId: null });
+    const fresh = await repo.closeGame({ gameId: "new", caseId: "tallyho", outcome: "won", accusedId: "a", accompliceId: "b" });
+    expect(fresh.record).toMatchObject({ accusedId: "a", accompliceId: "b" });
+    expect((await repo.closeGame({ gameId: "nohelp", caseId: "c", outcome: "lost", accusedId: "a" })).record.accompliceId).toBeNull();
+  });
   it("the Drizzle schema and the committed snapshot agree (drizzle-kit would generate nothing new)", async () => {
-    const snap = JSON.parse(readFileSync("drizzle/meta/0000_snapshot.json", "utf8"));
+    const snap = JSON.parse(readFileSync("drizzle/meta/0001_snapshot.json", "utf8"));
     const t = snap.tables["public.closed_games"];
-    expect(Object.keys(t.columns)).toEqual(["game_id", "case_id", "outcome", "accused_id", "closed_at"]);
+    expect(Object.keys(t.columns)).toEqual(["game_id", "case_id", "outcome", "accused_id", "accomplice_id", "closed_at"]);
+    expect(t.columns.accomplice_id.notNull).toBe(false);
     expect(t.isRLSEnabled).toBe(true);
   });
 });

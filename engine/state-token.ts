@@ -379,7 +379,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   if ((p.outcome === "pending") !== (p.accusation === null)) return { ok: false, reason: "invalid_payload" };
   if (p.accusation) {
     const a = p.accusation;
-    if (!chars.has(a.murdererId) || !evidence.has(a.weaponId) || !caseData.motives.some((m) => m.id === a.motiveId) || !a.keyEvidenceIds.every((e) => evidence.has(e))) {
+    if (!chars.has(a.murdererId) || (a.accompliceId != null && !chars.has(a.accompliceId)) || !evidence.has(a.weaponId) || !caseData.motives.some((m) => m.id === a.motiveId) || !a.keyEvidenceIds.every((e) => evidence.has(e))) {
       return { ok: false, reason: "invalid_payload" };
     }
     // Cited testimony must be real secrets of this case.
