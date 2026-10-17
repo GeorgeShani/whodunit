@@ -39,7 +39,7 @@ export function InvestigateScreen({
   return (
     <main
       className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-6 sm:px-6 sm:py-8 ${
-        backdrop ? "bg-[#1b1035] bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#3b1d6e_0%,#1b1035_70%)]"
+        backdrop ? "bg-backdrop bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#3b1d6e_0%,var(--backdrop)_70%)]"
       }`}
       style={backdropStyle(backdrop)}
     >
@@ -48,7 +48,7 @@ export function InvestigateScreen({
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
-        <h1 data-autofocus tabIndex={-1} className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl">
+        <h1 data-autofocus tabIndex={-1} className="order-2 basis-full text-center font-display text-[clamp(2.25rem,11vw,3rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[4px_4px_0_#000] sm:basis-auto sm:text-6xl">
           INVESTIGATE!
         </h1>
         <span className="order-3 hidden w-40 sm:block" />
@@ -70,7 +70,7 @@ export function InvestigateScreen({
               initial={{ y: 60, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.08 * i, type: "spring", stiffness: 220, damping: 16 }}
-              className="flex flex-col overflow-hidden rounded-3xl border-4 border-black bg-[#fff8e7] text-black shadow-[6px_6px_0_#000]"
+              className="flex flex-col overflow-hidden rounded-3xl border-4 border-black bg-paper text-ink shadow-[6px_6px_0_#000]"
             >
               <div
                 className="relative flex h-36 items-center justify-center border-b-4 border-black bg-gradient-to-br from-violet-300 via-amber-200 to-orange-300 bg-cover bg-center"
@@ -86,7 +86,7 @@ export function InvestigateScreen({
                     locked
                       ? "bg-neutral-300"
                       : fresh
-                        ? "bg-yellow-300"
+                        ? "bg-accent"
                         : done
                         ? "bg-lime-300"
                         : "bg-white"

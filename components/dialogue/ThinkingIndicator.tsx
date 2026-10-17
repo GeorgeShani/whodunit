@@ -8,7 +8,7 @@ const VERBS = ["thinks", "ponders", "considers", "mulls it over"] as const;
 export function ThinkingIndicator({ name, seed = 0 }: { name: string; seed?: number }) {
   return (
     <motion.div
-      className="inline-flex items-center gap-2 rounded-2xl border-[3px] border-black bg-white px-4 py-2 font-bold text-black shadow-[3px_3px_0_#000]"
+      className="inline-flex items-center gap-2 rounded-2xl border-[3px] border-black bg-white px-4 py-2 font-bold text-ink shadow-[3px_3px_0_#000]"
       initial={{ scale: 0.6, opacity: 0 }}
       animate={{ scale: 1, opacity: 1 }}
       role="status"

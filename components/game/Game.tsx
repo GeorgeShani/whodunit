@@ -19,8 +19,10 @@ import { addContradiction, itemName, presentQuestion, type ContradictionNotes, t
 import type { Contradiction } from "@/ai/interrogate-schema";
 import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
 import { parsePublicConfrontLines, parsePublicReply, type PublicConfrontLine, type PublicReply } from "@/ai/public-reply";
-import { getAudio } from "@/components/effects/audio";
+import { getAudio, registerCaseAudio } from "@/components/effects/audio";
 import { bedForScreen, bedFadeMs, heartbeatFor } from "@/components/effects/audio-scenes";
+import { inSetting } from "@/engine/presentation";
+import { CasePresentation } from "./CasePresentation";
 import { replySfx } from "@/components/effects/emotion-map";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { AccuseScreen } from "@/components/accuse/AccuseScreen";
@@ -308,11 +310,12 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
   }, []);
 
   // Scene beds (one at a time, crossfaded; they start once audio is unlocked by a gesture) and the preloads for what comes next.
+  useEffect(() => registerCaseAudio(view.audio), [view.audio]);
   useEffect(() => {
     const audio = getAudio();
-    audio.setBed(bedForScreen(screen, endingPart), { fadeMs: bedFadeMs(screen, endingPart) });
+    audio.setBed(bedForScreen(screen, endingPart, view.audio), { fadeMs: bedFadeMs(screen, endingPart) });
     if (screen === "accuse") void audio.preloadGroup("ending");
-  }, [screen, endingPart]);
+  }, [screen, endingPart, view.audio]);
 
   const active = useMemo(() => view.suspects.find((s) => s.id === activeId) ?? null, [view.suspects, activeId]);
 
@@ -747,10 +750,11 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
   }, [caseId, hintBusy, resetProgress, applyProgress]);
   const clearBeat = useCallback(() => setBeats((q) => q.slice(1)), []);
 
+  const inSiteLine = (line: string) => inSetting(line, view.setting);
   const pendingName = pendingId ? view.suspects.find((s) => s.id === pendingId)?.name.split(" ")[0] : undefined;
   const busyWith =
     searchingId !== null
-      ? "Still searching the house"
+      ? inSiteLine("Still searching the house")
       : pendingId && active && pendingId !== active.id && pendingName
         ? `${pendingName} is still answering your last question`
         : null;
@@ -758,6 +762,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
   return (
     // Stage: one viewport, clipped. Each screen is an absolutely positioned layer,
     // so enter/exit scale transforms never push the document into overflow.
+    <CasePresentation setting={view.setting} theme={view.theme}>
     <ClueArtProvider caseId={caseId}>
     <div className="stage">
     <AnimatePresence mode="wait">
@@ -780,7 +785,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
         data-screen={screen}
       >
         {screen === "title" && (
-          <TitleScreen tagline={view.meta.tagline} backdrop={view.backdrops.title} onStart={() => go("intro")} {...(manual ? { onHowToPlay: openHelp } : {})} />
+          <TitleScreen tagline={view.meta.tagline} backdrop={view.theme?.titleArt ?? view.backdrops.title} {...(view.theme?.logo ? { logo: view.theme.logo, logoAlt: view.meta.title } : {})} onStart={() => go("intro")} {...(manual ? { onHowToPlay: openHelp } : {})} />
         )}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (
@@ -978,5 +983,6 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
     )}
     </div>
     </ClueArtProvider>
+    </CasePresentation>
   );
 }

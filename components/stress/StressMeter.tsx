@@ -6,7 +6,7 @@ import { bandIndex, STRESS_BANDS, stressBand, type StressBand } from "@/engine/s
 
 const FILL: Record<StressBand, string> = {
   calm: "bg-emerald-400",
-  defensive: "bg-yellow-300",
+  defensive: "bg-accent",
   nervous: "bg-orange-400",
   panicking: "bg-red-500",
   breakdown: "bg-fuchsia-500",
@@ -38,7 +38,7 @@ export function StressMeter({ value, name, compact = false, className = "" }: { 
       aria-valuenow={value}
       aria-valuetext={`${value} of 100, ${label}`}
       data-stress-band={band}
-      className={`rounded-xl border-[3px] border-black bg-white/95 text-black shadow-[3px_3px_0_#000] ${compact ? "px-2 py-1.5" : "px-2.5 py-2 max-sm:px-2 max-sm:py-1.5"} ${className}`}
+      className={`rounded-xl border-[3px] border-black bg-white/95 text-ink shadow-[3px_3px_0_#000] ${compact ? "px-2 py-1.5" : "px-2.5 py-2 max-sm:px-2 max-sm:py-1.5"} ${className}`}
       animate={jolt && !reduced ? { x: [0, -5, 5, -3, 3, 0], scale: [1, 1.08, 1] } : undefined}
       transition={{ duration: 0.4 }}
     >

@@ -167,7 +167,7 @@ export function EndingScene({
             e.stopPropagation();
             skip();
           }}
-          className="cursor-pointer min-h-12 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 font-bold text-black shadow-[3px_3px_0_#000] hover:bg-yellow-50"
+          className="cursor-pointer min-h-12 rounded-xl border-[3px] border-black bg-white px-4 py-1.5 font-bold text-ink shadow-[3px_3px_0_#000] hover:bg-yellow-50"
           aria-label="Skip the ending"
         >
           Skip ⏭
@@ -180,7 +180,7 @@ export function EndingScene({
           {s.phase === "verdict" && accused && (
             <motion.p
               key="accuse"
-              className="font-display text-[clamp(2rem,8vw,4.5rem)] leading-none tracking-wider text-yellow-300 [-webkit-text-stroke:2px_#000] drop-shadow-[5px_5px_0_#000]"
+              className="font-display text-[clamp(2rem,8vw,4.5rem)] leading-none tracking-wider text-accent [-webkit-text-stroke:2px_#000] drop-shadow-[5px_5px_0_#000]"
               initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.4 }}
               animate={reduced ? { opacity: 1 } : { opacity: 1, scale: [0.4, 1.2, 1] }}
               exit={{ opacity: 0 }}
@@ -228,7 +228,7 @@ export function EndingScene({
               <motion.div
                 key={`${s.index}-${e.id}`}
                 data-flash-evidence={e.id}
-                className="flex items-center gap-2 rounded-xl border-[3px] border-black bg-yellow-200 px-3 py-1.5 font-bold text-black shadow-[4px_4px_0_#000]"
+                className="flex items-center gap-2 rounded-xl border-[3px] border-black bg-yellow-200 px-3 py-1.5 font-bold text-ink shadow-[4px_4px_0_#000]"
                 initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.4, rotate: -6 }}
                 animate={
                   reduced
@@ -250,7 +250,7 @@ export function EndingScene({
               key={s.index}
               role="status"
               className={`pointer-events-auto w-full max-w-3xl rounded-3xl border-4 border-black p-3 shadow-[6px_6px_0_#000] short:p-2 sm:p-4 ${
-                cast.narrator ? "bg-amber-100 text-black" : "bg-[#fff8e7] text-black"
+                cast.narrator ? "bg-amber-100 text-ink" : "bg-paper text-ink"
               }`}
               initial={reduced ? { opacity: 0 } : { opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

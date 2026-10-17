@@ -47,7 +47,7 @@ export function DialogueLog({
       aria-relevant="additions"
       aria-label={`Conversation with ${characterName}`}
       tabIndex={0}
-      className="scroll-area flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border-4 border-black bg-[#fff8e7]/95 p-4 shadow-[6px_6px_0_#000]">
+      className="scroll-area flex min-h-0 flex-1 flex-col gap-3 rounded-2xl border-4 border-black bg-paper/95 p-4 shadow-[6px_6px_0_#000]">
       {messages.length === 0 && (
         <p className="m-auto max-w-xs text-center font-semibold italic text-neutral-600">
           {emptyLine ?? `${characterName} eyes you warily. Ask a question, detective.`}
@@ -59,7 +59,7 @@ export function DialogueLog({
             key={m.id}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="self-center rounded-xl border-[3px] border-dashed border-black bg-yellow-100 px-4 py-2 text-center text-base font-bold italic text-black"
+            className="self-center rounded-xl border-[3px] border-dashed border-black bg-yellow-100 px-4 py-2 text-center text-base font-bold italic text-ink"
           >
             {m.text}
           </motion.p>
@@ -68,7 +68,7 @@ export function DialogueLog({
           key={m.id}
           initial={{ opacity: 0, y: 12, scale: 0.95 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          className={`max-w-[85%] rounded-2xl border-[3px] border-black px-4 py-2 text-black shadow-[3px_3px_0_#000] ${
+          className={`max-w-[85%] rounded-2xl border-[3px] border-black px-4 py-2 text-ink shadow-[3px_3px_0_#000] ${
             m.speaker === "player" ? "self-end bg-sky-200" : "self-start bg-white"
           }`}
         >

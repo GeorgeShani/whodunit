@@ -17,14 +17,14 @@ import { GRADING_HREF } from "@/lib/how-to-play";
 import { CTA_BAR } from "@/components/game/cta-bar";
 
 const pick = (on: boolean) =>
-  `cursor-pointer rounded-2xl border-[3px] border-black text-left text-black shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:opacity-50 ${
-    on ? "bg-yellow-300 ring-4 ring-red-500" : "bg-[#fff8e7] hover:bg-yellow-50"
+  `cursor-pointer rounded-2xl border-[3px] border-black text-left text-ink shadow-[4px_4px_0_#000] disabled:cursor-not-allowed disabled:opacity-50 ${
+    on ? "bg-accent ring-4 ring-red-500" : "bg-paper hover:bg-yellow-50"
   }`;
 
 function Section({ n, title, hint, children }: { n: number; title: string; hint?: string; children: React.ReactNode }) {
   return (
     <section className="w-full max-w-5xl rounded-3xl border-4 border-black bg-violet-950/80 p-4 shadow-[6px_6px_0_#000] short:p-3" aria-labelledby={`accuse-${n}`}>
-      <h2 id={`accuse-${n}`} className="font-display text-3xl tracking-wide text-yellow-300 [-webkit-text-stroke:1px_#000]">
+      <h2 id={`accuse-${n}`} className="font-display text-3xl tracking-wide text-accent [-webkit-text-stroke:1px_#000]">
         {n}. {title}
       </h2>
       {hint && <p className="mb-2 text-base font-semibold text-yellow-100">{hint}</p>}
@@ -97,7 +97,7 @@ export function AccuseScreen({
     });
 
   return (
-    <main className="relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,#7f1d1d_0%,#1b1035_70%)]">
+    <main className="relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,#7f1d1d_0%,var(--backdrop)_70%)]">
       <div className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-6 pt-3 sm:px-6 sm:pt-6">
       <div className="flex w-full max-w-5xl flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:flex-nowrap sm:gap-2 sm:max-[1700px]:pe-56">
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
@@ -122,7 +122,7 @@ export function AccuseScreen({
               getAudio().play("ui_paper");
               onHowGraded();
             }}
-            className="inline-flex min-h-11 items-center gap-1 rounded-full border-[3px] border-black bg-white px-4 py-1 font-bold text-black underline decoration-2 underline-offset-2 shadow-[3px_3px_0_#000] hover:bg-yellow-100"
+            className="inline-flex min-h-11 items-center gap-1 rounded-full border-[3px] border-black bg-white px-4 py-1 font-bold text-ink underline decoration-2 underline-offset-2 shadow-[3px_3px_0_#000] hover:bg-yellow-100"
           >
             <span aria-hidden>❓</span> How am I graded?
           </a>
@@ -318,7 +318,7 @@ function ConfirmDialog({ onCancel, onConfirm }: { onCancel: () => void; onConfir
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-accuse"
-        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border-4 border-black bg-[#fff8e7] p-6 text-center text-black shadow-[8px_8px_0_#000]"
+        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border-4 border-black bg-paper p-6 text-center text-ink shadow-[8px_8px_0_#000]"
       >
         <p id="confirm-accuse" className="font-display text-4xl tracking-wide text-red-600">
           Are you sure?

@@ -1,5 +1,6 @@
 "use client";
 
+import { useInSetting } from "@/components/game/CasePresentation";
 import { HowToPlayButton } from "@/components/help/HowToPlay";
 import { motion } from "framer-motion";
 import { useId, useRef, useState } from "react";
@@ -58,6 +59,7 @@ export function Notebook({
   /** HOW TO PLAY inside the notebook (the fixed pill is hidden under it): in the header on sm+, in a footer on phones. */
   onHowToPlay?: () => void;
 }) {
+  const inSite = useInSetting();
   const [tab, setTab] = useState<"evidence" | "leads">("evidence");
   const showLeads = leads.length > 0 && tab === "leads";
   const openLeads = leads.filter((l) => l.state === "open").length;
@@ -121,7 +123,7 @@ export function Notebook({
       exit={{ opacity: 0 }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div className="flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-[#fff8e7] text-black shadow-[8px_8px_0_#000]">
+      <div className="flex w-full max-w-5xl flex-col overflow-hidden rounded-3xl border-4 border-black bg-paper text-ink shadow-[8px_8px_0_#000]">
         <header className="flex items-center justify-between gap-2 border-b-4 border-black bg-amber-200 px-4 py-2 pe-16">
           <h2 id={titleId} className="font-display text-3xl tracking-wider">
             📓 Notebook{presentTo ? `: present to ${presentTo.name.split(" ")[0]}` : ""}
@@ -149,7 +151,7 @@ export function Notebook({
                 aria-selected={tab === t}
                 data-notebook-tab={t}
                 onClick={() => setTab(t)}
-                className={`min-h-11 flex-1 cursor-pointer rounded-xl border-[3px] border-black px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] sm:flex-none ${tab === t ? "bg-yellow-300" : "bg-white"}`}
+                className={`min-h-11 flex-1 cursor-pointer rounded-xl border-[3px] border-black px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] sm:flex-none ${tab === t ? "bg-accent" : "bg-white"}`}
               >
                 {t === "evidence" ? "🔎 Evidence" : "🧭 Leads"}
                 {t === "leads" && openLeads > 0 && (
@@ -174,7 +176,7 @@ export function Notebook({
                 data-hint-ask
                 disabled={hintBusy}
                 onClick={onHint}
-                className="min-h-11 shrink-0 cursor-pointer rounded-lg border-[3px] border-black bg-yellow-300 px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] hover:bg-yellow-200 disabled:cursor-wait disabled:opacity-60"
+                className="min-h-11 shrink-0 cursor-pointer rounded-lg border-[3px] border-black bg-accent px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] hover:bg-yellow-200 disabled:cursor-wait disabled:opacity-60"
               >
                 {hintBusy ? "Checking…" : "⚠ Check for contradictions"}
               </button>
@@ -186,7 +188,7 @@ export function Notebook({
           <section aria-label="Clues">
             <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-neutral-700">Clues ({evidence.length})</h3>
             {evidence.length === 0 ? (
-              <p className="font-semibold italic text-neutral-600">No clues yet. Go and 🔍 Investigate the house!</p>
+              <p className="font-semibold italic text-neutral-600">{inSite("No clues yet. Go and 🔍 Investigate the house!")}</p>
             ) : (
               <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {evidence.map((e) => {
