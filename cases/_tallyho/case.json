@@ -949,5 +949,6 @@
       "went\\s+(?:up|down|below|aft|forward)",
       "left\\s+the\\s+(?:bridge|saloon|galley)"
     ]
-  }
+  },
+  "accuse": { "askHelper": true }
 }
