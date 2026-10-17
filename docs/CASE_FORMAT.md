@@ -324,6 +324,20 @@ secret comes out, so the broken story can't be repeated word for word ("polishin
 Write the pattern so the confession itself doesn't match it (on the reveal turn the entry is already on). Unknown ids
 are errors; an id that both switches the entry on and lifts it (`unlessRevealed`) is an error; a list of only
 core-guilt ids is a warning (the entry would never apply).
+DX7: `unlessRevealed` may also be a non-empty list of secret ids (lifted once ANY of them is revealed), and
+`unlessBroken` (a non-empty list of the speaker's OWN `intendedLies` ids; another id is an error) lifts the entry once
+ANY of those lies breaks (exposed or retired, this exchange included): for wording that becomes sayable when a story
+falls, not only when a secret is revealed. The validator warns (V34) when an entry lifted by `unlessRevealed` matches a
+fact its character can see while those secrets are still locked, and when a `hiddenUntil` fact with two or more knowers
+lists keys owned by different knowers. It also warns (V33) when a revealable secret's `testimonySummary` or
+`description`, spoken by its owner, trips the guilt check (the reveal could never be said), and `validate:case` prints
+each culprit's guilt window and `coreObjects`.
+
+**Accomplice guilt (DX1, DX2).** With `solution.accompliceId` and `solution.accompliceAct`, the accomplice's secrets whose
+`relatedFactIds` cover the act's minute (a fact involving them or at the act's place) are core guilt by derivation, like
+the murderer's, and the guard checks every reply against a second guilt profile built from those facts: the accomplice
+can't admit the act in the first person, and an innocent can't state it as fact (E8 `over_claim`). Without an
+`accompliceAct` only `coreGuilt: true` flags count for the accomplice.
 
 **Voice variety (`voice`, #52).** Optional on every character; every list defaults to `[]`:
 `{ "openers": ["My dear detective,", ...], "actions": ["twists her rings", ...], "deflections": ["I shan't dignify that.", ...] }`.

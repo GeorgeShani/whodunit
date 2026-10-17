@@ -12,6 +12,8 @@
  *  2. Derived from the solution (defence in depth): a secret OWNED BY THE
  *     MURDERER whose relatedFactIds include a fact covering the murder minute
  *     (solution.time) that involves the murderer or is at the murder scene.
+ *     DX1: the same for the ACCOMPLICE's secrets against their act
+ *     (solution.accompliceAct: its minute and place).
  *
  * The engine keeps every core-guilt secret out of the revealable set, and the
  * facts it covers (relatedFactIds) out of the owner's prompt even if another
@@ -39,6 +41,10 @@ export function derivedCoreGuilt(
   byId: ReadonlyMap<string, Fact> = new Map(allFacts(c).map((f) => [f.id, f])),
 ): boolean {
   const sol = c.solution;
+  if (sol?.accompliceId && owner.id === sol.accompliceId && owner.id !== sol.murdererId) {
+    const view = accompliceView(c);
+    return view ? derivedCoreGuilt(view, owner, secret, byId) : false;
+  }
   if (!sol || owner.id !== sol.murdererId) return false;
   const day = c.dayStartsAt ?? "12:00";
   const murder = gameMinutes(sol.time, day);
@@ -48,6 +54,18 @@ export function derivedCoreGuilt(
     if (!f || !r || murder < r[0] || murder > r[1]) return false;
     return f.involvesCharacterIds.includes(sol.murdererId) || f.locationId === sol.locationId;
   });
+}
+
+/**
+ * DX1/DX2: the case as seen from the accomplice's side: their act (solution.accompliceAct) stands in for the murder
+ * (its minute and place; no weapon), so the murderer's rules and profile apply to the accomplice unchanged. Null when
+ * the case has no accomplice or no accompliceAct (then only the accomplice's data-flagged coreGuilt secrets count).
+ */
+export function accompliceView<C extends GuiltCase>(c: C): C | null {
+  const s = c.solution;
+  if (!s?.accompliceId || !s.accompliceAct || s.accompliceId === s.murdererId) return null;
+  const { accompliceId, accompliceAct, ...rest } = s;
+  return { ...c, solution: { ...rest, murdererId: accompliceId, time: accompliceAct.time, locationId: accompliceAct.locationId, weaponId: "" } };
 }
 
 /** Ids of every core-guilt secret in the case (data flag OR derived from the solution). */
@@ -70,7 +88,10 @@ export function coreGuiltFactIds(c: GuiltCase, ch: Pick<Character, "secrets">): 
 
 /** What the post-generation guilt-leak check needs to recognise an admission of the killing (server-only). */
 export interface GuiltProfile {
+  /** The culprit this profile protects (the murderer, or the accomplice on an accomplice profile). */
   murdererId: string;
+  /** DX2: set on the accomplice's profile (guiltProfiles), whose `murdererId` is the accomplice and scene the act's place. */
+  role?: "accomplice";
   /** Lower-case ways to name the victim (name, aliases, last name). */
   victimNames: string[];
   /** Lower-case weapon nouns ("silver candlestick", "candlestick"). */
@@ -140,8 +161,27 @@ const clock = (t: string) => {
   return h * 60 + m;
 };
 
-export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidence" | "locations" | "solution"> & Partial<Pick<LoadedCase, "guiltCheck">>): GuiltProfile {
+export function guiltProfile(
+  c: GuiltCase & Pick<LoadedCase, "victim" | "evidence" | "locations" | "solution"> & Partial<Pick<LoadedCase, "guiltCheck">>,
+  opts: { actFactsOnly?: boolean } = {},
+): GuiltProfile {
   const sol = c.solution;
+  // DX2: the accomplice's profile reads only the core facts that cover their act's minute (not, say, an earlier
+  // planning scene bundled into the same secret), so the window and objects stay as narrow as the act itself.
+  const coreFactsOf = (ch: Pick<Character, "secrets">): Set<string> => {
+    const all = coreGuiltFactIds(c, ch);
+    if (!opts.actFactsOnly) return all;
+    const day = c.dayStartsAt ?? "12:00";
+    const at = gameMinutes(sol.time, day);
+    const byId = new Map(allFacts(c).map((f) => [f.id, f]));
+    return new Set(
+      [...all].filter((id) => {
+        const f = byId.get(id);
+        const r = f && range(f, day);
+        return !!r && r[0] <= at && at <= r[1];
+      }),
+    );
+  };
   // C3: a single word split from a multi-word name only counts if it is not an ordinary word (engine/name-tokens.ts).
   const token = (w: string) => keepNameToken(w, c.guiltCheck ?? {});
   const nouns = (name: string, head = false) => {
@@ -162,7 +202,7 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
   let hi = lo;
   const murderer = c.characters.find((ch) => ch.id === sol.murdererId);
   if (murderer) {
-    const facts = coreGuiltFactIds(c, murderer);
+    const facts = coreFactsOf(murderer);
     for (const f of allFacts(c)) {
       if (!facts.has(f.id)) continue;
       for (const t of [f.time, f.from, f.to]) {
@@ -177,7 +217,7 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
   const coreWhereabouts: Record<number, string[]> = {};
   if (murderer) {
     const core = coreGuiltSecretIds(c);
-    const facts = coreGuiltFactIds(c, murderer);
+    const facts = coreFactsOf(murderer);
     const coreTexts = [...allFacts(c).filter((f) => facts.has(f.id)).map((f) => f.statement), ...murderer.secrets.filter((s) => core.has(s.id)).map((s) => s.description)];
     const norm = (w: string | undefined) => w?.replace(/['’]s$/, "").replace(/['’]/g, "");
     const words = (t: string) => (t.toLowerCase().replace(/-/g, " ").match(/[a-z][a-z'’]*/g) ?? []).map((w) => norm(w)!);
@@ -208,7 +248,7 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
   const witnessNames = new Set<string>();
   const motiveActs = new Set<string>();
   if (murderer) {
-    const facts = coreGuiltFactIds(c, murderer);
+    const facts = coreFactsOf(murderer);
     for (const ch of c.characters) {
       if (ch.id === murderer.id || !ch.secrets.some((s) => s.relatedFactIds.some((f) => facts.has(f)))) continue;
       const role = (ch as { role?: string }).role;
@@ -253,7 +293,7 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     if (spouse && pron === "he") extra.push("her husband", "the widower");
     const taken = new Set(c.characters.filter((x) => x.id !== murderer.id).flatMap((x) => [x.name, ...(x.aliases ?? [])].map((n) => n.toLowerCase())));
     for (const v of extra) if (!victimSet.has(v) && !taken.has(v)) murdererNames.add(v);
-    const facts = coreGuiltFactIds(c, murderer);
+    const facts = coreFactsOf(murderer);
     const factText = new Map(allFacts(c).map((f) => [f.id, f.statement]));
     const objects = [...coreObjects];
     const has = (t: string, words: readonly string[]) => words.some((w) => new RegExp(`\\b${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "i").test(t));
@@ -302,4 +342,14 @@ export function guiltProfile(c: GuiltCase & Pick<LoadedCase, "victim" | "evidenc
     coreWhereabouts,
     locationNames: c.locations.map((l) => ({ id: l.id, names: nouns(l.name) })),
   };
+}
+
+/**
+ * DX2: every culprit's guilt profile: the murderer's first (always), then the accomplice's when the case has an
+ * accomplice with an accompliceAct (accompliceView; window, place and objects from the core facts covering the act).
+ * A single-culprit case gets exactly [guiltProfile(c)].
+ */
+export function guiltProfiles(c: Parameters<typeof guiltProfile>[0]): GuiltProfile[] {
+  const view = accompliceView(c);
+  return [guiltProfile(c), ...(view ? [{ ...guiltProfile(view, { actFactsOnly: true }), role: "accomplice" as const }] : [])];
 }

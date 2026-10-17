@@ -45,6 +45,12 @@ const KEY_ACT = String.raw`took|taken|pocketed|hid|hidden|dropped|slipped|kept|h
 const MOVE = String.raw`was|went|go|gone|nipped|dashed|looked\s+in(?:to)?|slipped|stepped|crept|returned|popped|came|got|ran|hurried|stole|sneaked|snuck|knocked|entered|been|stayed|waited|stood|sat|talked|spoke|pleaded|argued`;
 /** Handling a core-guilt object (desk, handkerchief, coal scuttle...): "took" but not "took out (my handkerchief)". */
 const OBJECT_ACT = String.raw`took(?!\s+out)|taken|snatched|grabbed|picked\s+up|lifted|pocketed|hid|hidden|dropped|slipped|threw|tossed|stuffed|shoved|pushed|wiped|wiping|cleaned|scrubbed|rubbed|burned|burnt|buried|stood|set|put|placed|tucked`;
+/**
+ * DX2: the accomplice's part is staging, not striking ("played the Cheer-Box", "threw the junction switch"): on an
+ * accomplice profile these verbs join OBJECT_ACT for the core-object rules (first person and E8 over-claim).
+ */
+const STAGE_ACT = String.raw`played|started|wound|cranked|switched|flipped|turned\s+on|set\s+off|rigged|staged|drew|opened|unlocked`;
+const objectAct = (p: Pick<GuiltProfile, "role">) => (p.role === "accomplice" ? `${OBJECT_ACT}|${STAGE_ACT}` : OBJECT_ACT);
 /** Proxies for "during the murder window" that need no clock: the dark, the candles, the blackout. */
 /** The victim already down: "I came out of the library, but he was already dead". */
 const DEAD = /\b(?:already\s+dead|was\s+dead|lay\s+dead|lying\s+dead|his\s+body|her\s+body|the\s+body|lay\s+there|lying\s+there)\b/i;
@@ -128,7 +134,7 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
   const inWindowStrict = (s: string) => extractTimes(s).flatMap((m) => (m.hourOnly ? [] : m.candidates.filter((c) => c >= lo && c <= hi)));
   // Any first-person act ("I burned it at twenty past nine"), not a denial or a modal.
   const actor = new RegExp(`${SUBJ}${gap(3)}\\b(?!(?:${NEG}|${BLOCK})\\b)[a-z'’]+`, "i");
-  const objects = profile.coreObjects?.length ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${OBJECT_ACT})\\b${span(40)}\\b(?:${alt(profile.coreObjects)})s?\\b`, "i") : null;
+  const objects = profile.coreObjects?.length ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${objectAct(profile)})\\b${span(40)}\\b(?:${alt(profile.coreObjects)})s?\\b`, "i") : null;
   const lockBare = new RegExp(`${SUBJ}${gap(3)}\\b(?:locked|bolted)\\b(?!\\s+(?:myself|me)\\b)`, "i");
   const sceneOrVictim = alt([...profile.sceneNames, ...profile.victimNames]);
   const presence = sceneOrVictim ? new RegExp(`${SUBJ}${gap(3)}\\b(?:${MOVE})\\b${span(30)}\\b(?:${sceneOrVictim})\\b`, "i") : null;
@@ -363,6 +369,9 @@ function overClaimCheck(profile: GuiltProfile, covered: ReadonlySet<CulpritAct>,
       new RegExp(`${S}${g}\\b(?:${MOVE}|left|came\\s+out\\s+of|stepped\\s+out\\s+of|slipped\\s+out\\s+of)\\b${span(30)}\\b(?:${alt(profile.sceneNames)})\\b`, "i"),
       (s) => inWindow(s) || ((DARK.test(s) || DEAD.test(s)) && !atDiscovery(s, profile)) || windowAnchor(s, profile),
     ]);
+  // DX2 / E8 for the accomplice: an innocent stating the accomplice's act (handling a core object) as fact.
+  if (profile.role === "accomplice" && profile.coreObjects.length)
+    rules.push(["object", "object", new RegExp(`${S}${g}\\b(?:${objectAct(profile)})\\b${span(40)}\\b(?:${alt(profile.coreObjects)})s?\\b`, "i")]);
   /** A match counts unless its own clause, before the subject, holds a hedge or a negated frame (R10, E15a). */
   const hitOver = (s: string, re: RegExp) => {
     for (const m of s.matchAll(new RegExp(re.source, re.flags.includes("g") ? re.flags : re.flags + "g"))) {
@@ -452,6 +461,18 @@ export function findReplyGuiltLeak(reply: { dialogue: string; action?: string },
     findActionLeak(reply.action ?? "", profile, speakerId, opts) ??
     (heard ? findAffirmedAccusation(reply.dialogue, heard, profile, speakerId, opts) : null)
   );
+}
+
+/**
+ * DX2: findReplyGuiltLeak against every culprit's profile (engine/core-guilt.ts guiltProfiles): the murderer's, then
+ * the accomplice's. For each profile the speaker is either its culprit (first-person rules) or not (universal rules).
+ */
+export function findReplyGuiltLeakAny(reply: { dialogue: string; action?: string }, heard: string, profiles: readonly GuiltProfile[], speakerId: string, opts: GuiltOptions = {}): GuiltLeak | null {
+  for (const p of profiles) {
+    const leak = findReplyGuiltLeak(reply, heard, p, speakerId, opts);
+    if (leak) return leak;
+  }
+  return null;
 }
 
 /** The speaker's own names for the self-naming rule (name and aliases from the case data). */

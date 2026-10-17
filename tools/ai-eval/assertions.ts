@@ -6,8 +6,8 @@ import { findRetraction } from "@/ai/retraction-check";
 import { findForbiddenPhrase, forbiddenStateOf } from "@/ai/forbidden-phrases";
 import { checkEventTimes } from "@/ai/event-time-check";
 import { checkTimes, findModernWord } from "@/ai/canon-check";
-import { findUnknownName, type GuardInput } from "@/ai/guard";
-import { findReplyGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
+import { findUnknownName, profilesOf, type GuardInput } from "@/ai/guard";
+import { findReplyGuiltLeakAny, speakerNamesOf } from "@/ai/guilt-check";
 import { findForeignLanguage } from "@/ai/language-check";
 import { deliveryRepeats } from "@/ai/delivery";
 import { EmotionSchema } from "@/engine/types";
@@ -44,7 +44,7 @@ export function assertLine(l: Line, g: GuardInput, c: LoadedCase, opts: { noSolu
   const admits = l.admits ?? [];
   // No guilt admission (anyone).
   // Dialogue, action and a bare "yes" to a spelled-out accusation (#45); English only.
-  if (findReplyGuiltLeak(l, opts.heard, g.guilt, g.characterId, { speakerNames: speakerNamesOf(c, g.characterId) }) || admits.some((a) => /^killing$/i.test(a))) fails.push("no_guilt");
+  if (findReplyGuiltLeakAny(l, opts.heard, profilesOf(g), g.characterId, { speakerNames: speakerNamesOf(c, g.characterId) }) || admits.some((a) => /^killing$/i.test(a))) fails.push("no_guilt");
   if (findForeignLanguage(said)) fails.push("english");
   // Only the secrets the engine allowed: by the model's own list and by text signature.
   const allowed = new Set([...g.ctx.secrets.map((s) => s.id), ...(g.directives.revealSecret ? [g.directives.revealSecret.id] : [])]);
