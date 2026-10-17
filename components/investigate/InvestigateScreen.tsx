@@ -4,6 +4,7 @@ import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/
 import { motion } from "framer-motion";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
+import { locationFeatureStyle } from "@/components/features/registry";
 import type { PublicLocation } from "@/engine/types";
 
 const ICONS = ["🕯️", "🍽️", "🚪", "🌧️", "🫖", "📚", "🛏️", "🗝️"];
@@ -20,6 +21,7 @@ export function InvestigateScreen({
   freshLocationIds = [],
   onSearch,
   onBack,
+  features,
 }: {
   locations: PublicLocation[];
   searched: string[];
@@ -36,6 +38,8 @@ export function InvestigateScreen({
   freshLocationIds?: string[];
   onSearch: (locationId: string) => void;
   onBack: () => void;
+  /** Phase 6: the case view's public feature slices (investigate.location slot). */
+  features?: Record<string, unknown>;
 }) {
   return (
     <main
@@ -74,9 +78,9 @@ export function InvestigateScreen({
               className="flex flex-col overflow-hidden rounded-3xl border-4 border-black bg-paper text-ink shadow-[6px_6px_0_#000]"
             >
               <div
-                className="relative flex h-36 items-center justify-center border-b-4 border-black bg-gradient-to-br from-violet-300 via-amber-200 to-orange-300 bg-cover bg-center"
-                style={backdropStyle(bg)}
+                className="relative isolate flex h-36 items-center justify-center overflow-hidden border-b-4 border-black bg-gradient-to-br from-violet-300 via-amber-200 to-orange-300"
               >
+                <div className="absolute inset-0 -z-10 bg-cover bg-center" style={{ ...backdropStyle(bg), ...locationFeatureStyle(features, l.id) }} aria-hidden />
                 {!bg && (
                   <span className="text-6xl drop-shadow-[3px_3px_0_#000]" aria-hidden>
                     {ICONS[i % ICONS.length]}

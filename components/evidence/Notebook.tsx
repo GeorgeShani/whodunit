@@ -1,5 +1,6 @@
 "use client";
 
+import { NotebookClueFeatures } from "@/components/features/registry";
 import { useInSetting } from "@/components/game/CasePresentation";
 import { HowToPlayButton } from "@/components/help/HowToPlay";
 import { motion } from "framer-motion";
@@ -205,6 +206,7 @@ export function Notebook({
                         </div>
                       </div>
                       <p className="mt-2 text-base">{e.description}</p>
+                      <NotebookClueFeatures evidence={e} />
                       {notesFor(item)}
                       {presentButtons(item, e.name)}
                     </li>

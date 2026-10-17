@@ -46,6 +46,12 @@ export const CaseSolutionSchema = z.strictObject({
   supportingEvidenceIds: z.array(IdSchema).optional(),
   /** E2: the same for testimony (secret ids), alongside keyTestimonyIds. */
   supportingTestimonyIds: z.array(IdSchema).optional(),
+  /**
+   * Phase 6 (Marvin, #72): the solution-bearing part of a feature module's config, keyed by feature name, e.g.
+   * `{ "time-misdirection": { "provedBy": ["<key evidence>"] } }`. Lives here, never in case.json `featureConfig`, so no
+   * solution id is committed in public case data; each module parses its own entry (registry `checkFeatureConfig`).
+   */
+  featureProof: z.record(IdSchema, z.unknown()).optional(),
   /** Optional server-only write-up for the reveal screen. */
   explanation: z.string().trim().min(1).optional(),
 });

@@ -21,6 +21,8 @@ export interface FoundEvidence {
   image?: string;
   icon?: string;
   discoveryLine?: string;
+  /** Phase 6: this clue's public feature extras (see PublicEvidence.features). */
+  features?: Record<string, unknown>;
 }
 
 export interface InvestigateResponseBody {

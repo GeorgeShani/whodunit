@@ -8,7 +8,8 @@
  *  2. admits     : the model's own `admits` list concedes a core-guilt secret, a secret not unlocked this turn, a story
  *                  the engine still has it MAINTAIN, or more than one new secret.
  *  3. canon time : every clock time must come from the character's context (ai/canon-check.ts).
- *  4. order      : relative timings fit the real order of events (ai/order-check.ts).
+ *  4. order      : relative timings fit the real order of events (ai/order-check.ts); 4b. the case's feature-module
+ *                  canon checks (engine/features, e.g. a staged time stated as fact).
  *  5. names      : no titled or "poor X"-style person name that is not in the prompt or the player's words.
  *  6. confrontation hygiene, breakdown outburst, period vocabulary (performance rules).
  *
@@ -24,6 +25,7 @@ import { coreGuiltSecretIds, type CulpritAct, type GuiltProfile } from "@/engine
 import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
+import { featureCanonCheck } from "@/engine/features/registry";
 import { caseWorld } from "./world";
 import { findGuiltLeak, findReplyGuiltLeakAny, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
@@ -43,6 +45,7 @@ export type GuardReason =
   | "unknown_time"
   | "event_order"
   | "event_time"
+  | "staged_time"
   | "unknown_name"
   | "repeat"
   | "wrong_addressee"
@@ -82,7 +85,7 @@ export interface GuardReply {
 
 export interface GuardInput {
   caseData: Pick<LoadedCase, "characters" | "victim"> &
-    Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution" | "setting" | "orderLandmarks" | "orderWords">>;
+    Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution" | "setting" | "orderLandmarks" | "orderWords" | "features" | "featureConfig">>;
   characterId: string;
   ctx: CharacterContext;
   directives: TurnDirectives;
@@ -259,6 +262,12 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
       note: `You described when something happened in a way that contradicts the order of events (${order.offending.map((x) => `"${x}"`).join(", ")}). ${order.hint ?? ""} Use the clock times from WHAT YOU KNOW, or one landmark from THE EVENING IN ORDER exactly as listed.`,
       detail: order.offending.join(","),
     };
+  }
+  // 4b. Phase 6 (E4): the case's feature modules (time-misdirection: a staged time never stated as fact).
+  if (g.caseData.features?.length) {
+    const maintainedStories = g.ctx.intendedLies.filter((l) => l.status === "maintain").map((l) => l.claim);
+    const hit = featureCanonCheck(g.caseData as LoadedCase, { said, characterId: g.characterId, maintainedStories });
+    if (hit) return { reason: "staged_time", note: hit.note, detail: hit.detail };
   }
   // 5. Names: nobody the character was never told about.
   const name = findUnknownName(said, `${g.promptText}\n${g.heard}`);
