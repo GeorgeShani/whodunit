@@ -61,6 +61,8 @@ export interface PublicCaseView {
   evidence: PublicEvidence[];
   /** E3: the case marks weapon candidates (`evidence.weapon`), so the weapon picker lists only those. */
   weaponsMarked: boolean;
+  /** Phase 5 (3.2): the case asks "Did anyone help?" (case.json `accuse.askHelper`; public, never the solution). */
+  askHelper?: true;
   /** Starting progress (leads, locked rooms, accuse checklist). Routes return the live one with every token. */
   progress: PublicProgress;
   /** Phase 3: the site's wording for screens (only when the case writes `setting`). */
@@ -111,6 +113,7 @@ export function getPublicCaseView(
     }),
     evidence: c.evidence.filter((e) => discovered.has(e.id)).map(toPublicEvidence),
     weaponsMarked: c.evidence.some((e) => e.weapon),
+    ...(c.accuse?.askHelper ? { askHelper: true as const } : {}),
     progress: publicProgress(c, createInitialGameState(c)),
     ...(c.setting ? { setting: publicSetting(c.setting) } : {}),
     ...(c.theme ? { theme: structuredClone(c.theme) } : {}),

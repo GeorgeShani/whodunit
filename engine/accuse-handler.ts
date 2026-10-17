@@ -119,11 +119,11 @@ function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: Stored
     const s = caseData.solution;
     const accusation: Accusation = {
       murdererId: s.murdererId,
-      ...(s.accompliceId ? { accompliceId: s.accompliceId } : {}),
+      ...(s.accompliceId ? { accompliceId: s.accompliceId } : caseData.accuse?.askHelper ? { accompliceId: null } : {}),
       weaponId: s.weaponId,
       motiveId: s.motiveId,
       keyEvidenceIds: s.keyEvidenceIds.slice(0, citeCaps(s).evidence),
-      ...(s.keyTestimonyIds?.length ? { keyTestimonyIds: s.keyTestimonyIds.slice(0, citeCaps(s).testimony) } : {}),
+      ...(s.keyTestimonyIds?.length ? { keyTestimonyIds: winningTestimony(s).slice(0, citeCaps(s).testimony) } : {}),
     };
     game.accusation = accusation;
     game.outcome = "won";
@@ -137,6 +137,12 @@ function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: Stored
   const ending = buildEnding(caseData, { won: false }, { murdererId: stored.accusedId, weaponId: "", motiveId: "", keyEvidenceIds: [] });
   const bare = { ...ending, beats: ending.beats.map((b) => ({ ...b, evidenceIds: [] })) };
   return { outcome: "lost", ending: bare, stateToken: sentToken, ...closed };
+}
+
+/** Key testimony for a rebuilt win: one id from each keyTestimonyGroups group first, then the rest in order. */
+function winningTestimony(s: LoadedCase["solution"]): string[] {
+  const picked = [...new Set((s.keyTestimonyGroups ?? []).map((g) => g[0]))];
+  return [...picked, ...(s.keyTestimonyIds ?? []).filter((id) => !picked.includes(id))];
 }
 
 export async function handleAccuse(json: unknown, deps: AccuseDeps): Promise<AccuseResult> {

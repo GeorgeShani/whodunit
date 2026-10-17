@@ -391,7 +391,16 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 }
 ```
 
-The player's accusation is `{ murdererId, weaponId, motiveId, keyEvidenceIds, keyTestimonyIds? }`.
+The player's accusation is `{ murdererId, accompliceId?, weaponId, motiveId, keyEvidenceIds, keyTestimonyIds? }`.
+
+**Two culprits (optional, case-two plan 3.1, 3.2).** These are the solution fields:
+- `"accompliceId"`: the helper.
+- `"accompliceAct": { "locationId", "time" }`: when and where the helper did their part. The validator checks the helper's opportunity for it, the same way as for the murder.
+- `"keyTestimonyGroups": [["s-a", "s-b"], ["s-c"]]`: a win must cite at least one id from each group. Each id must also be in `keyTestimonyIds`, and `minKeyTestimony` must be at least the number of groups.
+
+A case with an accomplice must also set `"accuse": { "askHelper": true }` in **case.json**. That flag is public, and it switches the form to role wording: "Who struck the fatal blow?", then "Did anyone help?" with an explicit "No one helped".
+
+Grading is strict: a win needs the murderer and the helper, each in their own role. "No one helped" (`accompliceId: null`) is wrong when there is a helper, and right when there isn't. An accusation without the field counts as "no one". A loss never tells the player which half they got right.
 
 **Citation grading (E2).** A cited clue *supports* the accusation if it is in `keyEvidenceIds` or `supportingEvidenceIds`; cited testimony supports it if it is in `keyTestimonyIds` or `supportingTestimonyIds` (absent field: only the key ids count). The form shows "Cite up to N" and won't let you pick more, with N = the win's minimum + 1, for clues (`minKeyEvidence ?? 1`) and testimony (`minKeyTestimony ?? 0`) separately; the server answers an over-cap submission with **400 `too_many_citations`** and nothing is consumed. A WIN carries `rating`: `"sloppy"` if any citation supports nothing, else `"clean"`. A sloppy win is still a win (same ending, same solution reveal) plus one `endings.sloppyRemark` line at the end. **No loss carries a rating or the remark**, "right person, wrong story" included (it would tell the player they had the culprit, undoing E4's no-tell rule): extra citations change nothing on any loss. The rating lives in the response only: `closed_games` stores won/lost (so a replay served from the database alone shows the win as clean). `validate:case`: supporting ids must exist and must not overlap the key lists. These fields are server-only.
 

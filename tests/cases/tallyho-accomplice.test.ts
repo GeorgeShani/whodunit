@@ -34,7 +34,8 @@ describe.skipIf(!READY)("Tallyho two-culprit grading (draft data, #62)", () => {
   it("the helper is a real suspect, not the murderer, and the references still resolve", () => {
     expect(c.characters.map((ch) => ch.id)).toContain(c.solution.accompliceId);
     expect(c.solution.accompliceId).not.toBe(c.solution.murdererId);
-    expect(checkCaseReferences(c).filter((i) => i.path === "accompliceId")).toEqual([]);
+    expect(checkCaseReferences(c).filter((i) => i.path === "accompliceId" || i.path === "accuse.askHelper")).toEqual([]);
+    expect(c.accuse?.askHelper).toBe(true); // phase 5: the role-worded form with "Did anyone help?"
   });
 
   it("only the doer as murderer AND the stager as helper wins", () => {

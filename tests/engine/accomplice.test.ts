@@ -102,7 +102,9 @@ describe("G1 accuse route", () => {
   it("two culprits: the right pair wins; 'no one helped' loses with no half-right line and no leak", async () => {
     const win = await accuse(two, { ...WIN, accompliceId: "reginald" });
     expect(win).toMatchObject({ status: 200, body: { outcome: "won", accusation: { accompliceId: "reginald" } } });
-    expect(win.body.verdict).not.toHaveProperty("accompliceCorrect");
+    // Phase 5: a WIN reports the helper as right and reveals them; a loss carries neither (below).
+    expect(win.body.verdict).toMatchObject({ accompliceCorrect: true });
+    expect(win.body.solution?.accomplice).toEqual({ id: "reginald", name: expect.any(String) });
     for (const helper of [null, undefined, "gregory"]) {
       const lost = await accuse(two, { ...WIN, ...(helper === undefined ? {} : { accompliceId: helper }) });
       expect(lost.status).toBe(200);

@@ -4,7 +4,7 @@ import type { MotiveOption } from "@/engine/case-schema";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 
 export interface SummaryRow {
-  field: "murderer" | "weapon" | "motive" | "proof";
+  field: "murderer" | "accomplice" | "weapon" | "motive" | "proof";
   label: string;
   yours: string;
   correct: boolean;
@@ -20,14 +20,30 @@ export function summaryRows(
   const allEvidence = [...(r.evidence ?? []), ...lookup.evidence];
   const ev = (id: string) => allEvidence.find((e) => e.id === id)?.name ?? id;
   const s = r.solution;
+  const name = (id: string) => lookup.suspects.find((x) => x.id === id)?.name ?? id;
+  const helper = r.accusation.accompliceId;
+  // Phase 5: a helper row only when the form asked (the accusation carries an answer) or the case has one.
+  const helperRow: SummaryRow[] =
+    helper !== undefined || s?.accomplice
+      ? [
+          {
+            field: "accomplice",
+            label: "Helper",
+            yours: helper ? name(helper) : "No one",
+            correct: r.verdict.accompliceCorrect ?? true,
+            ...(revealTruth && s ? { truth: s.accomplice?.name ?? "No one" } : {}),
+          },
+        ]
+      : [];
   return [
     {
       field: "murderer",
-      label: "Murderer",
-      yours: lookup.suspects.find((x) => x.id === r.accusation.murdererId)?.name ?? r.accusation.murdererId,
+      label: helperRow.length ? "Struck the blow" : "Murderer",
+      yours: name(r.accusation.murdererId),
       correct: r.verdict.murdererCorrect,
       ...(revealTruth && s ? { truth: s.murderer.name } : {}),
     },
+    ...helperRow,
     { field: "weapon", label: "Weapon", yours: ev(r.accusation.weaponId), correct: r.verdict.weaponCorrect, ...(revealTruth && s ? { truth: s.weapon.name } : {}) },
     {
       field: "motive",

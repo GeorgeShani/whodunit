@@ -166,6 +166,13 @@ export const CaseEnvelopeSchema = z.strictObject({
   orderWords: OrderWordsSchema.optional(),
   /** Phase 3 (E9): per-screen beds and cue file overrides. Omitted: the default sound. */
   audio: CaseAudioSchema.optional(),
+  /**
+   * Phase 5 (3.2, D3): PUBLIC accuse-form options. `askHelper: true` shows the role-worded form ("Who struck the fatal
+   * blow?", then "Did anyone help?" with an explicit "No one helped") for every game of this case, whatever the
+   * answer, so it says nothing about the solution. Required when solution.accompliceId is set (V6). Omitted: the
+   * single-culprit form ("Who did it?"), unchanged.
+   */
+  accuse: z.strictObject({ askHelper: z.boolean() }).optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 

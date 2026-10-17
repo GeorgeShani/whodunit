@@ -67,7 +67,9 @@ export function gradeAccusation(solution: CaseSolution, accusation: Accusation):
   const hasKeyEvidence = keyEvidenceCited.length >= (solution.minKeyEvidence ?? 1);
   const keyTestimony = new Set(solution.keyTestimonyIds ?? []);
   const keyTestimonyCited = [...new Set(accusation.keyTestimonyIds ?? [])].filter((id) => keyTestimony.has(id));
-  const hasKeyTestimony = keyTestimonyCited.length >= (solution.minKeyTestimony ?? 0);
+  const citedSet = new Set(keyTestimonyCited);
+  const hasKeyTestimony =
+    keyTestimonyCited.length >= (solution.minKeyTestimony ?? 0) && (solution.keyTestimonyGroups ?? []).every((g) => g.some((id) => citedSet.has(id)));
   const unsupportedCited = unsupportedCitations(solution, accusation);
   const won = murdererCorrect && accompliceCorrect && weaponCorrect && motiveCorrect && hasKeyEvidence && hasKeyTestimony;
   return {

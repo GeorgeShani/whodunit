@@ -16,6 +16,13 @@ export const CaseSolutionSchema = z.strictObject({
    * murdererId as the murderer AND this id as the accomplice. Absent: nobody helped (every single-culprit case).
    */
   accompliceId: IdSchema.optional(),
+  /** Phase 5 (design G3): when and where the accomplice did their part; the validator runs the opportunity rule on it (V5). */
+  accompliceAct: z.strictObject({ locationId: IdSchema, time: GameTimeSchema }).optional(),
+  /**
+   * Phase 5 (design G5, Q9): cite at least one id from EACH group (on top of minKeyTestimony), so two testimonies
+   * about one half of the crime can't stand in for a witness to each half. Every id must be in keyTestimonyIds.
+   */
+  keyTestimonyGroups: z.array(z.array(IdSchema).min(1)).min(1).optional(),
   /** Evidence id of the murder weapon. */
   weaponId: IdSchema,
   /** Location id where the murder happened. */

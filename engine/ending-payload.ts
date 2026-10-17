@@ -104,6 +104,7 @@ export function buildSolutionReveal(c: LoadedCase): SolutionReveal {
   const ev = (id: string) => ({ id, name: c.evidence.find((e) => e.id === id)?.name ?? id });
   return {
     murderer: { id: s.murdererId, name: speakerName(c, s.murdererId) },
+    ...(s.accompliceId ? { accomplice: { id: s.accompliceId, name: speakerName(c, s.accompliceId) } } : {}),
     weapon: ev(s.weaponId),
     motive: { id: s.motiveId, label: c.motives.find((m) => m.id === s.motiveId)?.label ?? s.motiveId },
     location: { id: s.locationId, name: c.locations.find((l) => l.id === s.locationId)?.name ?? s.locationId },
@@ -116,6 +117,7 @@ export function buildSolutionReveal(c: LoadedCase): SolutionReveal {
 export function toVerdict(g: AccusationGrade): AccuseVerdict {
   return {
     murdererCorrect: g.murdererCorrect,
+    ...(g.accompliceCorrect !== undefined ? { accompliceCorrect: g.accompliceCorrect } : {}),
     weaponCorrect: g.weaponCorrect,
     motiveCorrect: g.motiveCorrect,
     hasKeyEvidence: g.hasKeyEvidence,
