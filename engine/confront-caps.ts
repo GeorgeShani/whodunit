@@ -50,3 +50,30 @@ export function confrontCounter(p: PublicConfrontProgress | undefined, key: stri
   const left = status?.over ? 0 : confrontLeft(p, key);
   return { left, max: p.perPair, over: left === 0 };
 }
+
+/** Phase 7 (3.6): one pair's chip in the "Confront…" menu ("2/4 used", "finished": disabled). */
+export interface ConfrontPairChip {
+  used: number;
+  max: number;
+  left: number;
+  finished: boolean;
+}
+
+/**
+ * The "Confront…" menu: a chip per pair and the game-wide counter ("Face-offs left: 9 of 16"). `status` is the
+ * client's own record of server refusals (Game.tsx confrontStatus), which always wins, as in confrontCounter.
+ */
+export function confrontMenu(
+  p: PublicConfrontProgress,
+  pairKeyOf: (otherId: string) => string,
+  otherIds: readonly string[],
+  status: Record<string, { turnsUsed: number; over: boolean }> = {},
+): { totalLeft: number; total: number; pairs: Record<string, ConfrontPairChip> } {
+  const pairs: Record<string, ConfrontPairChip> = {};
+  for (const id of otherIds) {
+    const key = pairKeyOf(id);
+    const c = confrontCounter(p, key, status[key]);
+    pairs[id] = { used: Math.min(p.perPair, Math.max(p.pairUsed[key] ?? 0, status[key]?.turnsUsed ?? 0)), max: c.max, left: c.left, finished: c.over };
+  }
+  return { totalLeft: Math.max(0, p.total - p.totalUsed), total: p.total, pairs };
+}

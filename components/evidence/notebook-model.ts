@@ -47,3 +47,22 @@ export function presentQuestion(item: NotebookItem, evidence: readonly Pick<Publ
   const t = testimonies.find((x) => x.id === item.id);
   return t ? `${t.characterName} has told me this: "${t.summary}" What do you say to that?` : "What do you say to that?";
 }
+
+/**
+ * Phase 7 (3.5): clues grouped by where they were found, in the case's room order ("In the case file" last), keeping
+ * the found order inside a group.
+ */
+export function groupByLocation<E extends Pick<PublicEvidence, "locationId">>(
+  evidence: readonly E[],
+  locations: readonly Pick<Location, "id" | "name">[],
+): { locationId: string | null; label: string; items: E[] }[] {
+  const rank = new Map(locations.map((l, i) => [l.id, i]));
+  const groups = new Map<string | null, E[]>();
+  for (const e of evidence) {
+    const id = e.locationId && rank.has(e.locationId) ? e.locationId : null;
+    groups.set(id, [...(groups.get(id) ?? []), e]);
+  }
+  return [...groups]
+    .sort(([a], [b]) => (a === null ? Infinity : rank.get(a)!) - (b === null ? Infinity : rank.get(b)!))
+    .map(([locationId, items]) => ({ locationId, label: whereFound({ locationId: locationId ?? undefined } as Pick<PublicEvidence, "locationId">, locations), items }));
+}

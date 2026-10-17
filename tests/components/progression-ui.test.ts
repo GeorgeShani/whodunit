@@ -43,7 +43,7 @@ describe("progression UI", () => {
 
   it("Notebook: the Leads tab exists only when the case has leads", () => {
     const base = { evidence: [], testimonies: [], locations: [], notes: {}, suspects, onPresent: () => {}, onClose: () => {} };
-    expect(html(h(Notebook, base))).not.toContain("data-notebook-tab");
+    expect(html(h(Notebook, base))).not.toContain('data-notebook-tab="leads"');
     const withLeads = html(h(Notebook, { ...base, leads }));
     expect(withLeads).toContain('data-notebook-tab="leads"');
     expect(withLeads).toContain('aria-label="1 open"');

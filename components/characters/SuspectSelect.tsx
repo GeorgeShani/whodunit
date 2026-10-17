@@ -9,6 +9,7 @@ import type { PublicSuspect } from "@/engine/public-view";
 import type { Emotion } from "@/engine/types";
 import { EmotionBadge } from "./EmotionBadge";
 import { Portrait } from "./Portrait";
+import { suspectLayout } from "./suspect-layout";
 
 export function SuspectSelect({
   suspects,
@@ -45,6 +46,7 @@ export function SuspectSelect({
   /** "questioned n/need" badges (progress.questioned); absent when the case does not ask for it. */
   questioned?: { need: number; counts: Record<string, number> };
 }) {
+  const L = suspectLayout(suspects.length);
   return (
     <main
       className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-8 sm:px-6 sm:py-10 ${
@@ -100,12 +102,13 @@ export function SuspectSelect({
           )}
         </CartoonButton>
       )}
-      <ul className="grid w-full max-w-6xl grid-cols-1 gap-5 min-[560px]:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+      <ul className={L.list} {...(L.compact ? { "data-suspects-compact": true } : {})}>
         {suspects.map((s, i) => {
           const emotion = emotions[s.id] ?? s.emotion.emotion;
           return (
             <motion.li
               key={s.id}
+              {...(L.compact ? { className: "min-w-0" } : {})}
               initial={{ y: 80, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 * i, type: "spring", stiffness: 220, damping: 16 }}
@@ -116,14 +119,14 @@ export function SuspectSelect({
                 data-suspect-id={s.id}
                 whileHover={{ y: -8, rotate: i % 2 ? 1.5 : -1.5 }}
                 whileTap={{ scale: 0.97 }}
-                className="flex w-full cursor-pointer flex-row items-center gap-4 rounded-3xl border-4 border-black bg-paper p-4 text-start text-ink shadow-[6px_6px_0_#000] md:flex-col md:text-center"
+                className={L.card}
               >
-                <div className="flex h-40 w-[36%] max-w-44 shrink-0 items-end justify-center overflow-hidden rounded-2xl border-[3px] border-black bg-gradient-to-b from-sky-200 to-yellow-100 md:h-64 md:w-full md:max-w-none">
-                  <Portrait suspect={s} emotion={emotion} className="h-36 md:h-60" decorative />
+                <div className={L.frame}>
+                  <Portrait suspect={s} emotion={emotion} className={L.portrait} decorative />
                 </div>
-                <div className="flex min-w-0 flex-1 flex-col items-start gap-1 md:w-full md:flex-none md:items-center">
-                  <span className="text-balance font-display text-[1.7rem] leading-[1.05] tracking-wide md:mt-3 md:text-3xl">{s.name}</span>
-                  <span className="text-base font-semibold italic text-neutral-700">{s.role}</span>
+                <div className={L.info}>
+                  <span className={L.name}>{s.name}</span>
+                  <span className={L.role}>{s.role}</span>
                   <span className="mt-1.5">
                     <EmotionBadge emotion={emotion} />
                   </span>

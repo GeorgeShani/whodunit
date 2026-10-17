@@ -1,5 +1,6 @@
 "use client";
 
+import { accuseSuspectGrid } from "@/components/characters/suspect-layout";
 import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
 import { weaponChoices } from "./weapon-choices";
 import { AnimatePresence, motion } from "framer-motion";
@@ -146,7 +147,7 @@ export function AccuseScreen({
       )}
 
       <Section n={1} title={askHelper ? "Who struck the fatal blow?" : "Who did it?"}>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4" role="radiogroup" aria-labelledby="accuse-1">
+        <div className={accuseSuspectGrid(suspects.length)} role="radiogroup" aria-labelledby="accuse-1">
           {suspects.map((s) => (
             <button
               key={s.id}
