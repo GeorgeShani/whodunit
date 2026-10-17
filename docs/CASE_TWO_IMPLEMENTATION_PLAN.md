@@ -149,6 +149,19 @@ won: murdererCorrect && accompliceCorrect && weaponCorrect && motiveCorrect && h
 - Win: `correct.confession` already allows any speakers; `components/ending/sequence.ts` `castAt` already shows two actors. The `escaped` beat shows the doer alone (acceptable; revisit if art wants both).
 - `case-validation.ts`: "missing wrong ending" applies to the accomplice too; the "innocent needs a secret" rule (`ch.id !== s.murdererId` today) excludes both culprits; the opportunity rule also runs for `accompliceAct` (V5). None of these accomplice checks exist anywhere yet, not even in Blackwood's tests.
 
+**Built (G1, ahead of phase 5, so #62 can merge):**
+- `solution.accompliceId?` and `Accusation.accompliceId?: Id | null` (null is "No one helped"; absent grades as null).
+- Strict `gradeAccusation`. `accompliceCorrect` is on the grade only when the case has a helper or the player named one, so Blackwood's grade goldens are byte-identical. It never reaches the client.
+- `handleAccuse` rejects `unknown_suspect` and `accomplice_is_murderer`.
+- The token validates a stored helper.
+- `lossBeats` drops either culprit's cameo.
+- Validator: V4 for the helper; the helper is exempt from "innocent needs a secret" and from the coreGuilt warning.
+- H3 / DX14: `storedOutcomeBody` rebuilds with the helper, and `closed_games.accomplice_id` is a nullable column (migration `drizzle/0001_closed_games_accomplice.sql`).
+
+**Apply the migration (`npm run db:migrate`) before deploying this code.** Drizzle names every column in its selects and inserts, so the new code fails accusations closed (503) on an un-migrated table. Old code ignores the column.
+
+Still phase 5: the picker UI and the role wording, `AccuseVerdict`/`SolutionReveal`/summary rows, `accompliceAct`, `keyTestimonyGroups`, and the accomplice's core guilt. Until the picker lands, the client sends no helper answer, so a two-culprit case can't be won from the UI.
+
 ### 3.2 The always-visible "Did anyone help?" picker (decided)
 
 **Decided (Agatha):** the accuse screen always shows "Did anyone help?" with an explicit "No one helped" answer; nothing is preselected; **Submit stays disabled until an answer is picked.** Reason: an always-visible picker means single-culprit cases do not tip off that a case has an accomplice.

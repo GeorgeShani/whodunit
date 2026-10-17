@@ -16,7 +16,7 @@ export function deepScan(value: unknown, keys = new Set<string>(), strings = new
 }
 
 export const SOLUTION_KEYS = [
-  "solution", "murdererId", "murderer", "weaponId", "motive", "motiveId", "motives", "keyEvidenceIds", "explanation",
+  "solution", "murdererId", "accompliceId", "murderer", "weaponId", "motive", "motiveId", "motives", "keyEvidenceIds", "explanation",
   "isMurderer", "isGuilty", "guilty", "culprit", "timeline", "isAccurate", "revealConditions", "stressThreshold",
   "afterSecretIds", "brokenByEvidenceIds", "aboutFactId", "relatedCharacters", "outcome",
 ];
