@@ -545,7 +545,9 @@ Not made yet (lean pass): the stateroom variants, `_lightning` frames and window
 
 `assets/cases/_tallyho/characters/<id>/neutral.webp`, the §8 sprite spec unchanged: 784×1224 RGBA, feet on y=1200, feet centre x=392, facing left, one uniform scale per character (heights against Reginald below). Lossy WebP q86, alpha q90. Prompt: §2 style + description + pose + facing line + §3 avoid list. Dame Gherkina wears green, so she is generated on a **pure magenta (#FF00FF)** key: the style line swaps green for magenta and the avoid list swaps "green clothing" for "magenta, pink or purple clothing". The other five use the green key.
 
-The other six poses (talking, angry, nervous, shocked, smug, sad) and the `anchors.json` entries come next, as image edits from these neutrals (§ Prompt assembly). The engine loads sprites from `assets/characters/<portrait>/` today, so these need either a per-case sprite path or a move there before they show in game.
+Anchors: `assets/cases/_tallyho/characters/anchors.json`, the same shape as `assets/characters/anchors.json` (same `canvas`, `facing`, `units`, `fields`; per pose `headCenter`, `headTop`, `faceFront`, `headBack`, `bodyCenter`, `bodyBack`, `feet`, `bboxTop`). Neutral entries for all six, measured from alpha with the Blackwood method (largest skin blob in the top 42% of the figure; Percy skips the top 17% so the plume and hat brim are not taken for her face). Hats count as the head top, as with Gregory's cap. Overlay check: `docs/art/tallyho_anchors.jpg`; script `toon-drafts/tallyho/anchors.py`. Not yet in `assets/effects/effects.json` `effectScale` (defaults to 1).
+
+The other six poses (talking, angry, nervous, shocked, smug, sad) and their anchor entries come next, as image edits from these neutrals (§ Prompt assembly). The engine loads sprites from `assets/characters/<portrait>/` today, so these need either a per-case sprite path or a move there before they show in game.
 
 | id | Height vs Reginald | Scale | Size |
 |---|---|---|---|

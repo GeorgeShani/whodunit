@@ -1,0 +1,217 @@
+{
+ "canvas": [
+  784,
+  1224
+ ],
+ "facing": "left",
+ "units": "sprite canvas px, origin top-left",
+ "fields": {
+  "headCenter": "middle of the face",
+  "headTop": "top of the head/hair above headCenter",
+  "faceFront": "front (left) edge of the face",
+  "headBack": "back (right) edge of the face/head",
+  "bodyCenter": "torso middle",
+  "bodyBack": "rear-most body pixel at torso height",
+  "feet": "baseline under the feet"
+ },
+ "sprites": {
+  "bilge": {
+   "neutral": {
+    "headCenter": [
+     414,
+     212
+    ],
+    "headTop": [
+     414,
+     111
+    ],
+    "faceFront": [
+     356,
+     212
+    ],
+    "headBack": [
+     454,
+     212
+    ],
+    "bodyCenter": [
+     434,
+     687
+    ],
+    "bodyBack": [
+     652,
+     687
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 62
+   }
+  },
+  "zippelli": {
+   "neutral": {
+    "headCenter": [
+     421,
+     145
+    ],
+    "headTop": [
+     421,
+     50
+    ],
+    "faceFront": [
+     368,
+     145
+    ],
+    "headBack": [
+     478,
+     145
+    ],
+    "bodyCenter": [
+     417,
+     677
+    ],
+    "bodyBack": [
+     680,
+     677
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 39
+   }
+  },
+  "gherkina": {
+   "neutral": {
+    "headCenter": [
+     356,
+     443
+    ],
+    "headTop": [
+     356,
+     325
+    ],
+    "faceFront": [
+     278,
+     443
+    ],
+    "headBack": [
+     412,
+     443
+    ],
+    "bodyCenter": [
+     389,
+     742
+    ],
+    "bodyBack": [
+     586,
+     742
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 205
+   }
+  },
+  "percy": {
+   "neutral": {
+    "headCenter": [
+     376,
+     709
+    ],
+    "headTop": [
+     376,
+     584
+    ],
+    "faceFront": [
+     327,
+     709
+    ],
+    "headBack": [
+     448,
+     709
+    ],
+    "bodyCenter": [
+     413,
+     882
+    ],
+    "bodyBack": [
+     602,
+     882
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 496
+   }
+  },
+  "boris": {
+   "neutral": {
+    "headCenter": [
+     426,
+     350
+    ],
+    "headTop": [
+     426,
+     168
+    ],
+    "faceFront": [
+     328,
+     350
+    ],
+    "headBack": [
+     518,
+     350
+    ],
+    "bodyCenter": [
+     398,
+     698
+    ],
+    "bodyBack": [
+     725,
+     698
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 86
+   }
+  },
+  "ottilie": {
+   "neutral": {
+    "headCenter": [
+     430,
+     532
+    ],
+    "headTop": [
+     430,
+     436
+    ],
+    "faceFront": [
+     386,
+     532
+    ],
+    "headBack": [
+     488,
+     532
+    ],
+    "bodyCenter": [
+     429,
+     851
+    ],
+    "bodyBack": [
+     642,
+     851
+    ],
+    "feet": [
+     392,
+     1200
+    ],
+    "bboxTop": 426
+   }
+  }
+ }
+}
