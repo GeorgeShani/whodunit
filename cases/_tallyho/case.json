@@ -784,7 +784,8 @@
     "Write down every time you are given and check it against the others. Certainty is not proof.",
     "Some doors open only after a proper word with the person who keeps them.",
     "Show a clue to the person it embarrasses most. Their story may change.",
-    "A revealed secret becomes a testimony card. Show it to someone whose story it contradicts."
+    "A revealed secret becomes a testimony card. Show it to someone whose story it contradicts.",
+    "The accusation asks who struck the fatal blow and whether anyone helped. Answer both, and be ready to prove each."
   ],
   "confrontation": {
     "perPair": 4,
@@ -1078,5 +1079,8 @@
   },
   "backdrops": {
     "suspects": "/assets/cases/_tallyho/backgrounds/ballroom.webp"
-  }
+  },
+  "unlockedBy": [
+    "blackwood"
+  ]
 }
