@@ -320,6 +320,10 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   issues.push(...checkProgression(c));
   issues.push(...checkPresentation(c));
   issues.push(...checkFeatureConfig(c));
+  (c.unlockedBy ?? []).forEach((id, i) => {
+    if (id === c.id) issues.push({ file: "case.json", path: `unlockedBy.${i}`, message: "a case cannot be unlocked by itself (V31)" });
+    if (c.unlockedBy!.indexOf(id) !== i) issues.push({ file: "case.json", path: `unlockedBy.${i}`, message: `"${id}" is listed twice` });
+  });
   return issues;
 }
 
@@ -681,4 +685,40 @@ export function culpritEndingWarnings(c: Pick<LoadedCase, "solution" | "characte
       });
     }
   return out;
+}
+
+/**
+ * V31 (phase 10, 3.8): the unlock graph over every case in a cases dir. Each `unlockedBy` id is a case there, never
+ * the case itself, there is no cycle, and at least one case has no `unlockedBy` (otherwise nothing can be played first).
+ */
+export function checkUnlockGraph(cases: readonly { id: string; unlockedBy?: readonly string[] | undefined }[]): CaseIssue[] {
+  const issues: CaseIssue[] = [];
+  const by = new Map(cases.map((c) => [c.id, c.unlockedBy ?? []]));
+  for (const c of cases)
+    (c.unlockedBy ?? []).forEach((id, i) => {
+      if (id === c.id) issues.push({ file: `${c.id}/case.json`, path: `unlockedBy.${i}`, message: "a case cannot be unlocked by itself (V31)" });
+      else if (!by.has(id)) issues.push({ file: `${c.id}/case.json`, path: `unlockedBy.${i}`, message: `unknown case "${id}" (V31)` });
+    });
+  if (cases.length && cases.every((c) => c.unlockedBy?.length))
+    issues.push({ file: "cases/", message: "every case has unlockedBy, so none can be played first (V31)" });
+  // Cycle: depth-first over "needs" edges.
+  const state = new Map<string, 1 | 2>();
+  const reported = new Set<string>();
+  const visit = (id: string, trail: string[]) => {
+    if (state.get(id) === 2) return;
+    if (state.get(id) === 1) {
+      const loop = [...trail.slice(trail.indexOf(id)), id];
+      const key = [...new Set(loop)].sort().join(",");
+      if (!reported.has(key)) {
+        reported.add(key);
+        issues.push({ file: `${id}/case.json`, path: "unlockedBy", message: `unlock cycle: ${loop.join(" -> ")} (V31)` });
+      }
+      return;
+    }
+    state.set(id, 1);
+    for (const next of by.get(id) ?? []) if (next !== id && by.has(next)) visit(next, [...trail, id]);
+    state.set(id, 2);
+  };
+  for (const c of cases) visit(c.id, []);
+  return issues;
 }

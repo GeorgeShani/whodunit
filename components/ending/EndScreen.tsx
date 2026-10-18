@@ -8,6 +8,7 @@ import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { MotiveOption } from "@/engine/case-schema";
 import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
+import type { UnlockLink } from "@/components/game/unlock";
 import { citedConfessions, summaryRows } from "./summary";
 
 /**
@@ -23,6 +24,7 @@ export function EndScreen({
   testimonies = [],
   onReplay,
   onPlayAgain,
+  nextCases = [],
 }: {
   result: AccuseResponseBody;
   suspects: PublicSuspect[];
@@ -33,6 +35,8 @@ export function EndScreen({
   /** Watch the ending again (if there is one). */
   onReplay?: () => void;
   onPlayAgain: () => void;
+  /** Phase 10 (3.8): cases this win has opened; "NEXT CASE: <title>" on a WIN only. */
+  nextCases?: UnlockLink[];
 }) {
   const inSite = useInSetting();
   const reduced = useReducedMotion() ?? false;
@@ -160,9 +164,20 @@ export function EndScreen({
             ↺ Watch the ending again
           </CartoonButton>
         )}
-        <CartoonButton tone="red" className="min-h-14 font-display text-3xl tracking-widest" onClick={onPlayAgain}>
+        <CartoonButton tone={won && nextCases.length ? "white" : "red"} className="min-h-14 font-display text-3xl tracking-widest" onClick={onPlayAgain}>
           PLAY AGAIN
         </CartoonButton>
+        {won &&
+          nextCases.map((n) => (
+            <a
+              key={n.id}
+              href={n.href}
+              data-next-case={n.id}
+              className="inline-flex min-h-14 max-w-full items-center rounded-xl border-[3px] border-black bg-red-500 px-4 py-2 text-center font-display text-3xl tracking-widest text-white shadow-[4px_4px_0_#000] hover:bg-red-400 max-sm:text-2xl"
+            >
+              NEXT CASE: {n.title.toUpperCase()} →
+            </a>
+          ))}
       </div>
     </main>
   );

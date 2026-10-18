@@ -43,6 +43,8 @@ import type { PublicProgress } from "@/engine/progress";
 import { clearGame, isPublicProgress, loadGame, saveGame, SESSION_VERSION, withoutUnansweredQuestions } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
+import type { CaseUnlockInfo } from "./unlock";
+import { isUnlocked, markSolved, readSolved } from "@/lib/solved-store";
 
 type Screen = "title" | "intro" | "suspects" | "interrogation" | "investigate" | "accuse" | "ending" | "confront";
 
@@ -211,7 +213,17 @@ export interface AskInput {
 }
 
 /** Client-side game shell. The server holds the case; this holds UI state only. */
-export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (docs/HOW_TO_PLAY.md, parsed server-side). */ manual?: Manual }) {
+export function Game({
+  view,
+  manual,
+  unlock,
+}: {
+  view: PublicCaseView;
+  /** How to Play (docs/HOW_TO_PLAY.md, parsed server-side). */
+  manual?: Manual;
+  /** Phase 10 (3.8): the cases this one opens ("NEXT CASE" on a win, "Next case" on the title once open). */
+  unlock?: CaseUnlockInfo;
+}) {
   const caseId = view.meta.id;
   const [screen, setScreen] = useState<Screen>("title");
   // How to Play overlay: UI state only, so opening it mid-case never touches the game.
@@ -273,6 +285,12 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
   const [notebookOpen, setNotebookOpen] = useState(false);
   /** Phase 8: the verdict (plus ending and solution) returned by /api/accuse. Nothing about the solution exists client-side before it. */
   const [result, setResult] = useState<AccuseResponseBody | null>(null);
+  /** Phase 10: this browser's solved cases (read after hydration; the title's "Next case" waits for it). */
+  const [solved, setSolved] = useState<ReturnType<typeof readSolved> | null>(null);
+  /* eslint-disable react-hooks/set-state-in-effect -- one-shot read of an external store after hydration */
+  useEffect(() => setSolved((s) => s ?? readSolved()), []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+  const openNext = solved ? (unlock?.next ?? []).filter((n) => isUnlocked(n.unlockedBy, solved)) : [];
   const [accusing, setAccusing] = useState(false);
   /** Phase 9: the ending cut-scene plays first, then the end screen (a restored closed case opens on the end screen). */
   const [endingPart, setEndingPart] = useState<"scene" | "summary">("summary");
@@ -343,7 +361,11 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
       setSearched(saved.searched);
       setSearchLines(saved.searchLines);
       setNotes(saved.notes ?? {});
-      if (saved.result) setResult(saved.result as AccuseResponseBody);
+      if (saved.result) {
+        setResult(saved.result as AccuseResponseBody);
+        // One-time backfill: a won game saved before the unlock shipped (or before this page) still counts.
+        if ((saved.result as AccuseResponseBody).outcome === "won") setSolved(markSolved(caseId));
+      }
       if (saved.stress) setStress(saved.stress);
       if (saved.confront) {
         setConfrontPair(saved.confront.pair);
@@ -700,6 +722,8 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
       applyProgress(r.progress);
       // A replay after game over (409) still carries the original verdict and ending.
       if (r.outcome && r.ending && r.accusation) {
+        // Phase 10 (3.8): only a server-graded WIN marks the case solved in this browser (opens the next case).
+        if (r.outcome === "won") setSolved(markSolved(caseId));
         setResult(r);
         setEndingPart("scene");
         go("ending");
@@ -785,7 +809,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
         data-screen={screen}
       >
         {screen === "title" && (
-          <TitleScreen tagline={view.meta.tagline} backdrop={view.theme?.titleArt ?? view.backdrops.title} {...(view.theme?.logo ? { logo: view.theme.logo, logoAlt: view.meta.title } : {})} onStart={() => go("intro")} {...(manual ? { onHowToPlay: openHelp } : {})} />
+          <TitleScreen tagline={view.meta.tagline} backdrop={view.theme?.titleArt ?? view.backdrops.title} {...(view.theme?.logo ? { logo: view.theme.logo, logoAlt: view.meta.title } : {})} onStart={() => go("intro")} {...(manual ? { onHowToPlay: openHelp } : {})} {...(openNext.length ? { nextCases: openNext } : {})} />
         )}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (
@@ -939,6 +963,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
             testimonies={testimonies}
             onReplay={() => setEndingPart("scene")}
             onPlayAgain={playAgain}
+            {...(openNext.length ? { nextCases: openNext } : {})}
           />
         )}
       </motion.div>
