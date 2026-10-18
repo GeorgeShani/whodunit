@@ -202,6 +202,11 @@ export function checkProgression(c: LoadedCase): CaseIssue[] {
   if (keyHeld < (s.minKeyEvidence ?? 1)) add("solution.json", "keyEvidenceIds", `only ${keyHeld} of the key clues can ever be found; the win rule needs ${s.minKeyEvidence ?? 1}`);
   const testimonyHeld = (s.keyTestimonyIds ?? []).filter((id) => sim.game.revealedSecretIds.includes(id)).length;
   if (testimonyHeld < (s.minKeyTestimony ?? 0)) add("solution.json", "keyTestimonyIds", `only ${testimonyHeld} of the key testimonies can ever be revealed (stress-only secrets count as unreachable); the win rule needs ${s.minKeyTestimony}`);
+  // Phase 8 (6.3): each keyTestimonyGroups group needs one revealable member.
+  (s.keyTestimonyGroups ?? []).forEach((grp, k) => {
+    if (!grp.some((id) => sim.game.revealedSecretIds.includes(id)))
+      add("solution.json", `keyTestimonyGroups.${k}`, `no testimony in this group can ever be revealed (stress-only secrets count as unreachable), so the case can never be won`);
+  });
   return issues;
 }
 
@@ -313,6 +318,35 @@ function exchangeCap(c: LoadedCase): number {
 
 export const FASTEST_PATH_BUDGET = 400_000;
 
+/** Phase 8 (6.3, 6.4): one action of the cheapest winning path, as the smoke playthrough replays it. */
+export type PlanStep =
+  | { kind: "search"; locationId: string }
+  | { kind: "talk"; characterId: string }
+  /** Show a clue or present a testimony card that cracks `secretId` (an exchange with its owner). */
+  | { kind: "show"; characterId: string; secretId: string; evidenceId?: string; testimonyId?: string }
+  /** Face `characterId` with `partnerId`: `partnerId` cracks `secretId` on `characterId`'s thrown `testimonyId`. */
+  | { kind: "confront"; characterId: string; partnerId: string; secretId: string; testimonyId: string };
+
+/** The win condition the simulator plays to: the gate open, enough key clues and testimony, one from each group. */
+function winnable(c: LoadedCase, g: GameState): boolean {
+  const sol = c.solution;
+  if (!accuseProgress(c, g).unlocked) return false;
+  if (sol.keyEvidenceIds.filter((id) => g.discoveredEvidenceIds.includes(id)).length < (sol.minKeyEvidence ?? 1)) return false;
+  if ((sol.keyTestimonyIds ?? []).filter((id) => g.revealedSecretIds.includes(id)).length < (sol.minKeyTestimony ?? 0)) return false;
+  return (sol.keyTestimonyGroups ?? []).every((grp) => grp.some((id) => g.revealedSecretIds.includes(id)));
+}
+
+/** What to hold up to crack `sec` now: a held clue it names, else a held testimony card it names. */
+function crackItem(sec: LoadedCase["characters"][number]["secrets"][number], g: GameState): { evidenceId?: string; testimonyId?: string } {
+  const rc = sec.revealConditions;
+  const ev = rc?.evidenceIds.find((e) => g.discoveredEvidenceIds.includes(e));
+  if (ev) return { evidenceId: ev };
+  const t = rc?.testimonyIds?.find((x) => g.revealedSecretIds.includes(x));
+  return t ? { testimonyId: t } : {};
+}
+
+export type FastestPlan = { actions: number; steps: PlanStep[]; exact: boolean; atLeast: number };
+
 /**
  * The fastest legal path (actions) to a won accusation, or null when the case has no progression or the search
  * budget ran out. Breadth-first over the real unlock rules: a search, an exchange with any suspect, or showing a clue
@@ -326,14 +360,50 @@ export const FASTEST_PATH_BUDGET = 400_000;
  * any shortest path and is not tracked. `confrontations: false` gives the old talk/search/show-only number.
  */
 export function fastestPath(c: LoadedCase, opts: { confrontations?: boolean } = {}): number | null {
+  const p = fastestPlan(c, opts);
+  return p?.exact ? p.actions : null;
+}
+
+/**
+ * Phase 8 (6.3): fastestPath with the path itself (search / talk / show / confront steps; the accusation is the last
+ * action and is not a step). null: no progression, or no win reachable.
+ *
+ * Exact, and much smaller than a plain breadth-first search over exchange counts: a talk only matters through the
+ * thresholds conditions name, so talks are explored only up to each suspect's largest named threshold, and the accuse
+ * gate's "question N suspects M times" is met by talks deferred to the end (a talk has no prerequisite and changes
+ * nothing else, so moving it later never costs anything). A state's cost is its depth plus those deferred talks;
+ * the search runs until no shallower state can beat the best found.
+ *
+ * When the gate questions every suspect, a much smaller exact search runs first (fullGatePlan below); `general: true`
+ * skips it (tests cross-check the two). When the budget runs out the result is still a winning plan (a greedy one, so the smoke run can play it) with
+ * exact: false, and atLeast is the proven floor (no plan shorter than it exists).
+ */
+export function fastestPlan(c: LoadedCase, opts: { confrontations?: boolean; general?: boolean } = {}): FastestPlan | null {
   if (!usesProgression(c)) return null;
-  const cap = exchangeCap(c);
-  const sol = c.solution;
   const ids = c.characters.map((ch) => ch.id);
+  const named = new Map<string, number>(ids.map((id) => [id, 0]));
+  const scan = (cond?: Condition) => cond?.interrogated?.forEach((x) => named.set(x.characterId, Math.max(named.get(x.characterId) ?? 0, x.minExchanges ?? 1)));
+  c.locations.forEach((l) => scan(l.requires));
+  c.evidence.forEach((e) => scan(e.requires));
+  (c.leads ?? []).forEach((l) => (scan(l.opensWhen), scan(l.closesWhen)));
+  const sq = c.accuseGate?.minSuspectsQuestioned;
+  const cap = (id: string) => Math.max(named.get(id) ?? 0, sq?.minExchanges ?? 0, 1);
+  const bump = (g: GameState, id: string) => (g.characters[id].interrogationCount = Math.min(cap(id), g.characters[id].interrogationCount + 1));
   const start = emptyGame(c);
-  type Node = { game: GameState; steps: number };
-  const key = (g: GameState) =>
-    [[...g.discoveredEvidenceIds].sort(), [...g.searchedLocationIds].sort(), [...g.revealedSecretIds].sort(), ids.map((id) => g.characters[id].interrogationCount)].map((x) => x.join(",")).join("|");
+  const base = (g: GameState) => [[...g.discoveredEvidenceIds].sort(), [...g.searchedLocationIds].sort(), [...g.revealedSecretIds].sort()].map((x) => x.join(",")).join("|");
+  const counts = (g: GameState) => ids.map((id) => g.characters[id].interrogationCount);
+  const key = (g: GameState) => `${base(g)}|${counts(g).join(",")}`;
+  // Dominance: with the same clues, rooms and secrets, a state whose every exchange count is at least another's is
+  // never worse (every condition is "at least"), so a state dominated by one already seen (no deeper) is skipped.
+  const kept = new Map<string, number[][]>();
+  const dominated = (g: GameState) => {
+    const b = base(g);
+    const v = counts(g);
+    const list = kept.get(b) ?? [];
+    if (list.some((w) => w.every((x, i) => x >= v[i]))) return true;
+    kept.set(b, [...list.filter((w) => !w.every((x, i) => v[i] >= x)), v]);
+    return false;
+  };
   const clone = (g: GameState): GameState => ({
     ...g,
     discoveredEvidenceIds: [...g.discoveredEvidenceIds],
@@ -341,72 +411,297 @@ export function fastestPath(c: LoadedCase, opts: { confrontations?: boolean } = 
     revealedSecretIds: [...g.revealedSecretIds],
     characters: Object.fromEntries(ids.map((id) => [id, { ...g.characters[id] }])),
   });
-  const done = (g: GameState) => {
-    if (!accuseProgress(c, g).unlocked) return false;
-    if (sol.keyEvidenceIds.filter((id) => g.discoveredEvidenceIds.includes(id)).length < (sol.minKeyEvidence ?? 1)) return false;
-    return (sol.keyTestimonyIds ?? []).filter((id) => g.revealedSecretIds.includes(id)).length >= (sol.minKeyTestimony ?? 0);
+  /** The talks still owed to the "questioned" gate (cheapest suspects first), or null when this state cannot win. */
+  const owed = (g: GameState): string[] | null => {
+    const extra: string[] = [];
+    let probe = g;
+    if (sq) {
+      const short = ids.map((id) => ({ id, need: Math.max(0, sq.minExchanges - g.characters[id].interrogationCount) })).sort((a, b) => a.need - b.need);
+      probe = clone(g);
+      for (const { id, need } of short.slice(0, sq.count)) {
+        for (let n = 0; n < need; n++) extra.push(id);
+        probe.characters[id].interrogationCount += need;
+      }
+    }
+    return winnable(c, probe) ? extra : null;
   };
+  // Admissible bound on the actions still needed: each action reveals at most one secret and adds at most one exchange.
+  const gate = c.accuseGate;
+  // A search adds no exchange and a talk or crack adds no clue, so the searches the clue deficit needs add: k searches
+  // find at most the k largest rooms' remaining clues (searching a room twice cannot beat its total). Drops by at most
+  // one per search, so it is a consistent bound.
+  const searchesNeeded = (g: GameState) => {
+    let deficit = (gate?.minEvidence ?? 0) - g.discoveredEvidenceIds.length;
+    let n = 0;
+    if (deficit > 0) {
+      const left = c.locations.map((l) => c.evidence.filter((e) => e.locationId === l.id && !g.discoveredEvidenceIds.includes(e.id)).length).sort((x, y) => y - x);
+      for (const k of left) {
+        if (deficit <= 0) break;
+        deficit -= k;
+        n++;
+      }
+    }
+    return n;
+  };
+  const lower = (g: GameState) => {
+    const secrets = Math.max(0, (gate?.minRevealedSecrets ?? 0) - g.revealedSecretIds.length);
+    const talks = sq ? ids.map((id) => Math.max(0, sq.minExchanges - g.characters[id].interrogationCount)).sort((a, b) => a - b).slice(0, sq.count).reduce((a, b) => a + b, 0) : 0;
+    return Math.max(1, Math.max(secrets, talks) + searchesNeeded(g));
+  };
+  type Node = { game: GameState; steps: number; k: string };
+  /** A quick upper bound for the pruning: crack whatever cracks, else search a room that yields, else talk. */
+  function greedyPlan(): { actions: number; steps: PlanStep[] } | null {
+    let g = clone(start);
+    const steps: PlanStep[] = [];
+    for (let n = 0; n < 200; n++) {
+      const extra = owed(g);
+      if (extra) return { actions: steps.length + extra.length + 1, steps: [...steps, ...extra.map((characterId): PlanStep => ({ kind: "talk", characterId }))] };
+      const states = leadStates(c, g);
+      const crack = c.characters.flatMap((ch) => ch.secrets.filter((sec) => crackable(sec, core, g.discoveredEvidenceIds, g.revealedSecretIds)).map((sec) => ({ ch, sec })))[0];
+      const room = c.locations.find(
+        (loc) =>
+          isUnlocked(loc, g, states) &&
+          (!g.searchedLocationIds.includes(loc.id) || c.evidence.some((e) => e.locationId === loc.id && !g.discoveredEvidenceIds.includes(e.id) && isUnlocked(e, g, states))),
+      );
+      const talk = ids.find((id) => g.characters[id].interrogationCount < (named.get(id) ?? 0));
+      const nx = clone(g);
+      if (crack) {
+        nx.revealedSecretIds.push(crack.sec.id);
+        bump(nx, crack.ch.id);
+        steps.push({ kind: "show", characterId: crack.ch.id, secretId: crack.sec.id, ...crackItem(crack.sec, g) });
+      } else if (room) {
+        if (!nx.searchedLocationIds.includes(room.id)) nx.searchedLocationIds.push(room.id);
+        for (const e of c.evidence) if (e.locationId === room.id && !nx.discoveredEvidenceIds.includes(e.id) && isUnlocked(e, g, states)) nx.discoveredEvidenceIds.push(e.id);
+        steps.push({ kind: "search", locationId: room.id });
+      } else if (talk) {
+        bump(nx, talk);
+        steps.push({ kind: "talk", characterId: talk });
+      } else return null;
+      g = nx;
+    }
+    return null;
+  }
   const core = coreGuiltSecretIds(c);
-  const seen = new Set([key(start)]);
-  let frontier: Node[] = [{ game: start, steps: 0 }];
-  while (frontier.length) {
-    const next: Node[] = [];
-    for (const { game, steps } of frontier) {
-      if (done(game)) return steps + 1;
-      const states = leadStates(c, game);
-      const push = (g: GameState) => {
-        const k = key(g);
-        if (seen.has(k)) return;
-        seen.add(k);
-        next.push({ game: g, steps: steps + 1 });
-      };
-      // Search a room (state before the action decides what it yields).
-      for (const loc of c.locations) {
-        if (!isUnlocked(loc, game, states)) continue;
-        const g = clone(game);
-        if (!g.searchedLocationIds.includes(loc.id)) g.searchedLocationIds.push(loc.id);
-        for (const e of c.evidence) if (e.locationId === loc.id && !g.discoveredEvidenceIds.includes(e.id) && isUnlocked(e, game, states)) g.discoveredEvidenceIds.push(e.id);
-        push(g);
-      }
-      // An ordinary exchange with each suspect.
-      for (const id of ids) {
-        const g = clone(game);
-        g.characters[id].interrogationCount = Math.min(cap, g.characters[id].interrogationCount + 1);
-        push(g);
-      }
-      // Show a clue (or present a testimony card) that cracks one of that suspect's secrets (an exchange too). Never core guilt.
-      for (const ch of c.characters) {
-        for (const sec of ch.secrets) {
-          if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
-          const g = clone(game);
-          g.revealedSecretIds.push(sec.id);
-          g.characters[ch.id].interrogationCount = Math.min(cap, g.characters[ch.id].interrogationCount + 1);
-          push(g);
-        }
-      }
-      // C4: confront A with B. A's exchange (or A's crack) is covered above; what is new is B cracking on A's thrown
-      // testimony in the same action, without an exchange of B's own.
-      if (opts.confrontations !== false) {
-        for (const a of c.characters) {
-          const thrown = a.secrets.map((s) => s.id).filter((id) => game.revealedSecretIds.includes(id));
-          if (!thrown.length) continue;
-          for (const b of c.characters) {
-            if (b.id === a.id) continue;
-            const cards = thrown.filter((id) => liesTouchedByTestimony(c, b, id).length > 0);
-            for (const sec of b.secrets) {
-              if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
-              if (!cards.some((t) => sec.revealConditions?.testimonyIds?.includes(t))) continue;
-              const g = clone(game);
-              g.revealedSecretIds.push(sec.id);
-              g.characters[a.id].interrogationCount = Math.min(cap, g.characters[a.id].interrogationCount + 1);
-              push(g);
-            }
+  const startKey = key(start);
+  const unwind = (parent: Map<string, { from: string; step: PlanStep } | null>, k: string): PlanStep[] => {
+    const out: PlanStep[] = [];
+    for (let p = parent.get(k); p; p = parent.get(p.from)) out.unshift(p.step);
+    return out;
+  };
+  /**
+   * The gate questions EVERY suspect at least M times (sq.count = all). Then a suspect's exchanges cost
+   * max(M, exchanges) in total whatever their order (the ones short of M are owed talks at the end), so an exchange
+   * below M is free and only searches and exchanges past M cost an action: the plan is
+   * searches + (paid exchanges) + n * M + the accusation. A suspect whose named thresholds plus every secret that can
+   * bump them (their own cracks, and confrontation cracks of testimony-gated secrets) fit in M can never pay, so their
+   * talks up to the named thresholds and their cracks are taken at once (free and monotone, never worse). What is left
+   * is a uniform-cost search over the searches (and any paid exchange), A* on searchesNeeded, exact and deterministic.
+   * "none" when no win is reachable; null when the budget runs out (the general search then runs).
+   */
+  function fullGatePlan(): FastestPlan | "none" | null {
+    const m = sq!.minExchanges;
+    const conf = opts.confrontations !== false;
+    const ownCracks = (id: string) => c.characters.find((ch) => ch.id === id)!.secrets.filter((x) => x.revealConditions && !core.has(x.id)).length;
+    const viaTestimony = (id: string) =>
+      conf ? c.characters.filter((ch) => ch.id !== id).flatMap((ch) => ch.secrets).filter((x) => x.revealConditions?.testimonyIds?.length && !core.has(x.id)).length : 0;
+    const free = new Set(ids.filter((id) => (named.get(id) ?? 0) + ownCracks(id) + viaTestimony(id) <= m));
+    type St = { game: GameState; g: number; steps: PlanStep[] };
+    /** Free talks and free cracks, to a fixed point (in a fixed order, so the plan is deterministic). */
+    const closure = (game: GameState, steps: PlanStep[]) => {
+      for (let changed = true; changed; ) {
+        changed = false;
+        for (const id of ids)
+          while (free.has(id) && game.characters[id].interrogationCount < (named.get(id) ?? 0)) {
+            bump(game, id);
+            steps.push({ kind: "talk", characterId: id });
+            changed = true;
+          }
+        for (const ch of c.characters) {
+          if (!free.has(ch.id)) continue;
+          for (const sec of ch.secrets) {
+            if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
+            steps.push({ kind: "show", characterId: ch.id, secretId: sec.id, ...crackItem(sec, game) });
+            game.revealedSecretIds.push(sec.id);
+            bump(game, ch.id);
+            changed = true;
           }
         }
       }
-      if (seen.size > FASTEST_PATH_BUDGET) return null;
+    };
+    const fkey = (game: GameState) => `${base(game)}|${ids.filter((id) => !free.has(id)).map((id) => game.characters[id].interrogationCount).join(",")}`;
+    const pay = (game: GameState, id: string) => (game.characters[id].interrogationCount >= m ? 1 : 0);
+    const first = clone(start);
+    const firstSteps: PlanStep[] = [];
+    closure(first, firstSteps);
+    const bestG = new Map<string, number>([[fkey(first), 0]]);
+    const buckets: St[][] = [];
+    const add = (st: St) => {
+      const f = st.g + searchesNeeded(st.game);
+      (buckets[f] ??= []).push(st);
+    };
+    add({ game: first, g: 0, steps: firstSteps });
+    let states = 1;
+    for (let f = 0; f < buckets.length; f++) {
+      const bucket = buckets[f];
+      for (let i = 0; bucket && i < bucket.length; i++) {
+        const { game, g, steps } = bucket[i];
+        if ((bestG.get(fkey(game)) ?? Infinity) < g) continue;
+        const probe = clone(game);
+        for (const id of ids) probe.characters[id].interrogationCount = Math.max(probe.characters[id].interrogationCount, m);
+        if (winnable(c, probe)) {
+          const owed = ids.flatMap((id) => Array.from({ length: Math.max(0, m - game.characters[id].interrogationCount) }, (): PlanStep => ({ kind: "talk", characterId: id })));
+          const all = [...steps, ...owed];
+          return { actions: all.length + 1, steps: all, exact: true, atLeast: all.length + 1 };
+        }
+        const states0 = leadStates(c, game);
+        const push = (n: GameState, cost: number, step: PlanStep) => {
+          const ns = [...steps, step];
+          closure(n, ns);
+          const k = fkey(n);
+          if ((bestG.get(k) ?? Infinity) <= g + cost) return;
+          bestG.set(k, g + cost);
+          states++;
+          add({ game: n, g: g + cost, steps: ns });
+        };
+        for (const loc of c.locations) {
+          if (!isUnlocked(loc, game, states0)) continue;
+          const n = clone(game);
+          if (!n.searchedLocationIds.includes(loc.id)) n.searchedLocationIds.push(loc.id);
+          for (const e of c.evidence) if (e.locationId === loc.id && !n.discoveredEvidenceIds.includes(e.id) && isUnlocked(e, game, states0)) n.discoveredEvidenceIds.push(e.id);
+          push(n, 1, { kind: "search", locationId: loc.id });
+        }
+        for (const id of ids) {
+          if (free.has(id) || game.characters[id].interrogationCount >= (named.get(id) ?? 0)) continue;
+          const n = clone(game);
+          const cost = pay(n, id);
+          bump(n, id);
+          push(n, cost, { kind: "talk", characterId: id });
+        }
+        for (const ch of c.characters)
+          for (const sec of ch.secrets) {
+            if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
+            if (!free.has(ch.id)) {
+              const n = clone(game);
+              n.revealedSecretIds.push(sec.id);
+              const cost = pay(n, ch.id);
+              bump(n, ch.id);
+              push(n, cost, { kind: "show", characterId: ch.id, secretId: sec.id, ...crackItem(sec, game) });
+            }
+            // A confrontation crack: B cracks on A's thrown testimony, an exchange with A only.
+            if (!conf || !sec.revealConditions?.testimonyIds?.length) continue;
+            for (const a of c.characters) {
+              if (a.id === ch.id) continue;
+              const card = a.secrets.map((x) => x.id).find((t) => game.revealedSecretIds.includes(t) && sec.revealConditions!.testimonyIds!.includes(t) && liesTouchedByTestimony(c, ch, t).length > 0);
+              if (!card) continue;
+              const n = clone(game);
+              n.revealedSecretIds.push(sec.id);
+              const cost = pay(n, a.id);
+              bump(n, a.id);
+              push(n, cost, { kind: "confront", characterId: a.id, partnerId: ch.id, secretId: sec.id, testimonyId: card });
+            }
+          }
+        if (states > FASTEST_PATH_BUDGET) return null;
+      }
     }
-    frontier = next;
+    return "none";
   }
-  return null;
+  let spent = 0;
+  /** Best plan of at most `limit` actions, "none" when there is none, "budget" when the search ran out. */
+  const search = (limit: number): { actions: number; steps: PlanStep[] } | "none" | "budget" => {
+    const parent = new Map<string, { from: string; step: PlanStep } | null>([[startKey, null]]);
+    const seen = new Set([startKey]);
+    kept.clear();
+    dominated(start);
+    let best: { actions: number; steps: PlanStep[] } | null = null;
+    let bound = limit + 1; // only plans shorter than this count
+    let frontier: Node[] = [{ game: start, steps: 0, k: startKey }];
+    while (frontier.length && frontier[0].steps + 1 < bound) {
+      const next: Node[] = [];
+      for (const { game, steps, k: from } of frontier) {
+        const extra = owed(game);
+        if (extra && steps + extra.length + 1 < bound) {
+          best = { actions: steps + extra.length + 1, steps: [...unwind(parent, from), ...extra.map((characterId): PlanStep => ({ kind: "talk", characterId }))] };
+          bound = best.actions;
+        }
+        if (steps + 1 + lower(game) >= bound) continue; // nothing below this node can beat the bound
+        const states = leadStates(c, game);
+        const push = (g: GameState, step: PlanStep) => {
+          const k = key(g);
+          if (seen.has(k) || dominated(g)) return;
+          seen.add(k);
+          parent.set(k, { from, step });
+          next.push({ game: g, steps: steps + 1, k });
+        };
+        // Search a room (state before the action decides what it yields).
+        for (const loc of c.locations) {
+          if (!isUnlocked(loc, game, states)) continue;
+          const g = clone(game);
+          if (!g.searchedLocationIds.includes(loc.id)) g.searchedLocationIds.push(loc.id);
+          for (const e of c.evidence) if (e.locationId === loc.id && !g.discoveredEvidenceIds.includes(e.id) && isUnlocked(e, game, states)) g.discoveredEvidenceIds.push(e.id);
+          push(g, { kind: "search", locationId: loc.id });
+        }
+        // An ordinary exchange, only while it can still pass a threshold a condition names (gate talks are deferred).
+        for (const id of ids) {
+          if (game.characters[id].interrogationCount >= (named.get(id) ?? 0)) continue;
+          const g = clone(game);
+          bump(g, id);
+          push(g, { kind: "talk", characterId: id });
+        }
+        // Show a clue (or present a testimony card) that cracks one of that suspect's secrets (an exchange too). Never core guilt.
+        for (const ch of c.characters) {
+          for (const sec of ch.secrets) {
+            if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
+            const g = clone(game);
+            g.revealedSecretIds.push(sec.id);
+            bump(g, ch.id);
+            push(g, { kind: "show", characterId: ch.id, secretId: sec.id, ...crackItem(sec, game) });
+          }
+        }
+        // C4: confront A with B. A's exchange (or A's crack) is covered above; what is new is B cracking on A's thrown
+        // testimony in the same action, without an exchange of B's own.
+        if (opts.confrontations !== false) {
+          for (const a of c.characters) {
+            const thrown = a.secrets.map((s) => s.id).filter((id) => game.revealedSecretIds.includes(id));
+            if (!thrown.length) continue;
+            for (const b of c.characters) {
+              if (b.id === a.id) continue;
+              const cards = thrown.filter((id) => liesTouchedByTestimony(c, b, id).length > 0);
+              for (const sec of b.secrets) {
+                if (!crackable(sec, core, game.discoveredEvidenceIds, game.revealedSecretIds)) continue;
+                const card = cards.find((t) => sec.revealConditions?.testimonyIds?.includes(t));
+                if (!card) continue;
+                const g = clone(game);
+                g.revealedSecretIds.push(sec.id);
+                bump(g, a.id);
+                push(g, { kind: "confront", characterId: a.id, partnerId: b.id, secretId: sec.id, testimonyId: card });
+              }
+            }
+          }
+        }
+        if (spent + seen.size > FASTEST_PATH_BUDGET) return "budget";
+      }
+      frontier = next;
+    }
+    spent += seen.size;
+    return best ?? "none";
+  };
+  // Iterative tightening: the first limit (from the admissible bound up) with a plan gives the fastest one; a tight
+  // limit prunes far harder than the greedy upper bound alone.
+  if (sq && sq.count >= ids.length && !opts.general) {
+    const r = fullGatePlan();
+    if (r === "none") return null;
+    if (r) return r;
+  }
+  const greedy = greedyPlan();
+  if (!greedy) {
+    // Only a confrontation-only reveal can defeat the greedy pass; search with no upper bound then.
+    const r = search(200);
+    return r === "none" || r === "budget" ? null : { ...r, exact: true, atLeast: r.actions };
+  }
+  for (let limit = lower(start) + 1; limit < greedy.actions; limit++) {
+    const r = search(limit);
+    if (r === "budget") return { ...greedy, exact: false, atLeast: limit };
+    if (r !== "none") return { ...r, exact: true, atLeast: r.actions };
+  }
+  return { ...greedy, exact: true, atLeast: greedy.actions };
 }

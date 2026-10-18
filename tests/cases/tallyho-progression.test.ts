@@ -15,6 +15,7 @@ import { checkCaseReferences, checkCaseWarnings } from "@/engine/case-validation
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { Accusation } from "@/engine/types";
+import { fastestPath, fastestPlan } from "@/engine/progression-validation";
 import { tallyhoAccuseOpenWithoutWin, tallyhoFastestPath } from "./tallyho-search";
 
 const HAS_SOLUTION = existsSync("cases/_tallyho/solution.json");
@@ -50,6 +51,12 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     expect(tallyhoAccuseOpenWithoutWin(c).act).toBeNull();
   });
 
+  it("the engine's simulator proves 32 within budget (full-gate search), with a plan the smoke run can play", { timeout: 60_000 }, () => {
+    const p = fastestPlan(c);
+    expect(p).toMatchObject({ actions: 32, exact: true, atLeast: 32 });
+    expect(p!.steps.filter((s) => s.kind === "search")).toHaveLength(7);
+    expect(fastestPath(c)).toBe(32);
+  });
   it("a 32-action winning path exists", { timeout: 300_000 }, () => {
     expect(tallyhoFastestPath(c, FASTEST_PLAIN)?.actions).toBe(32);
   });

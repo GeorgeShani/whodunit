@@ -5,6 +5,8 @@ The case-file contract is the single source of truth for authored cases. It is d
 ```bash
 npm run validate:case -- blackwood
 npm run validate:case -- fixture-manor --cases-dir tests/fixtures/cases   # a folder outside cases/
+npm run validate:case -- blackwood --strict   # fails on any warning, an unproven fastest path or a failed offline smoke run
+npm run validate:strict                     # --strict over every public case; runs before npm test
 ```
 
 The validator lists every problem as `file -> path: message` and exits non-zero if there are any.
