@@ -58,3 +58,27 @@ export function getPublicCase(id: unknown, casesDir = DEFAULT_CASES_DIR): Promis
   if (!isPublicCaseId(id, casesDir)) return Promise.reject(new UnknownCaseError());
   return getCase(id, casesDir);
 }
+
+/** Phase 10 (3.8): a public case as the unlock UI names it. */
+export interface CaseLink {
+  id: string;
+  title: string;
+  unlockedBy?: string[];
+}
+
+/**
+ * Phase 10 (3.8): the unlock edges around one public case. `requires`: the public cases it lists in `unlockedBy`
+ * (all must be solved; a non-public id is dropped, so such a case stays locked). `next`: the public cases whose
+ * `unlockedBy` names it (the win screen's "NEXT CASE"). Public data only: ids and titles.
+ */
+export async function caseUnlocks(id: string, casesDir = DEFAULT_CASES_DIR): Promise<{ requires: CaseLink[]; next: CaseLink[]; unlockedBy: string[] }> {
+  const all = await Promise.all(listPublicCaseIds(casesDir).map((x) => getCase(x, casesDir)));
+  const self = all.find((c) => c.id === id);
+  const unlockedBy = [...(self?.unlockedBy ?? [])];
+  const link = (c: LoadedCase): CaseLink => ({ id: c.id, title: c.title });
+  return {
+    unlockedBy,
+    requires: unlockedBy.flatMap((r) => all.filter((c) => c.id === r).map(link)),
+    next: all.filter((c) => c.id !== id && c.unlockedBy?.includes(id)).map((c) => ({ ...link(c), unlockedBy: [...c.unlockedBy!] })),
+  };
+}

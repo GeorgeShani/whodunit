@@ -36,7 +36,12 @@ import { chromium, type Page } from "playwright-core";
 
 const args = process.argv.slice(2);
 const modelDown = args.includes("--model-down");
-const flagValues = new Set(["--chrome", "--only", "--shots"].flatMap((f) => (args.indexOf(f) >= 0 ? [args[args.indexOf(f) + 1]] : [])));
+// Phase 10: --solved blackwood,... seeds the solved store (localStorage whodunit:solved) so the title's "Next case"
+// shows; --locked samples a sealed case's teaser (CaseGate / LockedScreen) instead of walking the game.
+const solvedIdx = args.indexOf("--solved");
+const solvedIds = solvedIdx >= 0 ? args[solvedIdx + 1].split(",") : [];
+const lockedMode = args.includes("--locked");
+const flagValues = new Set(["--chrome", "--only", "--shots", "--solved"].flatMap((f) => (args.indexOf(f) >= 0 ? [args[args.indexOf(f) + 1]] : [])));
 const base = args.find((a) => !a.startsWith("--") && !flagValues.has(a)) ?? "http://localhost:3000";
 const chromeIdx = args.indexOf("--chrome");
 const executablePath = chromeIdx >= 0 ? args[chromeIdx + 1] : process.env.CHROME_PATH ?? "/usr/bin/google-chrome";
@@ -332,6 +337,10 @@ async function run(): Promise<number> {
     shotN = 0;
     const ctx = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.isMobile, deviceScaleFactor: 1 });
     await ctx.addInitScript({ content: SAMPLER });
+    if (solvedIds.length)
+      await ctx.addInitScript({
+        content: `localStorage.setItem("whodunit:solved", ${JSON.stringify(JSON.stringify({ v: 1, cases: Object.fromEntries(solvedIds.map((id) => [id, { at: "2026-01-01T00:00:00.000Z" }])) }))});`,
+      });
     if (modelDown) {
       const line = "The telephone line is down for the night, and they won't be drawn just now. Search the rooms, check your notebook, or make your accusation; talk resumes when the line is mended.";
       const down = { source: "unavailable", error: "quota", unavailable: { kind: "quiet", line }, response: { dialogue: "…", emotion: "calm", intensity: 0.3, evidenceReactions: [], wantsToLeave: false, stressDelta: 0, trustDelta: 0 } };
@@ -358,6 +367,17 @@ async function run(): Promise<number> {
     const wait = (ms: number) => p.waitForTimeout(ms);
 
     await p.goto(base, { waitUntil: "networkidle" });
+    walk: {
+    if (lockedMode) {
+      await p.waitForSelector("[data-case-locked]", { timeout: 10_000 });
+      await label(p, "locked");
+      await wait(1500);
+      await checkHud(p, "locked");
+      await label(p, "locked (scrolled)");
+      await p.evaluate(() => document.querySelector(".screen-scroll")?.scrollTo({ top: 99999 }));
+      await wait(800);
+      break walk;
+    }
     await label(p, "title");
     await wait(2500); // title pulse + spring intro
     await checkHud(p, "title");
@@ -554,6 +574,7 @@ async function run(): Promise<number> {
         }
       }
     }
+    }
 
     const { ovf, frames, small, smallText } = await p.evaluate(() => {
       const w = window as unknown as { __ovf: Sample[]; __frames: number; __small: Small[]; __smallText: SmallText[] };
@@ -578,7 +599,7 @@ async function run(): Promise<number> {
     const ctaHere = ctaIssues.filter((x) => x.startsWith(`${shotVp} `));
     for (const x of ctaHere) console.log(`  ✗ CTA: ${x.slice(shotVp.length + 1)}`);
     if (!ctaHere.length) console.log(`  ✓ CTA bar covers no text (first view + end of scroll) on: ${ctaSeen.join(", ") || "none found"}`);
-    if (ctaSeen.length < 2) {
+    if (ctaSeen.length < 2 && !lockedMode) {
       console.log("  ✗ CTA audit did not reach both the intro and the accuse form");
       failures += 1;
     }
