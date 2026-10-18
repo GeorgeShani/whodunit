@@ -1,5 +1,6 @@
 "use client";
 
+import type { UnlockLink } from "./unlock";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
 import { useRef } from "react";
@@ -16,13 +17,16 @@ export function TitleScreen({
   logoAlt,
   onStart,
   onHowToPlay,
+  nextCases = [],
 }: {
   tagline: string;
   backdrop?: string;
   /** Phase 3 (theme.logo): replaces the WHODUNIT?! logo. */
   logo?: string;
   logoAlt?: string;
-  onStart: () => void; /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void }) {
+  onStart: () => void; /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void;
+  /** Phase 10 (3.8): cases this browser has opened by solving this one ("Next case: <title>"); absent until solved. */
+  nextCases?: UnlockLink[] }) {
   // #9: no endless sunburst spin or button pulse under prefers-reduced-motion.
   const reduced = useReducedMotion() ?? false;
   // A first tap anywhere but START unlocks audio and lets the noir theme play once over the rain (never before a gesture).
@@ -104,6 +108,16 @@ export function TitleScreen({
           </button>
         )}
         </div>
+        {nextCases.map((n) => (
+          <a
+            key={n.id}
+            href={n.href}
+            data-next-case={n.id}
+            className="relative mt-4 inline-flex min-h-12 items-center rounded-full border-[3px] border-black bg-accent px-6 py-2 font-display text-xl tracking-widest text-ink shadow-[4px_4px_0_#000] hover:bg-yellow-200 max-sm:mt-3 max-sm:text-lg short:mt-2 short:min-h-11 short:py-1 short:text-base"
+          >
+            Next case: {n.title} →
+          </a>
+        ))}
         {onHowToPlay && <FirstTimePrompt />}
       </div>
     </main>

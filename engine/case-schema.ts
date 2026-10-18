@@ -173,6 +173,11 @@ export const CaseEnvelopeSchema = z.strictObject({
    * single-culprit form ("Who did it?"), unchanged.
    */
   accuse: z.strictObject({ askHelper: z.boolean() }).optional(),
+  /**
+   * Phase 10 (3.8, George D10): PUBLIC. Case ids that must ALL be solved (in this browser) before this case opens.
+   * Omitted: open to everyone (the first case). The unlock is client-side pacing, not security (lib/solved-store.ts).
+   */
+  unlockedBy: z.array(IdSchema).min(1).max(8).optional(),
   /** Phase 6 (4.1): the feature modules this case opts into (engine/features/registry.ts). Omitted: none. */
   features: z.array(z.string().regex(/^[a-z][a-z0-9-]*$/)).max(8).optional(),
   /** Phase 6: SERVER-ONLY config per declared feature, parsed by that module's configSchema (load errors otherwise). */

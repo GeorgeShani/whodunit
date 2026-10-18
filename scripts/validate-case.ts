@@ -9,12 +9,12 @@
  * offline smoke run (tools/smoke/playthrough.ts: the plan played through the real handlers, zero live calls).
  * --all validates every case folder whose name has no leading "_" (the public ones).
  */
-import fs from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { assetExists } from "../lib/case-art";
 import { CLUE_ART_DIR, CLUE_FALLBACK_ICON } from "../lib/clue-art";
 import { validateCase } from "../engine/case-loader";
-import { checkCaseWarnings, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
+import { checkCaseWarnings, checkUnlockGraph, formatIssue, OPPORTUNITY_WINDOW_MINUTES } from "../engine/case-validation";
 import { fastestPlan } from "../engine/progression-validation";
 import { smokeRun } from "../tools/smoke/playthrough";
 import { guiltProfiles } from "../engine/core-guilt";
@@ -40,7 +40,7 @@ async function main() {
     else if (args[i] === "--all") all = true;
     else positional.push(args[i]);
   }
-  const ids = all ? fs.readdirSync(casesDir).filter((d) => !d.startsWith("_") && fs.existsSync(path.join(casesDir, d, "case.json"))).sort() : positional.slice(0, 1);
+  const ids = all ? readdirSync(casesDir).filter((d) => !d.startsWith("_") && existsSync(path.join(casesDir, d, "case.json"))).sort() : positional.slice(0, 1);
   if (!ids.length) {
     console.error("Usage: npm run validate:case -- <caseId> [--cases-dir <dir>] [--strict] | --all [--strict]");
     process.exit(2);
@@ -65,6 +65,21 @@ async function validateOne(caseId: string, casesDir: string, strict: boolean): P
   if (result.data) {
     const missing = checkPresentationAssets(result.data, { exists: (p) => assetExists(p), cueNames: Object.keys(CUES) });
     if (missing.length) result = { caseId, issues: missing };
+  }
+  // V31 (phase 10): the unlock graph over every case folder in the dir ("_" cases included: they are the next ones).
+  if (result.data) {
+    const all = readdirSync(casesDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory() && existsSync(path.join(casesDir, d.name, "case.json")))
+      .map((d) => {
+        try {
+          const j = JSON.parse(readFileSync(path.join(casesDir, d.name, "case.json"), "utf8")) as { unlockedBy?: string[] };
+          return { id: d.name, unlockedBy: Array.isArray(j.unlockedBy) ? j.unlockedBy : undefined };
+        } catch {
+          return { id: d.name };
+        }
+      });
+    const graph = checkUnlockGraph(all).filter((i) => i.file.startsWith(`${caseId}/`) || i.file === "cases/" || (result.data!.unlockedBy ?? []).some((r) => i.file.startsWith(`${r}/`)));
+    if (graph.length) result = { caseId, issues: graph };
   }
   if (result.data) {
     const d = result.data;
