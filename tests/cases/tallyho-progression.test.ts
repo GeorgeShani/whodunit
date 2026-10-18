@@ -139,5 +139,8 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     }
     expect(c.locations.every((l) => l.background === `/assets/cases/_tallyho/backgrounds/${l.id}.webp`)).toBe(true);
     expect(c.theme?.logo).toBe("/assets/cases/_tallyho/logo.webp");
+    // Toon option A: suspect selection reuses the ballroom background.
+    expect(c.backdrops?.suspects).toBe("/assets/cases/_tallyho/backgrounds/ballroom.webp");
+    expect(existsSync("assets/cases/_tallyho/backgrounds/ballroom.webp")).toBe(true);
   });
 });

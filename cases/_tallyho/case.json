@@ -1075,5 +1075,8 @@
     },
     "logo": "/assets/cases/_tallyho/logo.webp",
     "titleArt": "/assets/cases/_tallyho/title.webp"
+  },
+  "backdrops": {
+    "suspects": "/assets/cases/_tallyho/backgrounds/ballroom.webp"
   }
 }
