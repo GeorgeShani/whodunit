@@ -13,7 +13,7 @@ export function LockedScreen({ title, tagline, requires, backdrop }: { title: st
   return (
     <main
       data-case-locked
-      className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center gap-6 bg-backdrop bg-cover bg-center px-5 py-10 text-center short:gap-3 short:py-4"
+      className="screen-scroll flex min-h-0 flex-1 flex-col items-center justify-center gap-6 bg-backdrop bg-cover bg-center px-5 py-10 text-center short:justify-start short:gap-3 short:pb-4 short:pt-16"
       style={backdropStyle(backdrop)}
     >
       <p className="rotate-[-4deg] rounded-md border-4 border-black bg-red-500 px-4 py-1 font-display text-2xl tracking-widest text-white shadow-[4px_4px_0_#000] sm:text-3xl">
