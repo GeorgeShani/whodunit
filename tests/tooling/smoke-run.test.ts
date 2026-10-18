@@ -18,6 +18,20 @@ describe("fastestPlan", () => {
     expect(fastestPath(c)).toBe(10);
     for (const s of p.steps) expect(["search", "talk", "show", "confront"]).toContain(s.kind);
   });
+  it("full-gate search agrees with the general search when the gate questions everyone", async () => {
+    for (const [id, dir] of [["blackwood", undefined], ["progress-light", FIXTURES]] as const) {
+      const c = await loadCase(id, dir);
+      const sq = c.accuseGate!.minSuspectsQuestioned ?? { count: 1, minExchanges: 1 };
+      for (const minExchanges of [1, 2, 3]) {
+        const all = { ...c, accuseGate: { ...c.accuseGate!, minSuspectsQuestioned: { count: c.characters.length, minExchanges: Math.max(minExchanges, sq.minExchanges) } } };
+        const fast = fastestPlan(all)!;
+        const general = fastestPlan(all, { general: true })!;
+        expect(fast.exact && general.exact, `${id} m=${minExchanges}`).toBe(true);
+        expect(fast.actions, `${id} m=${minExchanges}`).toBe(general.actions);
+        expect(fast.steps).toHaveLength(fast.actions - 1);
+      }
+    }
+  });
   it("the progression fixture keeps its number", async () => {
     expect(fastestPlan(await loadCase("progress-light", FIXTURES))).toMatchObject({ actions: 9, exact: true });
   });
