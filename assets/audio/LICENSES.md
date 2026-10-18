@@ -60,3 +60,5 @@ Every file exists as `.ogg` (Vorbis, mono, ~48-64 kbps, primary) and `.mp3` (LAM
 Synthesized cues were generated from scratch with numpy/scipy by Toon (the project's sound designer) using `scripts/audio/make_sfx.py`, `make_noir.py` + `dsp.py` (mastering/encoding in `master_all.py`); the project may treat them as CC0 / wholly owned. Musical figures (the noir themes, clue/contradiction stings, fanfare, wah-wah descending semitones, pizzicato sneak, siren wail) are generic idioms, not transcriptions or imitations of any specific recording.
 
 No recordings, samples, loops, or melodies from any film, cartoon, game, or library are used or imitated by the noir-pass cues; the muted-trumpet themes are original generic jazz-idiom figures (i-iv-V7-i and I-ii-V-I chord changes with short stepwise lines), not transcriptions.
+
+**Per-case audio (decision Q14):** a case can ship its own sounds in `assets/cases/<caseId>/audio/`, with their own `LICENSES.md` (S.S. Tallyho: `assets/cases/_tallyho/audio/LICENSES.md`, all original synthesis, CC0). The files in this folder are the default set and are unchanged.
