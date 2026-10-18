@@ -321,19 +321,25 @@ export function Game({
    * the first screen, e.g. the title sunburst never spun on a fresh load.)
    */
   const [transitions, setTransitions] = useState(false);
+  /** Q14 room beds (audio.rooms): the room last searched on Investigate; cleared on any navigation. */
+  const [bedRoom, setBedRoom] = useState<string | null>(null);
   const go = useCallback((next: Screen) => {
     navigated.current = true;
     setTransitions(true);
+    setBedRoom(null);
     setScreen(next);
   }, []);
 
   // Scene beds (one at a time, crossfaded; they start once audio is unlocked by a gesture) and the preloads for what comes next.
-  useEffect(() => registerCaseAudio(view.audio), [view.audio]);
+  useEffect(() => registerCaseAudio(view.audio, { caseId, files: view.audioFiles }), [view.audio, caseId, view.audioFiles]);
+  // Q14 room beds (audio.rooms): the room last searched while on Investigate; the staged room in interrogation/confront.
+  const stageRoom = view.stage && !view.backdrops.interrogation ? view.victim.foundAtLocationId : null;
+  const roomNow = screen === "investigate" ? bedRoom : screen === "interrogation" || screen === "confront" ? stageRoom : null;
   useEffect(() => {
     const audio = getAudio();
-    audio.setBed(bedForScreen(screen, endingPart, view.audio), { fadeMs: bedFadeMs(screen, endingPart) });
+    audio.setBed(bedForScreen(screen, endingPart, view.audio, roomNow), { fadeMs: bedFadeMs(screen, endingPart) });
     if (screen === "accuse") void audio.preloadGroup("ending");
-  }, [screen, endingPart, view.audio]);
+  }, [screen, endingPart, view.audio, roomNow]);
 
   const active = useMemo(() => view.suspects.find((s) => s.id === activeId) ?? null, [view.suspects, activeId]);
 
@@ -684,6 +690,7 @@ export function Game({
       getAudio().play("search_rustle");
       searchedFrom.current = locationId;
       setSearchingId(locationId);
+      setBedRoom(locationId);
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
       if (r.stateToken) stateToken.current = r.stateToken;
       if (r.notice) resetProgress();

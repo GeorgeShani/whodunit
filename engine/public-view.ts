@@ -83,6 +83,8 @@ export interface PublicCaseView {
   theme?: Theme;
   /** Phase 3 (E9): beds and cue overrides (only when the case writes `audio`). */
   audio?: CaseAudio;
+  /** Q14: stems with both .ogg and .mp3 in assets/cases/<caseId>/audio/ (set at build by lib/case-audio.server.ts). */
+  audioFiles?: string[];
   /** Phase 6: each declared feature module's public slice (`publicConfig`), by module name. */
   features?: Record<string, unknown>;
 }

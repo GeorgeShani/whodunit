@@ -5,7 +5,10 @@ import type { BedName, HeartbeatLevel } from "./audio";
  * docs/SOUND_NOTES.md section 8C: which bed plays under which screen (null = silent bed). Phase 3 (E9): a case's
  * `audio.beds` wins for the screens it names (the end screen's summary still fades to silence).
  */
-export function bedForScreen(screen: string, endingPart: "scene" | "summary" = "scene", caseAudio?: CaseAudio): BedName | null {
+export function bedForScreen(screen: string, endingPart: "scene" | "summary" = "scene", caseAudio?: CaseAudio, locationId?: string | null): BedName | null {
+  // Q14: the current room's bed (investigate with a room open; interrogation/confront staged in a room) wins.
+  const room = locationId ? caseAudio?.rooms?.[locationId] : undefined;
+  if (room && ROOM_SCREENS.has(screen)) return room;
   const own = caseAudio?.beds?.[screen as keyof NonNullable<CaseAudio["beds"]>];
   if (own) return screen === "ending" && endingPart !== "scene" ? null : own;
   switch (screen) {
@@ -26,6 +29,9 @@ export function bedForScreen(screen: string, endingPart: "scene" | "summary" = "
       return null;
   }
 }
+
+/** Screens where a room can be current (audio.rooms). */
+const ROOM_SCREENS: ReadonlySet<string> = new Set(["investigate", "interrogation", "confront"]);
 
 /** Fade length for a bed change: the end screen lets the bed die away slowly. */
 export const bedFadeMs = (screen: string, endingPart: "scene" | "summary"): number | undefined => (screen === "ending" && endingPart === "summary" ? 3000 : undefined);

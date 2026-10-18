@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { existsSync } from "node:fs";
-import { AudioManager, CORE_FILES, CUES, MUTE_KEY, oggIsRisky, type AudioLike } from "@/components/effects/audio";
+import { AudioManager, CORE_FILES, CUES, MUTE_KEY, oggIsRisky, registerCaseAudio, type AudioLike } from "@/components/effects/audio";
 
 class FakeAudio implements AudioLike {
   static all: FakeAudio[] = [];
@@ -173,5 +173,22 @@ describe("audio manager", () => {
     off();
     m.toggleMuted();
     expect(n).toBe(1);
+  });
+});
+
+describe("per-case audio folder (Q14), HTML engine", () => {
+  it("elements resolve case folder first and are cached by URL, so a case change never keeps the other case's file", () => {
+    registerCaseAudio(undefined, { caseId: "_tallyho", files: ["case_open"] });
+    const { m, tick } = setup({ ogg: false });
+    m.unlock();
+    m.play("case_open");
+    expect(FakeAudio.all.filter((a) => a.src.endsWith("/case_open.mp3")).map((a) => a.src)).toEqual(["/assets/cases/_tallyho/audio/case_open.mp3"]);
+    registerCaseAudio(undefined, { caseId: "blackwood", files: [] });
+    tick(10_000);
+    m.play("case_open");
+    const els = FakeAudio.all.filter((a) => a.src.endsWith("/case_open.mp3"));
+    expect(els.map((a) => a.src)).toEqual(["/assets/cases/_tallyho/audio/case_open.mp3", "/assets/audio/case_open.mp3"]);
+    expect(els[1].plays).toBe(1);
+    registerCaseAudio(undefined);
   });
 });

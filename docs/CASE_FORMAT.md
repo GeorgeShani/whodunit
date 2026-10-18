@@ -183,15 +183,27 @@ Every block is optional; omitted, the case gets the default (first-case) wording
   { "id": "wave", "label": "the big wave", "say": ["(?:great\\s+)?lurch"], "fact": ["great lurch"], "pick": "earliest", "expectTime": "22:14" }
 ],
 "orderWords": { "absence": ["went\\s+below"], "movement": ["below", "on\\s+deck"] },  // added to the default absence/movement words
-"audio": { "beds": { "title": "bed_ship_hum" }, "cues": { "siren": ["ship_horn"] } }      // file stems in assets/audio/ (.mp3 and .ogg)
+"audio": {                         // file stems (.mp3 + .ogg): assets/cases/<id>/audio/ first, then assets/audio/
+  "beds":  { "title": "bed_ship_hum" },                  // bed per screen (title, intro, suspects, investigate, interrogation, confront, accuse, ending)
+  "rooms": { "engine-room": "bed_engine_room" },         // bed per location id; wins over beds while that room is current
+  "cues":  { "siren": ["ship_horn"] }                    // replace an existing cue's files (1-4 variants)
+}
 ```
+
+**Case audio folder (Q14).** Put a case's own sounds in `assets/cases/<id>/audio/<stem>.ogg` + `<stem>.mp3` (both are required; a stem
+with only one of them is ignored). The list is read at build/start time. Every sound the game plays resolves through one rule: the case's
+folder when it ships that stem, else the shared `assets/audio/`. So a file named like a shared one (`case_open`, `door_creak`) replaces it
+for that case with no JSON at all; new stems (beds) are named in `audio`. A room is current on Investigate after the player searches it
+(until they leave the screen), and on Interrogation/Confront when the stage shows the crime-scene room (no `backdrops.interrogation`).
+Room beds fall back to `beds[screen]`, then the default bed. Long stings keep the bed ducked for the file's real length when it is longer
+than the shared cue's.
 
 Patterns are regex sources (case-insensitive, at most 600 characters, no nested quantifiers). The validator checks:
 - vocabulary: no word both allowed and banned, no allowed meta word (AI, JSON, prompt, ...), no banned word in any authored text;
 - the authority is no suspect's name, alias or role;
 - every palette (the case's tokens over the defaults) passes contrast 4.5:1 for ink on paper, accent on backdrop and paper on backdrop;
 - theme art lives under `/assets/cases/<id>/` and exists;
-- audio files exist and cue names are real cues;
+- every stem in `audio.beds`, `audio.rooms` and `audio.cues` has both .mp3 and .ogg in `assets/cases/<id>/audio/` or in `assets/audio/` (else an error), `audio.rooms` keys are location ids, and cue names are real cues;
 - landmark ids are unique, every `fact` pattern matches a fact or timeline statement, and `expectTime` matches the minute the facts give.
 
 ### Fact
