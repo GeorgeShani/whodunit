@@ -70,7 +70,10 @@ describe("real assets", () => {
     const dir = path.join(process.cwd(), "cases", "_tallyho", "characters");
     const characters = readdirSync(dir).map((f) => ({ id: f.replace(/\.json$/, "") }));
     expect(characters.length).toBe(6);
-    expect(caseAnchors("_tallyho")).toEqual({});
+    // Toon's per-case anchors (neutral only for now): one entry per character, on the shared canvas baseline.
+    const anchors = caseAnchors("_tallyho");
+    expect(Object.keys(anchors).sort()).toEqual(characters.map((c) => c.id).sort());
+    for (const { id } of characters) expect(anchors[id]?.neutral?.feet).toEqual([392, 1200]);
     const sprites = caseCharacterSprites({ id: "_tallyho", characters });
     for (const { id } of characters) {
       const s = sprites[id]!;

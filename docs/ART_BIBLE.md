@@ -545,7 +545,9 @@ Not made yet (lean pass): the stateroom variants, `_lightning` frames and window
 
 `assets/cases/_tallyho/characters/<id>/neutral.webp`, the §8 sprite spec unchanged: 784×1224 RGBA, feet on y=1200, feet centre x=392, facing left, one uniform scale per character (heights against Reginald below). Lossy WebP q86, alpha q90. Prompt: §2 style + description + pose + facing line + §3 avoid list. Dame Gherkina wears green, so she is generated on a **pure magenta (#FF00FF)** key: the style line swaps green for magenta and the avoid list swaps "green clothing" for "magenta, pink or purple clothing". The other five use the green key.
 
-The other six poses (talking, angry, nervous, shocked, smug, sad) and the `anchors.json` entries come next, as image edits from these neutrals (§ Prompt assembly). The engine loads sprites from `assets/characters/<portrait>/` today, so these need either a per-case sprite path or a move there before they show in game.
+Anchors: `assets/cases/_tallyho/characters/anchors.json`, the same shape as `assets/characters/anchors.json` (same `canvas`, `facing`, `units`, `fields`; per pose `headCenter`, `headTop`, `faceFront`, `headBack`, `bodyCenter`, `bodyBack`, `feet`, `bboxTop`). Neutral entries for all six, measured from alpha with the Blackwood method (largest skin blob in the top 42% of the figure; Percy skips the top 17% so the plume and hat brim are not taken for her face). Hats count as the head top, as with Gregory's cap. Overlay check: `docs/art/tallyho_anchors.jpg`; script `toon-drafts/tallyho/anchors.py`. Not yet in `assets/effects/effects.json` `effectScale` (defaults to 1).
+
+The other six poses (talking, angry, nervous, shocked, smug, sad) and their anchor entries come next, as image edits from these neutrals (§ Prompt assembly). The engine loads sprites from `assets/characters/<portrait>/` today, so these need either a per-case sprite path or a move there before they show in game.
 
 | id | Height vs Reginald | Scale | Size |
 |---|---|---|---|
@@ -607,6 +609,8 @@ Chef Boris Buttercrumb, an original cartoon ship's chef: a huge, very tall and v
 ### 10.6 Ship-list diagram frames
 
 For the `ship-list` module (#72): `assets/cases/_tallyho/ship-list-<evidenceId>-before.webp` and `-after.webp`, 1200×900 (4:3), opaque warm chart paper, no baked text, vital content inside a 7% margin, q88 (about 36 KB each). One diagram clue: `marmalade-run`. Both frames are the same top-down plan of the stateroom as found (bow up, so port is left with a red lamp and starboard is right with a green lamp; door aft). Only the cues change: a stern-view heel gauge with a downhill arrow leans one way per frame, and the marks that the downhill direction explains are drawn at full strength while the rest are dimmed. Labels come from data. Code-drawn: `toon-drafts/tallyho/shiplist.py`.
+
+v0.1.1 (after frame only): the watch's smear now starts at the marmalade pool by the starboard wall and runs along the aft carpet, below the body, to the watch in the port corner (it used to start at the body's hip). Everything else, and the whole before frame, is unchanged.
 
 ### 10.7 Generation log
 
