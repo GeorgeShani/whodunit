@@ -148,12 +148,14 @@ export function replySfx(prev: Emotion | undefined, next: Emotion, available: re
   return cue.line ?? { cue: "dialogue_pop" };
 }
 
-export function portraitSrc(portrait: string, pose: string): string {
-  return `/assets/characters/${portrait}/${pose}.webp`;
+/** A suspect's sprite URL: the case's own folder when it has one (sprite-lookup.ts), else assets/characters/<portrait>/. */
+export function portraitSrc(portrait: string | { portrait: string; spriteDir?: string | undefined }, pose: string): string {
+  if (typeof portrait !== "string" && portrait.spriteDir) return `${portrait.spriteDir}/${pose}.webp`;
+  return `/assets/characters/${typeof portrait === "string" ? portrait : portrait.portrait}/${pose}.webp`;
 }
 
 /** Every sprite URL a character can swap to, plus the overlays those poses use (for preloading). */
-export function poseAssetUrls(suspect: { portrait: string; poses: readonly string[] }): string[] {
+export function poseAssetUrls(suspect: { portrait: string; poses: readonly string[]; spriteDir?: string | undefined }): string[] {
   const overlays = new Set(suspect.poses.flatMap((p) => POSE_CUES[p as SpritePose]?.overlays ?? []));
-  return [...suspect.poses.map((p) => portraitSrc(suspect.portrait, p)), ...[...overlays].map((fx) => `/assets/effects/${fx}.webp`)];
+  return [...suspect.poses.map((p) => portraitSrc(suspect, p)), ...[...overlays].map((fx) => `/assets/effects/${fx}.webp`)];
 }

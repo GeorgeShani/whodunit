@@ -15,7 +15,7 @@ import { CANVAS_H, CANVAS_W, overlayPlacement, type OverlayPlacement } from "./s
  * stage, so the first emotion swap doesn't flash an empty frame. Sprites are
  * served as-is (unoptimized), so these URLs are exactly what <Image> requests.
  */
-export function usePreloadPoses(suspect: Pick<PublicSuspect, "portrait" | "poses"> | null) {
+export function usePreloadPoses(suspect: Pick<PublicSuspect, "portrait" | "poses" | "spriteDir"> | null) {
   const key = suspect ? poseAssetUrls(suspect).join("|") : "";
   useEffect(() => {
     if (!key) return;
@@ -91,7 +91,7 @@ export function Portrait({
   const { pose, overlays: fx, motion: variant } = cuesFor(emotion, suspect.poses, speaking);
   const overlays = pose && effects
     ? fx
-        .map((fx) => overlayPlacement(suspect.portrait, pose, fx, { mirrored }))
+        .map((fx) => overlayPlacement(suspect, pose, fx, { mirrored }))
         .filter((p): p is OverlayPlacement => p !== null)
     : [];
 
@@ -110,7 +110,7 @@ export function Portrait({
             ))}
           </AnimatePresence>
           <Image
-            src={portraitSrc(suspect.portrait, pose)}
+            src={portraitSrc(suspect, pose)}
             alt={decorative ? "" : `${suspect.name} looking ${emotion}`}
             fill
             unoptimized
