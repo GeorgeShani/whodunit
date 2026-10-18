@@ -1082,5 +1082,25 @@
   },
   "unlockedBy": [
     "blackwood"
-  ]
+  ],
+  "audio": {
+    "beds": {
+      "title": "bed_ship_deck",
+      "intro": "bed_ship_interior",
+      "suspects": "bed_ship_interior",
+      "investigate": "bed_ship_interior",
+      "interrogation": "bed_ship_interior",
+      "confront": "bed_ship_interior",
+      "accuse": "bed_ship_interior",
+      "ending": "bed_ship_interior"
+    },
+    "rooms": {
+      "cabin-deck": "bed_ship_interior",
+      "ballroom": "bed_ship_interior",
+      "bridge": "bed_ship_interior",
+      "galley": "bed_ship_interior",
+      "engine-room": "bed_engine_room",
+      "boat-deck": "bed_ship_deck"
+    }
+  }
 }

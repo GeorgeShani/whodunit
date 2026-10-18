@@ -8,7 +8,7 @@
  * it is absent. Regenerate it locally from the design doc (section 4.1) to run it. The culprits are read from it, so this
  * file names neither.
  */
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import { gradeAccusation } from "@/engine/accusation";
 import { checkCaseReferences, checkCaseWarnings } from "@/engine/case-validation";
@@ -149,5 +149,32 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     // Toon option A: suspect selection reuses the ballroom background.
     expect(c.backdrops?.suspects).toBe("/assets/cases/_tallyho/backgrounds/ballroom.webp");
     expect(existsSync("assets/cases/_tallyho/backgrounds/ballroom.webp")).toBe(true);
+  });
+});
+
+/** Q14 audio (TALLYHO_SOUND.md section 2): reads case.json directly, so it runs with or without solution.json. */
+describe("Tallyho audio (per-case folder)", () => {
+  const raw = JSON.parse(readFileSync("cases/_tallyho/case.json", "utf8")) as {
+    locations: { id: string }[];
+    audio?: { beds?: Record<string, string>; rooms?: Record<string, string>; cues?: Record<string, string[]> };
+  };
+  const dir = "assets/cases/_tallyho/audio";
+
+  it("every screen and every room has a ship bed, and every named stem ships both .ogg and .mp3 in the case folder", () => {
+    const a = raw.audio!;
+    expect(Object.keys(a.beds ?? {}).sort()).toEqual(["accuse", "confront", "ending", "interrogation", "intro", "investigate", "suspects", "title"]);
+    expect(Object.keys(a.rooms ?? {}).sort()).toEqual(raw.locations.map((l) => l.id).sort());
+    const stems = new Set([...Object.values(a.beds ?? {}), ...Object.values(a.rooms ?? {}), ...Object.values(a.cues ?? {}).flat()]);
+    expect([...stems].sort()).toEqual(["bed_engine_room", "bed_ship_deck", "bed_ship_interior"]);
+    for (const s of stems) for (const ext of ["ogg", "mp3"]) expect(existsSync(`${dir}/${s}.${ext}`), `${s}.${ext}`).toBe(true);
+  });
+
+  it("the cue overrides ship as same-stem files, with no data entry", () => {
+    expect(raw.audio?.cues).toBeUndefined();
+    for (const s of ["case_open", "door_creak", "door_slam"])
+      for (const ext of ["ogg", "mp3"]) {
+        expect(existsSync(`${dir}/${s}.${ext}`), `${s}.${ext}`).toBe(true);
+        expect(existsSync(`assets/audio/${s}.${ext}`), `shared ${s}.${ext}`).toBe(true);
+      }
   });
 });
