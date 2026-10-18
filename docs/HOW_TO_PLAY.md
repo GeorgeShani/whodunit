@@ -22,7 +22,7 @@ Somebody's been murdered, the suspects are all lying about *something*, and the 
 3. **Question the suspects.** Pick a suspect and ask anything. Each one is hiding something.
 4. **Show them what you found.** Use **🔍 Present evidence** to hold up a clue or a confession. A story that doesn't fit the facts will crack.
 5. **Follow your leads.** The Notebook's **🧭 Leads** tab lists the open questions in the case.
-6. **Accuse when the case is ready.** Name the killer, the weapon and the motive, and cite only the proof that backs it. You get **one** accusation, so make it count.
+6. **Accuse when the case is ready.** Name the killer, the weapon and the motive (and, if the form asks, whether anyone helped), and cite only the proof that backs it. You get **one** accusation, so make it count.
 
 ---
 
@@ -35,6 +35,7 @@ A lucky guess won't cut it. To win, your accusation must name:
 - the right **murderer**,
 - the right **weapon**,
 - the right **motive**,
+- in cases whose form asks **"Did anyone help?"**, the right **helper**, or **No one helped** if nobody did,
 - and cite the **clues that actually prove it** (and, in some cases, a **confession** someone made to you).
 
 ---
@@ -166,6 +167,7 @@ Tap **⚔️ Confront…** to bring two suspects face to face.
 
 - Each pair gets at most **6 exchanges** (some cases allow fewer). Once a pair is done, they won't face off again.
 - The whole game allows at most **12 confrontation exchanges** in total, shared across every pair. The **"N left"** counter shows whichever runs out first, this pair's or the whole game's, so a fresh pair can start below 6.
+- Some cases set their own limits, fewer or more. The counter always shows the numbers for the case you're playing.
 - Spend them wisely: confront people whose stories *clash*, not people you haven't questioned yet.
 
 ---
@@ -217,6 +219,13 @@ The form has four parts, sometimes five:
 
 Whatever the case, it's always somewhere from 1 to 5 clues and 1 to 3 confessions, so read the number on the form.
 
+**"Did anyone help?"** Some cases word the first question **Who struck the fatal blow?** and then ask **Did anyone help?**
+
+- Pick **one** helper, or pick **No one helped**. That is a real answer, not a skip.
+- Nothing is picked for you, and the accusation can't be sent until you've answered.
+- The suspect you named as striking the blow can't also be the helper.
+- The **"Are you sure?"** check repeats both roles in words, so you can see exactly what you're claiming.
+
 Then the game asks **"Are you sure?"** and warns you: *"This ends the case. There's no taking it back."* It means it: **one accusation per game, no take-backs.**
 
 You can only cite clues you've found and confessions someone actually made to you.
@@ -238,10 +247,30 @@ The game grades you, not a suspect, so no amount of charm changes the verdict.
 
 Good to know:
 
+- **When the form asks "Did anyone help?", both roles are graded.** You win only with the right person in each role: the one who struck the blow, and the helper (or **No one helped**, if nobody did). The right people in swapped roles, a missing helper, the wrong helper, or a helper when nobody helped all lose, and the loss won't tell you which half missed.
 - **The time and place aren't graded.** You don't pick them on the form. They show up in the winning recap.
 - **Padding never rescues a case.** Extra clues can't turn a loss into a win. They can only turn a clean win into a sloppy one.
 - **A loss doesn't say what you got wrong.** No "so close!", no solution, no breakdown of which part missed. The case goes unsolved, and a short "Your investigation" panel shows how many of the key clues and key testimonies you found, whether you cited enough proof, and up to two nudges (a room never searched thoroughly, a secret never got out of someone). It's the same whoever you accused.
 - **PLAY AGAIN** starts the case over from scratch.
+
+---
+
+## Clocks that lie and floors that lean
+
+Some cases have a twist in how time and places work. When one does, that case's own tips, shown near the top of this manual, will say so. No case's answer is given away here.
+
+**A time is only what something showed**
+
+- A stopped clock, a bell everyone heard, a programme with times printed on it: each tells you what it *showed*, not necessarily what happened.
+- Clocks can be set. Sounds can come from somewhere other than where you'd think. Ask what could have been arranged, and by whom.
+- Suspects may repeat a time in good faith. Being sure of a time doesn't make it the truth. Check it against something that's hard to fake.
+
+**On a ship, the floor leans**
+
+- In a storm a ship leans to one side (it **lists**), and the lean can change when the sea does.
+- Loose, hard things slide downhill, and spills run downhill and stay where they stop. So the state of a room can tell you which way the floor leaned when something happened in it.
+- If you find a record of when the lean changed, put it beside the mess in each room and see which times still fit.
+- Some clues come with a **two-frame diagram**. Flip between the frames to compare the room under each lean.
 
 ---
 
