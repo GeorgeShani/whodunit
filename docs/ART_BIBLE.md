@@ -608,7 +608,12 @@ Chef Boris Buttercrumb, an original cartoon ship's chef: a huge, very tall and v
 
 ### 10.6 Ship-list diagram frames
 
-For the `ship-list` module (#72): `assets/cases/_tallyho/ship-list-<evidenceId>-before.webp` and `-after.webp`, 1200×900 (4:3), opaque warm chart paper, no baked text, vital content inside a 7% margin, q88 (about 36 KB each). One diagram clue: `marmalade-run`. Both frames are the same top-down plan of the stateroom as found (bow up, so port is left with a red lamp and starboard is right with a green lamp; door aft). Only the cues change: a stern-view heel gauge with a downhill arrow leans one way per frame, and the marks that the downhill direction explains are drawn at full strength while the rest are dimmed. Labels come from data. Code-drawn: `toon-drafts/tallyho/shiplist.py`.
+For the `ship-list` module (#72), v0.2 to Agatha's spec (2026-10-18): `assets/cases/_tallyho/marmalade-run_before.webp` (51 KB) and `assets/cases/_tallyho/marmalade-run_after.webp` (53 KB), 1200×900 (4:3), opaque warm chart paper, no baked text, vital content inside a 7% margin, q88. One diagram clue: `marmalade-run`. Both frames use the same top-down plan of the stateroom, so the instant toggle reads as one room changing: bow arrow up, red port lamps on the left wall, green starboard lamps on the right wall, porthole on the starboard wall, desk forward to port, door aft. The plan is turned about 3° toward the low side (clockwise for starboard, anticlockwise for port), and a stern-view heel gauge with a downhill arrow sits beside it. The body is a cream cartoon outline on the carpet (no gore, a few stars, a visible coat-tail out to starboard).
+
+- **Before** (leaning starboard): the burst jar and the marmalade pool set against the starboard wall, a downhill arrow toward that wall, and the sea chest standing against the starboard wall, clear of the coat-tail.
+- **After** (leaning port): the same pool, a long marmalade skid from the starboard wall across the carpet, the chest resting on the coat-tail, an arrow toward port, and the watch in the port corner with a short smear.
+
+Labels come from data. Code-drawn: `toon-drafts/tallyho/shiplist2.py` (v0.1 frames from #73 were replaced).
 
 ### 10.7 Generation log
 
