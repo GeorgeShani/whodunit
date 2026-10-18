@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { AudioManager, CUES, MUTE_KEY, type AudioLike, type ContextLike, type GainNodeLike, type ParamLike, type SourceLike } from "@/components/effects/audio";
+import { AudioManager, audioUrl, CUES, MUTE_KEY, registerCaseAudio, type AudioLike, type ContextLike, type GainNodeLike, type ParamLike, type SourceLike } from "@/components/effects/audio";
 import { bedForScreen, bedFadeMs, heartbeatFor, heartbeatLevel } from "@/components/effects/audio-scenes";
 
 class Param implements ParamLike {
@@ -287,5 +287,80 @@ describe("audio scenes", () => {
     expect(title).toContain('play("case_open")');
     expect(title).not.toContain("fanfare\"");
     expect(CUES.case_open.files).toEqual(["case_open"]);
+  });
+});
+
+describe("per-case audio folder (Q14)", () => {
+  const tally = { caseId: "_tallyho", files: ["case_open", "bed_ship_deck"] };
+  const done = () => registerCaseAudio(undefined);
+
+  it("audioUrl: the case's folder for stems it ships, else assets/audio; other cases and no case use the shared files", () => {
+    registerCaseAudio(undefined, tally);
+    expect(audioUrl("case_open", "ogg")).toBe("/assets/cases/_tallyho/audio/case_open.ogg");
+    expect(audioUrl("case_open", "mp3")).toBe("/assets/cases/_tallyho/audio/case_open.mp3");
+    expect(audioUrl("ui_tap", "ogg")).toBe("/assets/audio/ui_tap.ogg");
+    registerCaseAudio(undefined, { caseId: "blackwood", files: [] });
+    expect(audioUrl("case_open", "ogg")).toBe("/assets/audio/case_open.ogg");
+    registerCaseAudio(undefined, { caseId: "../x", files: ["case_open"] });
+    expect(audioUrl("case_open", "ogg")).toBe("/assets/audio/case_open.ogg");
+    done();
+    expect(audioUrl("case_open", "ogg")).toBe("/assets/audio/case_open.ogg");
+  });
+
+  it("WebAudio: case file first, mp3 on the ogg fallback, and buffers are kept apart per case (by URL)", async () => {
+    registerCaseAudio(undefined, tally);
+    const t = setup({ failOgg: true });
+    t.m.unlock();
+    await t.flush();
+    expect(t.fetched).toContain("/assets/cases/_tallyho/audio/case_open.ogg");
+    expect(t.fetched).toContain("/assets/cases/_tallyho/audio/case_open.mp3");
+    expect(t.fetched).toContain("/assets/audio/ui_tap.mp3");
+    t.m.play("case_open");
+    expect((t.src("case_open").at(-1)!.buffer as { file: string }).file).toBe("/assets/cases/_tallyho/audio/case_open.mp3");
+    // Back to a case without its own case_open: the shared file is fetched and played, never the cached Tallyho one.
+    registerCaseAudio(undefined, { caseId: "blackwood", files: [] });
+    t.tick(10_000);
+    expect(t.m.play("case_open")).toBe(true);
+    await t.flush();
+    expect(t.fetched).toContain("/assets/audio/case_open.mp3");
+    expect((t.src("case_open").at(-1)!.buffer as { file: string }).file).toBe("/assets/audio/case_open.mp3");
+    done();
+  });
+
+  it("room beds register as looping beds at the bed volume", async () => {
+    registerCaseAudio({ rooms: { "boat-deck": "bed_ship_deck" } }, tally);
+    const t = setup();
+    t.m.unlock();
+    await t.flush();
+    t.m.setBed("bed_ship_deck");
+    await t.flush();
+    expect(t.fetched).toContain("/assets/cases/_tallyho/audio/bed_ship_deck.ogg");
+    const s = t.src("bed_ship_deck").at(-1)!;
+    expect(s.loop).toBe(true);
+    expect(t.gainOf("bed_ship_deck")!.value).toBeCloseTo(0.4);
+    done();
+  });
+
+  it("a long sting ducks for the file's real length when it outlasts duckMs (8.3 s case_open), else exactly as before", async () => {
+    const run = async (seconds: number) => {
+      const t = setup();
+      const decode = t.ctx.decodeAudioData.bind(t.ctx);
+      t.ctx.decodeAudioData = async (d: ArrayBuffer) => ({ ...(await decode(d)), duration: seconds });
+      t.m.unlock();
+      await t.flush();
+      t.m.play("case_open");
+      const at = (ms: number) => {
+        t.tick(ms);
+        t.timeouts.forEach((x) => x.fn());
+        return t.m.getDuck();
+      };
+      return { t, at };
+    };
+    const long = await run(8.335);
+    expect(long.t.m.getDuck()).toBeCloseTo(0.4);
+    expect(long.at(CUES.case_open.duckMs! + 400)).toBeCloseTo(0.4); // still ducked past 6.7 s
+    expect(long.at(8335 + 300 - (CUES.case_open.duckMs! + 400) + 50)).toBe(1);
+    const same = await run(6.713); // Blackwood's own file: inside duckMs + tail, timing unchanged
+    expect(same.at(CUES.case_open.duckMs! + 300 + 50)).toBe(1);
   });
 });

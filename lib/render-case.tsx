@@ -7,6 +7,7 @@ import { DEFAULT_CASE_ID } from "./cases";
 import { getPublicCaseView } from "@/engine/public-view";
 import { resolveCaseArt } from "./case-art";
 import { spriteViewOptions } from "./case-sprites.server";
+import { caseAudioFiles } from "./case-audio.server";
 import { getManual } from "./how-to-play.server";
 
 /** "/" for the default case (its canonical home), /case/<id> otherwise. */
@@ -24,7 +25,7 @@ export async function CaseGame({ caseId }: { caseId: string }) {
   const unlock = await unlockInfo(caseId);
   // Sprites resolve by character id (or its portrait override), never by case-specific names: the case's own
   // assets/cases/<caseId>/characters/ first, then assets/characters/ (components/characters/sprite-lookup.ts).
-  const view = resolveCaseArt(getPublicCaseView(caseData, spriteViewOptions(caseData)));
+  const view = { ...resolveCaseArt(getPublicCaseView(caseData, spriteViewOptions(caseData))), audioFiles: caseAudioFiles(caseData.id) };
   return (
     <CaseGate
       unlockedBy={unlock.unlockedBy}

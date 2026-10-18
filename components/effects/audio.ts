@@ -22,13 +22,13 @@ import type { CaseAudio } from "@/engine/presentation";
 import type { AudioCue } from "./emotion-map";
 
 export interface CueDef {
-  /** File stems in /assets/audio (variants are picked at random / alternated). */
+  /** File stems, resolved by audioUrl (the case's audio folder, then /assets/audio). Variants are picked at random / alternated. */
   files: readonly string[];
   volume: number;
   /** Ignore repeats of this cue within this many ms. */
   minGapMs: number;
   loop?: boolean;
-  /** Long sting: the bed ducks for this long (+300 ms) while it plays. */
+  /** Long sting: the bed ducks for this long (+300 ms) while it plays, or for the file's real length when that is longer. */
   duckMs?: number;
 }
 
@@ -86,10 +86,24 @@ const BED_VOLUME = 0.4;
 /** Phase 3 (E9): the current case's beds and cue file overrides, layered over CUES. */
 let caseCues: Record<string, CueDef> = {};
 
-/** Register a case's audio (case.json `audio`): its beds become looping cues, its cue overrides replace the files. */
-export function registerCaseAudio(audio: CaseAudio | undefined): void {
+/** Q14: the current case's audio folder and the stems it holds (both .ogg and .mp3; view.audioFiles). */
+let caseFolder: { dir: string; files: ReadonlySet<string> } | null = null;
+const CASE_ID = /^_?[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
+export const SHARED_AUDIO_DIR = "/assets/audio";
+
+/** The one URL for a sound file: assets/cases/<caseId>/audio/<stem>.<ext> when the case ships it, else assets/audio/. */
+export function audioUrl(stem: string, ext: "ogg" | "mp3"): string {
+  return `${caseFolder?.files.has(stem) ? caseFolder.dir : SHARED_AUDIO_DIR}/${stem}.${ext}`;
+}
+
+/**
+ * Register a case's audio (case.json `audio`): its beds and room beds become looping cues, its cue overrides replace
+ * the files, and stems in its own folder (`files`, view.audioFiles) win over the shared ones in audioUrl.
+ */
+export function registerCaseAudio(audio: CaseAudio | undefined, folder?: { caseId: string; files?: readonly string[] | undefined }): void {
+  caseFolder = folder && CASE_ID.test(folder.caseId) && folder.files?.length ? { dir: `/assets/cases/${folder.caseId}/audio`, files: new Set(folder.files) } : null;
   const next: Record<string, CueDef> = {};
-  for (const stem of Object.values(audio?.beds ?? {}))
+  for (const stem of [...Object.values(audio?.beds ?? {}), ...Object.values(audio?.rooms ?? {})])
     if (stem && !(stem in CUES)) next[stem] = { files: [stem], volume: BED_VOLUME, minGapMs: 0, loop: true };
   for (const [cue, files] of Object.entries(audio?.cues ?? {})) {
     const base = CUES[cue as AudioCue];
@@ -139,6 +153,8 @@ export interface AudioLike {
   pause(): void;
   load(): void;
   canPlayType(type: string): string;
+  /** Seconds, once metadata has loaded (NaN before). */
+  duration?: number;
 }
 
 /** The subset of AudioContext the WebAudio engine uses (so tests can fake it). */
@@ -227,6 +243,8 @@ interface Engine {
   /** Called on every gesture; lets the engine un-stick an interrupted context. */
   nudge(): void;
   reload(): void;
+  /** The file's real length when known (decoded / metadata loaded). */
+  durationMs(file: string): number | undefined;
 }
 
 type Ext = () => "ogg" | "mp3";
@@ -253,16 +271,22 @@ class HtmlEngine implements Engine {
   isReady() {
     return true;
   }
+  /** Elements are cached by URL, so a case that ships its own stem never reuses another case's element. */
   private element(file: string, loop = false): AudioLike {
-    let el = this.elements.get(file);
+    const src = audioUrl(file, this.ext());
+    let el = this.elements.get(src);
     if (!el) {
       el = this.deps.createAudio();
       el.preload = "auto";
       el.loop = loop;
-      el.src = `/assets/audio/${file}.${this.ext()}`;
-      this.elements.set(file, el);
+      el.src = src;
+      this.elements.set(src, el);
     }
     return el;
+  }
+  durationMs(file: string) {
+    const d = this.elements.get(audioUrl(file, this.ext()))?.duration;
+    return typeof d === "number" && Number.isFinite(d) ? d * 1000 : undefined;
   }
   async load(file: string) {
     this.element(file, /(?:rain_loop|bed_|heartbeat_)/.test(file)).load();
@@ -418,21 +442,31 @@ class WebEngine implements Engine {
     this.buffers.clear();
     this.loading.clear();
   }
+  /** Buffers are cached by URL (audioUrl), so a case change never plays another case's decode of the same stem. */
+  private key(file: string) {
+    return audioUrl(file, this.ext());
+  }
   isReady(file: string) {
-    return this.buffers.has(file);
+    return this.buffers.has(this.key(file));
+  }
+  durationMs(file: string) {
+    const d = (this.buffers.get(this.key(file)) as { duration?: number } | undefined)?.duration;
+    return typeof d === "number" && Number.isFinite(d) ? d * 1000 : undefined;
   }
   load(file: string): Promise<boolean> {
-    if (this.buffers.has(file)) return Promise.resolve(true);
-    const pending = this.loading.get(file);
+    const first = this.key(file);
+    if (this.buffers.has(first)) return Promise.resolve(true);
+    const pending = this.loading.get(first);
     if (pending) return pending;
     const ctx = this.ctx;
     if (!ctx) return Promise.resolve(false);
     const get = this.deps.fetchBytes ?? (async (url: string) => (await fetch(url)).arrayBuffer());
     const attempt = async (): Promise<boolean> => {
       const ext = this.ext();
+      const url = audioUrl(file, ext);
       try {
-        const bytes = await get(`/assets/audio/${file}.${ext}`);
-        this.buffers.set(file, await ctx.decodeAudioData(bytes));
+        const bytes = await get(url);
+        this.buffers.set(url, await ctx.decodeAudioData(bytes));
         return true;
       } catch {
         if (ext === "ogg") {
@@ -442,13 +476,13 @@ class WebEngine implements Engine {
         return false;
       }
     };
-    const p = attempt().finally(() => this.loading.delete(file));
-    this.loading.set(file, p);
+    const p = attempt().finally(() => this.loading.delete(first));
+    this.loading.set(first, p);
     return p;
   }
   start(v: VoiceSpec) {
     const ctx = this.ctx;
-    const buf = this.buffers.get(v.file);
+    const buf = this.buffers.get(this.key(v.file));
     if (!ctx || !this.master || !buf) return false;
     this.stop(v.id, 0);
     const src = ctx.createBufferSource();
@@ -725,19 +759,23 @@ export class AudioManager {
         void this.engine.load(file).then((ok) => {
           if (ok && !this.silenced && this.now() - t < LATE_PLAY_MS) {
             this.engine.start(spec);
-            this.afterStart(cue, def);
+            this.afterStart(cue, def, file);
           }
         });
         return true;
       }
       return false;
     }
-    this.afterStart(cue, def);
+    this.afterStart(cue, def, file);
     return true;
   }
 
-  private afterStart(cue: AudioCue, def: CueDef) {
-    if (def.duckMs) this.duck(def.duckMs + DUCK_TAIL_MS);
+  private afterStart(cue: AudioCue, def: CueDef, file: string) {
+    if (def.duckMs) {
+      // A longer file than the table expects (e.g. a case's own 8.3 s case_open) keeps the bed down until it ends.
+      const real = this.engine.durationMs(file);
+      this.duck((real !== undefined && real > def.duckMs + DUCK_TAIL_MS ? real : def.duckMs) + DUCK_TAIL_MS);
+    }
     if (cue === "breakdown_crack") {
       this.heartHushed = true; // the breakdown stops the heartbeat until the player leaves the screen
       this.syncHeart();

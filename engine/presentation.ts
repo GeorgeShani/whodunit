@@ -227,14 +227,16 @@ export type OrderWords = z.infer<typeof OrderWordsSchema>;
 
 /** Screens that carry a bed (components/effects/audio-scenes.ts). */
 export const BED_SCREENS = ["title", "intro", "suspects", "investigate", "interrogation", "confront", "accuse", "ending"] as const;
-/** A file stem in assets/audio/ (both .mp3 and .ogg must exist; validator). */
-const AudioStem = z.string().regex(/^[a-z0-9_]{1,60}$/, "a file stem in assets/audio/ (lower-case, digits, _)");
+/** A file stem in assets/cases/<caseId>/audio/ or assets/audio/ (both .mp3 and .ogg must exist in one of them; validator). */
+const AudioStem = z.string().regex(/^[a-z0-9_]{1,60}$/, "a file stem in assets/cases/<caseId>/audio/ or assets/audio/ (lower-case, digits, _)");
 
 export const CaseAudioSchema = z.strictObject({
   /** Bed per screen; unnamed screens keep the default bed. */
   beds: z.partialRecord(z.enum(BED_SCREENS), AudioStem).optional(),
   /** Replace the files of an existing cue (the validator checks the cue name). */
   cues: z.record(z.string().regex(/^[a-z_]+$/), z.array(AudioStem).min(1).max(4)).optional(),
+  /** Bed per room (location id): wins over `beds` while that room is current (validator checks the ids). */
+  rooms: z.record(z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/), AudioStem).optional(),
 });
 export type CaseAudio = z.infer<typeof CaseAudioSchema>;
 

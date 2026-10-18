@@ -94,12 +94,19 @@ export function checkPresentationAssets(c: LoadedCase, deps: { exists: (assetPat
   }
   const stems: [string, string][] = [
     ...Object.entries(c.audio?.beds ?? {}).map(([screen, s]) => [`audio.beds.${screen}`, s as string] as [string, string]),
+    ...Object.entries(c.audio?.rooms ?? {}).map(([room, s]) => [`audio.rooms.${room}`, s] as [string, string]),
     ...Object.entries(c.audio?.cues ?? {}).flatMap(([cue, files]) => files.map((f) => [`audio.cues.${cue}`, f] as [string, string])),
   ];
   for (const cue of Object.keys(c.audio?.cues ?? {}))
     if (!deps.cueNames.includes(cue)) issues.push({ file: CASE, path: `audio.cues.${cue}`, message: `"${cue}" is not a sound cue` });
+  const rooms = new Set(c.locations.map((l) => l.id));
+  for (const room of Object.keys(c.audio?.rooms ?? {}))
+    if (!rooms.has(room)) issues.push({ file: CASE, path: `audio.rooms.${room}`, message: `"${room}" is not a location id` });
+  // Q14: a stem passes when both files exist in the case's own folder or both in the shared one (the client's audioUrl order).
+  const both = (dir: string, stem: string) => ["mp3", "ogg"].every((ext) => deps.exists(`${dir}/${stem}.${ext}`));
+  const caseDir = `/assets/cases/${c.id}/audio`;
   for (const [at, stem] of stems)
-    for (const ext of ["mp3", "ogg"])
-      if (!deps.exists(`/assets/audio/${stem}.${ext}`)) issues.push({ file: CASE, path: at, message: `/assets/audio/${stem}.${ext} not found` });
+    if (!both(caseDir, stem) && !both("/assets/audio", stem))
+      issues.push({ file: CASE, path: at, message: `${stem}.mp3 + ${stem}.ogg not found in ${caseDir}/ or /assets/audio/` });
   return issues;
 }

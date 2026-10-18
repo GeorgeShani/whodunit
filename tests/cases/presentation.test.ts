@@ -13,12 +13,13 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { CaseEnvelopeSchema } from "@/engine/case-schema";
 import { takeHint } from "@/engine/hints";
 import { createInitialGameState } from "@/engine/game-state";
-import { contrastFailures, contrastRatio, DEFAULT_PALETTE, inSetting, publicSetting, resolvePalette, ThemeSchema } from "@/engine/presentation";
+import { CaseAudioSchema, contrastFailures, contrastRatio, DEFAULT_PALETTE, inSetting, publicSetting, resolvePalette, ThemeSchema } from "@/engine/presentation";
 import { checkPresentation, checkPresentationAssets } from "@/engine/presentation-validation";
 import { getPublicCaseView } from "@/engine/public-view";
 import { encodeStateToken } from "@/engine/state-token";
 import { memoryClosedGames } from "@/lib/closed-games";
 import { assetExists } from "@/lib/case-art";
+import { caseAudioFiles } from "@/lib/case-audio.server";
 import { FIXTURES_DIR } from "../helpers/fixture";
 import { TEST_ENV } from "../helpers/grok-mock";
 
@@ -90,8 +91,7 @@ describe("validator rules", () => {
     expect(m).toEqual([
       "theme.logo: /assets/cases/harbor-light/nope.webp not found under assets/",
       'audio.cues.kazoo: "kazoo" is not a sound cue',
-      "audio.beds.title: /assets/audio/nope_bed.mp3 not found",
-      "audio.beds.title: /assets/audio/nope_bed.ogg not found",
+      "audio.beds.title: nope_bed.mp3 + nope_bed.ogg not found in /assets/cases/harbor-light/audio/ or /assets/audio/",
     ]);
   });
   it("case.json accepts the new blocks", () => {
@@ -163,5 +163,45 @@ describe("audio hook (E9)", () => {
     registerCaseAudio(undefined);
     expect(cueDef("bed_ship")).toBeUndefined();
     expect(cueDef("siren")).toBe(CUES.siren);
+  });
+});
+
+describe("per-case audio (Q14): rooms and the case folder", () => {
+  it("bedForScreen: the current room's bed, else the screen's bed, else the default", () => {
+    const audio = { beds: { investigate: "bed_ship_interior" }, rooms: { "engine-room": "bed_engine_room" } };
+    expect(bedForScreen("investigate", "scene", audio, "engine-room")).toBe("bed_engine_room");
+    expect(bedForScreen("interrogation", "scene", audio, "engine-room")).toBe("bed_engine_room");
+    expect(bedForScreen("confront", "scene", audio, "engine-room")).toBe("bed_engine_room");
+    expect(bedForScreen("investigate", "scene", audio, "galley")).toBe("bed_ship_interior");
+    expect(bedForScreen("investigate", "scene", audio, null)).toBe("bed_ship_interior");
+    expect(bedForScreen("interrogation", "scene", audio, "galley")).toBe("bed_library");
+    expect(bedForScreen("title", "scene", audio, "engine-room")).toBe("rain_loop"); // rooms only on room screens
+    expect(bedForScreen("investigate", "scene", undefined, "engine-room")).toBe("bed_manor"); // Blackwood: unchanged
+  });
+
+  it("validator: stems pass from the case folder or assets/audio (both files in one folder); rooms must be locations", () => {
+    const files = new Set(["/assets/cases/harbor-light/audio/bed_engine_room.mp3", "/assets/cases/harbor-light/audio/bed_engine_room.ogg", "/assets/cases/harbor-light/audio/half.ogg", "/assets/audio/half.mp3"]);
+    const loc = hl.locations[0]!.id;
+    const c = { ...hl, audio: { rooms: { [loc]: "bed_engine_room", "no-such-room": "bed_manor" }, cues: { case_open: ["half"] }, beds: { title: "rain_loop" } } } as LoadedCase;
+    const m = checkPresentationAssets(c, { exists: (p) => files.has(p) || assetExists(p), cueNames: Object.keys(CUES) }).map((i) => `${i.path}: ${i.message}`);
+    expect(m).toEqual([
+      'audio.rooms.no-such-room: "no-such-room" is not a location id',
+      "audio.cues.case_open: half.mp3 + half.ogg not found in /assets/cases/harbor-light/audio/ or /assets/audio/",
+    ]);
+  });
+
+  it("the build-time list: Tallyho's stems with both files; a missing folder is []", () => {
+    expect(caseAudioFiles("_tallyho")).toEqual(["bed_engine_room", "bed_ship_deck", "bed_ship_interior", "case_open", "door_creak", "door_slam"]);
+    expect(caseAudioFiles("blackwood")).toEqual([]);
+    expect(caseAudioFiles("../etc")).toEqual([]);
+  });
+
+  it("Toon's Tallyho audio block (TALLYHO_SOUND.md) validates against the real files", () => {
+    // Tallyho's room ids (its solution.json is not committed, so the case itself isn't loaded here).
+    const ids = ["cabin-deck", "ballroom", "bridge", "galley", "engine-room", "boat-deck"];
+    const t = { ...hl, id: "_tallyho", locations: ids.map((id) => ({ ...hl.locations[0]!, id })) } as LoadedCase;
+    const rooms = Object.fromEntries(t.locations.map((l) => [l.id, l.id === "engine-room" ? "bed_engine_room" : l.id === "boat-deck" ? "bed_ship_deck" : "bed_ship_interior"]));
+    const c = { ...t, audio: CaseAudioSchema.parse({ beds: { intro: "bed_ship_interior" }, rooms }) } as LoadedCase;
+    expect(checkPresentationAssets(c, { exists: (p) => assetExists(p), cueNames: Object.keys(CUES) })).toEqual([]);
   });
 });
