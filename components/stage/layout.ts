@@ -9,7 +9,7 @@
  * - Relative character scale is baked into the 784x1224 sprites.
  */
 import type React from "react";
-import { ANCHORS, CANVAS_H, CANVAS_W } from "@/components/characters/sprite-meta";
+import { anchorsOf, CANVAS_H, CANVAS_W, type SpriteRef } from "@/components/characters/sprite-meta";
 
 export const FEET_Y = 1200;
 export const FEET_LINE_PCT = 74;
@@ -47,15 +47,15 @@ export function spriteBoxStyle(slot: StageSlot) {
 }
 
 /** Feet-to-head height of a character, % of frame height (a regular build ≈ 61.3%). */
-export function figureHeightPct(portrait: string, pose = "neutral"): number | null {
-  const a = ANCHORS.sprites[portrait]?.[pose];
+export function figureHeightPct(portrait: SpriteRef, pose = "neutral"): number | null {
+  const a = anchorsOf(portrait)?.[pose];
   if (!a) return null;
   return ((FEET_Y - a.headTop[1]) / CANVAS_H) * SPRITE_BOX_HEIGHT_PCT;
 }
 
 /** Rear body half-width in canvas px (neutral pose), from anchors.json. */
-function bodyHalfWidth(portrait: string): number | null {
-  const a = ANCHORS.sprites[portrait]?.neutral;
+function bodyHalfWidth(portrait: SpriteRef): number | null {
+  const a = anchorsOf(portrait)?.neutral;
   return a ? a.bodyBack[0] - a.feet[0] : null;
 }
 
@@ -67,7 +67,7 @@ const REFERENCE_HALF_WIDTH = 165;
  * Contact-shadow width, % of the sprite box width: ≈32% for a regular build,
  * wider for wide characters (≈66% for the widest cast member today), derived from anchors.json.
  */
-export function contactShadowPct(portrait: string): number {
+export function contactShadowPct(portrait: SpriteRef): number {
   const me = bodyHalfWidth(portrait);
   if (!me) return BASE_SHADOW_PCT;
   return Math.min(72, Math.max(24, (BASE_SHADOW_PCT * me) / REFERENCE_HALF_WIDTH));
@@ -101,15 +101,16 @@ export interface BustFrame {
 }
 
 /** Head height in canvas px (headTop to the mirrored point below headCenter). */
-function headHeightPx(portrait: string): number | null {
-  const a = ANCHORS.sprites[portrait]?.neutral;
+function headHeightPx(portrait: SpriteRef): number | null {
+  const a = anchorsOf(portrait)?.neutral;
   return a ? 2 * (a.headCenter[1] - a.headTop[1]) : null;
 }
 
 /** Bust frame for one actor in `pose`, or null when the character has no anchors (silhouette). */
-export function bustFrame(portrait: string, pose: string | null, count: 1 | 2, mirrored: boolean): BustFrame | null {
+export function bustFrame(portrait: SpriteRef, pose: string | null, count: 1 | 2, mirrored: boolean): BustFrame | null {
   const head = headHeightPx(portrait);
-  const a = ANCHORS.sprites[portrait]?.[pose ?? "neutral"] ?? ANCHORS.sprites[portrait]?.neutral;
+  const set = anchorsOf(portrait);
+  const a = set?.[pose ?? "neutral"] ?? set?.neutral;
   if (!head || !a) return null;
   // Size by the head the pose actually draws, within limits: bowed poses (small head) are enlarged, lean-ins
   // (big head) are reduced so the face stays about the same size, but a pose never changes the sprite scale by more than these bounds.

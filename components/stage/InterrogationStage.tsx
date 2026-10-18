@@ -59,10 +59,10 @@ function useStorm(enabled: boolean, flashes: boolean, reduced = false) {
 }
 
 function Actor({ actor, slot, count, lit }: { actor: StageActor; slot: StageSlot; count: 1 | 2; lit: boolean }) {
-  const shadow = contactShadowPct(actor.suspect.portrait);
+  const shadow = contactShadowPct(actor.suspect);
   // Phone-portrait bust framing follows the pose actually on screen, so the face stays put when the pose swaps.
   const pose = cuesFor(actor.emotion, actor.suspect.poses, actor.speaking).pose;
-  const bust = bustFrame(actor.suspect.portrait, pose, count, slot.mirrored);
+  const bust = bustFrame(actor.suspect, pose, count, slot.mirrored);
   return (
     <div className="sprite-box absolute" style={spriteBoxVars(slot, bust)} data-stage-actor={actor.suspect.id} data-x={slot.xPct} data-mirrored={slot.mirrored || undefined}>
       {/* Soft contact shadow on the feet line (canvas y=1200 = 98% of the box). */}

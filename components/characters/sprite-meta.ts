@@ -22,7 +22,7 @@ const AnchorSet = z
     bodyBack: Point,
     feet: Point,
   }); // extra keys (e.g. bboxTop) are stripped
-const AnchorsFile = z.object({
+export const AnchorsFile = z.object({
   canvas: Point,
   sprites: z.record(z.string(), z.record(z.string(), AnchorSet)),
 });
@@ -45,6 +45,21 @@ export const EFFECTS = EffectsFile.parse(effectsJson);
 export const [CANVAS_W, CANVAS_H] = ANCHORS.canvas;
 
 export type AnchorName = keyof z.infer<typeof AnchorSet>;
+export type AnchorSet = z.infer<typeof AnchorSet>;
+/** One character's anchors, by pose. */
+export type PoseAnchors = Record<string, AnchorSet>;
+
+/**
+ * Whose anchors: a portrait id (the global assets/characters/anchors.json) or a suspect carrying its own
+ * (per-case anchors resolved on the server, components/characters/sprite-lookup.ts). Per-case entries win.
+ */
+export type SpriteRef = string | { portrait: string; anchors?: PoseAnchors | undefined };
+
+export function anchorsOf(ref: SpriteRef): PoseAnchors | undefined {
+  if (typeof ref !== "string" && ref.anchors) return ref.anchors;
+  return ANCHORS.sprites[typeof ref === "string" ? ref : ref.portrait];
+}
+const portraitOf = (ref: SpriteRef) => (typeof ref === "string" ? ref : ref.portrait);
 
 /** Poses Toon shipped for a portrait id (from anchors.json). Empty -> silhouette. */
 export function availablePoses(portrait: string): string[] {
@@ -71,13 +86,14 @@ export interface OverlayPlacement {
  * pivot.x -> 1 - pivot.x, and the overlay image is flipped.
  */
 export function overlayPlacement(
-  portrait: string,
+  ref: SpriteRef,
   pose: string,
   effect: EffectName,
   { mirrored = false }: { mirrored?: boolean } = {},
 ): OverlayPlacement | null {
   const spec = EFFECTS.effects[effect];
-  const anchors = ANCHORS.sprites[portrait]?.[pose];
+  const portrait = portraitOf(ref);
+  const anchors = anchorsOf(ref)?.[pose];
   if (!spec || !anchors || !(spec.anchor in anchors) || spec.width === undefined) return null;
   if (spec.layer !== "front" && spec.layer !== "behind") return null;
 
