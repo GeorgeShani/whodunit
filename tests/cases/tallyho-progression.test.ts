@@ -129,8 +129,8 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     expect(sl.diagrams?.map((d) => d.evidenceId)).toEqual(["marmalade-run"]);
     const frames = sl.diagrams![0].frames;
     expect(frames.map((f) => f.image)).toEqual([
-      "/assets/cases/_tallyho/ship-list-marmalade-run-before.webp",
-      "/assets/cases/_tallyho/ship-list-marmalade-run-after.webp",
+      "/assets/cases/_tallyho/marmalade-run_before.webp",
+      "/assets/cases/_tallyho/marmalade-run_after.webp",
     ]);
     for (const f of frames) {
       expect(existsSync(`assets${f.image.slice("/assets".length)}`)).toBe(true);
