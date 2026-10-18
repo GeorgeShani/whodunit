@@ -29,7 +29,7 @@ import { AccuseScreen } from "@/components/accuse/AccuseScreen";
 import { ConfrontScreen } from "@/components/confront/ConfrontScreen";
 import type { ConfrontRequest, ConfrontResponseBody } from "@/ai/confront-schema";
 import type { HintRequest, HintResponseBody } from "@/engine/hint-handler";
-import { confrontCounter } from "@/engine/confront-caps";
+import { confrontCounter, confrontMenu } from "@/engine/confront-caps";
 import { EndScreen } from "@/components/ending/EndScreen";
 import { EndingScene } from "@/components/ending/EndingScene";
 import type { AccuseRequest, AccuseResponseBody } from "@/engine/accuse-schema";
@@ -840,6 +840,16 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
               getAudio().play("confront_sting");
               go("confront");
             }}
+            {...(progress.confront
+              ? {
+                  confront: confrontMenu(
+                    progress.confront,
+                    (otherId) => pairKey(active.id, otherId),
+                    view.suspects.filter((s) => s.id !== active.id).map((s) => s.id),
+                    confrontStatus,
+                  ),
+                }
+              : {})}
             onBack={() => go("suspects")}
           />
         )}
@@ -862,6 +872,7 @@ export function Game({ view, manual }: { view: PublicCaseView; /** How to Play (
               left={counter.left}
               max={counter.max}
               over={counter.over}
+              {...(progress.confront ? { game: { totalLeft: Math.max(0, progress.confront.total - progress.confront.totalUsed), total: progress.confront.total } } : {})}
               onAsk={onConfrontAsk}
               {...(retry && retry.logKey === `vs:${key}` ? { onRetry: retry.run, retryWait } : {})}
               target={confrontTarget && confrontPair.includes(confrontTarget) ? confrontTarget : confrontPair[0]}

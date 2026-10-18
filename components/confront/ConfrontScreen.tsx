@@ -28,6 +28,7 @@ export function ConfrontScreen({
   left,
   max,
   over,
+  game,
   onAsk,
   target,
   onTarget,
@@ -49,6 +50,8 @@ export function ConfrontScreen({
   /** This pair's cap (screen-reader "of N"). */
   max: number;
   over: boolean;
+  /** Phase 7 (3.6): the game-wide counter ("9 of 16 face-offs left in the game"). */
+  game?: { totalLeft: number; total: number };
   /** Returns false if not accepted. */
   onAsk: (addressedId: string, question: string) => boolean;
   /** Who is being questioned (controlled: the notebook presents to them). */
@@ -91,6 +94,12 @@ export function ConfrontScreen({
         >
           {over ? "Over" : `${left} left`}
           <span className="sr-only"> of {max} exchanges</span>
+          {game && (
+            <span className="block text-xs font-bold leading-tight sm:ms-1 sm:inline" data-confront-total={game.totalLeft}>
+              <span className="sm:hidden">{game.totalLeft}/{game.total} in game</span>
+              <span className="max-sm:hidden">· {game.totalLeft} of {game.total} in the game</span>
+            </span>
+          )}
         </span>
       </header>
 

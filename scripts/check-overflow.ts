@@ -12,7 +12,9 @@
  *
  * Case-agnostic: it picks the first suspect, the first notebook clue and
  * searches rooms until a clue turns up (data-* hooks), so it works on
- * /case/<id> for any case (pass the full URL as baseUrl).
+ * /case/<id> for any case (pass the full URL as baseUrl). Phase 7: run it on a
+ * 6-suspect case too (compact suspect cards, the 3-across accuse grid, the
+ * confront chips and the notebook's Testimony tab).
  *
  * HOW TO PLAY audit: on every in-case screen it visits (not the ending) exactly one labelled HOW TO PLAY pill is
  * visible, at least 44x44, not covered and not overlapping another control or the screen title; it opens the manual
@@ -458,6 +460,15 @@ async function run(): Promise<number> {
           await label(p, "notebook hint");
           await hintBtn.first().click({ force: true });
           await wait(1500);
+        }
+        // Phase 7: testimony has its own tab (Clues / Testimony / Leads).
+        const testimonyTab = p.locator('[data-notebook-tab="testimony"]');
+        if (await testimonyTab.count()) {
+          await testimonyTab.first().click({ force: true });
+          await wait(600);
+          await label(p, "notebook testimony");
+          await p.locator('[data-notebook-tab="evidence"]').first().click({ force: true });
+          await wait(400);
         }
         const leadsTab = p.locator('[data-notebook-tab="leads"]');
         if (await leadsTab.count()) {

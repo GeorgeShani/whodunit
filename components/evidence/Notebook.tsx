@@ -12,11 +12,13 @@ import type { PublicEvidence, PublicSuspect } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Location } from "@/engine/types";
 import { ClueArt } from "./ClueArt";
-import { contradictionLines, whereFound, type ContradictionNotes, type NotebookItem } from "./notebook-model";
+import { contradictionLines, groupByLocation, type ContradictionNotes, type NotebookItem } from "./notebook-model";
 
 /**
  * The detective's notebook (Phase 5): evidence cards (image, name, description,
  * where found) and testimony cards, each with the engine's contradiction notes.
+ * Phase 7 (case-two plan 3.5): Clues / Testimony / Leads tabs (Leads only when the
+ * case has any), clues grouped by where they were found.
  *
  * - From an interrogation: every card has "Present to <name>".
  * - From the suspect screen: every card has "Present to" buttons per suspect,
@@ -61,8 +63,11 @@ export function Notebook({
   onHowToPlay?: () => void;
 }) {
   const inSite = useInSetting();
-  const [tab, setTab] = useState<"evidence" | "leads">("evidence");
+  const [tab, setTab] = useState<"evidence" | "testimony" | "leads">("evidence");
   const showLeads = leads.length > 0 && tab === "leads";
+  const showTestimony = tab === "testimony";
+  const tabs = leads.length > 0 ? (["evidence", "testimony", "leads"] as const) : (["evidence", "testimony"] as const);
+  const groups = groupByLocation(evidence, locations);
   const openLeads = leads.filter((l) => l.state === "open").length;
   const titleId = useId();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -141,9 +146,9 @@ export function Notebook({
             </button>
           </div>
         </header>
-        {leads.length > 0 && (
-          <div role="tablist" aria-label="Notebook sections" className="flex gap-2 border-b-4 border-black bg-amber-100 px-4 py-2">
-            {(["evidence", "leads"] as const).map((t) => (
+        {
+          <div role="tablist" aria-label="Notebook sections" className="flex gap-2 border-b-4 border-black bg-amber-100 px-3 py-2 sm:px-4">
+            {tabs.map((t) => (
               <button
                 key={t}
                 type="button"
@@ -152,9 +157,21 @@ export function Notebook({
                 aria-selected={tab === t}
                 data-notebook-tab={t}
                 onClick={() => setTab(t)}
-                className={`min-h-11 flex-1 cursor-pointer rounded-xl border-[3px] border-black px-3 py-1.5 text-base font-black shadow-[2px_2px_0_#000] sm:flex-none ${tab === t ? "bg-accent" : "bg-white"}`}
+                className={`min-h-11 min-w-0 flex-1 cursor-pointer rounded-xl border-[3px] border-black px-2 py-1.5 text-base font-black shadow-[2px_2px_0_#000] max-[400px]:text-sm sm:flex-none sm:px-3 ${tab === t ? "bg-accent" : "bg-white"}`}
               >
-                {t === "evidence" ? "🔎 Evidence" : "🧭 Leads"}
+                {t === "evidence" ? (
+                  <>
+                    <span aria-hidden>🔎 </span>Clues <span className="text-sm">({evidence.length})</span>
+                  </>
+                ) : t === "testimony" ? (
+                  <>
+                    <span aria-hidden className="max-[400px]:hidden">🗣️ </span>Testimony <span className="text-sm">({testimonies.length})</span>
+                  </>
+                ) : (
+                  <>
+                    <span aria-hidden className="max-[400px]:hidden">🧭 </span>Leads
+                  </>
+                )}
                 {t === "leads" && openLeads > 0 && (
                   <span className="ms-2 rounded-full border-2 border-black bg-red-500 px-2 py-0.5 text-sm text-white" aria-label={`${openLeads} open`}>
                     {openLeads}
@@ -163,13 +180,17 @@ export function Notebook({
               </button>
             ))}
           </div>
-        )}
+        }
         {showLeads && (
           <div className="scroll-area flex-1 p-4" role="tabpanel" aria-labelledby={`${titleId}-tab-leads`}>
             <LeadsPanel leads={leads} newLeadIds={newLeadIds} />
           </div>
         )}
-        <div className={`scroll-area flex-1 space-y-4 p-4 ${showLeads ? "hidden" : ""}`}>
+        <div
+          className={`scroll-area flex-1 space-y-4 p-4 ${showLeads ? "hidden" : ""}`}
+          role="tabpanel"
+          aria-labelledby={`${titleId}-tab-${showTestimony ? "testimony" : "evidence"}`}
+        >
           {onHint && (
             <section aria-label="Contradiction check" className="flex flex-wrap items-center gap-2 rounded-2xl border-[3px] border-black bg-white p-2 shadow-[3px_3px_0_#000]">
               <button
@@ -186,37 +207,41 @@ export function Notebook({
               </p>
             </section>
           )}
-          <section aria-label="Clues">
-            <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-neutral-700">Clues ({evidence.length})</h3>
+          <section aria-label="Clues" className={showTestimony ? "hidden" : ""}>
             {evidence.length === 0 ? (
               <p className="font-semibold italic text-neutral-600">{inSite("No clues yet. Go and 🔍 Investigate the house!")}</p>
             ) : (
-              <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {evidence.map((e) => {
-                  const item: NotebookItem = { kind: "evidence", id: e.id };
-                  return (
-                    <li key={e.id} className="flex flex-col rounded-2xl border-[3px] border-black bg-white p-3 shadow-[4px_4px_0_#000]" data-card-evidence={e.id}>
-                      <div className="flex gap-3">
-                        <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-[3px] border-black bg-amber-200 text-3xl">
-                          <ClueArt evidence={e} fill />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-display text-xl tracking-wide">{e.name}</p>
-                          <p className="text-sm font-bold uppercase text-neutral-600">{whereFound(e, locations)}</p>
-                        </div>
-                      </div>
-                      <p className="mt-2 text-base">{e.description}</p>
-                      <NotebookClueFeatures evidence={e} />
-                      {notesFor(item)}
-                      {presentButtons(item, e.name)}
-                    </li>
-                  );
-                })}
-              </ul>
+              groups.map((g) => (
+                <div key={g.label} className="mb-4 last:mb-0" data-clue-group={g.locationId ?? "case-file"}>
+                  <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-neutral-700">
+                    {g.label} ({g.items.length})
+                  </h3>
+                  <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {g.items.map((e) => {
+                      const item: NotebookItem = { kind: "evidence", id: e.id };
+                      return (
+                        <li key={e.id} className="flex flex-col rounded-2xl border-[3px] border-black bg-white p-3 shadow-[4px_4px_0_#000]" data-card-evidence={e.id}>
+                          <div className="flex gap-3">
+                            <div className="flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-[3px] border-black bg-amber-200 text-3xl">
+                              <ClueArt evidence={e} fill />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="font-display text-xl tracking-wide">{e.name}</p>
+                            </div>
+                          </div>
+                          <p className="mt-2 text-base">{e.description}</p>
+                          <NotebookClueFeatures evidence={e} />
+                          {notesFor(item)}
+                          {presentButtons(item, e.name)}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
+              ))
             )}
           </section>
-          <section aria-label="Testimony">
-            <h3 className="mb-2 text-sm font-black uppercase tracking-wide text-neutral-700">Testimony ({testimonies.length})</h3>
+          <section aria-label="Testimony" className={showTestimony ? "" : "hidden"}>
             {testimonies.length === 0 ? (
               <p className="font-semibold italic text-neutral-600">Nobody has admitted anything yet. Keep asking, and show them what you find.</p>
             ) : (

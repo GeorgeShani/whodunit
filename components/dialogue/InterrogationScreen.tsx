@@ -11,6 +11,7 @@ import { CartoonButton } from "@/components/game/CartoonButton";
 import type { AskInput } from "@/components/game/Game";
 import { InterrogationStage } from "@/components/stage/InterrogationStage";
 import { StressMeter } from "@/components/stress/StressMeter";
+import type { ConfrontPairChip } from "@/engine/confront-caps";
 import type { PublicEvidence, PublicSuspect, StageArt } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
@@ -34,6 +35,7 @@ export function InterrogationScreen({
   onAsk,
   onOpenNotebook,
   onConfront,
+  confront,
   onBack,
   onRetry,
   retryWait = 0,
@@ -60,6 +62,8 @@ export function InterrogationScreen({
   onOpenNotebook: () => void;
   /** Put this suspect face to face with another (MASTER_PLAN §32). */
   onConfront?: (otherId: string) => void;
+  /** Phase 7 (3.6): per-pair chips (by the other suspect's id) and the game-wide counter, from confrontMenu. */
+  confront?: { totalLeft: number; total: number; pairs: Record<string, ConfrontPairChip> };
   onBack: () => void;
   /** The model could not answer the last question (nothing was spent): ask it again. */
   onRetry?: () => void;
@@ -158,19 +162,37 @@ export function InterrogationScreen({
                 className="overflow-hidden"
               >
                 <div className="rounded-xl border-[3px] border-black bg-violet-900/80 p-3">
-                  {menu === "confront" && <p className="mb-2 text-base font-bold text-yellow-100">Bring {firstName} face to face with…</p>}
+                  {menu === "confront" && (
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                      <p className="text-base font-bold text-yellow-100">Bring {firstName} face to face with…</p>
+                      {confront && (
+                        <p className="rounded-full border-2 border-black bg-accent px-2.5 py-0.5 text-sm font-black text-ink" data-confront-total={confront.totalLeft}>
+                          Face-offs left: {confront.totalLeft} of {confront.total}
+                        </p>
+                      )}
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-2">
-                    {otherSuspects.map((o) => (
-                      <CartoonButton
-                        key={o.id}
-                        tone="white"
-                        disabled={locked}
-                        {...(menu === "confront" ? { "data-confront-with": o.id } : {})}
-                        onClick={() => (menu === "confront" ? onConfront?.(o.id) : ask(`What can you tell me about ${o.name}?`))}
-                      >
-                        {o.name}
-                      </CartoonButton>
-                    ))}
+                    {otherSuspects.map((o) => {
+                      const chip = menu === "confront" ? confront?.pairs[o.id] : undefined;
+                      return (
+                        <CartoonButton
+                          key={o.id}
+                          tone="white"
+                          disabled={locked || Boolean(chip?.finished)}
+                          {...(menu === "confront" ? { "data-confront-with": o.id } : {})}
+                          {...(chip ? { "data-confront-chip": chip.finished ? "finished" : `${chip.used}/${chip.max}` } : {})}
+                          onClick={() => (menu === "confront" ? onConfront?.(o.id) : ask(`What can you tell me about ${o.name}?`))}
+                        >
+                          {o.name}
+                          {chip && (
+                            <span className={`ms-2 rounded-full border-2 border-black px-2 py-0.5 text-sm font-black ${chip.finished ? "bg-neutral-300" : "bg-yellow-100"}`}>
+                              {chip.finished ? "finished" : `${chip.used}/${chip.max} used`}
+                            </span>
+                          )}
+                        </CartoonButton>
+                      );
+                    })}
                   </div>
                 </div>
               </motion.div>
