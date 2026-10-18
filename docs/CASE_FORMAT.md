@@ -123,7 +123,41 @@ cases/<caseId>/
   - Each falls back to the screen's built-in look.
   - `lib/case-art.ts` `DEFAULT_BACKDROPS` is the shared default (the manor hall behind suspect selection); case data always wins.
 - `validate:case` warns (it doesn't fail) when an art path doesn't exist under `assets/`.
-- Sprites need no field: they resolve from `assets/characters/<portrait ?? characterId>/`.
+- Sprites need no field: they resolve by `<key>` = `portrait ?? characterId` (see Character sprites below).
+
+### Character sprites
+
+Every sprite (suspect list, interrogation stage, confrontation, notebook, end screen) resolves through `components/characters/sprite-lookup.ts`,
+from the file list read when the app is built or started (like clue art; restart `npm run dev` after adding a file):
+
+1. **The case's own pose**: `assets/cases/<caseId>/characters/<key>/<pose>.webp` for the pose the emotion asks for.
+2. **The case's neutral**: `assets/cases/<caseId>/characters/<key>/neutral.webp` (then `talking`, then any pose the folder has).
+3. **The shared sprites**, unchanged: `assets/characters/<key>/<pose>.webp`, poses listed in `assets/characters/anchors.json`.
+
+A case folder with at least one `.webp` replaces the shared sprites for that character (poses are never mixed across folders). No file
+anywhere: a silhouette. Format as for Blackwood: WebP, 784x1224 canvas, transparent, facing left, feet on y=1200 at x=392. Pose names:
+`neutral`, `talking`, `angry`, `nervous`, `shocked`, `sad`, `smug`.
+
+**Anchors** (bust framing in two/three-shots, effect overlays such as sweat, the contact shadow) come from
+`assets/cases/<caseId>/characters/anchors.json`, the same shape as the global `assets/characters/anchors.json`:
+
+```jsonc
+{
+  "canvas": [784, 1224],                     // must be exactly this
+  "sprites": {
+    "<key>": {                               // portrait ?? characterId
+      "<pose>": {                            // e.g. "neutral"
+        "headCenter": [x, y], "headTop": [x, y], "faceFront": [x, y], "headBack": [x, y],
+        "bodyCenter": [x, y], "bodyBack": [x, y], "feet": [x, y]   // sprite-canvas px, origin top-left
+      }
+    }
+  }
+}
+```
+
+Per character, the case file's entry wins, else the global file's, else none: the sprite still shows, full figure, with no bust framing or
+overlays (today's behaviour). The file is optional; a malformed one fails the build and `validate:case`. `validate:case` warns (it doesn't
+fail) about a character with no sprite anywhere (it would show a silhouette) or without a `neutral` pose.
 
 ### Presentation (optional, case-two plan phase 3)
 

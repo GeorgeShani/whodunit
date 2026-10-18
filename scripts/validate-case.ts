@@ -15,6 +15,7 @@ import { guiltProfiles } from "../engine/core-guilt";
 import { featureAssetPaths } from "../engine/features/registry";
 import { checkPresentationAssets } from "../engine/presentation-validation";
 import { CUES } from "../components/effects/audio";
+import { caseCharacterSprites } from "../lib/case-sprites.server";
 
 /** Does an illustration for this clue exist under assets/evidence/ (same lookup order as lib/clue-art.ts)? */
 function clueArtExists(caseId: string, e: { id: string; image?: string | undefined }): boolean {
@@ -72,6 +73,14 @@ async function main() {
     if (d.solution.accompliceId && !d.solution.accompliceAct) console.log(`   guilt check: no accompliceAct, so ${d.solution.accompliceId} has only data-flagged coreGuilt (no accomplice profile).`);
     // Phase 6: art a feature module points at (ship-list diagram frames).
     for (const f of featureAssetPaths(d)) if (!assetExists(f.path)) console.log(`   ⚠ featureConfig.${f.feature}: ${f.path} not found under assets/`);
+    // Character sprites: the case's assets/cases/<id>/characters/<key>/, else assets/characters/<key>/ (sprite-lookup.ts).
+    const sprites = caseCharacterSprites(d);
+    for (const ch of d.characters) {
+      const key = ch.portrait ?? ch.id;
+      const s = sprites[key];
+      if (!s?.poses.length) console.log(`   ⚠ character "${ch.id}" has no sprite: no assets/cases/${caseId}/characters/${key}/*.webp and no assets/characters/${key}/ in anchors.json (it shows a silhouette)`);
+      else if (!s.poses.includes("neutral")) console.log(`   ⚠ character "${ch.id}" has no neutral pose (${s.spriteDir ?? `assets/characters/${key}`}); emotions without their own pose fall back to "${s.poses[0]}"`);
+    }
     const warnings = checkCaseWarnings(d);
     for (const w of warnings) console.log(`   ⚠ ${formatIssue(w)}`);
     console.log(`   knowledge gate: ${d.knowledgeGate}${warnings.length ? `, ${warnings.length} design warning(s) above` : ", no design warnings"}.`);

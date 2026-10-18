@@ -13,6 +13,10 @@ import { createInitialGameState } from "./game-state";
 import { publicProgress, type PublicProgress } from "./progress";
 import type { EmotionalState, Evidence, Location, PublicLocation } from "./types";
 
+type Pt = [number, number];
+/** One pose's anchor points on the 784x1224 sprite canvas (same as assets/characters/anchors.json). */
+export interface PublicAnchorSet { headCenter: Pt; headTop: Pt; faceFront: Pt; headBack: Pt; bodyCenter: Pt; bodyBack: Pt; feet: Pt }
+
 export interface PublicSuspect {
   id: string;
   name: string;
@@ -22,6 +26,10 @@ export interface PublicSuspect {
   portrait: string;
   /** Pose files available for this portrait (e.g. ["neutral","angry"]); empty -> silhouette. */
   poses: string[];
+  /** URL folder of this case's own sprites (assets/cases/<caseId>/characters/<key>); absent = assets/characters/<portrait>. */
+  spriteDir?: string;
+  /** This case's anchors for the character, by pose (assets/cases/<caseId>/characters/anchors.json); absent = global. */
+  anchors?: Record<string, PublicAnchorSet>;
   emotion: EmotionalState;
 }
 
@@ -96,7 +104,12 @@ export function toPublicEvidence(e: Evidence, features?: Record<string, unknown>
 
 export function getPublicCaseView(
   c: LoadedCase,
-  options: { discoveredEvidenceIds?: readonly string[]; portraitPoses?: Record<string, string[]> } = {},
+  options: {
+    discoveredEvidenceIds?: readonly string[];
+    portraitPoses?: Record<string, string[]>;
+    /** Per-case sprite folder / anchors by portrait key (lib/case-sprites.server.ts); only set for case-owned art. */
+    portraitSprites?: Record<string, { spriteDir?: string; anchors?: Record<string, PublicAnchorSet> }>;
+  } = {},
 ): PublicCaseView {
   const discovered = new Set(options.discoveredEvidenceIds ?? initialDiscoveredEvidenceIds(c));
   const features = publicFeatures(c);
@@ -115,6 +128,8 @@ export function getPublicCaseView(
         bio: ch.bio,
         portrait,
         poses: [...(options.portraitPoses?.[portrait] ?? [])],
+        ...(options.portraitSprites?.[portrait]?.spriteDir ? { spriteDir: options.portraitSprites[portrait].spriteDir } : {}),
+        ...(options.portraitSprites?.[portrait]?.anchors ? { anchors: structuredClone(options.portraitSprites[portrait].anchors) } : {}),
         emotion: { ...ch.initialEmotion },
       };
     }),
