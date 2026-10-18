@@ -1055,11 +1055,11 @@
           "frames": [
             {
               "label": "Leaning starboard (21:40 to 22:14): downhill is the starboard wall",
-              "image": "/assets/cases/_tallyho/marmalade-run_before.webp"
+              "image": "/assets/cases/_tallyho/ship-list-marmalade-run-before.webp"
             },
             {
               "label": "Leaning port (from 22:14): downhill is the port side",
-              "image": "/assets/cases/_tallyho/marmalade-run_after.webp"
+              "image": "/assets/cases/_tallyho/ship-list-marmalade-run-after.webp"
             }
           ]
         }
