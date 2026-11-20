@@ -136,12 +136,26 @@ select {
   font-size: max(16px, 1em);
 }
 
-/* A genuine scroll area: vertical only, gutter reserved so content doesn't jump. */
+/*
+ * Hide scrollbars visually while keeping wheel, touch and keyboard scrolling.
+ * Used on the document and on every overflow-auto / overflow-y-auto panel.
+ */
+.no-scrollbar,
+.scroll-area,
+.screen-scroll {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar,
+.scroll-area::-webkit-scrollbar,
+.screen-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* A genuine scroll area: vertical only. Scrollbars are hidden via .no-scrollbar. */
 .scroll-area {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
 }
 
 /* A screen that may be taller than the stage on small viewports. */
