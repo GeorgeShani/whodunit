@@ -12,6 +12,7 @@ import { compileForbiddenPhrase, unlessRevealedIds } from "@/ai/forbidden-phrase
 import { findGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
 import { knowledgeGate } from "./knowledge-gate";
 import { checkFeatureConfig, featureWarnings } from "./features/registry";
+import { validateOutputGuard } from "./output-guard";
 import { checkPresentation } from "./presentation-validation";
 
 /**
@@ -334,6 +335,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   issues.push(...checkProgression(c));
   issues.push(...checkPresentation(c));
   issues.push(...checkFeatureConfig(c));
+  issues.push(...validateOutputGuard(c));
   (c.unlockedBy ?? []).forEach((id, i) => {
     if (id === c.id) issues.push({ file: "case.json", path: `unlockedBy.${i}`, message: "a case cannot be unlocked by itself (V31)" });
     if (c.unlockedBy!.indexOf(id) !== i) issues.push({ file: "case.json", path: `unlockedBy.${i}`, message: `"${id}" is listed twice` });

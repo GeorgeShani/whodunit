@@ -136,6 +136,7 @@ export function prepareTurn(t: Omit<TurnInput, "env" | "onPrompt" | "skipModel" 
     promptText: `${system}\n${user}`,
     ...(t.confrontation ? { confrontation: t.confrontation } : {}),
     revealedAnyIds: (game.revealedSecretIds ?? []).filter((id) => !coreGuiltSecretIds(caseData).has(id)),
+    foundEvidenceIds: game.discoveredEvidenceIds,
   };
   return { plan, ctx, directives, system, user, guard };
 }

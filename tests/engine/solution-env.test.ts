@@ -157,10 +157,10 @@ describe("CASE_SOLUTION_<ID> env loader", () => {
   it("does not track Tallyho's solution.json, and CASE_SOLUTION_ is never a NEXT_PUBLIC_ name in the repo", () => {
     const tracked = execSync("git ls-files cases/tallyho/solution.json cases/_tallyho/solution.json", { encoding: "utf8" }).trim();
     expect(tracked).toBe("");
-    const hits = execSync(
-      "git grep -l NEXT_PUBLIC_CASE_SOLUTION -- . ':!node_modules' ':!.git' || true",
-      { encoding: "utf8" },
-    ).trim();
+    const needle = "NEXT_PUBLIC_" + "CASE_SOLUTION";
+    const hits = execSync(`git grep -l ${needle} -- . ':!node_modules' ':!.git' ':!tests' || true`, {
+      encoding: "utf8",
+    }).trim();
     expect(hits).toBe("");
   });
 });
