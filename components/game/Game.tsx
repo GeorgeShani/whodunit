@@ -43,6 +43,7 @@ import type { PublicProgress } from "@/engine/progress";
 import { clearGame, isPublicProgress, loadGame, saveGame, SESSION_VERSION, withoutUnansweredQuestions } from "@/lib/game-session";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
+import { useCasePrefetch } from "./use-case-prefetch";
 import type { CaseUnlockInfo } from "./unlock";
 import { isUnlocked, markSolved, readSolved } from "@/lib/solved-store";
 
@@ -332,6 +333,8 @@ export function Game({
 
   // Scene beds (one at a time, crossfaded; they start once audio is unlocked by a gesture) and the preloads for what comes next.
   useEffect(() => registerCaseAudio(view.audio, { caseId, files: view.audioFiles }), [view.audio, caseId, view.audioFiles]);
+  // Warm this case's portraits, location art and audio once the case is open (intro onward).
+  useCasePrefetch(view, screen !== "title");
   // Q14 room beds (audio.rooms): the room last searched while on Investigate; the staged room in interrogation/confront.
   const stageRoom = view.stage && !view.backdrops.interrogation ? view.victim.foundAtLocationId : null;
   const roomNow = screen === "investigate" ? bedRoom : screen === "interrogation" || screen === "confront" ? stageRoom : null;
