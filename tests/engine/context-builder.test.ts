@@ -115,7 +115,7 @@ describe("buildCharacterContext", () => {
   it("a revealed NON-core secret does give its owner the facts behind it (secret shape stays engine-free)", () => {
     const state = makeState();
     // Same fixture, but the solution names someone else, so alpha-secret is no longer core guilt.
-    state.caseData = { ...state.caseData, solution: { ...state.caseData.solution, murdererId: "bravo" } };
+    state.caseData = { ...state.caseData, solution: { ...state.caseData.solution!, murdererId: "bravo" } };
     state.game.characters.alpha.revealedSecretIds = ["alpha-secret"];
     state.game.discoveredEvidenceIds.push("heavy-wrench");
     state.game.characters.alpha.evidenceShownIds = ["heavy-wrench"];

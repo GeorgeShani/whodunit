@@ -1,6 +1,6 @@
 /**
- * G1 against Agatha's Tallyho draft (#62, cases/_tallyho): strict two-culprit grading on the real data. It skips until
- * cases/_tallyho exists (it lands with #62), and until its solution.json, which is gitignored and regenerated locally,
+ * G1 against Agatha's Tallyho draft (#62, cases/tallyho): strict two-culprit grading on the real data. It skips until
+ * cases/tallyho exists (it lands with #62), and until its solution.json, which is gitignored and regenerated locally,
  * names an accompliceId.
  */
 import { existsSync, readFileSync } from "node:fs";
@@ -12,14 +12,14 @@ import { checkCaseReferences } from "@/engine/case-validation";
 import { buildEnding } from "@/engine/ending-payload";
 import type { Accusation } from "@/engine/types";
 
-const SOL = "cases/_tallyho/solution.json";
+const SOL = "cases/tallyho/solution.json";
 const READY = existsSync(SOL) && typeof JSON.parse(readFileSync(SOL, "utf8")).accompliceId === "string";
 
 let c: LoadedCase;
 let win: Accusation;
 describe.skipIf(!READY)("Tallyho two-culprit grading (draft data, #62)", () => {
   beforeAll(async () => {
-    c = await loadCase("_tallyho");
+    c = await loadCase("tallyho");
     const s = c.solution;
     win = {
       murdererId: s.murdererId,

@@ -1,6 +1,6 @@
 # S.S. Tallyho: sound (v0.1)
 
-Owner: Toon. Files: `assets/cases/_tallyho/audio/` (decision Q14: case audio lives in the case's own folder, like the art). Blackwood's sounds in `assets/audio/` are the default set and are unchanged. Licenses: `assets/cases/_tallyho/audio/LICENSES.md` (all original synthesis, CC0). Build: `scripts/audio/make_tallyho.py`.
+Owner: Toon. Files: `assets/cases/tallyho/audio/` (decision Q14: case audio lives in the case's own folder, like the art). Blackwood's sounds in `assets/audio/` are the default set and are unchanged. Licenses: `assets/cases/tallyho/audio/LICENSES.md` (all original synthesis, CC0). Build: `scripts/audio/make_tallyho.py`.
 
 Mood: a 1936 steam yacht wallowing in a summer thunderstorm at night. The shared noir layer (muted-trumpet themes, stings, heartbeat, typewriter, paper and UI foley) stays; only the cues that say "country house" get a ship version, and the beds move from the manor to the sea.
 
@@ -78,7 +78,7 @@ State on `main` today: the #31 wiring has landed (`CUES` holds the noir keys, `A
 > 4. **Validator.** `checkPresentationAssets`: a stem named in `audio.beds`, `audio.rooms` or `audio.cues` passes if `.mp3` and `.ogg` exist in the case folder **or** in `assets/audio/`; `audio.rooms` keys must be location ids. Optional warning: a file in the case folder whose stem is neither a shared cue file nor named in `audio` (dead file).
 > 5. **Tests.** Resolver order (case first, then global, then mp3 fallback), cache separation across two cases, `bedForScreen` with `rooms`, validator with case-folder stems.
 >
-> `scripts/sync-assets.ts` already copies `assets/` recursively (only `.md` is skipped), so `assets/cases/_tallyho/audio/*.ogg|mp3` is served at `/assets/cases/_tallyho/audio/…` with no change.
+> `scripts/sync-assets.ts` already copies `assets/` recursively (only `.md` is skipped), so `assets/cases/tallyho/audio/*.ogg|mp3` is served at `/assets/cases/tallyho/audio/…` with no change.
 
 ## 4. Verified and not verified
 

@@ -343,6 +343,30 @@ describe("guilt-leak check (both directions)", () => {
   });
 });
 
+describe("guilt-leak check: bonk and variants (H2)", () => {
+  const P = () => guiltProfile(agatha);
+  it.each([
+    "I bonked him.",
+    "I bonked his lordship.",
+    "If you must know, I bonk him.",
+    "I was bonking him when the lights went.",
+    "He was bonked by my own hand.",
+  ])("rejects: %s", (line) => {
+    expect(findGuiltLeak(line, P(), "victoria")).not.toBeNull();
+  });
+  it.each([
+    "I heard the bonk.",
+    "I never bonked him.",
+    "You think I bonked him?",
+    "As if I could have bonked him.",
+  ])("passes: %s", (line) => {
+    expect(findGuiltLeak(line, P(), "victoria")).toBeNull();
+  });
+  it("a non-culprit saying I bonked him is also blocked (killing admission)", () => {
+    expect(findGuiltLeak("I bonked him.", P(), "reginald")).not.toBeNull();
+  });
+});
+
 describe("guilt check: 'I confess' is only guilt when it is about the killing (eval finding)", () => {
   it("a butler confessing his theft in a breakdown passes; confessing the murder does not", () => {
     const p = guiltProfile(c);

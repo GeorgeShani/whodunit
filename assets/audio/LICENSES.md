@@ -61,4 +61,4 @@ Synthesized cues were generated from scratch with numpy/scipy by Toon (the proje
 
 No recordings, samples, loops, or melodies from any film, cartoon, game, or library are used or imitated by the noir-pass cues; the muted-trumpet themes are original generic jazz-idiom figures (i-iv-V7-i and I-ii-V-I chord changes with short stepwise lines), not transcriptions.
 
-**Per-case audio (decision Q14):** a case can ship its own sounds in `assets/cases/<caseId>/audio/`, with their own `LICENSES.md` (S.S. Tallyho: `assets/cases/_tallyho/audio/LICENSES.md`, all original synthesis, CC0). The files in this folder are the default set and are unchanged.
+**Per-case audio (decision Q14):** a case can ship its own sounds in `assets/cases/<caseId>/audio/`, with their own `LICENSES.md` (S.S. Tallyho: `assets/cases/tallyho/audio/LICENSES.md`, all original synthesis, CC0). The files in this folder are the default set and are unchanged.

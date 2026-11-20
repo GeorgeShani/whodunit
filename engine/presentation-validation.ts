@@ -4,13 +4,13 @@
  * `checkPresentationAssets` needs the file system and the cue table, so callers inject them
  * (scripts/validate-case.ts and tests/cases/presentation.test.ts).
  */
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import type { CaseIssue } from "./case-validation";
 import { bannedWordsRegex, contrastFailures, META_WORDS, resolvePalette, singularWord } from "./presentation";
 
 const CASE = "case.json";
 
-export function checkPresentation(c: LoadedCase): CaseIssue[] {
+export function checkPresentation(c: PlayableCase): CaseIssue[] {
   const issues: CaseIssue[] = [];
   const v = c.setting?.vocabulary;
   if (v) {
@@ -86,7 +86,7 @@ export function checkPresentation(c: LoadedCase): CaseIssue[] {
 }
 
 /** File checks for theme art and audio (errors: the screen or sound would silently fall back). */
-export function checkPresentationAssets(c: LoadedCase, deps: { exists: (assetPath: string) => boolean; cueNames: readonly string[] }): CaseIssue[] {
+export function checkPresentationAssets(c: PlayableCase, deps: { exists: (assetPath: string) => boolean; cueNames: readonly string[] }): CaseIssue[] {
   const issues: CaseIssue[] = [];
   for (const k of ["logo", "titleArt"] as const) {
     const p = c.theme?.[k];

@@ -1,14 +1,14 @@
 /** Engine-side runtime state helpers. */
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { GameStateSchema, type GameState } from "./types";
 
 /** Server-side bundle: the loaded case (truth) + the current runtime state. */
 export interface CaseState {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   game: GameState;
 }
 
-export function createInitialGameState(c: LoadedCase): GameState {
+export function createInitialGameState(c: PlayableCase): GameState {
   return GameStateSchema.parse({
     caseId: c.id,
     phase: "investigating",

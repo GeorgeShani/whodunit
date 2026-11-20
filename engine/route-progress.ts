@@ -3,13 +3,13 @@
  * response that returns a state token. `newLeadIds` is the difference between the request's state and the
  * response's state, so the routes stay stateless.
  */
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { publicProgress, visibleLeadStates, type PublicProgress } from "./progress";
 import { restoreSession } from "./session";
 import type { Env } from "./state-token";
 
 export function attachProgress<B extends { stateToken?: string }>(
-  caseData: LoadedCase,
+  caseData: PlayableCase,
   requestJson: unknown,
   body: B,
   deps: { env?: Env; legacyCaseId?: string },

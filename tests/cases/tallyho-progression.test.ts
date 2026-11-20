@@ -1,5 +1,5 @@
 /**
- * Tallyho draft (cases/_tallyho, docs/cases/TALLYHO_DESIGN.md): the data validates, the gate is the approved one, the
+ * Tallyho draft (cases/tallyho, docs/cases/TALLYHO_DESIGN.md): the data validates, the gate is the approved one, the
  * fastest legal path is 32 actions, no reachable state opens ACCUSE while the win is impossible, and only the doer
  * named as murderer with the stager named as helper wins (G1). The engine's own
  * searches run out of budget at six suspects, so this uses the exhaustive searches in ./tallyho-search.
@@ -12,13 +12,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 import { gradeAccusation } from "@/engine/accusation";
 import { checkCaseReferences, checkCaseWarnings } from "@/engine/case-validation";
-import { loadCase } from "@/engine/case-loader";
+import { loadCase, loadPlayableCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { Accusation } from "@/engine/types";
 import { fastestPath, fastestPlan } from "@/engine/progression-validation";
 import { tallyhoAccuseOpenWithoutWin, tallyhoFastestPath } from "./tallyho-search";
 
-const HAS_SOLUTION = existsSync("cases/_tallyho/solution.json");
+const HAS_SOLUTION = existsSync("cases/tallyho/solution.json");
 /** The full fastest-path search takes about ten minutes, so CI checks the known 32-action vector and opts into the rest. */
 const FULL = process.env.TALLYHO_FULL_SEARCH === "1";
 /** Plain questions per suspect on the fastest path found by the full search. */
@@ -27,7 +27,7 @@ const FASTEST_PLAIN = { bilge: 3, boris: 2, gherkina: 2, ottilie: 2, percy: 2, z
 let c: LoadedCase;
 describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
   beforeAll(async () => {
-    c = await loadCase("_tallyho");
+    c = await loadCase("tallyho");
   });
 
   it("references resolve and there are zero design warnings", { timeout: 120_000 }, () => {
@@ -136,29 +136,29 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho progression (draft)", () => {
     expect(sl.diagrams?.map((d) => d.evidenceId)).toEqual(["marmalade-run"]);
     const frames = sl.diagrams![0].frames;
     expect(frames.map((f) => f.image)).toEqual([
-      "/assets/cases/_tallyho/ship-list-marmalade-run-before.webp",
-      "/assets/cases/_tallyho/ship-list-marmalade-run-after.webp",
+      "/assets/cases/tallyho/ship-list-marmalade-run-before.webp",
+      "/assets/cases/tallyho/ship-list-marmalade-run-after.webp",
     ]);
     for (const f of frames) {
       expect(existsSync(`assets${f.image.slice("/assets".length)}`)).toBe(true);
       // T-61: neutral labels, no "before/after the Lurch" and no death time.
       expect(f.label).not.toMatch(/\b(?:before|after)\s+the\s+Lurch\b|21[:.]5\d|22[:.]4[01]|\b(?:died|dead|death|body)\b/i);
     }
-    expect(c.locations.every((l) => l.background === `/assets/cases/_tallyho/backgrounds/${l.id}.webp`)).toBe(true);
-    expect(c.theme?.logo).toBe("/assets/cases/_tallyho/logo.webp");
+    expect(c.locations.every((l) => l.background === `/assets/cases/tallyho/backgrounds/${l.id}.webp`)).toBe(true);
+    expect(c.theme?.logo).toBe("/assets/cases/tallyho/logo.webp");
     // Toon option A: suspect selection reuses the ballroom background.
-    expect(c.backdrops?.suspects).toBe("/assets/cases/_tallyho/backgrounds/ballroom.webp");
-    expect(existsSync("assets/cases/_tallyho/backgrounds/ballroom.webp")).toBe(true);
+    expect(c.backdrops?.suspects).toBe("/assets/cases/tallyho/backgrounds/ballroom.webp");
+    expect(existsSync("assets/cases/tallyho/backgrounds/ballroom.webp")).toBe(true);
   });
 });
 
 /** Q14 audio (TALLYHO_SOUND.md section 2): reads case.json directly, so it runs with or without solution.json. */
 describe("Tallyho audio (per-case folder)", () => {
-  const raw = JSON.parse(readFileSync("cases/_tallyho/case.json", "utf8")) as {
+  const raw = JSON.parse(readFileSync("cases/tallyho/case.json", "utf8")) as {
     locations: { id: string }[];
     audio?: { beds?: Record<string, string>; rooms?: Record<string, string>; cues?: Record<string, string[]> };
   };
-  const dir = "assets/cases/_tallyho/audio";
+  const dir = "assets/cases/tallyho/audio";
 
   it("every screen and every room has a ship bed, and every named stem ships both .ogg and .mp3 in the case folder", () => {
     const a = raw.audio!;
@@ -176,5 +176,16 @@ describe("Tallyho audio (per-case folder)", () => {
         expect(existsSync(`${dir}/${s}.${ext}`), `${s}.${ext}`).toBe(true);
         expect(existsSync(`assets/audio/${s}.${ext}`), `shared ${s}.${ext}`).toBe(true);
       }
+  });
+});
+
+const DECLARED_ORDER = ["gherkina", "bilge", "percy", "zippelli", "ottilie", "boris"] as const;
+
+describe("Tallyho L4: suspect display order", () => {
+  it("loads characters in case.json characterOrder, not alphabetically", async () => {
+    const c = await loadPlayableCase("tallyho");
+    expect(c.characterOrder).toEqual([...DECLARED_ORDER]);
+    expect(c.characters.map((ch) => ch.id)).toEqual([...DECLARED_ORDER]);
+    expect([...DECLARED_ORDER].sort()).toEqual(["bilge", "boris", "gherkina", "ottilie", "percy", "zippelli"]);
   });
 });

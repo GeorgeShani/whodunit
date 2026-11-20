@@ -14,7 +14,7 @@
  * Cooldown: HINT_COOLDOWN_TURNS game turns between hints (the plan sets no cost).
  */
 import { inSetting, settingOf } from "./presentation";
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { isLieBroken, revealedSecretIds } from "./testimony";
 import type { GameState, IntendedLie } from "./types";
 
@@ -28,7 +28,7 @@ export interface HintCandidate {
 }
 
 /** Would the items the player holds (plus what the owner has already seen) break `lie`? */
-function heldItemsBreak(c: LoadedCase, game: GameState, ownerId: string, lie: IntendedLie): boolean {
+function heldItemsBreak(c: PlayableCase, game: GameState, ownerId: string, lie: IntendedLie): boolean {
   const rt = game.characters[ownerId];
   if (!rt) return false;
   const revealed = revealedSecretIds(game);
@@ -42,7 +42,7 @@ function heldItemsBreak(c: LoadedCase, game: GameState, ownerId: string, lie: In
 }
 
 /** Every current possible contradiction, in case order (characters, then their lies). */
-export function hintCandidates(c: LoadedCase, game: GameState): HintCandidate[] {
+export function hintCandidates(c: PlayableCase, game: GameState): HintCandidate[] {
   const out: HintCandidate[] = [];
   for (const ch of c.characters) {
     const rt = game.characters[ch.id];
@@ -79,7 +79,7 @@ export type HintResult =
  * Prefers a contradiction not hinted before; repeats the first otherwise.
  * "none" does not start the cooldown.
  */
-export function takeHint(c: LoadedCase, game: GameState): HintResult {
+export function takeHint(c: PlayableCase, game: GameState): HintResult {
   const wait = hintCooldown(game);
   if (wait > 0) return { kind: "cooldown", readyInTurns: wait };
   const all = hintCandidates(c, game);

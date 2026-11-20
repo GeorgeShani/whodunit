@@ -13,7 +13,7 @@
  *    in the same exchange (the ordinary present rules; it still counts as one).
  */
 import { inSetting, settingOf } from "@/engine/presentation";
-import type { LoadedCase } from "@/engine/case-schema";
+import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
 import { confrontationCaps } from "@/engine/confront-caps";
 import { CONFRONTATION_PRESSURE, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
 import { clampStress } from "@/engine/stress";
@@ -33,7 +33,7 @@ import { parseStoredReply, toPublicReply, type StoredReply } from "./public-repl
 type Env = Record<string, string | undefined>;
 
 export interface ConfrontDeps {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   env?: Env;
   legacyCaseId?: string;
   onPrompt?: (p: { system: string; user: string; characterId: string }) => void;

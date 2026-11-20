@@ -10,7 +10,7 @@
  *  -> engine commits (clamped deltas, reveal only if performed) -> new token.
  * Any failure yields the in-character fallback. Logs are non-secret only.
  */
-import type { LoadedCase } from "@/engine/case-schema";
+import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
 import { attachProgress } from "@/engine/route-progress";
 import { isCaseClosed, systemLine, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
@@ -37,7 +37,7 @@ export interface HandlerResult {
 }
 
 export interface HandlerDeps {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   env?: Env;
   /** Case assumed for legacy state tokens that predate caseId (the app's default case). */
   legacyCaseId?: string;

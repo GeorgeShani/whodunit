@@ -5,7 +5,7 @@
  * engine commit. Shared by /api/interrogate and /api/confront so both follow
  * exactly the same rules. Mutates `game`.
  */
-import type { LoadedCase } from "@/engine/case-schema";
+import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
 import { buildCharacterContext, type CharacterContext } from "@/engine/context-builder";
 import { coreGuiltSecretIds, guiltProfiles } from "@/engine/core-guilt";
 import { commitTurn, planTurn, type PresentMove, type TurnPlan } from "@/engine/interrogation";
@@ -35,7 +35,7 @@ import type { CharacterResponse } from "./schemas";
 type Env = Record<string, string | undefined>;
 
 export interface TurnInput {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   game: GameState;
   characterId: string;
   /** What the detective said (for the prompt and the canon check). */

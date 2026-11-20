@@ -47,5 +47,6 @@ next-env.d.ts
 # eval:ai spend ledger (local)
 .ai-eval-spend.json
 
-# Tallyho draft: no solution files committed until the case ships
+# Tallyho solution is server-only (CASE_SOLUTION_TALLYHO env). Never commit the file.
+/cases/tallyho/solution.json
 /cases/_tallyho/solution.json

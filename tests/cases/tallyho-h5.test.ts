@@ -3,7 +3,7 @@
  * Zippelli's own trunk fact. A phrase block is not enough: the fact must be absent from
  * buildCharacterContext at game start, and present only after l-zippelli-trunk is broken
  * (crock-13 shown to Zippelli). hiddenUntil already authors that gate (T-60); this locks it.
- * Skips without the local, gitignored cases/_tallyho/solution.json.
+ * Skips without the local, gitignored cases/tallyho/solution.json.
  */
 import { existsSync } from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
@@ -13,14 +13,14 @@ import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
 import type { GameState } from "@/engine/types";
 
-const HAS_SOLUTION = existsSync("cases/_tallyho/solution.json");
+const HAS_SOLUTION = existsSync("cases/tallyho/solution.json");
 const TRUNK = "f-zippelli-trunk-bilge";
 const TRUNK_WORDS = /false wall|padded trays for ['']cargo['']/i;
 
 let c: LoadedCase;
 describe.skipIf(!HAS_SOLUTION)("Tallyho H5: Bilge's Zippelli trunk fact is gated", () => {
   beforeAll(async () => {
-    c = await loadCase("_tallyho");
+    c = await loadCase("tallyho");
   });
 
   it("is in his knownFactIds and hiddenUntil l-zippelli-trunk, not his own smuggling secret", () => {

@@ -10,7 +10,7 @@
 import { inSetting, settingOf } from "./presentation";
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { citeCaps, gradeAccusation } from "./accusation";
-import type { LoadedCase } from "./case-schema";
+import { hasSolution, type LoadedCase, type PlayableCase } from "./case-schema";
 import { buildEnding, buildSolutionReveal, endingEvidence, toVerdict } from "./ending-payload";
 import { accuseProgress } from "./progress";
 import { lossFeedback } from "./loss-feedback";
@@ -35,6 +35,8 @@ export const ACCUSE_LINES = {
   caseClosed: "You've already named your culprit, detective. The case is closed.",
   /** The closed-games record could not be written (#39): nothing was decided, ask again shortly. */
   recordDown: SYSTEM_LINES.recordDown,
+  /** Solution file / CASE_SOLUTION_* env missing or invalid: do not grade, do not crash, no technical text. */
+  solutionUnavailable: "The sealed verdict isn't at hand, detective. Accusations will have to wait.",
 } as const;
 
 export interface AccuseResult {
@@ -99,7 +101,7 @@ export interface StoredClose {
 }
 
 interface AccuseDeps {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   env?: Env;
   legacyCaseId?: string;
   accused?: AccusedStore;
@@ -159,6 +161,9 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
 
   const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   if (notice) return { status: 400, body: { error: "invalid_state", line: ACCUSE_LINES.badState, notice, stateToken: saveSession(game, env) } };
+  if (!hasSolution(caseData)) {
+    return { status: 503, body: { error: "accusation_unavailable", line: ACCUSE_LINES.solutionUnavailable, stateToken: saveSession(game, env) } };
+  }
 
   // Game over: one accusation per game. Replays get the ORIGINAL verdict back; the new guess is ignored.
   if (isCaseClosed(game) && game.accusation) {

@@ -9,8 +9,9 @@
  */
 import { existsSync, readdirSync } from "node:fs";
 import path from "node:path";
+import { canonicalCaseId } from "@/lib/case-aliases";
 import { DEFAULT_CASES_DIR, getCase } from "./case-loader";
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 
 export const PUBLIC_CASE_ID_RE = /^[a-z0-9]+(?:[-_][a-z0-9]+)*$/;
 const MAX_CASE_ID = 64;
@@ -38,12 +39,9 @@ export function listPublicCaseIds(casesDir = DEFAULT_CASES_DIR): readonly string
 
 /** True only for an id that passes the regex AND is in the directory allowlist. */
 export function isPublicCaseId(id: unknown, casesDir = DEFAULT_CASES_DIR): id is string {
-  return (
-    typeof id === "string" &&
-    id.length <= MAX_CASE_ID &&
-    PUBLIC_CASE_ID_RE.test(id) &&
-    listPublicCaseIds(casesDir).includes(id)
-  );
+  if (typeof id !== "string" || id.length > MAX_CASE_ID) return false;
+  const canonical = canonicalCaseId(id);
+  return PUBLIC_CASE_ID_RE.test(canonical) && listPublicCaseIds(casesDir).includes(canonical);
 }
 
 export class UnknownCaseError extends Error {
@@ -54,9 +52,9 @@ export class UnknownCaseError extends Error {
 }
 
 /** Load an allowlisted case (memoized) or throw UnknownCaseError. */
-export function getPublicCase(id: unknown, casesDir = DEFAULT_CASES_DIR): Promise<LoadedCase> {
+export function getPublicCase(id: unknown, casesDir = DEFAULT_CASES_DIR): Promise<PlayableCase> {
   if (!isPublicCaseId(id, casesDir)) return Promise.reject(new UnknownCaseError());
-  return getCase(id, casesDir);
+  return getCase(canonicalCaseId(id), casesDir);
 }
 
 /** Phase 10 (3.8): a public case as the unlock UI names it. */
@@ -75,7 +73,7 @@ export async function caseUnlocks(id: string, casesDir = DEFAULT_CASES_DIR): Pro
   const all = await Promise.all(listPublicCaseIds(casesDir).map((x) => getCase(x, casesDir)));
   const self = all.find((c) => c.id === id);
   const unlockedBy = [...(self?.unlockedBy ?? [])];
-  const link = (c: LoadedCase): CaseLink => ({ id: c.id, title: c.title });
+  const link = (c: PlayableCase): CaseLink => ({ id: c.id, title: c.title });
   return {
     unlockedBy,
     requires: unlockedBy.flatMap((r) => all.filter((c) => c.id === r).map(link)),

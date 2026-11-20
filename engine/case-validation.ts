@@ -90,6 +90,19 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const personIds = new Set([...characterIds, c.victim.id]);
   const motiveIds = new Set(c.motives.map((m) => m.id));
 
+  // L4: characterOrder must be a permutation of the character ids when present.
+  if (c.characterOrder) {
+    const seen = new Set<string>();
+    c.characterOrder.forEach((id, i) => {
+      if (!characterIds.has(id)) issues.push({ file: CASE, path: `characterOrder.${i}`, message: `characterOrder id "${id}" is not a character` });
+      if (seen.has(id)) issues.push({ file: CASE, path: `characterOrder.${i}`, message: `"${id}" is listed twice in characterOrder` });
+      seen.add(id);
+    });
+    for (const id of characterIds) {
+      if (!seen.has(id)) issues.push({ file: CASE, path: "characterOrder", message: `character "${id}" is missing from characterOrder` });
+    }
+  }
+
   const dupes = (kind: string, file: string, ids: string[]) => {
     const seen = new Set<string>();
     for (const id of ids) {
@@ -220,7 +233,8 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     dupes("intended lie", f, ch.intendedLies.map((l) => l.id));
   }
 
-  // solution.json
+  // solution.json (caller supplies a valid solution; playable loads without one skip this function)
+  if (!c.solution) return issues;
   const s = c.solution;
   const murderer = c.characters.find((ch) => ch.id === s.murdererId);
   if (!murderer) issues.push({ file: SOL, path: "murdererId", message: `murderer "${s.murdererId}" is not a character in characters/` });

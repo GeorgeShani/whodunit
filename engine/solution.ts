@@ -56,3 +56,34 @@ export const CaseSolutionSchema = z.strictObject({
   explanation: z.string().trim().min(1).optional(),
 });
 export type CaseSolution = z.infer<typeof CaseSolutionSchema>;
+
+/** Server-only env var that may hold a case solution when the file is not committed. Never use the NEXT_PUBLIC_ prefix. */
+export function caseSolutionEnvName(caseId: string): string {
+  return `CASE_SOLUTION_${caseId.replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_|_$/g, "").toUpperCase()}`;
+}
+
+export type SolutionEnvLoad =
+  | { ok: true; solution: CaseSolution }
+  | { ok: false; reason: "missing" | "invalid" };
+
+/**
+ * Decode a base64 JSON solution from a server-only env var and Zod-validate it.
+ * Errors never include the raw value or parser details (those could leak the solution).
+ */
+export function parseSolutionEnv(raw: string | undefined | null): SolutionEnvLoad {
+  if (raw == null || raw.trim() === "") return { ok: false, reason: "missing" };
+  try {
+    const decoded = Buffer.from(raw, "base64").toString("utf8");
+    const json: unknown = JSON.parse(decoded);
+    const r = CaseSolutionSchema.safeParse(json);
+    if (r.success) return { ok: true, solution: r.data };
+    return { ok: false, reason: "invalid" };
+  } catch {
+    return { ok: false, reason: "invalid" };
+  }
+}
+
+/** Read `CASE_SOLUTION_<CASEID>` from the given env object (default: process.env). */
+export function readSolutionFromEnv(caseId: string, env: NodeJS.Dict<string> = process.env): SolutionEnvLoad {
+  return parseSolutionEnv(env[caseSolutionEnvName(caseId)]);
+}

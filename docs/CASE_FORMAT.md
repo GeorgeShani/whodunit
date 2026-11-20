@@ -442,6 +442,12 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 
 ## solution.json (server-only)
 
+A committed `cases/<id>/solution.json` is the usual source (Blackwood). If the file is absent, the server
+reads `CASE_SOLUTION_<ID>` (e.g. `CASE_SOLUTION_TALLYHO`): base64 of the same JSON, Zod-validated, never
+`NEXT_PUBLIC_`. Missing or invalid: the case still loads, accusations fail closed in character, and no
+technical text is returned. `validate:case --strict` still requires a valid solution (local file or env).
+
+
 ```jsonc
 {
   "murdererId": "victoria", "weaponId": "silver-candlestick", "locationId": "library", "time": "21:17",
@@ -575,6 +581,8 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
 - `"knowledgeGate": "explicit"` with no `hiddenUntil` anywhere;
 - `howToPlayTips` that repeat each other or mention the culprit's name, the weapon or the true motive;
 - `confrontation.perPair` greater than `confrontation.total` (or than the default 12 when `total` is omitted): the engine clamps it to the total.
+
+**Display order (`characterOrder`).** Optional and public in `case.json`: `"characterOrder": ["gherkina", "bilge", …]` is the order of the suspect cards and the accuse grid. Omitted: characters load in alphabetical file-name order. When present it must list every character id exactly once.
 
 **Case unlock (`unlockedBy`; phase 10).** Optional and public in `case.json`: `"unlockedBy": ["blackwood"]` keeps the case sealed until this browser has solved (won) every listed case. Omitted: open to everyone (the first case, which `/` always serves). The solved store is client-side (`localStorage` `whodunit:solved`, `lib/solved-store.ts`), set only by a server-graded win; it is pacing, not security, and the API does not enforce it. A sealed case's page shows a teaser (title, tagline, "Play <required case>") instead of the game; a win shows "NEXT CASE: <title>" for each public case it opens, and the title screen shows "Next case" once open. `validate:case` (V31): every id is a case folder in the cases dir, never the case itself, no cycles, and at least one case has no `unlockedBy`.
 

@@ -12,7 +12,7 @@
  *    the statement. The model can never reveal a secret, touch evidence, or
  *    move stress/trust by more than the clamp.
  */
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { acceptsExplanation, extractClaims, mergeClaims, questionTouchesLie, RELIEF } from "./memory";
 import { coreGuiltSecretIds } from "./core-guilt";
 import { isMappedToPresentation, secretsToReveal } from "./secrets";
@@ -94,7 +94,7 @@ export interface PresentMove {
  * was discovered.
  */
 export function planTurn(
-  caseData: LoadedCase,
+  caseData: PlayableCase,
   game: GameState,
   characterId: string,
   move?: string | PresentMove,

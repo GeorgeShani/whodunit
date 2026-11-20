@@ -178,6 +178,12 @@ export const CaseEnvelopeSchema = z.strictObject({
    * Omitted: open to everyone (the first case). The unlock is client-side pacing, not security (lib/solved-store.ts).
    */
   unlockedBy: z.array(IdSchema).min(1).max(8).optional(),
+  /**
+   * Optional PUBLIC display order of character ids (suspect cards and the accuse grid).
+   * Omitted: characters load in alphabetical file-name order. When present it must list every
+   * character id exactly once (checked at load).
+   */
+  characterOrder: z.array(IdSchema).min(2).optional(),
   /** Phase 6 (4.1): the feature modules this case opts into (engine/features/registry.ts). Omitted: none. */
   features: z.array(z.string().regex(/^[a-z][a-z0-9-]*$/)).max(8).optional(),
   /** Phase 6: SERVER-ONLY config per declared feature, parsed by that module's configSchema (load errors otherwise). */
@@ -201,5 +207,15 @@ export const LoadedCaseSchema = CaseEnvelopeSchema.extend({
   endings: EndingsSchema.optional(),
 });
 export type LoadedCase = z.infer<typeof LoadedCaseSchema>;
+/** A loaded case whose solution is present and valid. */
+export type SolvedCase = LoadedCase;
+/**
+ * Playable case data used by pages and APIs. `solution` is missing when the file and
+ * CASE_SOLUTION_<ID> are both absent or invalid; accusations must then fail closed.
+ */
+export type PlayableCase = Omit<LoadedCase, "solution"> & { solution?: LoadedCase["solution"] };
+export function hasSolution(c: PlayableCase): c is SolvedCase {
+  return c.solution !== undefined;
+}
 
 export { CaseIdSchema };
