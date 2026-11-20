@@ -167,7 +167,7 @@ across instances and is not a substitute for the row.
 `POST /api/resume` (body only: `gameId`, `caseId`, optional leftover `stateToken`; never in a URL) returns the latest
 verified token and a public snapshot (no solution, no hidden proof). A closed game is replayed from `closed_games` as
 today. If the database is down, resume falls back to a tab-scoped leftover token; without one the player sees an
-in-character "cabinet is stuck" line.
+in-character "cabinet is stuck" line. A hidden or closing tab quietly flushes the latest *online* token to `POST /api/save` (`sendBeacon`, then `fetch({ keepalive: true })`); offline-lineage tokens are not sent, and a repeat of the same version is skipped.
 
 The client stores only `{ gameId, caseId }` in localStorage. A pre-deploy sessionStorage blob is migrated once. Dialogue
 transcripts are not restored. The title offers **Continue case**, and **New game** asks for confirmation when a file is

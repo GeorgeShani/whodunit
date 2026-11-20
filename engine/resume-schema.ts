@@ -25,6 +25,8 @@ export interface ResumeResponseBody {
   caseId?: string;
   snapshot?: ResumeSnapshot;
   closed?: AccuseResponseBody;
+  saveVersion?: number;
+  offline?: boolean;
   notice?: string;
   error?: string;
   line?: string;

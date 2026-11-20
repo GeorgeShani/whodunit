@@ -41,6 +41,7 @@ import { CaseNotReady } from "@/components/progress/CaseNotReady";
 import { NewLeadToast } from "@/components/progress/NewLeadToast";
 import type { PublicProgress } from "@/engine/progress";
 import { clearGame, clearSavePointer, isPublicProgress, loadSavePointer, readTokenFallback, writeSavePointer, writeTokenFallback } from "@/lib/game-session";
+import { bindQuietSave, createQuietSave } from "@/lib/quiet-save";
 import type { ResumeResponseBody, ResumeSnapshot } from "@/engine/resume-schema";
 import { IntroScreen } from "./IntroScreen";
 import { TitleScreen } from "./TitleScreen";
@@ -79,6 +80,8 @@ interface InterrogateResult {
   testimonies?: PublicTestimony[];
   stateToken?: string;
   gameId?: string;
+  saveVersion?: number;
+  offline?: boolean;
   notice?: string;
   progress?: PublicProgress;
 }
@@ -92,7 +95,7 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
       headers: { "content-type": "application/json" },
       body: JSON.stringify(req),
     });
-    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; gameId?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown; answered?: unknown; error?: unknown };
+    const json = (await res.json()) as { response?: unknown; stateToken?: unknown; gameId?: unknown; saveVersion?: unknown; offline?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown; answered?: unknown; error?: unknown };
     const down = parseUnavailable(json?.unavailable);
     if (down) {
       // No reply (model out of reach, rate limit, duplicate): nothing was spent. Keep the token the server handed back.
@@ -106,6 +109,8 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
         ...(replay ? { replay } : {}),
         ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
         ...(typeof json?.gameId === "string" ? { gameId: json.gameId } : {}),
+        ...(typeof json?.saveVersion === "number" ? { saveVersion: json.saveVersion } : {}),
+        ...(json?.offline === true ? { offline: true as const } : {}),
         ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
         ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
       };
@@ -118,6 +123,8 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
       response: parsed.data,
       ...(typeof json?.stateToken === "string" ? { stateToken: json.stateToken } : {}),
         ...(typeof json?.gameId === "string" ? { gameId: json.gameId } : {}),
+        ...(typeof json?.saveVersion === "number" ? { saveVersion: json.saveVersion } : {}),
+        ...(json?.offline === true ? { offline: true as const } : {}),
       ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
       ...(Array.isArray(json?.testimonies) ? { testimonies: json.testimonies as PublicTestimony[] } : {}),
       ...(json?.contradiction && typeof json.contradiction.characterName === "string" ? { contradiction: json.contradiction } : {}),
@@ -136,6 +143,8 @@ interface InvestigateResult {
   searchedLocationIds?: string[];
   stateToken?: string;
   gameId?: string;
+  saveVersion?: number;
+  offline?: boolean;
   notice?: string;
   progress?: PublicProgress;
 }
@@ -203,6 +212,8 @@ async function investigate(req: InvestigateRequest): Promise<InvestigateResult> 
       ...(Array.isArray(j.searchedLocationIds) ? { searchedLocationIds: j.searchedLocationIds } : {}),
       ...(typeof j.stateToken === "string" ? { stateToken: j.stateToken } : {}),
       ...(typeof j.gameId === "string" ? { gameId: j.gameId } : {}),
+      ...(typeof j.saveVersion === "number" ? { saveVersion: j.saveVersion } : {}),
+      ...(j.offline === true ? { offline: true as const } : {}),
       ...(typeof j.notice === "string" ? { notice: j.notice } : {}),
       ...(isPublicProgress(j.progress) ? { progress: j.progress } : {}),
     };
@@ -314,14 +325,18 @@ export function Game({
   const inFlight = useRef(false);
   const [restored, setRestored] = useState(false);
   /** A resumable case file (pointer + a verified snapshot). Stays on the title until Continue. */
-  const [pendingResume, setPendingResume] = useState<{ gameId: string; snapshot: ResumeSnapshot; token: string; closed?: ResumeResponseBody["closed"] } | null>(null);
+  const [pendingResume, setPendingResume] = useState<{ gameId: string; snapshot: ResumeSnapshot; token: string; closed?: ResumeResponseBody["closed"]; saveVersion?: number; offline?: boolean } | null>(null);
   const gameIdRef = useRef<string | undefined>(undefined);
-  const rememberGame = useCallback((id: string | undefined, token: string | undefined) => {
+  const quietSave = useRef(createQuietSave());
+  const rememberGame = useCallback((id: string | undefined, token: string | undefined, meta?: { saveVersion?: number; offline?: boolean }) => {
     if (id) {
       gameIdRef.current = id;
       writeSavePointer({ v: 1, gameId: id, caseId });
     }
-    if (token) writeTokenFallback(caseId, token);
+    if (token) {
+      writeTokenFallback(caseId, token);
+      quietSave.current.note({ caseId, gameId: id ?? gameIdRef.current, token, saveVersion: meta?.saveVersion, offline: meta?.offline });
+    }
   }, [caseId]);
   /** Latest emotions, readable from async reply handlers (for the reply sting). */
   const emotionsRef = useRef(emotions);
@@ -351,6 +366,7 @@ export function Game({
   useEffect(() => registerCaseAudio(view.audio, { caseId, files: view.audioFiles }), [view.audio, caseId, view.audioFiles]);
   // Warm this case's portraits, location art and audio once the case is open (intro onward).
   useCasePrefetch(view, screen !== "title");
+  useEffect(() => bindQuietSave(quietSave.current), []);
   // Q14 room beds (audio.rooms): the room last searched while on Investigate; the staged room in interrogation/confront.
   const stageRoom = view.stage && !view.backdrops.interrogation ? view.victim.foundAtLocationId : null;
   const roomNow = screen === "investigate" ? bedRoom : screen === "interrogation" || screen === "confront" ? stageRoom : null;
@@ -396,7 +412,7 @@ export function Game({
           gameIdRef.current = json.gameId;
           writeSavePointer({ v: 1, gameId: json.gameId, caseId });
           writeTokenFallback(caseId, json.stateToken);
-          setPendingResume({ gameId: json.gameId, snapshot: json.snapshot, token: json.stateToken, closed: json.closed });
+          setPendingResume({ gameId: json.gameId, snapshot: json.snapshot, token: json.stateToken, closed: json.closed, saveVersion: json.saveVersion, offline: json.offline });
         }
       } catch {
         /* cabinet stuck and no usable leftover: stay on the title with no Continue */
@@ -413,6 +429,7 @@ export function Game({
 
   // Overflow audit only: scripts/check-overflow.ts sets this key so it can open the accuse
   // form without meeting the case gate (the old sessionStorage blob's `screen` field is gone).
+  /* eslint-disable react-hooks/set-state-in-effect -- one-shot jump for the overflow script */
   useEffect(() => {
     if (!restored) return;
     try {
@@ -423,6 +440,7 @@ export function Game({
       /* private-mode sessionStorage */
     }
   }, [restored, go]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Keep the tab-scoped token fallback in step with the in-memory token (DB is the durable copy).
   useEffect(() => {
@@ -474,7 +492,7 @@ export function Game({
       if (!isRetry) push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, gameId: gid, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
+        const { response, stateToken: next, gameId: gid, saveVersion, offline, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
           {
             characterId,
             question,
@@ -487,7 +505,7 @@ export function Game({
           view.suspects.find((s) => s.id === characterId)?.name ?? "They",
         );
         if (next) stateToken.current = next;
-        rememberGame(gid, next);
+        rememberGame(gid, next, { saveVersion, offline });
 
         if (down) {
           // The model could not answer (out of reach, slow, or an unusable reply). Nothing was spent: no stress, trust, turn or
@@ -582,7 +600,7 @@ export function Game({
           ...(stateToken.current ? { stateToken: stateToken.current } : {}),
         }, [addressedName, view.suspects.find((s) => s.id === partnerId)?.name ?? partnerId]);
         if (r.stateToken) stateToken.current = r.stateToken;
-        rememberGame((r as { gameId?: string }).gameId, r.stateToken);
+        rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
         if (r.unavailable) {
           // Nothing was spent (no exchange, no stress). The question is still in the log; offer to put it again.
           if (r.notice) {
@@ -713,7 +731,7 @@ export function Game({
       setBedRoom(locationId);
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
       if (r.stateToken) stateToken.current = r.stateToken;
-      rememberGame(r.gameId, r.stateToken);
+      rememberGame(r.gameId, r.stateToken, r);
       if (r.notice) resetProgress();
       applyProgress(r.progress);
       if (r.searchedLocationIds) setSearched(r.searchedLocationIds);
@@ -747,7 +765,7 @@ export function Game({
       inFlight.current = false;
       setAccusing(false);
       if (r.stateToken) stateToken.current = r.stateToken;
-      rememberGame((r as { gameId?: string }).gameId, r.stateToken);
+      rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
       applyProgress(r.progress);
       // A replay after game over (409) still carries the original verdict and ending.
       if (r.outcome && r.ending && r.accusation) {
@@ -794,13 +812,15 @@ export function Game({
     if (!pendingResume) return;
     stateToken.current = pendingResume.token;
     gameIdRef.current = pendingResume.gameId;
+    rememberGame(pendingResume.gameId, pendingResume.token, { saveVersion: pendingResume.saveVersion, offline: pendingResume.offline });
     applySnapshot(pendingResume.snapshot, pendingResume.closed);
     go(pendingResume.closed || pendingResume.snapshot.outcome !== "pending" ? "ending" : "suspects");
     if (pendingResume.closed || pendingResume.snapshot.outcome !== "pending") setEndingPart("summary");
-  }, [pendingResume, applySnapshot, go]);
+  }, [pendingResume, applySnapshot, go, rememberGame]);
 
   const onNewGame = useCallback(() => {
     clearSavePointer(caseId);
+    quietSave.current.clear();
     stateToken.current = undefined;
     gameIdRef.current = undefined;
     setPendingResume(null);
@@ -841,7 +861,7 @@ export function Game({
     setHintBusy(true);
     const r = await askHint({ caseId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
     if (r.stateToken) stateToken.current = r.stateToken;
-    rememberGame((r as { gameId?: string }).gameId, r.stateToken);
+    rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
     if (r.notice) resetProgress();
     applyProgress(r.progress);
     setHint({ line: r.line, found: r.hint !== null });

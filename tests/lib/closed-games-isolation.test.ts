@@ -38,7 +38,7 @@ function importGraph(entry: string): { files: Set<string>; packages: Set<string>
   return { files, packages };
 }
 
-const NON_CLOSED = ["interrogate", "confront", "investigate", "hint"];
+const NON_CLOSED = ["interrogate", "confront", "investigate", "hint", "save"];
 
 describe("#39 / saved-games DB isolation", () => {
   it.each(NON_CLOSED)("/api/%s imports no closed_games module (static graph)", (route) => {

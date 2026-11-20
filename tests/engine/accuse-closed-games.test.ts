@@ -126,7 +126,7 @@ describe("#39 accuse with the closed-games record (Postgres contract, in-memory)
     const t0 = token();
     const r = await accuse(LOSE, t0, flaky, cache);
     expect(r.status).toBe(503);
-    expect(r.body).toEqual({ error: "record_unavailable", line: systemLine(c, "recordDown"), stateToken: t0, gameId: expect.any(String), progress: expect.anything() });
+    expect(r.body).toEqual({ error: "record_unavailable", line: systemLine(c, "recordDown"), stateToken: t0, gameId: expect.any(String), saveVersion: expect.any(Number), progress: expect.anything() });
     expect(r.body.line).not.toMatch(/\b(database|db|error|server|postgres|supabase)\b/i);
     expect(cache.m.size).toBe(0);
     expect(repo.rows.size).toBe(0);

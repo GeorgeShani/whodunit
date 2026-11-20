@@ -42,7 +42,7 @@ beforeAll(async () => {
 /** Stable JSON: sorted keys, no state tokens. */
 const stable = (v: unknown): string =>
   JSON.stringify(v, (k, x) =>
-    k === "stateToken" || k === "gameId"
+    k === "stateToken" || k === "gameId" || k === "saveVersion" || k === "offline"
       ? undefined
       : x && typeof x === "object" && !Array.isArray(x)
         ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a.localeCompare(b)))

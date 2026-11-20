@@ -123,7 +123,7 @@ describe("E2 grading", () => {
     const extra = [...cleanWin().keyEvidenceIds, redHerring()];
     const right = await accuse({ ...cleanWin(), motiveId: wrongMotive, keyEvidenceIds: extra });
     const wrong = await accuse({ ...cleanWin(), murdererId: innocent, motiveId: wrongMotive, keyEvidenceIds: extra });
-    const ENDING_FIELDS = new Set(["ending", "evidence", "stateToken", "accusation", "progress", "gameId"]);
+    const ENDING_FIELDS = new Set(["ending", "evidence", "stateToken", "accusation", "progress", "gameId", "saveVersion", "offline"]);
     const shape = (b: Record<string, unknown>) => Object.fromEntries(Object.entries(b).filter(([k]) => !ENDING_FIELDS.has(k)));
     expect(right.status).toBe(wrong.status);
     expect(shape(right.body as never)).toEqual(shape(wrong.body as never));

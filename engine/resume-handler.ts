@@ -135,6 +135,8 @@ export async function handleResume(json: unknown, deps: ResumeDeps): Promise<{ s
     gameId: requestedId,
     caseId: canonicalCaseId(caseData.id),
     snapshot,
+    saveVersion: game.saveVersion ?? 0,
+    ...(game.offline ? { offline: true } : {}),
     ...(picked.notice ? { notice: picked.notice } : {}),
   };
 
