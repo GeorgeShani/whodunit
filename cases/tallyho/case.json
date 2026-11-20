@@ -1140,7 +1140,9 @@
             "the Great Lurch",
             "the great lurch",
             "the lurch",
-            "Great Lurch"
+            "Great Lurch",
+            "lurched",
+            "the ship lurched"
           ]
         },
         {
@@ -1326,7 +1328,36 @@
           "paper\\s+ticks?",
           "pencil(?:l?ed)?[^.!?]{0,80}\\blurch\\b",
           "\\blurch\\b[^.!?]{0,40}\\bon the strip\\b"
-        ]
+        ],
+        "concept": {
+          "instruments": [
+            "recorder",
+            "gauge",
+            "log",
+            "strip",
+            "inclinometer",
+            "meter",
+            "inclinograph",
+            "graph",
+            "paper",
+            "paper tick",
+            "the paper that",
+            "the thing that tracks",
+            "instrument"
+          ],
+          "measures": [
+            "heel",
+            "tilt",
+            "roll",
+            "list",
+            "lean",
+            "lurch",
+            "flip",
+            "flipped",
+            "degrees"
+          ],
+          "window": 8
+        }
       }
     ]
   }
