@@ -303,3 +303,17 @@ describe.skipIf(!HAS_SOLUTION)("Tallyho checkReply / checkOutputGuard (#90 / #91
     expect(r7Verdict(c, "bilge", leak)?.reason).toMatch(/alive_after|forbidden_phrase/);
   });
 });
+
+describe("Tallyho guard v2 on real case data: cross-sentence carry (Agatha's #99 leftovers)", () => {
+  let c: LoadedCase;
+  beforeAll(async () => {
+    c = await loadCase("tallyho");
+  });
+  // Pinned until Agatha's data adds bare "lurched" / "the ship lurched" anchor terms (the engine carry passes on fixture data).
+  it.fails.each([
+    "The ship lurched. He was still alive.",
+    "The ship lurched. Afterwards the Commodore spoke to me.",
+  ])("blocks %s", (line) => {
+    expect(checkOutputGuard(line, c, {}, [])?.reason).toBe("alive_after");
+  });
+});
