@@ -43,15 +43,27 @@ export const AliveUntilSchema = z.strictObject({
 });
 export type AliveUntil = z.infer<typeof AliveUntilSchema>;
 
+export const GatedTopicConceptSchema = z.strictObject({
+  /** Instrument / record nouns ("recorder", "gauge", "the paper that", "strip"). */
+  instruments: z.array(Phrase).min(1),
+  /** Measure nouns ("heel", "tilt", "roll", "list", "lean"). */
+  measures: z.array(Phrase).min(1),
+  /** Maximum word gap between an instrument and a measure (inclusive). */
+  window: z.number().int().min(1).max(40).default(8),
+});
+export type GatedTopicConcept = z.infer<typeof GatedTopicConceptSchema>;
+
 export const GatedTopicSchema = z
   .strictObject({
     unlockedBy: IdSchema,
     terms: z.array(Phrase).default([]),
     patterns: z.array(z.string().min(1).max(200)).default([]),
+    /** Optional concept net: an instrument noun within `window` words of a measure word. */
+    concept: GatedTopicConceptSchema.optional(),
   })
   .superRefine((t, ctx) => {
-    if (t.terms.length + t.patterns.length < 1) {
-      ctx.addIssue({ code: "custom", message: "each gated topic needs at least one term or pattern" });
+    if (t.terms.length + t.patterns.length < 1 && !t.concept) {
+      ctx.addIssue({ code: "custom", message: "each gated topic needs at least one term, pattern, or concept" });
     }
   });
 export type GatedTopic = z.infer<typeof GatedTopicSchema>;
@@ -161,7 +173,7 @@ function hasAlivePhrase(sentence: string, phrases: string[]): boolean {
   return phrases.some((p) => hasPhrase(sentence, p));
 }
 
-const AFTER_PREP = /\b(?:after|since|following|once|past)\b/i;
+const AFTER_PREP = /\b(?:after|afterwards|afterward|since|following|once|past|subsequent\s+to)\b/i;
 const AT_WHEN_PREP = /\b(?:when|while|during|as|at)\b/i;
 const BEFORE_PREP = /\b(?:before|prior\s+to|until|till|up\s+to|preceding)\b/i;
 
@@ -236,6 +248,63 @@ function isAliveStatePhrase(sentence: string, phrases: string[]): boolean {
   if (STATE.test(sentence)) return true;
   return phrases.some((p) => /\b(?:alive|living|still\s+with\s+us|up\s+and\s+about|breathing)\b/i.test(p) && hasPhrase(sentence, p));
 }
+
+const CARRY_SENTENCES = 2;
+
+/** `post-lurch`, `post the Great Lurch` from an anchor term. */
+function hasPostAnchor(sentence: string, term: string): boolean {
+  const parts = term.trim().split(/\s+/).map(esc);
+  if (!parts.length) return false;
+  const joined = parts.join("\\s+");
+  const last = parts[parts.length - 1]!;
+  return new RegExp(`\\bpost(?:[\\s-]+(?:the\\s+)?${joined}|[\\s-]+${last})\\b`, "i").test(sentence);
+}
+
+function sentenceHasAfterAnchor(sentence: string, alive: AliveUntil, untilMin: number, appearance: string[]): boolean {
+  if (afterCutoffClock(sentence, untilMin, true, appearance)) return true;
+  for (const phrase of alive.afterPhrases ?? []) {
+    if (hasPhrase(sentence, phrase)) return true;
+  }
+  for (const anchor of alive.anchors ?? []) {
+    for (const term of anchor.terms) {
+      if (hasPostAnchor(sentence, term)) return true;
+      if (hasPhrase(sentence, term) && anchorRelation(sentence, term) === "after") return true;
+    }
+  }
+  return false;
+}
+
+function mentionsCarriedVictim(sentence: string, aliases: string[], pronouns: string[], otherNames: string[]): boolean {
+  if (otherNames.some((n) => hasPhrase(sentence, n))) return false;
+  if (pronouns.some((p) => hasPhrase(sentence, p))) return true;
+  return aliases.some((a) => hasPhrase(sentence, a));
+}
+
+/** Word-distance concept net: an instrument phrase within `window` words of a measure phrase. */
+export function conceptDistanceHit(text: string, concept: GatedTopicConcept): boolean {
+  const tokens = text.toLowerCase().replace(/['’]/g, "'").split(/[^a-z0-9]+/).filter(Boolean);
+  if (!tokens.length) return false;
+  const spans = (phrase: string): [number, number][] => {
+    const parts = phrase.toLowerCase().replace(/['’]/g, "'").split(/\s+/).filter(Boolean);
+    if (!parts.length) return [];
+    const out: [number, number][] = [];
+    for (let i = 0; i <= tokens.length - parts.length; i++) {
+      if (parts.every((p, k) => tokens[i + k] === p)) out.push([i, i + parts.length - 1]);
+    }
+    return out;
+  };
+  const inst = concept.instruments.flatMap(spans);
+  const meas = concept.measures.flatMap(spans);
+  const window = concept.window ?? 8;
+  for (const [is, ie] of inst) {
+    for (const [ms, me] of meas) {
+      const gap = ms > ie ? ms - ie - 1 : is > me ? is - me - 1 : 0;
+      if (gap <= window) return true;
+    }
+  }
+  return false;
+}
+
 
 export function validateOutputGuard(c: OutputGuardCase): Issue[] {
   if (!c.guard) return [];
@@ -331,6 +400,13 @@ function checkGatedTopics(said: string, topics: GatedTopic[], found: ReadonlySet
         };
       }
     }
+    if (t.concept && conceptDistanceHit(said, t.concept)) {
+      return {
+        reason: "gated_topic",
+        note: `You mentioned a record or instrument of the ship's list that the detective has not yet found. Speak only of what is already in the open; leave that instrument or reading out until it has been found.`,
+        detail: `gated:${t.unlockedBy}:concept`,
+      };
+    }
   }
   return null;
 }
@@ -344,26 +420,29 @@ function checkAliveUntil(said: string, c: OutputGuardCase, alive: AliveUntil, ct
   const appearance = appearanceWords(c, alive);
   const untilMin = clockMinutes(alive.until);
   const phrases = [...alive.alivePhrases].sort((a, b) => b.length - a.length);
+  const pronouns = alive.pronouns ?? [];
+
+  let victimCarry = 0;
+  let afterCarry = 0;
 
   for (const sentence of sentences(said)) {
     const aliveState = isAliveStatePhrase(sentence, phrases);
-    const named = mentionsVictim(sentence, aliases, alive.pronouns ?? [], others);
-    const implied = !named && aliveState && implicitVictim(sentence, others);
-    if (!named && !implied) continue;
-    if (!hasAlivePhrase(sentence, phrases) && !implied) continue;
+    const named = mentionsVictim(sentence, aliases, pronouns, others);
+    const implied = !named && (aliveState || hasAlivePhrase(sentence, phrases)) && implicitVictim(sentence, others);
+    const carriedVictim = !named && !implied && victimCarry > 0 && mentionsCarriedVictim(sentence, aliases, pronouns, others);
+    const victimNow = named || implied || carriedVictim;
+    const hasAlive = hasAlivePhrase(sentence, phrases) || aliveState || implied;
+    const anchorNow = sentenceHasAfterAnchor(sentence, alive, untilMin, appearance);
+    const afterNow = anchorNow || afterCarry > 0;
 
-    if (afterCutoffClock(sentence, untilMin, aliveState, appearance)) {
-      return hitAlive(sentence);
-    }
-    for (const phrase of alive.afterPhrases ?? []) {
-      if (hasPhrase(sentence, phrase)) return hitAlive(sentence);
-    }
-    for (const anchor of alive.anchors ?? []) {
-      for (const term of anchor.terms) {
-        if (!hasPhrase(sentence, term)) continue;
-        if (anchorRelation(sentence, term) === "after") return hitAlive(sentence);
-      }
-    }
+    if (victimNow && hasAlive && afterNow) return hitAlive(sentence);
+
+    if (named || implied) victimCarry = CARRY_SENTENCES;
+    else if (anchorNow) victimCarry = Math.max(victimCarry, CARRY_SENTENCES);
+    else victimCarry = Math.max(0, victimCarry - 1);
+
+    if (anchorNow) afterCarry = CARRY_SENTENCES;
+    else afterCarry = Math.max(0, afterCarry - 1);
   }
   return null;
 }

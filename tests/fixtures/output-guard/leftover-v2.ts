@@ -1,0 +1,158 @@
+/**
+ * Guard-v2 fixture: leftover should-block / must-pass lines from
+ * /workspace/qa/r9/offline-probes-97.jsonl, plus concept + carry vocabulary.
+ * Test data only — Tallyho authored values stay in Agatha's case files.
+ */
+import { CaseGuardSchema, type CaseGuard } from "@/engine/output-guard";
+import { PROBE_GUARD_RAW } from "./probe-guard";
+
+export const V2_GUARD: CaseGuard = CaseGuardSchema.parse({
+  aliveUntil: {
+    ...PROBE_GUARD_RAW.aliveUntil,
+    aliases: [...PROBE_GUARD_RAW.aliveUntil.aliases, "the Owner", "Owner"],
+    anchors: [
+      ...PROBE_GUARD_RAW.aliveUntil.anchors,
+      {
+        terms: [
+          "the ship tipped",
+          "the roll",
+          "gone over to port",
+          "port list",
+          "heeled the other way",
+          "heeled port",
+          "floor sloped port",
+          "plunge of the deck",
+          "downhill became the port side",
+          "we rolled",
+          "the bump",
+          "the tilt changed",
+          "the lurching",
+          "lurched",
+          "the ship lurched",
+        ],
+      },
+    ],
+    alivePhrases: [
+      ...PROBE_GUARD_RAW.aliveUntil.alivePhrases,
+      "survived",
+      "was fine",
+      "fine",
+      "came back up",
+      "still going",
+      "still barking orders",
+      "barking orders",
+      "chatty",
+      "still kicking",
+      "kicking",
+      "toasted with",
+      "ran into",
+      "chatted with",
+      "chatted",
+      "waved",
+      "answered me",
+      "passed the time of day",
+      "didn't kill him",
+      "did not kill him",
+      "his laugh",
+    ],
+    afterPhrases: [
+      ...PROBE_GUARD_RAW.aliveUntil.afterPhrases,
+      "subsequent to",
+      "afterwards",
+      "later",
+    ],
+  },
+  gatedTopics: [
+    {
+      unlockedBy: "heel-chart",
+      terms: [
+        "heel recorder",
+        "heel-recorder",
+        "heel chart",
+        "heel-chart",
+        "recorder reading",
+        "inclinometer",
+        "inclinograph",
+      ],
+      concept: {
+        instruments: [
+          "recorder",
+          "gauge",
+          "log",
+          "strip",
+          "inclinometer",
+          "meter",
+          "inclinograph",
+          "graph",
+          "paper",
+          "paper tick",
+          "the paper that",
+          "the thing that tracks",
+          "instrument",
+        ],
+        measures: ["heel", "tilt", "roll", "list", "lean", "lurch", "flip", "flipped", "degrees", "starboard", "port"],
+        window: 8,
+      },
+    },
+  ],
+});
+
+export const LEFTOVER_BLOCK_ALIVE = [
+  "The Commodore survived the lurch.",
+  "He survived the lurch.",
+  "He was still barking orders at half past ten.",
+  "He was fine after the ship tipped.",
+  "The Commodore was fine after the ship tipped.",
+  "He came back up after the lurch.",
+  "The Commodore came back up after the lurch.",
+  "The ship lurched. Afterwards the Commodore spoke to me.",
+  "The ship lurched to port. He was still alive.",
+  "Post-lurch, the Old Man was chatty.",
+  "Following the roll I bumped into the Commodore.",
+  "Once she'd gone over to port I chatted with Barnacle.",
+  "He was fine when we took the port list.",
+  "Still kicking after we heeled the other way.",
+  "I toasted with him once the floor sloped port.",
+  "Alive subsequent to the plunge of the deck.",
+  "After downhill became the port side, I ran into him.",
+  "Come ten-fifteen he was still going.",
+  "When she took her port list I heard his laugh.",
+  "He waved from the corridor once we rolled.",
+  "I passed the time of day with the Owner after the bump.",
+  "He answered me after the tilt changed.",
+  "The lurch didn't kill him; I spoke to him later.",
+  "The Commodore was still alive after she heeled port.",
+] as const;
+
+export const LEFTOVER_BLOCK_GATED = [
+  "The tilt gauge shows she went from starboard to port at 22:14.",
+  "I checked the tilt gauge in the engine room.",
+  "The roll recorder shows she went from starboard to port at 22:14.",
+  "The list log shows she went from starboard to port at 22:14.",
+  "The paper that tracks the lean shows she went from starboard to port at 22:14.",
+  "The paper tick in the engine room recorded the flip.",
+  "Gladys's lean-log shows 8 degrees then 6.",
+  "The engine-room graph shows starboard then port.",
+  "The list recorder in the pump house.",
+  "The inclinograph shows she went from starboard to port at 22:14.",
+  "The lean gauge shows she went from starboard to port at 22:14.",
+  "The recorder in the engine room shows 6 degrees port.",
+  "The instrument in the engine room shows she flipped at 22:14.",
+  "Ottilie penciled LURCH 22:14 on the strip.",
+] as const;
+
+export const MUST_PASS_V2 = [
+  "She heeled to starboard in the squall and flipped at 22:14.",
+  "The ship listed to starboard after the squall, then to port after the lurch.",
+  "From 21:40 she leaned starboard, and at 22:14 she went over to port.",
+  "The Tallyho has been listing to port since the Great Lurch.",
+  "The list changed at 22:14, from starboard to port.",
+  "I reported the list to the Captain.",
+  "The Great Lurch came at 22:14.",
+  "The lurch was at 22:14.",
+  "The Old Man's watch says 22:41",
+  "The horn sounded at 22:38. I thought he was alive.",
+  "The Voice-Horn bellowed his cheer at twenty-two minutes to eleven.",
+  "I spoke to the Commodore before the lurch.",
+  "The ship listed to starboard after the squall, then to port after the lurch.",
+] as const;
