@@ -309,8 +309,7 @@ describe("Tallyho guard v2 on real case data: cross-sentence carry (Agatha's #99
   beforeAll(async () => {
     c = await loadCase("tallyho");
   });
-  // Pinned until Agatha's data adds bare "lurched" / "the ship lurched" anchor terms (the engine carry passes on fixture data).
-  it.fails.each([
+  it.each([
     "The ship lurched. He was still alive.",
     "The ship lurched. Afterwards the Commodore spoke to me.",
   ])("blocks %s", (line) => {
