@@ -1112,5 +1112,148 @@
     "zippelli",
     "ottilie",
     "boris"
-  ]
+  ],
+  "guard": {
+    "aliveUntil": {
+      "victimId": "commodore-brine",
+      "aliases": [
+        "the Commodore",
+        "Commodore",
+        "Commodore Brine",
+        "Commodore Barnabas",
+        "Barnacle",
+        "Barnabas",
+        "Barnabas Brine",
+        "Uncle Barnabas",
+        "Uncle",
+        "the Old Man",
+        "Old Man",
+        "the Marmalade King",
+        "the Owner",
+        "Owner"
+      ],
+      "until": "22:14",
+      "anchors": [
+        {
+          "id": "ev-great-lurch",
+          "terms": [
+            "the Great Lurch",
+            "the great lurch",
+            "the lurch",
+            "Great Lurch"
+          ]
+        },
+        {
+          "id": "f-list-history",
+          "terms": [
+            "listed to port",
+            "list to port",
+            "rolled to port",
+            "heeled to port",
+            "leaned to port",
+            "went over to port",
+            "the ship swung over",
+            "swung over",
+            "the list changed",
+            "she rolled to port"
+          ]
+        }
+      ],
+      "alivePhrases": [
+        "alive",
+        "still alive",
+        "was alive",
+        "were alive",
+        "been alive",
+        "living",
+        "living and breathing",
+        "still breathing",
+        "still with us",
+        "up and about",
+        "had a word",
+        "had a chat",
+        "spoke",
+        "spoken",
+        "talked",
+        "called out",
+        "chatted",
+        "conversed",
+        "saw",
+        "seen",
+        "spotted",
+        "met",
+        "ran into",
+        "bumped into",
+        "heard him",
+        "heard his",
+        "heard his voice",
+        "his voice",
+        "he told me",
+        "he said",
+        "told me",
+        "cheered",
+        "bellowed",
+        "bellowing",
+        "in his cabin with"
+      ],
+      "pronouns": [
+        "he",
+        "him",
+        "his"
+      ],
+      "appearancePhrases": [
+        "watch",
+        "clock",
+        "dial",
+        "hands",
+        "crown",
+        "read",
+        "reads",
+        "programme",
+        "horn",
+        "horns",
+        "Voice-Horn",
+        "bellow",
+        "sounded",
+        "cylinder",
+        "Cheer-Box",
+        "trumpet",
+        "bellowed his cheer"
+      ],
+      "afterPhrases": [
+        "later that night",
+        "later that evening",
+        "later in the night",
+        "afterwards that night"
+      ]
+    },
+    "gatedTopics": [
+      {
+        "unlockedBy": "heel-chart",
+        "terms": [
+          "heel recorder",
+          "heel-recorder",
+          "heel chart",
+          "heel-chart",
+          "heel log",
+          "heel-log",
+          "heel strip",
+          "heel-strip",
+          "inclinometer",
+          "clinometer",
+          "angle of heel",
+          "angle-of-heel",
+          "recorder reading"
+        ],
+        "patterns": [
+          "heel[-\\s]?recorders?",
+          "heel[-\\s]?charts?",
+          "heel[-\\s]?(?:logs?|strips?)",
+          "inclinometers?",
+          "clinometers?",
+          "angle[-\\s]of[-\\s]heel"
+        ]
+      }
+    ]
+  }
 }
