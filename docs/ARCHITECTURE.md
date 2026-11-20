@@ -88,7 +88,7 @@ One exchange (`ai/interrogate-handler.ts`):
 ## Viewport stage (no scrollbar flashes)
 
 - `html, body` use `overflow-x: clip`. `<Game>` renders a `.stage` root (`100vh` fallback, then `100dvh`, `overflow: hidden`, `contain: paint`); each screen is an absolutely positioned `AnimatePresence mode="wait"` layer, so enter/exit scale transforms, shakes, sprites and overlays never push the document into overflow.
-- Screens that can be taller than a phone (intro, suspects) scroll inside themselves (`.screen-scroll`); the transcript is a genuine scroll area (`.scroll-area`, `scrollbar-gutter: stable`). Layout is flex plus fluid units; no fixed-pixel stage sizes.
+- Screens that can be taller than a phone (intro, suspects) scroll inside themselves (`.screen-scroll`); the transcript is a genuine scroll area (`.scroll-area`). Scrollbars are hidden visually (`.no-scrollbar`, plus the same rules on `.scroll-area` / `.screen-scroll` and `html` / `body`) while wheel, touch and keyboard scrolling still work. Layout is flex plus fluid units; no fixed-pixel stage sizes.
 - `npm run check:overflow -- <baseUrl>` (`scripts/check-overflow.ts`, playwright-core with the system Chrome) drives title → intro → suspects → interrogation (a reply with an emotion overlay, presenting evidence) → back (→ Investigate when present) at 1280x800 and 390x844, samples document `scrollWidth`/`scrollHeight` against the viewport on every animation frame, and exits 1 on any overflow.
 
 ## Investigate (spec §46)
