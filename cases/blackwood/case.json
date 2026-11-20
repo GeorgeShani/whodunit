@@ -284,7 +284,7 @@
     {
       "id": "lead-motive",
       "title": "Who gains from his death?",
-      "hint": "Money, grudges and who-gets-what: somebody in this house is better off tonight. Find out what they were fighting over.",
+      "hint": "A quarrel over money leaves a paper trail. Ask what they were arguing about, then see whether any of those papers are still in the house.",
       "closesWhen": {
         "evidenceIds": [
           "burned-letter"
@@ -393,7 +393,7 @@
     {
       "id": "lead-alibi",
       "title": "Who was really with whom during the blackout?",
-      "hint": "Two people swear they were together every minute. Somebody's story is going to spring a leak. Find whose, and make them say so.",
+      "hint": "Two people swear they never left each other's side. Ask whether anyone in the nearby rooms heard otherwise.",
       "opensWhen": {
         "mode": "any",
         "searchedLocationIds": [

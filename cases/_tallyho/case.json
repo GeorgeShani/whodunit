@@ -678,7 +678,7 @@
     {
       "id": "lead-recipe",
       "title": "Two old enemies can't look each other in the eye.",
-      "hint": "Two people who hate each other's trade avoid each other's eyes. That is not hate.",
+      "hint": "Two people who claim to hate each other's trade cannot meet each other's eyes. Ask what business they had in common tonight.",
       "opensWhen": {
         "interrogated": [
           {
@@ -725,7 +725,7 @@
     {
       "id": "lead-stager",
       "title": "Who put words in the Commodore's mouth?",
-      "hint": "Somebody made the ship hear him at 22:38. Find out how, and who stood behind the curtain.",
+      "hint": "That cheer came out of a box, not a throat. Someone had to start it. Ask who could have reached the chartroom when it played.",
       "opensWhen": {
         "evidenceIds": [
           "cheer-cylinder"
@@ -745,7 +745,7 @@
     {
       "id": "lead-motive",
       "title": "What was worth killing for?",
-      "hint": "Five people stood to lose something by midnight. Which loss was worth a man's life?",
+      "hint": "Find out what he meant to say at midnight. The speech may still be somewhere in his cabin.",
       "closesWhen": {
         "mode": "all",
         "evidenceIds": [
