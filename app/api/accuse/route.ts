@@ -13,6 +13,7 @@ import { ACCUSE_LINES, handleAccuse } from "@/engine/accuse-handler";
 import { accusedStore } from "@/lib/accused-store";
 import { closedGamesRepo } from "@/lib/closed-games";
 import { resolveRequestCase } from "@/lib/request-case";
+import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +27,9 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return NextResponse.json<AccuseResponseBody>({ error: rc.error, line: ACCUSE_LINES.unknownCase }, { status: 404 });
-    const { status, body } = await handleAccuse(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId, accused: accusedStore, closed: closedGamesRepo() });
+    const synced = await syncIncomingToken(json, rc.caseData);
+    const { status, body } = await handleAccuse(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId, accused: accusedStore, closed: closedGamesRepo() });
+    schedulePersist(status, body, rc.caseData.id, request);
     return NextResponse.json<AccuseResponseBody>(body, { status, ...(status === 503 ? { headers: { "retry-after": "5" } } : {}) });
   } catch (e) {
     console.error("[accuse] failed:", (e as Error).name);

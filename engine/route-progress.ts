@@ -19,5 +19,5 @@ export function attachProgress<B extends { stateToken?: string }>(
   const options = { legacyCaseId: deps.legacyCaseId };
   const before = restoreSession(caseData, typeof reqToken === "string" ? reqToken : undefined, deps.env, options).game;
   const after = restoreSession(caseData, body.stateToken, deps.env, options).game;
-  return { ...body, progress: publicProgress(caseData, after, visibleLeadStates(caseData, before)) };
+  return { ...body, progress: publicProgress(caseData, after, visibleLeadStates(caseData, before)), ...(after.gameId ? { gameId: after.gameId } : {}) };
 }

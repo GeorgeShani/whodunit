@@ -8,8 +8,8 @@
  *   - `connect_timeout: 5`, `idle_timeout: 10`: fail fast, and let an idle instance drop its connection.
  * The URL is never logged; connection errors are reported by name only.
  *
- * Only the accuse route and /api/health import this file. Interrogate, confront, investigate and hints never do
- * (tests/lib/closed-games-isolation.test.ts).
+ * State-changing routes and /api/resume import this via lib/saved-games.ts; /api/accuse and /api/health also use it
+ * for closed_games (tests/lib/closed-games-isolation.test.ts).
  */
 import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";

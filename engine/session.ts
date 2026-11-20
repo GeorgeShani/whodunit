@@ -17,6 +17,10 @@ export const RESET_NOTICE =
 export const COLD_CASE_NOTICE =
   "This case file has gone cold, detective. The household has scattered and the trail with it, so it's a fresh start: the same night, the same house, a clean notebook.";
 
+/** Narrator line when the client's token is behind the saved version (#40): we put the latest pages back in their hand. */
+export const STALE_TOKEN_NOTICE =
+  "These notes were already turned ahead, detective. I've put the latest pages back in your hand.";
+
 export interface RestoredSession {
   game: GameState;
   /** Set when a token was supplied but rejected (tampered, stale, other case). */
@@ -42,6 +46,7 @@ export function restoreSession(
 }
 
 export function saveSession(game: GameState, env?: Env): string {
+  game.saveVersion = (game.saveVersion ?? 0) + 1;
   return encodeStateToken(game, env);
 }
 

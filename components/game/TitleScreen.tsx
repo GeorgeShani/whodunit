@@ -3,7 +3,7 @@
 import type { UnlockLink } from "./unlock";
 import { motion, useReducedMotion } from "framer-motion";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { getAudio } from "@/components/effects/audio";
 import { FirstTimePrompt } from "@/components/help/HowToPlay";
 import { backdropStyle } from "./backdrop";
@@ -16,6 +16,9 @@ export function TitleScreen({
   logo,
   logoAlt,
   onStart,
+  onContinue,
+  onNewGame,
+  hasSave = false,
   onHowToPlay,
   nextCases = [],
 }: {
@@ -24,11 +27,29 @@ export function TitleScreen({
   /** Phase 3 (theme.logo): replaces the WHODUNIT?! logo. */
   logo?: string;
   logoAlt?: string;
-  onStart: () => void; /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void;
+  onStart: () => void;
+  /** Resume the case file on the desk (absent: no Continue button). */
+  onContinue?: () => void;
+  /** Start a fresh file; the title asks for confirmation when hasSave is set. */
+  onNewGame?: () => void;
+  /** A game is already in progress (or waiting to be replayed) for this case. */
+  hasSave?: boolean;
+  /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void;
   /** Phase 10 (3.8): cases this browser has opened by solving this one ("Next case: <title>"); absent until solved. */
   nextCases?: UnlockLink[] }) {
   // #9: no endless sunburst spin or button pulse under prefers-reduced-motion.
   const reduced = useReducedMotion() ?? false;
+  const [confirmNew, setConfirmNew] = useState(false);
+  const startNew = () => {
+    const audio = getAudio();
+    audio.unlock();
+    audio.play("case_open");
+    (onNewGame ?? onStart)();
+  };
+  const askOrStart = () => {
+    if (hasSave) setConfirmNew(true);
+    else startNew();
+  };
   // A first tap anywhere but START unlocks audio and lets the noir theme play once over the rain (never before a gesture).
   const themed = useRef(false);
   const onFirstTap = (e: React.PointerEvent) => {
@@ -69,27 +90,53 @@ export function TitleScreen({
         </motion.p>
         {/* Phones held sideways: START and HOW TO PLAY share a row so both stay on screen. */}
         <div className="flex flex-col items-center short:mt-3 short:flex-row short:gap-4">
+        {hasSave && onContinue && (
+          <motion.button
+            type="button"
+            data-continue
+            data-start
+            data-audit-target
+            onClick={() => {
+              const audio = getAudio();
+              audio.unlock();
+              audio.play("case_open");
+              onContinue();
+            }}
+            className="relative mt-8 cursor-pointer rounded-full border-4 border-black bg-red-500 px-10 py-4 font-display text-3xl tracking-widest text-white shadow-[6px_6px_0_#000] hover:bg-red-400 active:translate-y-1 active:shadow-[2px_2px_0_#000] max-sm:mt-5 max-sm:px-8 max-sm:py-3 max-sm:text-2xl short:mt-0 short:py-2 short:text-2xl"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [1, 1.08, 1] }}
+            whileHover={reduced ? undefined : { rotate: [0, -3, 3, 0] }}
+            transition={{
+              opacity: { delay: 1 },
+              scale: reduced ? { duration: 0 } : { delay: 1, duration: 1.2, repeat: Infinity, ease: "easeInOut" },
+            }}
+          >
+            [CONTINUE CASE]
+          </motion.button>
+        )}
         <motion.button
           type="button"
-          data-start
+          data-start={!hasSave ? true : undefined}
+          data-new-game
+          data-audit-target
           onClick={() => {
-            // The START CASE tap is an audio unlock gesture (autoplay rules). Opening the case is case_open;
-            // the fanfare is for the SOLVED ending only.
             const audio = getAudio();
             audio.unlock();
-            audio.play("case_open");
-            onStart();
+            audio.play(hasSave ? "ui_paper" : "case_open");
+            askOrStart();
           }}
-          className="relative mt-8 cursor-pointer rounded-full border-4 border-black bg-red-500 px-10 py-4 font-display text-3xl tracking-widest text-white shadow-[6px_6px_0_#000] hover:bg-red-400 active:translate-y-1 active:shadow-[2px_2px_0_#000] max-sm:mt-5 max-sm:px-8 max-sm:py-3 max-sm:text-2xl short:mt-0 short:py-2 short:text-2xl"
+          className={hasSave
+            ? "relative mt-4 min-h-12 cursor-pointer rounded-full border-[3px] border-black bg-white px-6 py-2 font-display text-xl tracking-widest text-ink shadow-[4px_4px_0_#000] hover:bg-yellow-100 active:translate-y-1 active:shadow-[1px_1px_0_#000] max-sm:mt-3 max-sm:text-lg short:mt-0"
+            : "relative mt-8 cursor-pointer rounded-full border-4 border-black bg-red-500 px-10 py-4 font-display text-3xl tracking-widest text-white shadow-[6px_6px_0_#000] hover:bg-red-400 active:translate-y-1 active:shadow-[2px_2px_0_#000] max-sm:mt-5 max-sm:px-8 max-sm:py-3 max-sm:text-2xl short:mt-0 short:py-2 short:text-2xl"}
           initial={{ opacity: 0, scale: 0.5 }}
-          animate={reduced ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [1, 1.08, 1] }}
-          whileHover={reduced ? undefined : { rotate: [0, -3, 3, 0] }}
+          animate={reduced || hasSave ? { opacity: 1, scale: 1 } : { opacity: 1, scale: [1, 1.08, 1] }}
+          whileHover={reduced || hasSave ? undefined : { rotate: [0, -3, 3, 0] }}
           transition={{
             opacity: { delay: 1 },
-            scale: reduced ? { duration: 0 } : { delay: 1, duration: 1.2, repeat: Infinity, ease: "easeInOut" },
+            scale: reduced || hasSave ? { duration: 0 } : { delay: 1, duration: 1.2, repeat: Infinity, ease: "easeInOut" },
           }}
         >
-          [START CASE]
+          {hasSave ? "[NEW GAME]" : "[START CASE]"}
         </motion.button>
         {onHowToPlay && (
           <button
@@ -108,6 +155,16 @@ export function TitleScreen({
           </button>
         )}
         </div>
+        {confirmNew && (
+          <div role="dialog" aria-modal="true" aria-labelledby="new-game-title" data-new-game-confirm className="relative z-10 mt-4 max-w-md rounded-2xl border-4 border-black bg-paper px-5 py-4 text-left text-ink shadow-[6px_6px_0_#000] max-sm:max-w-80 max-sm:px-4 max-sm:py-3">
+            <p id="new-game-title" className="font-display text-xl tracking-wide">A fresh case file?</p>
+            <p className="mt-2 text-sm font-semibold leading-snug">The notes on the desk will stay in the cabinet, and you&apos;ll begin the night again. This cannot be undone from here.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" data-new-game-confirm-yes className="min-h-11 cursor-pointer rounded-full border-[3px] border-black bg-red-500 px-4 py-1.5 font-display text-lg tracking-wide text-white shadow-[3px_3px_0_#000] hover:bg-red-400" onClick={() => { setConfirmNew(false); startNew(); }}>Begin a new file</button>
+              <button type="button" data-new-game-confirm-no className="min-h-11 cursor-pointer rounded-full border-[3px] border-black bg-white px-4 py-1.5 font-display text-lg tracking-wide text-ink shadow-[3px_3px_0_#000] hover:bg-yellow-100" onClick={() => setConfirmNew(false)}>Keep this one</button>
+            </div>
+          </div>
+        )}
         {nextCases.map((n) => (
           <a
             key={n.id}

@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { BAD_REQUEST_LINE, handleInvestigate, UNKNOWN_CASE_LINE } from "@/engine/investigate-handler";
 import { resolveRequestCase } from "@/lib/request-case";
+import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
 import type { InvestigateResponseBody } from "@/engine/investigate-schema";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,9 @@ export async function POST(request: Request) {
         { status: 404 },
       );
     }
-    const { status, body } = handleInvestigate(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
+    const synced = await syncIncomingToken(json, rc.caseData);
+    const { status, body } = handleInvestigate(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
+    schedulePersist(status, body, rc.caseData.id, request);
     return NextResponse.json<InvestigateResponseBody>(body, { status });
   } catch (e) {
     console.error("[investigate] failed:", (e as Error).name);

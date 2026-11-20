@@ -21,7 +21,7 @@
  * and Esc brings focus and the screen's scroll position back exactly.
  *
  * CTA audit: the screen-bottom call to action ([data-cta-bar], intro and accuse) never overlaps text, at the first
- * view and at the end of scroll (the accuse form is reached by restoring a saved session, so no gate is needed).
+ * view and at the end of scroll (the accuse form is reached via sessionStorage `whodunit:overflow-screen=accuse` (the in-progress save no longer restores a mid-game screen), so no gate is needed).
  * HUD audit: the mute toggle and the HOW TO PLAY pill keep at least 12px (16px from 640px wide) from the top and
  * right edges, 8px+ between each other, and overlap no control or heading on the top layer.
  *
@@ -378,6 +378,50 @@ async function run(): Promise<number> {
       await wait(800);
       break walk;
     }
+    // Saved-games title (Continue + New Game confirm). Mock /api/resume so this walk
+    // does not need a real saved row or a live database.
+    {
+      const pathCase = new URL(p.url()).pathname.match(/\/case\/([^/]+)/)?.[1] ?? "blackwood";
+      const resumeBody = {
+        stateToken: "overflow-title-save",
+        gameId: "AAAAAAAAAAAAAAAAAAAAAA",
+        caseId: pathCase,
+        snapshot: {
+          discoveredEvidenceIds: [],
+          searchedLocationIds: [],
+          evidence: [],
+          testimonies: [],
+          emotions: {},
+          stress: {},
+          progress: {},
+          confront: { pair: null, status: {} },
+          outcome: "pending",
+        },
+      };
+      await ctx.route("**/api/resume", (r) =>
+        r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(resumeBody) }),
+      );
+      await p.evaluate(
+        ([id, gid]) => localStorage.setItem(`whodunit:save:${id}`, JSON.stringify({ v: 1, gameId: gid, caseId: id })),
+        [pathCase, "AAAAAAAAAAAAAAAAAAAAAA"],
+      );
+      await p.reload({ waitUntil: "networkidle" });
+      await p.waitForSelector("[data-continue]", { timeout: 10_000 });
+      await label(p, "title (continue)");
+      await wait(2500);
+      await checkHud(p, "title (continue)");
+      await clickButton(p, /NEW GAME/);
+      await p.waitForSelector("[data-new-game-confirm]", { timeout: 5_000 });
+      await label(p, "title (new game confirm)");
+      await p.locator("[data-new-game-confirm-no]").click({ force: true });
+      await p.waitForSelector("[data-new-game-confirm]", { state: "detached", timeout: 5_000 });
+      await ctx.unroute("**/api/resume");
+      await p.evaluate((id) => {
+        localStorage.removeItem(`whodunit:save:${id}`);
+        for (const k of Object.keys(sessionStorage)) if (k.startsWith("whodunit:token:")) sessionStorage.removeItem(k);
+      }, pathCase);
+      await p.reload({ waitUntil: "networkidle" });
+    }
     await label(p, "title");
     await wait(2500); // title pulse + spring intro
     await checkHud(p, "title");
@@ -515,15 +559,9 @@ async function run(): Promise<number> {
           await wait(600);
           await p.keyboard.press("Escape");
           await wait(600);
-          // The form itself (audited for the CTA bar): restore this session onto the accuse screen, no gate involved.
-          const restored = await p.evaluate(() => {
-            const k = Object.keys(sessionStorage).find((x) => x.startsWith("whodunit:game:"));
-            const raw = k ? sessionStorage.getItem(k) : null;
-            if (!k || !raw) return false;
-            sessionStorage.setItem(k, JSON.stringify({ ...JSON.parse(raw), screen: "accuse" }));
-            return true;
-          });
-          if (restored) {
+          // The form itself (audited for the CTA bar): jump onto the accuse screen, no gate involved.
+          await p.evaluate(() => sessionStorage.setItem("whodunit:overflow-screen", "accuse"));
+          {
             await p.reload({ waitUntil: "networkidle" });
             await wait(1800);
             if (await p.locator("[data-accuse-suspect]").count()) {

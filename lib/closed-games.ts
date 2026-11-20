@@ -154,7 +154,7 @@ export function dbDiagnostic(env: NodeJS.ProcessEnv = process.env, error?: unkno
 }
 
 /** ONE structured server log line per failure: non-secret fields only (never the URL, user, password or message). */
-export function logDbFailure(source: "health" | "accuse", e: unknown, env: NodeJS.ProcessEnv = process.env, log: (line: string) => void = console.error): void {
+export function logDbFailure(source: "health" | "accuse" | "save" | "resume", e: unknown, env: NodeJS.ProcessEnv = process.env, log: (line: string) => void = console.error): void {
   log(`[db] ${JSON.stringify({ event: "db_unreachable", source, ...dbDiagnostic(env, e) })}`);
 }
 

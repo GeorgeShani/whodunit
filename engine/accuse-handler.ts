@@ -113,7 +113,7 @@ interface AccuseDeps {
  * re-grade as "no one helped", a loss), since only the outcome, the accused and the helper are stored. A LOSS
  * carries the stored outcome and the accused's reaction only: no solution, no verdict, no cited clues.
  */
-function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: StoredClose, sentToken: string, env?: Env): AccuseResponseBody {
+export function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: StoredClose, sentToken: string, env?: Env): AccuseResponseBody {
   const closed = { error: "case_closed", line: ACCUSE_LINES.caseClosed } as const;
   if (stored.outcome === "won") {
     const s = caseData.solution;

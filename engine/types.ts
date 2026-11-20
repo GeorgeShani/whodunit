@@ -672,6 +672,8 @@ export const GameStateSchema = z.strictObject({
   caseId: CaseIdSchema,
   /** Random per-game id (set when the game is created or first saved; legacy tokens derive one). Keys the one-accusation guard. */
   gameId: z.string().regex(/^[A-Za-z0-9_-]{8,48}$/).optional(),
+  /** Monotone save version, also stored on the saved_games row. Absent in tokens from before saved games (treated as 0). */
+  saveVersion: z.number().int().nonnegative().optional(),
   phase: z.enum(["investigating", "interrogating", "confronting", "accusing", "resolved"]),
   /** Monotonic turn counter. */
   turn: z.number().int().nonnegative(),

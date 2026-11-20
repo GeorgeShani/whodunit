@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { handleHint, type HintResponseBody } from "@/engine/hint-handler";
 import { resolveRequestCase } from "@/lib/request-case";
+import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,9 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error);
-    const { status, body } = handleHint(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
+    const synced = await syncIncomingToken(json, rc.caseData);
+    const { status, body } = handleHint(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
+    schedulePersist(status, body, rc.caseData.id, request);
     return NextResponse.json<HintResponseBody>(body, { status });
   } catch (e) {
     console.error("[hint] failed:", (e as Error).name);

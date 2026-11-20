@@ -8,6 +8,7 @@ import { handleConfront } from "@/ai/confront-handler";
 import type { ConfrontResponseBody } from "@/ai/confront-schema";
 import { clientIp, createModelGate } from "@/ai/model-gate";
 import { resolveRequestCase } from "@/lib/request-case";
+import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
 import { runtimeKv } from "@/lib/runtime-kv";
 
 export const dynamic = "force-dynamic";
@@ -25,12 +26,14 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error);
-    const { status, body } = await handleConfront(json, {
+    const synced = await syncIncomingToken(json, rc.caseData);
+    const { status, body } = await handleConfront(synced.json, {
       caseData: rc.caseData,
       legacyCaseId: rc.legacyCaseId,
       gate: createModelGate({ kv: runtimeKv, ip: clientIp(request.headers) }),
       claims: runtimeKv,
     });
+    schedulePersist(status, body, rc.caseData.id, request);
     const retryAfter = body.unavailable?.retryAfter;
     return NextResponse.json<ConfrontResponseBody>(body, { status, ...(retryAfter ? { headers: { "retry-after": String(retryAfter) } } : {}) });
   } catch (e) {
