@@ -674,6 +674,11 @@ export const GameStateSchema = z.strictObject({
   gameId: z.string().regex(/^[A-Za-z0-9_-]{8,48}$/).optional(),
   /** Monotone save version, also stored on the saved_games row. Absent in tokens from before saved games (treated as 0). */
   saveVersion: z.number().int().nonnegative().optional(),
+  /**
+   * Signed flag: this token was minted while the cabinet was shut (DB unconfigured or unreachable),
+   * or was derived from such a token. Never written to saved_games (#94).
+   */
+  offline: z.boolean().optional(),
   phase: z.enum(["investigating", "interrogating", "confronting", "accusing", "resolved"]),
   /** Monotonic turn counter. */
   turn: z.number().int().nonnegative(),

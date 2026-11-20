@@ -13,7 +13,8 @@ import { ACCUSE_LINES, handleAccuse } from "@/engine/accuse-handler";
 import { accusedStore } from "@/lib/accused-store";
 import { closedGamesRepo } from "@/lib/closed-games";
 import { resolveRequestCase } from "@/lib/request-case";
-import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
+import { runWithSaveContext } from "@/lib/save-context";
+import { finishSavedAction, syncIncomingToken } from "@/lib/saved-session";
 
 export const dynamic = "force-dynamic";
 
@@ -28,8 +29,16 @@ export async function POST(request: Request) {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return NextResponse.json<AccuseResponseBody>({ error: rc.error, line: ACCUSE_LINES.unknownCase }, { status: 404 });
     const synced = await syncIncomingToken(json, rc.caseData);
-    const { status, body } = await handleAccuse(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId, accused: accusedStore, closed: closedGamesRepo() });
-    schedulePersist(status, body, rc.caseData.id, request);
+    if (synced.rejectStale) {
+      return NextResponse.json<AccuseResponseBody>(
+        { error: "stale_token", line: synced.notice ?? "", notice: synced.notice },
+        { status: 409 },
+      );
+    }
+    const { status, body } = await runWithSaveContext(synced.cabinetOffline, () =>
+      handleAccuse(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId, accused: accusedStore, closed: closedGamesRepo() }),
+    );
+    finishSavedAction(status, body, synced.notice, rc.caseData.id, request);
     return NextResponse.json<AccuseResponseBody>(body, { status, ...(status === 503 ? { headers: { "retry-after": "5" } } : {}) });
   } catch (e) {
     console.error("[accuse] failed:", (e as Error).name);

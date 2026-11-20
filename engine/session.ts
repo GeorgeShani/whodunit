@@ -6,6 +6,7 @@
 import { inSetting, settingOf } from "./presentation";
 import type { LoadedCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
+import { mintOfflineThisRequest, noteIssuedVersion } from "@/lib/save-context";
 import { decodeStateToken, encodeStateToken, newGameId, type DecodeOptions, type Env } from "./state-token";
 import type { GameState } from "./types";
 
@@ -20,6 +21,14 @@ export const COLD_CASE_NOTICE =
 /** Narrator line when the client's token is behind the saved version (#40): we put the latest pages back in their hand. */
 export const STALE_TOKEN_NOTICE =
   "These notes were already turned ahead, detective. I've put the latest pages back in your hand.";
+
+/** Narrator line when an offline-lineage leftover is ignored in favour of the cabinet row (#94). */
+export const OFFLINE_RESUME_NOTICE =
+  "These notes were jotted while the cabinet was shut, detective. I've put the file from the cabinet back in your hand.";
+
+/** Narrator line when this instance already issued a newer version and we cannot put those pages back (outage, best-effort). */
+export const CABINET_AHEAD_NOTICE =
+  "These notes were already turned ahead, detective. Keep the latest pages you already have.";
 
 export interface RestoredSession {
   game: GameState;
@@ -46,7 +55,12 @@ export function restoreSession(
 }
 
 export function saveSession(game: GameState, env?: Env): string {
+  // Tokens minted while the cabinet is shut, and every token derived from one,
+  // carry a signed `offline` flag. They keep the same-tab game going but are
+  // never written to saved_games; once the cabinet is open the row is truth (#94).
+  if (game.offline || mintOfflineThisRequest()) game.offline = true;
   game.saveVersion = (game.saveVersion ?? 0) + 1;
+  if (game.gameId) noteIssuedVersion(game.gameId, game.saveVersion);
   return encodeStateToken(game, env);
 }
 

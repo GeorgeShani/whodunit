@@ -1,24 +1,26 @@
 /**
  * SERVER-ONLY. POST /api/resume: hand back the latest verified token for a game id the client already holds.
  * The client sends gameId + caseId (and, for migration or a DB outage, the leftover stateToken) in the body,
- * never in a URL. A swapped id or case is refused. A closed game replays the stored verdict (#39).
+ * never in a URL. A swapped id or case is refused. A closed game replays the stored verdict (#39). An offline leftover is ignored when a row exists (#94); fallback without a row is same-tab only.
  */
 import type { ResumeResponseBody } from "./resume-schema";
 export type { ResumeResponseBody } from "./resume-schema";
 import { storedOutcomeBody } from "./accuse-handler";
 import type { LoadedCase } from "./case-schema";
-import { COLD_CASE_NOTICE, RESET_NOTICE, restoreSession } from "./session";
+import { COLD_CASE_NOTICE, CABINET_AHEAD_NOTICE, OFFLINE_RESUME_NOTICE, RESET_NOTICE, restoreSession } from "./session";
 import { inSetting, settingOf } from "./presentation";
 import {
   decodeStateToken,
   isGameId,
   peekStateTokenGameId,
+  peekStateTokenOffline,
   peekStateTokenSaveVersion,
   type Env,
 } from "./state-token";
 import { caseIdsMatch, canonicalCaseId } from "@/lib/cases";
 import { closedGamesRepo, type ClosedGamesRepo } from "@/lib/closed-games";
 import { allowSavePath, snapshotFromGame } from "@/lib/saved-session";
+import { issuedHighWater, noteIssuedVersion } from "@/lib/save-context";
 import { savedGamesRepo, type SavedGameRecord, type SavedGamesRepo } from "@/lib/saved-games";
 
 export const RESUME_LINES = {
@@ -43,10 +45,15 @@ export interface ResumeDeps {
   headers?: Headers;
 }
 
-function pickNewer(clientToken: string | undefined, row: SavedGameRecord | null, env?: Env): { token: string; source: "db" | "client" } | null {
+function pickNewer(clientToken: string | undefined, row: SavedGameRecord | null, env?: Env): { token: string; source: "db" | "client"; notice?: string } | null {
   const clientV = clientToken ? peekStateTokenSaveVersion(clientToken, env) : undefined;
+  const clientOffline = clientToken ? peekStateTokenOffline(clientToken, env) === true : false;
+  // An offline leftover never beats a cabinet row, even with a pumped version (#94).
+  if (row && clientOffline && clientToken) {
+    return { token: row.stateToken, source: "db", notice: OFFLINE_RESUME_NOTICE };
+  }
   if (row && clientV !== undefined && clientToken) {
-    // Newer version wins; a tie (e.g. after the DB returns) goes to the row.
+    // Newer *online* version wins; a tie (e.g. after the DB returns) goes to the row.
     return row.version >= clientV ? { token: row.stateToken, source: "db" } : { token: clientToken, source: "client" };
   }
   if (row) return { token: row.stateToken, source: "db" };
@@ -97,6 +104,18 @@ export async function handleResume(json: unknown, deps: ResumeDeps): Promise<{ s
     dbDown = false; // unconfigured: not "down", just no row
   }
 
+  if (row) noteIssuedVersion(requestedId, row.version);
+
+  // Same-tab fallback: a leftover is allowed while the cabinet is shut, but this
+  // instance will not resume an older token than one it already issued (#94).
+  if (!row && usableClient) {
+    const v = peekStateTokenSaveVersion(usableClient, env);
+    const hw = issuedHighWater(requestedId);
+    if (hw !== undefined && v !== undefined && v < hw) {
+      return { status: 409, body: { error: "stale_token", line: CABINET_AHEAD_NOTICE, notice: CABINET_AHEAD_NOTICE } };
+    }
+  }
+
   const picked = pickNewer(usableClient, row, env);
   if (!picked) {
     return { status: dbDown ? 503 : 404, body: { error: dbDown ? "cabinet_stuck" : "not_found", line: dbDown ? RESUME_LINES.cabinetStuck : RESUME_LINES.invalid } };
@@ -116,6 +135,7 @@ export async function handleResume(json: unknown, deps: ResumeDeps): Promise<{ s
     gameId: requestedId,
     caseId: canonicalCaseId(caseData.id),
     snapshot,
+    ...(picked.notice ? { notice: picked.notice } : {}),
   };
 
   const closedRepo = deps.closed === undefined ? closedGamesRepo() : deps.closed;

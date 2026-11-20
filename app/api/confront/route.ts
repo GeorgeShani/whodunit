@@ -8,7 +8,8 @@ import { handleConfront } from "@/ai/confront-handler";
 import type { ConfrontResponseBody } from "@/ai/confront-schema";
 import { clientIp, createModelGate } from "@/ai/model-gate";
 import { resolveRequestCase } from "@/lib/request-case";
-import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
+import { runWithSaveContext } from "@/lib/save-context";
+import { finishSavedAction, syncIncomingToken } from "@/lib/saved-session";
 import { runtimeKv } from "@/lib/runtime-kv";
 
 export const dynamic = "force-dynamic";
@@ -27,13 +28,21 @@ export async function POST(request: Request) {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error);
     const synced = await syncIncomingToken(json, rc.caseData);
-    const { status, body } = await handleConfront(synced.json, {
-      caseData: rc.caseData,
-      legacyCaseId: rc.legacyCaseId,
-      gate: createModelGate({ kv: runtimeKv, ip: clientIp(request.headers) }),
-      claims: runtimeKv,
-    });
-    schedulePersist(status, body, rc.caseData.id, request);
+    if (synced.rejectStale) {
+      return NextResponse.json<ConfrontResponseBody>(
+        { lines: [], error: "stale_token", line: synced.notice, notice: synced.notice },
+        { status: 409 },
+      );
+    }
+    const { status, body } = await runWithSaveContext(synced.cabinetOffline, () =>
+      handleConfront(synced.json, {
+        caseData: rc.caseData,
+        legacyCaseId: rc.legacyCaseId,
+        gate: createModelGate({ kv: runtimeKv, ip: clientIp(request.headers) }),
+        claims: runtimeKv,
+      }),
+    );
+    finishSavedAction(status, body, synced.notice, rc.caseData.id, request);
     const retryAfter = body.unavailable?.retryAfter;
     return NextResponse.json<ConfrontResponseBody>(body, { status, ...(retryAfter ? { headers: { "retry-after": String(retryAfter) } } : {}) });
   } catch (e) {

@@ -6,7 +6,8 @@
 import { NextResponse } from "next/server";
 import { BAD_REQUEST_LINE, handleInvestigate, UNKNOWN_CASE_LINE } from "@/engine/investigate-handler";
 import { resolveRequestCase } from "@/lib/request-case";
-import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
+import { runWithSaveContext } from "@/lib/save-context";
+import { finishSavedAction, syncIncomingToken } from "@/lib/saved-session";
 import type { InvestigateResponseBody } from "@/engine/investigate-schema";
 
 export const dynamic = "force-dynamic";
@@ -30,8 +31,16 @@ export async function POST(request: Request) {
       );
     }
     const synced = await syncIncomingToken(json, rc.caseData);
-    const { status, body } = handleInvestigate(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
-    schedulePersist(status, body, rc.caseData.id, request);
+    if (synced.rejectStale) {
+      return NextResponse.json<InvestigateResponseBody>(
+        { found: [], lines: [synced.notice ?? ""], searchedLocationIds: [], error: "stale_token", notice: synced.notice },
+        { status: 409 },
+      );
+    }
+    const { status, body } = runWithSaveContext(synced.cabinetOffline, () =>
+      handleInvestigate(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId }),
+    );
+    finishSavedAction(status, body, synced.notice, rc.caseData.id, request);
     return NextResponse.json<InvestigateResponseBody>(body, { status });
   } catch (e) {
     console.error("[investigate] failed:", (e as Error).name);

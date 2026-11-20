@@ -19,9 +19,11 @@
  * STATE_TOKEN_MAX_AGE_MS (30 days, matching saved_games row retention). Tokens issued before `iat`
  * existed are accepted until LEGACY_TOKEN_GRACE_UNTIL, then expire too.
  *
- * Known limit: tokens are not bound to a session, so a player can replay an
- * OLDER token of their own (e.g. to undo stress). That is harmless for a
- * single-player game: they can only reach states the server itself issued.
+ * Known limit: tokens are not bound to a session. An older *online* token is
+ * refused when a newer saved_games row exists (#40). Tokens minted while the
+ * cabinet is shut carry a signed `offline: true` flag (inherited by every
+ * derived token) and are never written to saved_games; when the cabinet is
+ * open again the row is truth (#94). Fallback play itself is same-tab only.
  */
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
@@ -114,6 +116,8 @@ const TokenPayloadSchema = z.strictObject({
   gameId: z.string().regex(/^[A-Za-z0-9_-]{8,48}$/).optional(),
   /** Monotone save version (absent in older tokens: treated as 0). */
   saveVersion: z.number().int().nonnegative().optional(),
+  /** Present and true only on tokens minted while the cabinet was shut, and those derived from them (#94). */
+  offline: z.boolean().optional(),
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema),
   searchedLocationIds: z.array(IdSchema).default([]),
@@ -208,6 +212,7 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
     caseId: game.caseId,
     gameId: ensureGameId(game),
     saveVersion: game.saveVersion ?? 0,
+    ...(game.offline ? { offline: true } : {}),
     turn: game.turn,
     discoveredEvidenceIds: [...game.discoveredEvidenceIds],
     searchedLocationIds: [...game.searchedLocationIds],
@@ -358,6 +363,12 @@ export function peekStateTokenSaveVersion(token: string | undefined, env?: Env):
   return v.ok ? (v.p.saveVersion ?? 0) : undefined;
 }
 
+/** Whether a verified token is offline-lineage (#94). Undefined when the signature fails. */
+export function peekStateTokenOffline(token: string | undefined, env?: Env): boolean | undefined {
+  const v = verifiedPayload(token, env);
+  return v.ok ? v.p.offline === true : undefined;
+}
+
 export function decodeStateToken(token: string | undefined, caseData: LoadedCase, env?: Env, options: DecodeOptions = {}): DecodeResult {
   const v = verifiedPayload(token, env);
   if (!v.ok) return v;
@@ -416,6 +427,7 @@ export function decodeStateToken(token: string | undefined, caseData: LoadedCase
   // Older tokens have no id: derive a stable one from the token itself so replays of the same token share it.
   game.gameId = p.gameId ?? createHash("sha256").update(token ?? "").digest("base64url").slice(0, 22);
   game.saveVersion = p.saveVersion ?? 0;
+  if (p.offline) game.offline = true;
   game.activeConfrontation = p.confrontation;
   game.confrontedPairs = [...p.confrontedPairs];
   // Older tokens had only the active pair's count: carry it over so it isn't lost.

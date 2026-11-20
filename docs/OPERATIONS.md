@@ -154,11 +154,20 @@ In-progress (and recently closed) games are stored in a second table, also RLS-o
 | `updated_at` | timestamptz, not null, default `now()` | |
 
 After every successful state-changing action (investigate, interrogate, present, confront, hint, accuse) the server
-upserts the new token. A save failure is logged and play continues: the in-hand token stays the source of truth until
-the database is back, at which point the newest version it holds wins. `POST /api/resume` (body only: `gameId`, `caseId`,
-optional leftover `stateToken`; never in a URL) returns the latest verified token and a public snapshot (no solution, no
-hidden proof). A closed game is replayed from `closed_games` as today. If the database is down, resume falls back to a
-tab-scoped leftover token; without one the player sees an in-character "cabinet is stuck" line.
+upserts the new token. A save failure is logged and play continues.
+
+Fallback (the database unconfigured or unreachable) is **same-tab only**. Tokens minted while the cabinet is shut carry
+a signed `offline: true` flag, inherited by every token derived from them, and are **never written** to `saved_games`.
+The same tab can keep playing from its leftover token. When the cabinet is open again, the stored row is truth: an
+offline leftover is ignored (even if its `saveVersion` was pumped higher) and the player gets an in-character notice.
+A game that existed only during the outage (no row yet) stays tab-scoped and is not promoted into the cabinet. A
+best-effort in-memory high-water mark on each instance may refuse an older token during the outage; it is not shared
+across instances and is not a substitute for the row.
+
+`POST /api/resume` (body only: `gameId`, `caseId`, optional leftover `stateToken`; never in a URL) returns the latest
+verified token and a public snapshot (no solution, no hidden proof). A closed game is replayed from `closed_games` as
+today. If the database is down, resume falls back to a tab-scoped leftover token; without one the player sees an
+in-character "cabinet is stuck" line.
 
 The client stores only `{ gameId, caseId }` in localStorage. A pre-deploy sessionStorage blob is migrated once. Dialogue
 transcripts are not restored. The title offers **Continue case**, and **New game** asks for confirmation when a file is

@@ -6,7 +6,8 @@
 import { NextResponse } from "next/server";
 import { handleHint, type HintResponseBody } from "@/engine/hint-handler";
 import { resolveRequestCase } from "@/lib/request-case";
-import { schedulePersist, syncIncomingToken } from "@/lib/saved-session";
+import { runWithSaveContext } from "@/lib/save-context";
+import { finishSavedAction, syncIncomingToken } from "@/lib/saved-session";
 
 export const dynamic = "force-dynamic";
 
@@ -23,8 +24,16 @@ export async function POST(request: Request) {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error);
     const synced = await syncIncomingToken(json, rc.caseData);
-    const { status, body } = handleHint(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId });
-    schedulePersist(status, body, rc.caseData.id, request);
+    if (synced.rejectStale) {
+      return NextResponse.json<HintResponseBody>(
+        { hint: null, line: synced.notice ?? "", readyInTurns: 0, cooldownTurns: 0, error: "stale_token", notice: synced.notice },
+        { status: 409 },
+      );
+    }
+    const { status, body } = runWithSaveContext(synced.cabinetOffline, () =>
+      handleHint(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId }),
+    );
+    finishSavedAction(status, body, synced.notice, rc.caseData.id, request);
     return NextResponse.json<HintResponseBody>(body, { status });
   } catch (e) {
     console.error("[hint] failed:", (e as Error).name);
