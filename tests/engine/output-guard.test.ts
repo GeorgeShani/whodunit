@@ -204,7 +204,8 @@ describe("checkReply hook and Tallyho integration (fixture guard attached in mem
     const { guard } = turn(tallyho, "bilge");
     expect(checkOutputGuard("The Old Man's watch says 22:41", tallyho, guard.ctx, [])).toBeNull();
     const v = checkReply({ dialogue: "The Commodore was still alive after the lurch, I heard him myself.", admits: [] }, guard);
-    expect(v?.reason).toBe("alive_after");
+    // Tallyho also ships an always-on #90 forbiddenPhrases net; either reason is a block.
+    expect(["alive_after", "forbidden_phrase"]).toContain(v?.reason);
   });
 });
 

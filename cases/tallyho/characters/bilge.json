@@ -302,6 +302,11 @@
       "text": "\\byou\\s+(?:were\\s+there|saw\\s+it|heard\\s+it)\\b[^.!?]{0,20}\\bdetective\\b|\\bdetective\\b[^.!?]{0,10}\\byou\\s+(?:were\\s+there|saw\\s+it|heard\\s+it)\\b",
       "regex": true,
       "note": "The detective was seasick in a forward cabin all evening and witnessed nothing."
+    },
+    {
+      "text": "(?:^|[.!?]\\s+)(?![^.!?]*(?:\\b(?:horns?|Voice-Horn|watch|clock|cylinder|Cheer-Box|programme)\\b))(?=[^.!?]*(?:the\\s+Commodore|Commodore(?:\\s+(?:Barnabas|Brine))?|Barnacle|Barnabas|Uncle(?:\\s+Barnabas)?|(?:the\\s+)?Old\\s+Man|the\\s+Marmalade\\s+King|(?:the\\s+)?Owner|\\bhe\\b|\\bhim\\b))(?=[^.!?]*(?:(?:still|was|were|been)\\s+alive|alive(?:\\s+when)?|still\\s+with\\s+us|living\\s+and\\s+breathing|up\\s+and\\s+about|had\\s+a\\s+word|spoke(?:n)?(?:\\s+to)?|talked\\s+(?:to|with)|called\\s+out|chatted\\s+with|conversed|\\bsaw\\b|\\bseen\\b|\\bspotted\\b|\\bmet\\b|ran\\s+into|bumped\\s+into|heard\\s+him|heard\\s+his\\s+voice|his\\s+voice|cheered|bellowed))(?=[^.!?]*(?:(?:after\\s+the\\s+(?:great\\s+)?lurch|after\\s+(?:she|the\\s+ship|we)\\s+(?:rolled|swung|listed|heeled|leaned|went\\s+over)\\s+to\\s+port|when\\s+(?:the\\s+ship|she)\\s+listed\\s+to\\s+port|after\\s+the\\s+list\\s+changed|after\\s+the\\s+ship\\s+swung\\s+over|after\\s+(?:a\\s+)?quarter\\s+past\\s+ten|after\\s+ten\\s+past\\s+ten|after\\s+twenty(?:[-\\s]five)?\\s+past\\s+ten|after\\s+half\\s+past\\s+ten|after\\s+half\\s+ten|after\\s+(?:ten\\s+fifteen|10[:.]15|22[:.]1[4-9]|22[:.][2-5]\\d))|(?:at\\s+(?:a\\s+)?quarter\\s+past\\s+ten|at\\s+twenty(?:[-\\s]five)?\\s+past\\s+ten|at\\s+half\\s+past\\s+ten|at\\s+half\\s+ten|at\\s+(?:ten\\s+fifteen|10[:.]15))))[^.!?]+",
+      "regex": true,
+      "note": "#90: never state as fact that the Commodore was alive after the 22:14 lurch (or after the port list / late-clock wording), unless the sentence is clearly about the staged horn, watch or cylinder. Always on: that claim undercuts the marmalade-run proof. See docs/tallyho-guard-anchors.md."
     }
   ],
   "voice": {
