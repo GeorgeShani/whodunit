@@ -73,7 +73,7 @@ export function HowToPlayDialog({
             <span className="max-sm:hidden"> Close</span>
           </button>
         </header>
-        <div data-htp-body className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5">
+        <div data-htp-body className="no-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain p-3 sm:p-5">
           <ManualContent manual={manual} tips={tips} level={3} collapsible openIds={target ? [target] : [manual.sections[0]!.id]} />
         </div>
         <footer className="flex justify-end border-t-4 border-black bg-amber-100 px-4 py-2">

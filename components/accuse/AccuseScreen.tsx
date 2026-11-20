@@ -383,7 +383,7 @@ function ConfirmDialog({ roles, onCancel, onConfirm }: { roles?: string; onCance
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-accuse"
-        className="max-h-full w-full max-w-md overflow-y-auto rounded-3xl border-4 border-black bg-paper p-6 text-center text-ink shadow-[8px_8px_0_#000]"
+        className="no-scrollbar max-h-full w-full max-w-md overflow-y-auto rounded-3xl border-4 border-black bg-paper p-6 text-center text-ink shadow-[8px_8px_0_#000]"
       >
         <p id="confirm-accuse" className="font-display text-4xl tracking-wide text-red-600">
           Are you sure?

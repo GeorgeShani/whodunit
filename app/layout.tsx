@@ -26,9 +26,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${bangers.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${bangers.variable} no-scrollbar h-full antialiased`}
     >
-      <body className="min-h-full">
+      <body className="no-scrollbar min-h-full">
         <Providers>{children}</Providers>
       </body>
     </html>
