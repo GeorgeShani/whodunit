@@ -65,7 +65,34 @@ async function timedFetch(url: string, init: RequestInit): Promise<Response> {
   }
 }
 
+/**
+ * #95: another tab saved first. The server refused this move (409 stale_token) and handed back the winner's save:
+ * its token, public snapshot and an in-character notice. The caller loads that snapshot, shows the notice and stops.
+ */
+interface CabinetAhead {
+  snapshot: ResumeSnapshot;
+  stateToken: string;
+  gameId?: string;
+  saveVersion?: number;
+  notice: string;
+}
+
+function cabinetAhead(j: unknown): CabinetAhead | undefined {
+  const o = j as { error?: unknown; snapshot?: { searchedLocationIds?: unknown; evidence?: unknown }; stateToken?: unknown; gameId?: unknown; saveVersion?: unknown; notice?: unknown } | null;
+  if (!o || o.error !== "stale_token" || typeof o.stateToken !== "string" || typeof o.notice !== "string") return undefined;
+  if (!o.snapshot || !Array.isArray(o.snapshot.searchedLocationIds) || !Array.isArray(o.snapshot.evidence)) return undefined;
+  return {
+    snapshot: o.snapshot as unknown as ResumeSnapshot,
+    stateToken: o.stateToken,
+    notice: o.notice,
+    ...(typeof o.gameId === "string" ? { gameId: o.gameId } : {}),
+    ...(typeof o.saveVersion === "number" ? { saveVersion: o.saveVersion } : {}),
+  };
+}
+
 interface InterrogateResult {
+  /** #95: another tab saved first; load this instead. */
+  ahead?: CabinetAhead;
   /** The model could not answer: show this narration + a retry; nothing was spent and `response` is a placeholder. */
   unavailable?: Unavailable;
   /** #49: what to offer after `unavailable`: AGAIN, AGAIN after a countdown, or nothing (already answered). */
@@ -96,6 +123,8 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
       body: JSON.stringify(req),
     });
     const json = (await res.json()) as { response?: unknown; stateToken?: unknown; gameId?: unknown; saveVersion?: unknown; offline?: unknown; notice?: unknown; testimonies?: unknown; contradiction?: Contradiction; stress?: StressReading; progress?: unknown; unavailable?: Unavailable; source?: unknown; answered?: unknown; error?: unknown };
+    const ahead = cabinetAhead(json);
+    if (ahead) return { response: createFallbackCharacterResponse({ seed }), ahead };
     const down = parseUnavailable(json?.unavailable);
     if (down) {
       // No reply (model out of reach, rate limit, duplicate): nothing was spent. Keep the token the server handed back.
@@ -138,6 +167,8 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
 }
 
 interface InvestigateResult {
+  /** #95: another tab saved first; load this instead. */
+  ahead?: CabinetAhead;
   found: FoundEvidence[];
   lines: string[];
   searchedLocationIds?: string[];
@@ -151,17 +182,19 @@ interface InvestigateResult {
 
 /** Search a location. Network/shape failure degrades to an in-character line. */
 /** POST /api/accuse. Network failures come back as an in-character line, never a throw. */
-async function accuse(req: AccuseRequest): Promise<AccuseResponseBody> {
+async function accuse(req: AccuseRequest): Promise<AccuseResponseBody & { ahead?: CabinetAhead }> {
   try {
     const res = await fetch("/api/accuse", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
-    return (await res.json()) as AccuseResponseBody;
+    const j = (await res.json()) as AccuseResponseBody;
+    const ahead = cabinetAhead(j);
+    return ahead ? { error: "stale_token", line: ahead.notice, ahead } : j;
   } catch {
     return { error: "network", line: "The telephone lines are down. Try accusing again in a moment." };
   }
 }
 
 /** POST /api/confront. Failures come back as an in-character line. */
-type ConfrontResult = ConfrontResponseBody & { offer?: "again" | "wait" | "none"; waitSeconds?: number; replay?: PublicConfrontLine[] };
+type ConfrontResult = ConfrontResponseBody & { ahead?: CabinetAhead; offer?: "again" | "wait" | "none"; waitSeconds?: number; replay?: PublicConfrontLine[] };
 
 async function confront(req: ConfrontRequest, names: [string, string]): Promise<ConfrontResult> {
   const busy = (): ConfrontResult => {
@@ -171,6 +204,8 @@ async function confront(req: ConfrontRequest, names: [string, string]): Promise<
   try {
     const res = await timedFetch("/api/confront", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
     const j = (await res.json()) as ConfrontResponseBody;
+    const ahead = cabinetAhead(j);
+    if (ahead) return { lines: [], ahead };
     const lines = Array.isArray(j.lines) ? j.lines.filter((l) => CharacterResponseSchema.safeParse(l.response).success) : [];
     const down = parseUnavailable(j.unavailable);
     if (res.status >= 500 && !down && !lines.length) return busy();
@@ -188,10 +223,12 @@ async function confront(req: ConfrontRequest, names: [string, string]): Promise<
 
 const pairKey = (a: string, b: string) => [a, b].sort().join("|");
 
-async function askHint(req: HintRequest): Promise<HintResponseBody> {
+async function askHint(req: HintRequest): Promise<HintResponseBody & { ahead?: CabinetAhead }> {
   try {
     const res = await fetch("/api/hint", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(req) });
     const j = (await res.json()) as HintResponseBody;
+    const ahead = cabinetAhead(j);
+    if (ahead) return { hint: null, line: ahead.notice, readyInTurns: 0, cooldownTurns: 0, ahead };
     return typeof j.line === "string" && j.line ? j : { hint: null, line: "The inspector shrugs. Try again in a moment.", readyInTurns: 0, cooldownTurns: 0 };
   } catch {
     return { hint: null, line: "The inspector shrugs. Try again in a moment.", readyInTurns: 0, cooldownTurns: 0 };
@@ -206,10 +243,14 @@ async function investigate(req: InvestigateRequest): Promise<InvestigateResult> 
       body: JSON.stringify(req),
     });
     const j = (await res.json()) as Partial<InvestigateResult>;
+    const ahead = cabinetAhead(j);
+    if (ahead) return { found: [], lines: [ahead.notice], ahead };
+    // A refusal without a new token (e.g. "the cabinet needs a moment") changes nothing: keep the searched rooms.
+    const changed = typeof j.stateToken === "string";
     return {
       found: Array.isArray(j.found) ? j.found : [],
       lines: Array.isArray(j.lines) && j.lines.length ? j.lines : ["The lights flicker and you lose your place. Try searching again."],
-      ...(Array.isArray(j.searchedLocationIds) ? { searchedLocationIds: j.searchedLocationIds } : {}),
+      ...(changed && Array.isArray(j.searchedLocationIds) ? { searchedLocationIds: j.searchedLocationIds } : {}),
       ...(typeof j.stateToken === "string" ? { stateToken: j.stateToken } : {}),
       ...(typeof j.gameId === "string" ? { gameId: j.gameId } : {}),
       ...(typeof j.saveVersion === "number" ? { saveVersion: j.saveVersion } : {}),
@@ -338,6 +379,8 @@ export function Game({
       quietSave.current.note({ caseId, gameId: id ?? gameIdRef.current, token, saveVersion: meta?.saveVersion, offline: meta?.offline });
     }
   }, [caseId]);
+  /** #95: load the save another tab won with (set once applySnapshot exists, below). */
+  const loadAhead = useRef<(a: CabinetAhead) => void>(() => {});
   /** Latest emotions, readable from async reply handlers (for the reply sting). */
   const emotionsRef = useRef(emotions);
   const evidenceRef = useRef(evidence);
@@ -492,7 +535,7 @@ export function Game({
       if (!isRetry) push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { response, stateToken: next, gameId: gid, saveVersion, offline, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
+        const { ahead, response, stateToken: next, gameId: gid, saveVersion, offline, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
           {
             characterId,
             question,
@@ -504,6 +547,14 @@ export function Game({
           turn,
           view.suspects.find((s) => s.id === characterId)?.name ?? "They",
         );
+        if (ahead) {
+          loadAhead.current(ahead);
+          push(characterId, { speaker: "player", text: question });
+          push(characterId, { speaker: "narrator", text: ahead.notice });
+          inFlight.current = false;
+          setPendingId(null);
+          return;
+        }
         if (next) stateToken.current = next;
         rememberGame(gid, next, { saveVersion, offline });
 
@@ -599,6 +650,13 @@ export function Game({
           ...(item ? (item.kind === "evidence" ? { presentedEvidenceId: item.id } : { presentedTestimonyId: item.id }) : {}),
           ...(stateToken.current ? { stateToken: stateToken.current } : {}),
         }, [addressedName, view.suspects.find((s) => s.id === partnerId)?.name ?? partnerId]);
+        if (r.ahead) {
+          loadAhead.current(r.ahead);
+          push(logKey, { speaker: "narrator", text: r.ahead.notice });
+          inFlight.current = false;
+          setPendingId(null);
+          return;
+        }
         if (r.stateToken) stateToken.current = r.stateToken;
         rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
         if (r.unavailable) {
@@ -730,6 +788,13 @@ export function Game({
       setSearchingId(locationId);
       setBedRoom(locationId);
       const r = await investigate({ caseId, locationId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
+      if (r.ahead) {
+        loadAhead.current(r.ahead);
+        setSearchLines({ [locationId]: [r.ahead.notice] });
+        inFlight.current = false;
+        setSearchingId(null);
+        return;
+      }
       if (r.stateToken) stateToken.current = r.stateToken;
       rememberGame(r.gameId, r.stateToken, r);
       if (r.notice) resetProgress();
@@ -764,6 +829,11 @@ export function Game({
       const r = await accuse({ caseId, accusation, stateToken: stateToken.current });
       inFlight.current = false;
       setAccusing(false);
+      if (r.ahead) {
+        loadAhead.current(r.ahead);
+        setAccuseError(r.ahead.notice);
+        return;
+      }
       if (r.stateToken) stateToken.current = r.stateToken;
       rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
       applyProgress(r.progress);
@@ -807,6 +877,14 @@ export function Game({
     }
     void closedBody;
   }, [caseId, view.evidence]);
+
+  useEffect(() => {
+    loadAhead.current = (a: CabinetAhead) => {
+      stateToken.current = a.stateToken;
+      rememberGame(a.gameId, a.stateToken, { saveVersion: a.saveVersion });
+      applySnapshot(a.snapshot);
+    };
+  }, [applySnapshot, rememberGame]);
 
   const onContinue = useCallback(() => {
     if (!pendingResume) return;
@@ -860,6 +938,13 @@ export function Game({
     if (hintBusy) return;
     setHintBusy(true);
     const r = await askHint({ caseId, ...(stateToken.current ? { stateToken: stateToken.current } : {}) });
+    if (r.ahead) {
+      loadAhead.current(r.ahead);
+      setHint({ line: r.ahead.notice, found: false });
+      getAudio().play("ui_tap");
+      setHintBusy(false);
+      return;
+    }
     if (r.stateToken) stateToken.current = r.stateToken;
     rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
     if (r.notice) resetProgress();

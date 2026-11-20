@@ -1,9 +1,11 @@
 /**
  * SERVER-ONLY. POST /api/save: a quiet flush of a token the client already holds
- * (tab hidden or closing). Does not mint a new token or bump the version. The
- * same game_id + version rules as the action-path persist apply: offline-lineage
- * tokens are refused, oversized tokens are skipped, a lower version cannot
- * overwrite, and a rate-limit miss is a silent no-op.
+ * (tab hidden or closing). Does not mint a new token or bump the version. Every
+ * online token is already written by its own action (compare-and-swap, #95), so
+ * this can only create a MISSING row; it never replaces one, so a losing or stale
+ * tab cannot roll the save back. Offline-lineage tokens are refused, oversized
+ * tokens are skipped, and a refusal (row exists, rate cap, limiter error, per-game
+ * throttle) is a silent 204: nothing is ever shown to the player.
  */
 import type { LoadedCase } from "./case-schema";
 import { decodeStateToken, isGameId, peekStateTokenGameId, type Env } from "./state-token";

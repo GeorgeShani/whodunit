@@ -7,7 +7,7 @@ import type { ResumeResponseBody } from "./resume-schema";
 export type { ResumeResponseBody } from "./resume-schema";
 import { storedOutcomeBody } from "./accuse-handler";
 import type { LoadedCase } from "./case-schema";
-import { COLD_CASE_NOTICE, CABINET_AHEAD_NOTICE, OFFLINE_RESUME_NOTICE, RESET_NOTICE, restoreSession } from "./session";
+import { COLD_CASE_NOTICE, CABINET_AHEAD_NOTICE, OFFLINE_RESUME_NOTICE, RESET_NOTICE, STALE_TOKEN_NOTICE, restoreSession } from "./session";
 import { inSetting, settingOf } from "./presentation";
 import {
   decodeStateToken,
@@ -46,16 +46,14 @@ export interface ResumeDeps {
 }
 
 function pickNewer(clientToken: string | undefined, row: SavedGameRecord | null, env?: Env): { token: string; source: "db" | "client"; notice?: string } | null {
-  const clientV = clientToken ? peekStateTokenSaveVersion(clientToken, env) : undefined;
   const clientOffline = clientToken ? peekStateTokenOffline(clientToken, env) === true : false;
   // An offline leftover never beats a cabinet row, even with a pumped version (#94).
   if (row && clientOffline && clientToken) {
     return { token: row.stateToken, source: "db", notice: OFFLINE_RESUME_NOTICE };
   }
-  if (row && clientV !== undefined && clientToken) {
-    // Newer *online* version wins; a tie (e.g. after the DB returns) goes to the row.
-    return row.version >= clientV ? { token: row.stateToken, source: "db" } : { token: clientToken, source: "client" };
-  }
+  // The row is the one true lineage (#95): a leftover that is behind it, or diverged from it at any version, is
+  // replaced, and the player is told so in character (#96).
+  if (row && clientToken && clientToken !== row.stateToken) return { token: row.stateToken, source: "db", notice: STALE_TOKEN_NOTICE };
   if (row) return { token: row.stateToken, source: "db" };
   if (clientToken) return { token: clientToken, source: "client" };
   return null;
@@ -81,9 +79,9 @@ export async function handleResume(json: unknown, deps: ResumeDeps): Promise<{ s
     if (!decoded.ok) usableClient = undefined;
   }
 
+  // Fail closed (#102): over the cap, or the limiter itself failing, is a quiet in-character "wait a moment".
   if (headers && !(await allowSavePath(headers))) {
-    // Still serve a verified leftover token; otherwise ask them to wait.
-    if (!clientToken) return { status: 429, body: { error: "rate_limited", line: RESUME_LINES.rate } };
+    return { status: 429, body: { error: "rate_limited", line: RESUME_LINES.rate } };
   }
 
   const saves = deps.saves === undefined ? savedGamesRepo() : deps.saves;

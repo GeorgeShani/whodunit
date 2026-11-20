@@ -28,8 +28,9 @@ export type ClosedGameRow = typeof closedGames.$inferSelect;
 
 /**
  * In-progress (and recently closed) games: the latest HMAC-signed state token, keyed by the server-minted game id.
- * `version` is also inside the signed token; the server refuses any token whose version is lower than this row's
- * (optimistic last-write-wins, #40). RLS on, no policies: same access model as closed_games. Server-only via DATABASE_URL.
+ * `version` is also inside the signed token. Every write is a compare-and-swap against this row (#95): it only lands
+ * when the row still holds the exact token (and version) the action started from; otherwise the request is refused and
+ * the player gets this row back. RLS on, no policies: same access model as closed_games. Server-only via DATABASE_URL.
  */
 export const savedGames = pgTable("saved_games", {
   gameId: text("game_id").primaryKey(),
@@ -37,6 +38,13 @@ export const savedGames = pgTable("saved_games", {
   stateToken: text("state_token").notNull(),
   version: integer("version").notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  /**
+   * Per-game write throttle (#102), enforced inside the same conditional UPDATE as the version check (#95):
+   * at most SAVE_WRITES_PER_WINDOW writes per SAVE_WRITE_WINDOW_S seconds, counted in the row itself, so a burst
+   * spread across regions still hits one counter.
+   */
+  writeWindowStart: timestamp("write_window_start", { withTimezone: true }).defaultNow().notNull(),
+  writeWindowCount: integer("write_window_count").default(0).notNull(),
 }).enableRLS();
 
 export type SavedGameRow = typeof savedGames.$inferSelect;

@@ -150,11 +150,26 @@ In-progress (and recently closed) games are stored in a second table, also RLS-o
 | `game_id` | text, primary key | 128-bit server-minted id (older 96-bit ids still load) |
 | `case_id` | text, not null | canonical case id (`_tallyho` is stored/read as `tallyho` after the rename) |
 | `state_token` | text, not null | the HMAC-signed v2 token (includes `saveVersion`) |
-| `version` | integer, not null | also inside the signed token; a lower version cannot overwrite this row (#40) |
+| `version` | integer, not null | also inside the signed token; part of the compare-and-swap below (#40, #95) |
 | `updated_at` | timestamptz, not null, default `now()` | |
+| `write_window_start` | timestamptz, not null, default `now()` | per-game write throttle window (#102) |
+| `write_window_count` | integer, not null, default 0 | writes in the current window (#102) |
 
-After every successful state-changing action (investigate, interrogate, present, confront, hint, accuse) the server
-upserts the new token. A save failure is logged and play continues.
+**Every write is one atomic compare-and-swap (#95).** After a state-changing action (investigate, interrogate, present,
+confront, hint, accuse) the server writes the new token with
+`UPDATE saved_games SET ... WHERE game_id = $1 AND version = $base AND state_token = $baseToken AND <throttle ok>`
+(or `INSERT ... ON CONFLICT DO NOTHING` when the action did not start from a stored row), and waits for it before
+answering. Only the request that still matches the stored row lands. A request that lost the race is **refused**: it
+gets `409 stale_token` with the winner's token, its public snapshot and the in-character `STALE_TOKEN_NOTICE`, never a
+`200` at N+1, so two tabs can never fork the save and a losing tab can never overwrite the winner later. Before an
+action, any token that is not exactly the stored one (behind it, or diverged at the same or a higher version) is
+replaced by the row, with the same notice. A write that throws after a good read (a blip) downgrades the issued token
+to offline lineage (below) so it can never be written over the row.
+
+**Throttles (#102).** The per-IP save-path cap (60/min, Runtime Cache) now **fails closed**: if the limiter itself
+errors, the request is refused in character ("the cabinet needs a moment", 429) and nothing runs. That counter is per
+region, so the cross-region backstop is a per-game cap counted in the row itself: at most 60 writes per 60 s, checked
+inside the same conditional `UPDATE`; a refused write is a 429 in character and the row is untouched.
 
 Fallback (the database unconfigured or unreachable) is **same-tab only**. Tokens minted while the cabinet is shut carry
 a signed `offline: true` flag, inherited by every token derived from them, and are **never written** to `saved_games`.
@@ -167,14 +182,20 @@ across instances and is not a substitute for the row.
 `POST /api/resume` (body only: `gameId`, `caseId`, optional leftover `stateToken`; never in a URL) returns the latest
 verified token and a public snapshot (no solution, no hidden proof). A closed game is replayed from `closed_games` as
 today. If the database is down, resume falls back to a tab-scoped leftover token; without one the player sees an
-in-character "cabinet is stuck" line. A hidden or closing tab quietly flushes the latest *online* token to `POST /api/save` (`sendBeacon`, then `fetch({ keepalive: true })`); offline-lineage tokens are not sent, and a repeat of the same version is skipped.
+in-character "cabinet is stuck" line. A hidden or closing tab quietly flushes the latest *online* token to `POST /api/save` (`sendBeacon`, then `fetch({ keepalive: true })`); offline-lineage tokens are not sent, and a repeat of the same version is skipped. Because every online token is already written by its own action, the flush can only create a **missing** row; it never replaces one. Every refusal is a silent `204`; nothing is ever shown to the player. Resume returns `STALE_TOKEN_NOTICE` whenever the stored row is newer than, or diverged from, the leftover token (#96).
+
+**Preview-only outage switch (QA).** On a Vercel *preview* only, a request carrying `x-whodunit-test-outage: db-down`
+plus the deployment's automation bypass secret in `x-vercel-protection-bypass` (or `x-whodunit-bypass`) makes
+`saved_games` and `closed_games` behave as unreachable for that request; `GET /api/health` with the same headers reports
+`simulatedOutage: true`. It is checked against `VERCEL_AUTOMATION_BYPASS_SECRET` in constant time and does not exist in
+production, development or tests (`lib/test-outage.ts`).
 
 The client stores only `{ gameId, caseId }` in localStorage. A pre-deploy sessionStorage blob is migrated once. Dialogue
 transcripts are not restored. The title offers **Continue case**, and **New game** asks for confirmation when a file is
 already in progress.
 
 Code: `db/schema.ts`, `lib/saved-games.ts`, `lib/saved-session.ts`, `engine/resume-handler.ts`; migration
-`drizzle/0002_saved_games.sql`. Apply that migration before deploying the code that writes the table. Row retention and
+`drizzle/0002_saved_games.sql` and `drizzle/0003_saved_games_throttle.sql`. Apply the migrations before deploying the code that writes the table (0003 is additive with defaults, so it is safe to apply ahead of the code). Row retention and
 the token max age are both **30 days**; saves prune older rows opportunistically.
 
 ### Optional: prune old closed-game rows

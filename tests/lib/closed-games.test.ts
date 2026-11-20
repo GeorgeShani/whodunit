@@ -77,10 +77,10 @@ describe("migration SQL", SLOW, () => {
     const pg = new PGlite();
     await pg.exec(migrationSql); // Marvin's manual apply: no journal record
     const db = drizzlePglite(pg);
-    await migratePglite(db, { migrationsFolder: "drizzle" }); // re-applies 0000 harmlessly and records it, then applies 0001 and 0002
+    await migratePglite(db, { migrationsFolder: "drizzle" }); // re-applies 0000 harmlessly and records it, then applies 0001, 0002 and 0003
     await migratePglite(db, { migrationsFolder: "drizzle" }); // nothing new
     const n = await pg.query<{ n: number }>(`select count(*)::int as n from drizzle.__drizzle_migrations`);
-    expect(n.rows[0].n).toBe(3);
+    expect(n.rows[0].n).toBe(4);
     const t = await pg.query<{ rls: boolean; policies: number }>(
       `select c.relrowsecurity as rls, (select count(*)::int from pg_policies where tablename = 'closed_games') as policies from pg_class c where c.relname = 'closed_games'`,
     );

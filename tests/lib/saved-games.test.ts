@@ -130,7 +130,7 @@ describe("sync, persist, resume", () => {
       getSave: async () => {
         throw new Error("ECONNREFUSED");
       },
-      upsertSave: async () => {
+      commitSave: async () => {
         throw new Error("ECONNREFUSED");
       },
       pruneSaves: async () => {
@@ -176,7 +176,7 @@ const downRepo = (): import("@/lib/saved-games").SavedGamesRepo => ({
   getSave: async () => {
     throw new Error("ECONNREFUSED");
   },
-  upsertSave: async () => {
+  commitSave: async () => {
     throw new Error("ECONNREFUSED");
   },
   pruneSaves: async () => {

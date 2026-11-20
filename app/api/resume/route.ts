@@ -6,6 +6,8 @@
 import { NextResponse } from "next/server";
 import { handleResume, RESUME_LINES, type ResumeResponseBody } from "@/engine/resume-handler";
 import { resolveRequestCase } from "@/lib/request-case";
+import { closedGamesRepoFor } from "@/lib/closed-games";
+import { savedGamesRepoFor } from "@/lib/saved-games";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +24,7 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error, RESUME_LINES.unknownCase);
-    const { status, body } = await handleResume(json, { caseData: rc.caseData, headers: request.headers });
+    const { status, body } = await handleResume(json, { caseData: rc.caseData, headers: request.headers, saves: savedGamesRepoFor(request.headers), closed: closedGamesRepoFor(request.headers) });
     return NextResponse.json<ResumeResponseBody>(body, { status, ...(status === 429 || status === 503 ? { headers: { "retry-after": "5" } } : {}) });
   } catch (e) {
     console.error("[resume] failed:", (e as Error).name);

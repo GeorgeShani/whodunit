@@ -9,7 +9,8 @@ import type { ConfrontResponseBody } from "@/ai/confront-schema";
 import { clientIp, createModelGate } from "@/ai/model-gate";
 import { resolveRequestCase } from "@/lib/request-case";
 import { runWithSaveContext } from "@/lib/save-context";
-import { finishSavedAction, syncIncomingToken } from "@/lib/saved-session";
+import { commitSavedAction, SAVE_BUSY_LINE, syncIncomingToken } from "@/lib/saved-session";
+import { savedGamesRepoFor } from "@/lib/saved-games";
 import { runtimeKv } from "@/lib/runtime-kv";
 
 export const dynamic = "force-dynamic";
@@ -27,7 +28,11 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return fail(404, rc.error);
-    const synced = await syncIncomingToken(json, rc.caseData);
+    const synced = await syncIncomingToken(json, rc.caseData, undefined, savedGamesRepoFor(request.headers), { headers: request.headers });
+    if (synced.rateLimited) {
+      // Fail closed and in character: nothing runs, the player's token is untouched (#102).
+      return NextResponse.json<ConfrontResponseBody>({ lines: [], error: "rate_limited", line: SAVE_BUSY_LINE }, { status: 429, headers: { "retry-after": "5" } });
+    }
     if (synced.rejectStale) {
       return NextResponse.json<ConfrontResponseBody>(
         { lines: [], error: "stale_token", line: synced.notice, notice: synced.notice },
@@ -42,7 +47,14 @@ export async function POST(request: Request) {
         claims: runtimeKv,
       }),
     );
-    finishSavedAction(status, body, synced.notice, rc.caseData.id, request);
+    const c = await commitSavedAction(status, body, synced, rc.caseData);
+    if (c.kind === "stale") {
+      // Lost the compare-and-swap (#95): never a 200 at N+1. Hand back the winner's row, its snapshot and the notice.
+      return NextResponse.json<ConfrontResponseBody>({ lines: [], ...c.stale }, { status: 409 });
+    }
+    if (c.kind === "throttled") {
+      return NextResponse.json<ConfrontResponseBody>({ lines: [], error: "rate_limited", line: SAVE_BUSY_LINE }, { status: 429, headers: { "retry-after": "5" } });
+    }
     const retryAfter = body.unavailable?.retryAfter;
     return NextResponse.json<ConfrontResponseBody>(body, { status, ...(retryAfter ? { headers: { "retry-after": String(retryAfter) } } : {}) });
   } catch (e) {

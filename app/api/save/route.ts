@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { handleSave, SAVE_LINES } from "@/engine/save-handler";
 import { resolveRequestCase } from "@/lib/request-case";
+import { savedGamesRepoFor } from "@/lib/saved-games";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +28,7 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(parsed.json);
     if (!rc.ok) return fail(404, rc.error, SAVE_LINES.invalid);
-    const { status, body } = await handleSave(parsed.json, { caseData: rc.caseData, headers: request.headers });
+    const { status, body } = await handleSave(parsed.json, { caseData: rc.caseData, headers: request.headers, saves: savedGamesRepoFor(request.headers) });
     if (status === 204) return new NextResponse(null, { status: 204 });
     return NextResponse.json(body ?? {}, { status });
   } catch (e) {
