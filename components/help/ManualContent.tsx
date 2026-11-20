@@ -51,7 +51,7 @@ function Blocks({ blocks, level }: { blocks: readonly Block[]; level: Level }) {
           );
         if (b.type === "table")
           return (
-            <div key={i} className="overflow-x-auto">
+            <div key={i} className="no-scrollbar overflow-x-auto">
               <table className="w-full border-collapse border-[3px] border-black bg-white text-left text-sm sm:text-base">
                 <thead className="bg-amber-200">
                   <tr>
