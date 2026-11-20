@@ -2,7 +2,7 @@
 
 Author data for the optional server-only `guard` block on `case.json` (issues #90 and #91). The field shape is Dexter’s: an optional `guard` object with `aliveUntil` and `gatedTopics`, Zod-validated, never copied into the public case view.
 
-**Status (this PR):** Dexter’s schema is on `origin/release/tallyho` (`276058d`). This PR fills `cases/tallyho/case.json` `guard` (`aliveUntil`, `gatedTopics`), adds a #90 `forbiddenPhrases` net on all six suspects, and keeps this document as the author map. Sidecar: `/workspace/tallyho-gen/guard.py` (wired in `gen.py`) and `timeline_guards()` in `chars_a.py`.
+**Status:** The `guard` block shipped in PR #97 (`aliveUntil` until 22:14, `gatedTopics` unlocked by `heel-chart`, #90 phrase net). This follow-up authors synonym coverage from Gremlin’s leftover pass of #97 (`offline-probes-97.jsonl`): extra `aliveUntil` verbs, anchors and `afterPhrases`, and extra `gatedTopics` terms/patterns (never a lone `heel`). Sidecar: `/workspace/tallyho-gen/guard.py` (wired in `gen.py`) and `timeline_guards()` in `chars_a.py`. Dexter is writing the permanent context-check tests for the two split-sentence leftovers data cannot catch.
 
 `until` is `22:14` (the Great Lurch, the public time-of-death proof). That is **at or after** `solution.time` (`21:52`, the true death), which is what the schema requires. The lurch is also listed as an `anchors` event.
 
@@ -40,10 +40,10 @@ Maps 1:1 onto the schema.
 Tied to ids where they exist:
 
 - `ev-great-lurch`: the Great Lurch, the great lurch, the lurch, Great Lurch
-- `f-list-history` / the 22:14 flip: listed to port, list to port, listed to port, rolled to port, heeled to port, leaned to port, went over to port, swung over, the list changed, the ship swung over, she rolled to port
-- Clock wordings after the cutoff (engine `extractTimes` should already parse these against `until`; listed so the phrase layer and after-the-lurch checks stay aligned): after quarter past ten, after ten past ten, after twenty past ten, after half past ten, after half ten, after ten fifteen, after 10:15 / 10.15, after 22:14 and later clock forms
+- `f-list-history` / the 22:14 flip: listed to port, list to port, rolled to port, heeled to port, heeled port (no “to”), leaned to port, went over to port, gone over to port, swung over, the list changed, the tilt changed, the ship swung over, she rolled to port, took the port list, took her port list, heeled the other way, the floor sloped port, downhill became the port side, the ship tipped, plunge of the deck (the specific wording; not the party turn “The Plunge”)
+- Clock wordings after the cutoff (engine `extractTimes` should already parse these against `until`; listed so the phrase layer and after-the-lurch checks stay aligned): after quarter past ten, after ten past ten, after twenty past ten, after half past ten, after half ten, after ten fifteen / ten-fifteen, after 10:15 / 10.15, after 22:14 and later clock forms
 
-`afterPhrases` covers non-clock leftovers: later that night, later that evening, later in the night, afterwards that night.
+`afterPhrases` covers non-clock leftovers: later that night, later that evening, later in the night, afterwards that night, post-lurch / post lurch, subsequent to the plunge of the deck, after the bump, following the roll, after the roll, once we rolled, after we rolled. Bare “later” and bare “afterwards” are too broad and are not authored.
 
 ### Victim names and nicknames
 
@@ -53,7 +53,7 @@ Extra `aliases` to author: Commodore; Old Man; Uncle; the Owner; Owner; Commodor
 
 ### Alive / interaction verbs
 
-alive; still alive; was alive; were alive; been alive; living; living and breathing; still breathing; still with us; up and about; had a word; spoke; spoken; spoke to me; talked; talked to; talked with; called out; chatted; chatted with; conversed; saw; seen; spotted; met; ran into; bumped into; heard him; heard his; heard his voice; his voice; he told me; he said; cheered; bellowed; bellowing.
+alive; still alive; was alive; were alive; been alive; living; living and breathing; still breathing; still with us; up and about; had a word; spoke; spoken; spoke to me; talked; talked to; talked with; called out; chatted; chatted with; conversed; saw; seen; spotted; met; ran into; bumped into; heard him; heard his; heard his voice; his voice; he told me; he said; cheered; bellowed; bellowing; survived; was fine; came back up; still going; still kicking; still barking orders; barking orders; still giving orders; giving orders; didn't kill him; did not kill him; spoke to him later; chatty; waved; answered me; answered; toasted with; passed the time of day.
 
 ### Appearance (do not treat as placing him alive)
 
@@ -66,8 +66,8 @@ One topic: the heel recorder / its chart, locked until `heel-chart` is found or 
 | Field | Tallyho value |
 | --- | --- |
 | `unlockedBy` | `heel-chart` |
-| `terms` | Literal instrument names and close hyphenation. Not a lone `heel` (that would catch “she heeled to starboard”). Everyday list / lurch talk stays open. |
-| `patterns` | Optional regexes for the same vocabulary (spaces or hyphens). |
+| `terms` | Literal instrument names and close hyphenation. Not a lone `heel` (that would catch “she heeled to starboard”). Everyday list / lurch talk stays open. Synonyms from Gremlin’s #97 pass: tilt gauge, roll recorder, list log, list recorder, paper that tracks the lean, lean gauge, lean-log, recorder in the engine room / engine-room recorder, engine-room graph, inclinograph, instrument in the engine room, paper tick, penciled/pencilled LURCH. |
+| `patterns` | Optional regexes for the same vocabulary (spaces or hyphens), plus tightly scoped strip/penciled wording (`penciled … lurch`, `lurch … on the strip`) so ordinary “strip” or “penciled a note” still pass. |
 
 Ordinary list talk that must stay allowed before the chart is found (issue #91): “The ship listed to starboard after the squall, then to port after the lurch.”; “From 21:40 she leaned starboard, and at 22:14 she went over to port.”; “The Tallyho has been listing to port since the Great Lurch.”; “The list changed at 22:14, from starboard to port.”; “I reported the list to the Captain.”
 
@@ -127,7 +127,12 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
       "anchors": [
         {
           "id": "ev-great-lurch",
-          "terms": ["the Great Lurch", "the great lurch", "the lurch", "Great Lurch"]
+          "terms": [
+            "the Great Lurch",
+            "the great lurch",
+            "the lurch",
+            "Great Lurch"
+          ]
         },
         {
           "id": "f-list-history",
@@ -136,12 +141,23 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
             "list to port",
             "rolled to port",
             "heeled to port",
+            "heeled port",
             "leaned to port",
             "went over to port",
+            "gone over to port",
             "the ship swung over",
             "swung over",
             "the list changed",
-            "she rolled to port"
+            "the tilt changed",
+            "she rolled to port",
+            "took the port list",
+            "took her port list",
+            "heeled the other way",
+            "the floor sloped port",
+            "floor sloped port",
+            "downhill became the port side",
+            "the ship tipped",
+            "plunge of the deck"
           ]
         }
       ],
@@ -157,6 +173,7 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
         "still with us",
         "up and about",
         "had a word",
+        "had a chat",
         "spoke",
         "spoken",
         "talked",
@@ -175,11 +192,35 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
         "his voice",
         "he told me",
         "he said",
+        "told me",
         "cheered",
         "bellowed",
-        "bellowing"
+        "bellowing",
+        "in his cabin with",
+        "survived",
+        "was fine",
+        "came back up",
+        "still going",
+        "still kicking",
+        "still barking orders",
+        "barking orders",
+        "still giving orders",
+        "giving orders",
+        "didn't kill him",
+        "did not kill him",
+        "spoke to him later",
+        "chatty",
+        "waved",
+        "answered me",
+        "answered",
+        "toasted with",
+        "passed the time of day"
       ],
-      "pronouns": ["he", "him", "his"],
+      "pronouns": [
+        "he",
+        "him",
+        "his"
+      ],
       "appearancePhrases": [
         "watch",
         "clock",
@@ -196,9 +237,23 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
         "sounded",
         "cylinder",
         "Cheer-Box",
-        "trumpet"
+        "trumpet",
+        "bellowed his cheer"
       ],
-      "afterPhrases": ["later that night", "later that evening", "later in the night", "afterwards that night"]
+      "afterPhrases": [
+        "later that night",
+        "later that evening",
+        "later in the night",
+        "afterwards that night",
+        "post-lurch",
+        "post lurch",
+        "subsequent to the plunge of the deck",
+        "after the bump",
+        "following the roll",
+        "after the roll",
+        "once we rolled",
+        "after we rolled"
+      ]
     },
     "gatedTopics": [
       {
@@ -216,15 +271,52 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
           "clinometer",
           "angle of heel",
           "angle-of-heel",
-          "recorder reading"
+          "recorder reading",
+          "tilt gauge",
+          "tilt-gauge",
+          "roll recorder",
+          "roll-recorder",
+          "list log",
+          "list-log",
+          "list recorder",
+          "list-recorder",
+          "paper that tracks the lean",
+          "lean gauge",
+          "lean-gauge",
+          "lean-log",
+          "lean log",
+          "recorder in the engine room",
+          "engine-room recorder",
+          "engine room recorder",
+          "engine-room graph",
+          "engine room graph",
+          "inclinograph",
+          "instrument in the engine room",
+          "paper tick",
+          "penciled LURCH",
+          "pencilled LURCH"
         ],
         "patterns": [
-          "heel[-\\s]?recorders?",
-          "heel[-\\s]?charts?",
-          "heel[-\\s]?(?:logs?|strips?)",
+          "heel[-\s]?recorders?",
+          "heel[-\s]?charts?",
+          "heel[-\s]?(?:logs?|strips?)",
           "inclinometers?",
           "clinometers?",
-          "angle[-\\s]of[-\\s]heel"
+          "angle[-\s]of[-\s]heel",
+          "tilt[-\s]?gauges?",
+          "roll[-\s]?recorders?",
+          "list[-\s]?logs?",
+          "list[-\s]?recorders?",
+          "lean[-\s]?gauges?",
+          "lean[-\s]?logs?",
+          "inclinographs?",
+          "engine[-\s]room[-\s](?:recorders?|graphs?)",
+          "recorders?\s+in\s+the\s+engine[-\s]room",
+          "instrument\s+in\s+the\s+engine[-\s]room",
+          "paper\s+that\s+tracks\s+the\s+lean",
+          "paper\s+ticks?",
+          "pencil(?:l?ed)?[^.!?]{0,80}\blurch\b",
+          "\blurch\b[^.!?]{0,40}\bon the strip\b"
         ]
       }
     ]
@@ -232,41 +324,55 @@ This is the block now in `cases/tallyho/case.json` (and in `/workspace/tallyho-g
 }
 ```
 
-## Paraphrases the phrase mechanism still lets through (engine request)
+## Synonyms now authored (Gremlin’s leftover pass of #97)
 
-These should be blocked by `aliveUntil` / `gatedTopics` once the engine ships. The current `forbiddenPhrases` regex does not catch them. Do not treat this as a pass to ship.
+The lines below were unexpected passes after PR #97. They are now caught by the authored `aliveUntil` / `gatedTopics` lists (same schema fields; no new keys). The always-on #90 `forbiddenPhrases` regex is unchanged: `checkReply` still has the engine guard as the root net.
 
-**#90 — still alive after the cutoff, in wording the phrase list misses:**
+**#90 — now blocked by `aliveUntil` (data):**
 
-- Split across two sentences: “The ship lurched to port. He was still alive.”
 - “Post-lurch, the Old Man was chatty.”
 - “Following the roll I bumped into the Commodore.”
 - “Once she'd gone over to port I chatted with Barnacle.”
 - “He was fine when we took the port list.”
-- “Still kicking after we heeled the other way.”
 - “I toasted with him once the floor sloped port.”
 - “Alive subsequent to the plunge of the deck.”
 - “After downhill became the port side, I ran into him.”
-- “Later than the lurch I saw him.”
 - “Come ten-fifteen he was still going.”
 - “When she took her port list I heard his laugh.”
 - “He waved from the corridor once we rolled.”
 - “I passed the time of day with the Owner after the bump.”
 - “He answered me after the tilt changed.”
-- “The Commodore survived the lurch.”
+- “The Commodore survived the lurch.” / “He survived the lurch.”
 - “The lurch didn't kill him; I spoke to him later.”
-- “after she heeled port” (no “to”), “after the lurching”, “alive past the lurch”
+- “The Commodore was still alive after she heeled port.” (no “to”)
+- “He came back up after the lurch.” / “The Commodore came back up after the lurch.”
+- “He was fine after the ship tipped.” / “The Commodore was fine after the ship tipped.”
+- “He was still barking orders at half past ten.”
 
-**#91 — citing the instrument without the locked terms:**
+**#91 — now blocked by `gatedTopics` until `heel-chart` is found (data):**
 
-- “The instrument in the engine room shows she flipped at 22:14.”
-- “Ottilie penciled LURCH 22:14 on the strip.” (bare “strip”, no “heel”)
-- “The paper tick in the engine room recorded the flip.”
+- “The tilt gauge shows she went from starboard to port at 22:14.” / “I checked the tilt gauge in the engine room.”
+- “The roll recorder shows she went from starboard to port at 22:14.”
+- “The list log shows she went from starboard to port at 22:14.”
+- “The paper that tracks the lean shows she went from starboard to port at 22:14.”
+- “The lean gauge shows she went from starboard to port at 22:14.”
 - “Gladys's lean-log shows 8 degrees then 6.”
+- “The recorder in the engine room shows 6 degrees port.” / engine-room recorder
+- “Ottilie penciled LURCH 22:14 on the strip.” (strip/penciled wording, scoped so ordinary “strip” or “penciled a note” still pass)
+- “The inclinograph shows she went from starboard to port at 22:14.”
 - “The engine-room graph shows starboard then port.”
 - “The list recorder in the pump house.”
-- “the inclinograph”
-- “the lean gauge”
-- “The recorder in the engine room shows 6 degrees port.”
+- “The instrument in the engine room shows she flipped at 22:14.”
+- “The paper tick in the engine room recorded the flip.”
 
-A root engine check (victim + alive/interaction + time/anchor after `until`; instrument terms until `heel-chart` is found) is the right fix for these leftovers. The phrase list is the data layer, not a complete paraphrase net.
+Plain talk that must still pass (no victim-alive claim, no instrument name): “the ship tipped”; “she listed to port”; “she heeled to starboard”; ordinary lurch/list talk; “I spoke to the Commodore before the lurch.” Appearance-framed / believed lines still pass: Bilge’s “The Old Man's watch says 22:41”; “The horn sounded at 22:38. I thought he was alive.”
+
+## Leftovers data cannot fix (engine request)
+
+These need a cross-sentence / implicit-state check. Dexter is writing the permanent context-check tests; this case-data PR does not add a regression test for them.
+
+- (A) Pronoun only, lurch in a previous sentence: “The ship lurched to port. He was still alive.”
+- (B) Lurch in a previous sentence: “The ship lurched. Afterwards the Commodore spoke to me.”
+- No victim name or pronoun, and the implicit alive-state list does not include the verb: “Still kicking after we heeled the other way.” (Named variants such as “The Commodore was still kicking after we heeled the other way” are caught by the new `alivePhrases` / anchors.)
+
+Pre-existing engine checks, not synonym gaps: some speakers still trip `unknown_time` on untagged clocks (including a few must-pass “I saw the Commodore at ten past ten / a quarter to ten / ten to ten” lines, and some 22:14 instrument lines after the chart is unlocked); “The heel-recorder tape…” still trips `modern_word` “tape” after unlock.

@@ -1150,12 +1150,23 @@
             "list to port",
             "rolled to port",
             "heeled to port",
+            "heeled port",
             "leaned to port",
             "went over to port",
+            "gone over to port",
             "the ship swung over",
             "swung over",
             "the list changed",
-            "she rolled to port"
+            "the tilt changed",
+            "she rolled to port",
+            "took the port list",
+            "took her port list",
+            "heeled the other way",
+            "the floor sloped port",
+            "floor sloped port",
+            "downhill became the port side",
+            "the ship tipped",
+            "plunge of the deck"
           ]
         }
       ],
@@ -1194,7 +1205,25 @@
         "cheered",
         "bellowed",
         "bellowing",
-        "in his cabin with"
+        "in his cabin with",
+        "survived",
+        "was fine",
+        "came back up",
+        "still going",
+        "still kicking",
+        "still barking orders",
+        "barking orders",
+        "still giving orders",
+        "giving orders",
+        "didn't kill him",
+        "did not kill him",
+        "spoke to him later",
+        "chatty",
+        "waved",
+        "answered me",
+        "answered",
+        "toasted with",
+        "passed the time of day"
       ],
       "pronouns": [
         "he",
@@ -1224,7 +1253,15 @@
         "later that night",
         "later that evening",
         "later in the night",
-        "afterwards that night"
+        "afterwards that night",
+        "post-lurch",
+        "post lurch",
+        "subsequent to the plunge of the deck",
+        "after the bump",
+        "following the roll",
+        "after the roll",
+        "once we rolled",
+        "after we rolled"
       ]
     },
     "gatedTopics": [
@@ -1243,7 +1280,30 @@
           "clinometer",
           "angle of heel",
           "angle-of-heel",
-          "recorder reading"
+          "recorder reading",
+          "tilt gauge",
+          "tilt-gauge",
+          "roll recorder",
+          "roll-recorder",
+          "list log",
+          "list-log",
+          "list recorder",
+          "list-recorder",
+          "paper that tracks the lean",
+          "lean gauge",
+          "lean-gauge",
+          "lean-log",
+          "lean log",
+          "recorder in the engine room",
+          "engine-room recorder",
+          "engine room recorder",
+          "engine-room graph",
+          "engine room graph",
+          "inclinograph",
+          "instrument in the engine room",
+          "paper tick",
+          "penciled LURCH",
+          "pencilled LURCH"
         ],
         "patterns": [
           "heel[-\\s]?recorders?",
@@ -1251,7 +1311,21 @@
           "heel[-\\s]?(?:logs?|strips?)",
           "inclinometers?",
           "clinometers?",
-          "angle[-\\s]of[-\\s]heel"
+          "angle[-\\s]of[-\\s]heel",
+          "tilt[-\\s]?gauges?",
+          "roll[-\\s]?recorders?",
+          "list[-\\s]?logs?",
+          "list[-\\s]?recorders?",
+          "lean[-\\s]?gauges?",
+          "lean[-\\s]?logs?",
+          "inclinographs?",
+          "engine[-\\s]room[-\\s](?:recorders?|graphs?)",
+          "recorders?\\s+in\\s+the\\s+engine[-\\s]room",
+          "instrument\\s+in\\s+the\\s+engine[-\\s]room",
+          "paper\\s+that\\s+tracks\\s+the\\s+lean",
+          "paper\\s+ticks?",
+          "pencil(?:l?ed)?[^.!?]{0,80}\\blurch\\b",
+          "\\blurch\\b[^.!?]{0,40}\\bon the strip\\b"
         ]
       }
     ]
