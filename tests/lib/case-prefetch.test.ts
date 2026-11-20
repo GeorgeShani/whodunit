@@ -14,12 +14,14 @@ import type { PublicProgress } from "@/engine/progress";
 import { resolveCaseArt } from "@/lib/case-art";
 import { caseAudioFiles } from "@/lib/case-audio.server";
 import { spriteViewOptions } from "@/lib/case-sprites.server";
+import { portraitSrc } from "@/components/effects/emotion-map";
 import {
   casePrefetchList,
   ENDING_AUDIO_STEMS,
   isConstrainedConnection,
   isForeignCasePath,
   startCasePrefetch,
+  suspectsScreenPose,
   type PrefetchItem,
   type PrefetchKind,
 } from "@/lib/case-prefetch";
@@ -126,10 +128,12 @@ function loadJson(caseId: string, file: string): unknown {
 }
 
 const KIND_ORDER: Record<PrefetchKind, number> = {
-  "portrait-neutral": 0,
-  "portrait-pose": 1,
+  "portrait-suspects": 0,
+  "suspects-backdrop": 1,
+  "suspects-ui": 1,
   location: 2,
-  audio: 3,
+  "portrait-pose": 3,
+  audio: 4,
 };
 
 const ENDING_URL = /(?:^|\/)(?:ending|accuse|accusation|accusation_roll|fanfare|theme_resolved|gavel_bang|siren|footsteps_sneak|wah_wah)(?:[-_/]|\.|$)/i;
@@ -165,8 +169,16 @@ describe("casePrefetchList", () => {
         id,
       ).toEqual([...list.map((i) => KIND_ORDER[i.kind])].sort((a, b) => a - b));
 
-      const neutrals = list.filter((i) => i.kind === "portrait-neutral");
-      expect(neutrals.length, `${id} neutrals`).toBe(view.suspects.filter((s) => s.poses.length > 0).length);
+      const painted = view.suspects.flatMap((s) => {
+        const pose = suspectsScreenPose(s);
+        return pose ? [portraitSrc(s, pose)] : [];
+      });
+      const firstWave = list.filter((i) => i.kind === "portrait-suspects").map((i) => i.url);
+      expect(firstWave, `${id} suspects-screen portraits`).toEqual(painted);
+      if (view.backdrops.suspects) {
+        const afterPortraits = list.filter((i) => i.kind !== "portrait-suspects");
+        expect(afterPortraits[0], `${id} suspects backdrop`).toMatchObject({ kind: "suspects-backdrop", url: view.backdrops.suspects });
+      }
 
       for (const item of list) {
         expect(isForeignCasePath(item.url, view.meta.id), `${id} foreign ${item.url}`).toBe(false);
@@ -217,7 +229,7 @@ describe("casePrefetchList", () => {
       const list = casePrefetchList(await viewFor(id), { light: true });
       expect(list.some((i) => i.kind === "audio"), id).toBe(false);
       expect(list.some((i) => i.kind === "portrait-pose"), id).toBe(false);
-      expect(list.some((i) => i.kind === "portrait-neutral" || i.kind === "location"), id).toBe(true);
+      expect(list.some((i) => i.kind === "portrait-suspects" || i.kind === "suspects-backdrop" || i.kind === "suspects-ui" || i.kind === "location"), id).toBe(true);
     }
   });
 
@@ -259,5 +271,58 @@ describe("startCasePrefetch", () => {
     expect(inflight.max).toBeLessThanOrEqual(3);
     expect(started.length).toBeGreaterThan(0);
     expect(started.length).toBeLessThan(items.length);
+  });
+
+  it("injects high-priority preload links for every critical image immediately", async () => {
+    type FakeLink = { rel: string; as: string; href: string; fetchpriority?: string; setAttribute: (k: string, v: string) => void; remove: () => void };
+    const links: FakeLink[] = [];
+    const head = {
+      querySelector: (sel: string) => links.find((l) => sel.includes(`href="${l.href}"`)) ?? null,
+      appendChild: (el: FakeLink) => {
+        links.push(el);
+        return el;
+      },
+    };
+    const g = globalThis as { document?: unknown };
+    const prev = g.document;
+    g.document = {
+      head,
+      createElement: () => {
+        const el: FakeLink = {
+          rel: "",
+          as: "",
+          href: "",
+          setAttribute(k, v) {
+            (el as unknown as Record<string, string>)[k] = v;
+          },
+          remove() {
+            const i = links.indexOf(el);
+            if (i >= 0) links.splice(i, 1);
+          },
+        };
+        return el;
+      },
+    };
+    try {
+      const items: PrefetchItem[] = [
+        { kind: "portrait-suspects", url: "/assets/characters/a/angry.webp", critical: true },
+        { kind: "suspects-backdrop", url: "/assets/backgrounds/manor.webp", critical: true },
+        { kind: "location", url: "/assets/backgrounds/library.webp", critical: true },
+        { kind: "audio", url: "/assets/audio/bed_manor.ogg" },
+      ];
+      const load = () => new Promise<void>(() => undefined);
+      const cancel = startCasePrefetch(items, { concurrency: 1, load });
+      expect(links.map((l) => l.href)).toEqual([
+        "/assets/characters/a/angry.webp",
+        "/assets/backgrounds/manor.webp",
+        "/assets/backgrounds/library.webp",
+      ]);
+      expect(links.every((l) => l.rel === "preload" && l.as === "image" && l.fetchpriority === "high")).toBe(true);
+      cancel();
+      expect(links).toEqual([]);
+    } finally {
+      if (prev === undefined) g.document = undefined;
+      else g.document = prev;
+    }
   });
 });

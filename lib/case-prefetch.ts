@@ -4,11 +4,12 @@
  * Built only from the public case view (never solution.json or endings). Paths
  * are taken from case data, so a renamed case folder still resolves correctly.
  *
- * Order: suspect portraits (neutral first, then other poses), location art,
- * then audio. Ending / accusation assets are never queued.
+ * Order: portraits the Suspects screen actually paints, the suspects-hall
+ * backdrop, other location art, remaining poses, then audio. Ending /
+ * accusation assets are never queued.
  */
 import { REST_GROUPS } from "@/components/effects/audio";
-import { portraitSrc } from "@/components/effects/emotion-map";
+import { POSE_CUES, portraitSrc, resolvePose, type SpritePose } from "@/components/effects/emotion-map";
 import type { PublicCaseView, PublicSuspect } from "@/engine/public-view";
 
 /** In-flight downloads at once (keep this low so the intro stays responsive). */
@@ -23,11 +24,13 @@ const DEFAULT_PLAY_BEDS = ["bed_manor", "bed_library"] as const;
 /** Stems reserved for the accusation and ending (REST_GROUPS.ending). */
 export const ENDING_AUDIO_STEMS: ReadonlySet<string> = new Set(REST_GROUPS.ending);
 
-export type PrefetchKind = "portrait-neutral" | "portrait-pose" | "location" | "audio";
+export type PrefetchKind = "portrait-suspects" | "suspects-backdrop" | "suspects-ui" | "location" | "portrait-pose" | "audio";
 
 export interface PrefetchItem {
   kind: PrefetchKind;
   url: string;
+  /** Painted on Suspects or Locations: start immediately and use rel=preload so audio trickle doesn't starve them. */
+  critical?: boolean;
 }
 
 export interface ConnectionInfo {
@@ -74,10 +77,12 @@ export function isForeignCasePath(url: string, caseId: string): boolean {
   return Boolean(m && m[1] !== caseId);
 }
 
+const CRITICAL_KINDS: ReadonlySet<PrefetchKind> = new Set(["portrait-suspects", "suspects-backdrop", "suspects-ui", "location"]);
+
 function uniquePush(out: PrefetchItem[], seen: Set<string>, kind: PrefetchKind, url: string | undefined): void {
   if (!url || seen.has(url)) return;
   seen.add(url);
-  out.push({ kind, url });
+  out.push({ kind, url, ...(CRITICAL_KINDS.has(kind) ? { critical: true } : {}) });
 }
 
 function caseAudioDir(caseId: string): string {
@@ -131,8 +136,14 @@ function locationUrls(view: PublicCaseView): string[] {
   return urls;
 }
 
-function firstPortraitPose(s: PublicSuspect): string | undefined {
-  return s.poses.includes("neutral") ? "neutral" : s.poses[0];
+/**
+ * Pose the Suspects picker actually paints for this character: resolvePose of
+ * their initial emotion, which is often not the file named "neutral".
+ * Portrait uses unoptimized next/image, so this path is the exact request URL
+ * (no srcset, no /_next/image optimizer).
+ */
+export function suspectsScreenPose(s: PublicSuspect): string | null {
+  return resolvePose(s.emotion.emotion, s.poses);
 }
 
 /** Ordered prefetch queue for one public case view. */
@@ -143,22 +154,34 @@ export function casePrefetchList(view: PublicCaseView, options: PrefetchListOpti
   const out: PrefetchItem[] = [];
   const seen = new Set<string>();
 
+  // 1. Exact portrait URLs the Suspects screen requests (initial-emotion poses).
   for (const s of view.suspects) {
-    const pose = firstPortraitPose(s);
-    if (pose) uniquePush(out, seen, "portrait-neutral", portraitSrc(s, pose));
+    const pose = suspectsScreenPose(s);
+    if (pose) uniquePush(out, seen, "portrait-suspects", portraitSrc(s, pose));
   }
 
+  // 2. Suspects-hall backdrop, plus overlays the picker actually paints (anger, sweat, …).
+  uniquePush(out, seen, "suspects-backdrop", view.backdrops.suspects);
+  for (const s of view.suspects) {
+    const pose = suspectsScreenPose(s);
+    for (const fx of pose ? (POSE_CUES[pose as SpritePose]?.overlays ?? []) : []) {
+      uniquePush(out, seen, "suspects-ui", `/assets/effects/${fx}.webp`);
+    }
+  }
+
+  // 3. Other location art (room cards, investigate / interrogation, stage).
+  for (const url of locationUrls(view)) uniquePush(out, seen, "location", url);
+
+  // 4. Remaining poses (skipped on a constrained connection).
   if (!light) {
     for (const s of view.suspects) {
       for (const pose of s.poses) {
-        if (pose === "neutral") continue;
         uniquePush(out, seen, "portrait-pose", portraitSrc(s, pose));
       }
     }
   }
 
-  for (const url of locationUrls(view)) uniquePush(out, seen, "location", url);
-
+  // 5. Audio (skipped on a constrained connection). Never ending/accusation stems.
   if (!light) {
     for (const stem of audioStems(view)) uniquePush(out, seen, "audio", audioUrlFor(view, stem, audioExt));
   }
@@ -192,8 +215,35 @@ function scheduleIdle(signal: AbortSignal | undefined, timeout = 200): Promise<v
   });
 }
 
+function preloadLink(url: string): HTMLLinkElement | undefined {
+  if (typeof document === "undefined") return undefined;
+  const existing = document.head.querySelector(`link[rel="preload"][as="image"][href="${url}"]`);
+  if (existing) return existing as HTMLLinkElement;
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "image";
+  link.href = url;
+  link.setAttribute("fetchpriority", "high");
+  document.head.appendChild(link);
+  return link;
+}
+
+/** Start every painted-screen image now, so they are not stuck behind concurrency slots or audio trickle. */
+function injectCriticalPreloads(items: readonly PrefetchItem[]): HTMLLinkElement[] {
+  const links: HTMLLinkElement[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (!item.critical || seen.has(item.url)) continue;
+    seen.add(item.url);
+    const link = preloadLink(item.url);
+    if (link) links.push(link);
+  }
+  return links;
+}
+
 async function loadImage(url: string, signal?: AbortSignal): Promise<void> {
   if (typeof Image === "undefined") return;
+  preloadLink(url);
   const img = new Image();
   img.decoding = "async";
   await new Promise<void>((resolve) => {
@@ -246,6 +296,7 @@ export function startCasePrefetch(
   const signal = ac.signal;
   const concurrency = Math.max(1, options.concurrency ?? PREFETCH_CONCURRENCY);
   const load = options.load ?? loadPrefetchItem;
+  const preloadLinks = injectCriticalPreloads(items);
 
   void (async () => {
     let i = 0;
@@ -254,7 +305,7 @@ export function startCasePrefetch(
       while (!signal.aborted) {
         const item = items[i++];
         if (!item) return;
-        if (started) await scheduleIdle(signal);
+        if (started && !item.critical) await scheduleIdle(signal);
         started = true;
         if (signal.aborted) return;
         try {
@@ -270,5 +321,6 @@ export function startCasePrefetch(
   return () => {
     options.signal?.removeEventListener("abort", onParentAbort);
     ac.abort();
+    for (const link of preloadLinks) link.remove();
   };
 }
