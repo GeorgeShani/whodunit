@@ -39,7 +39,7 @@ Maps 1:1 onto the schema.
 
 Tied to ids where they exist:
 
-- `ev-great-lurch`: the Great Lurch, the great lurch, the lurch, Great Lurch
+- `ev-great-lurch`: the Great Lurch, the great lurch, the lurch, Great Lurch, lurched, the ship lurched (bare verb forms for guard-v2 cross-sentence carry)
 - `f-list-history` / the 22:14 flip: listed to port, list to port, rolled to port, heeled to port, heeled port (no “to”), leaned to port, went over to port, gone over to port, swung over, the list changed, the tilt changed, the ship swung over, she rolled to port, took the port list, took her port list, heeled the other way, the floor sloped port, downhill became the port side, the ship tipped, plunge of the deck (the specific wording; not the party turn “The Plunge”)
 - Clock wordings after the cutoff (engine `extractTimes` should already parse these against `until`; listed so the phrase layer and after-the-lurch checks stay aligned): after quarter past ten, after ten past ten, after twenty past ten, after half past ten, after half ten, after ten fifteen / ten-fifteen, after 10:15 / 10.15, after 22:14 and later clock forms
 
@@ -68,6 +68,7 @@ One topic: the heel recorder / its chart, locked until `heel-chart` is found or 
 | `unlockedBy` | `heel-chart` |
 | `terms` | Literal instrument names and close hyphenation. Not a lone `heel` (that would catch “she heeled to starboard”). Everyday list / lurch talk stays open. Synonyms from Gremlin’s #97 pass: tilt gauge, roll recorder, list log, list recorder, paper that tracks the lean, lean gauge, lean-log, recorder in the engine room / engine-room recorder, engine-room graph, inclinograph, instrument in the engine room, paper tick, penciled/pencilled LURCH. |
 | `patterns` | Optional regexes for the same vocabulary (spaces or hyphens), plus tightly scoped strip/penciled wording (`penciled … lurch`, `lurch … on the strip`) so ordinary “strip” or “penciled a note” still pass. |
+| `concept` | Guard v2 instrument/measure net, window 8. Instruments: recorder, gauge, log, strip, inclinometer, meter, inclinograph, graph, paper, paper tick, the paper that, the thing that tracks, instrument. **Not** a lone `chart` (would catch “chart table”). Measures: heel, tilt, roll, list, lean, lurch, flip, flipped, degrees. `heel` is a measure word only (whole-word; will not match “heeled”). |
 
 Ordinary list talk that must stay allowed before the chart is found (issue #91): “The ship listed to starboard after the squall, then to port after the lurch.”; “From 21:40 she leaned starboard, and at 22:14 she went over to port.”; “The Tallyho has been listing to port since the Great Lurch.”; “The list changed at 22:14, from starboard to port.”; “I reported the list to the Captain.”
 
@@ -367,12 +368,12 @@ The lines below were unexpected passes after PR #97. They are now caught by the 
 
 Plain talk that must still pass (no victim-alive claim, no instrument name): “the ship tipped”; “she listed to port”; “she heeled to starboard”; ordinary lurch/list talk; “I spoke to the Commodore before the lurch.” Appearance-framed / believed lines still pass: Bilge’s “The Old Man's watch says 22:41”; “The horn sounded at 22:38. I thought he was alive.”
 
+## Cross-sentence lurch lines now caught (guard v2 + bare anchors)
+
+With Dexter’s guard-v2 carry and the bare anchors `lurched` / `the ship lurched`, these are blocked: “The ship lurched. He was still alive.”; “The ship lurched. Afterwards the Commodore spoke to me.”; “The ship lurched to port. He was still alive.” Plain “the ship lurched” with no alive claim still passes.
+
 ## Leftovers data cannot fix (engine request)
 
-These need a cross-sentence / implicit-state check. Dexter is writing the permanent context-check tests; this case-data PR does not add a regression test for them.
-
-- (A) Pronoun only, lurch in a previous sentence: “The ship lurched to port. He was still alive.”
-- (B) Lurch in a previous sentence: “The ship lurched. Afterwards the Commodore spoke to me.”
 - No victim name or pronoun, and the implicit alive-state list does not include the verb: “Still kicking after we heeled the other way.” (Named variants such as “The Commodore was still kicking after we heeled the other way” are caught by the new `alivePhrases` / anchors.)
 
 Pre-existing engine checks, not synonym gaps: some speakers still trip `unknown_time` on untagged clocks (including a few must-pass “I saw the Commodore at ten past ten / a quarter to ten / ten to ten” lines, and some 22:14 instrument lines after the chart is unlocked); “The heel-recorder tape…” still trips `modern_word` “tape” after unlock.
