@@ -8,12 +8,12 @@
  * editing this blob can't grant stress, reveals or undiscovered clues.
  */
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
-import type { PublicEvidence } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { PublicProgress } from "@/engine/progress";
 import type { Emotion } from "@/engine/types";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { ContradictionNotes } from "@/components/evidence/notebook-model";
+import { storedEvidence, type StoredEvidence } from "@/components/evidence/hydrate-evidence";
 
 export const SESSION_VERSION = 1;
 
@@ -25,7 +25,8 @@ export interface SavedGame {
   stateToken?: string;
   conversations: Record<string, DialogueMessage[]>;
   emotions: Record<string, Emotion>;
-  evidence: PublicEvidence[];
+  /** Found clues: ids, or whole objects from older builds. Rebuilt by id from the case view on load (hydrate-evidence). */
+  evidence: StoredEvidence[];
   /** Testimony cards (revealed secrets' public summaries). Optional: older saves lack it. */
   testimonies?: PublicTestimony[];
   searched: string[];
@@ -103,7 +104,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     ...(typeof j.stateToken === "string" ? { stateToken: j.stateToken } : {}),
     conversations: withoutUnansweredQuestions(j.conversations as SavedGame["conversations"]),
     emotions: j.emotions as SavedGame["emotions"],
-    evidence: j.evidence as PublicEvidence[],
+    evidence: storedEvidence(j.evidence as unknown[]),
     ...(Array.isArray(j.testimonies) ? { testimonies: (j.testimonies as unknown[]).filter(isTestimony) } : {}),
     searched: (j.searched as unknown[]).filter((x): x is string => typeof x === "string"),
     searchLines: j.searchLines as SavedGame["searchLines"],
