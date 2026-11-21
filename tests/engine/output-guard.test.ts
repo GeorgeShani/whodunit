@@ -145,7 +145,7 @@ describe("gatedTopics (#91)", () => {
   });
 });
 
-describe("checkReply hook and Tallyho integration (fixture guard attached in memory)", () => {
+describe.skipIf(!hasLocalOrEnvSolution("tallyho"))("checkReply hook and Tallyho integration (fixture guard attached in memory)", () => {
   let tallyho: LoadedCase;
   let blackwood: LoadedCase | undefined;
   beforeAll(async () => {

@@ -204,7 +204,7 @@ describe.skipIf(!READY)("Tallyho: the stager's guilt (draft data, real lines)", 
 
   it.each([
     ["ottilie", "The Captain started the Cheer-Box and threw the junction switch."],
-    ["ottilie", "Captain Bilge played the cheer from the chartroom."],
+    ["ottilie", "The Captain played the recorded cheer from the chartroom."],
     ["percy", "The skipper threw the switch, I'd stake my life on it."],
   ])("E8 for the accomplice: an innocent (%s) can't state the act as fact: %s", (who, line) => {
     expect(checkReply({ dialogue: line, admits: [] }, turn(who, true))?.reason).toBe("over_claim");
