@@ -3,10 +3,12 @@
  * shared signed state -> deterministic search -> public fields only -> new token.
  */
 import { inSetting, settingOf } from "./presentation";
+import { caseIdsMatch } from "@/lib/cases";
 import { UNKNOWN_CASE_LINE } from "./error-copy";
 import type { LoadedCase, PlayableCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { clueFeatures } from "./features/registry";
+import { toPublicEvidence } from "./public-view";
 import { searchLocation } from "./investigation";
 import { attachProgress } from "./route-progress";
 import { isCaseClosed, systemLine, restoreSession, saveSession } from "./session";
@@ -18,16 +20,7 @@ export const UNKNOWN_LOCATION_LINE =
 export { UNKNOWN_CASE_LINE } from "./error-copy";
 export const BAD_REQUEST_LINE = "You scribble in your notebook, but even you can't read it. Try that again, detective.";
 
-const toFound = (c: PlayableCase, e: Evidence, features = clueFeatures(c, e.id)): FoundEvidence => ({
-  id: e.id,
-  name: e.name,
-  description: e.description,
-  kind: e.kind,
-  ...(e.image ? { image: e.image } : {}),
-  ...(e.icon ? { icon: e.icon } : {}),
-  ...(e.discoveryLine ? { discoveryLine: e.discoveryLine } : {}),
-  ...(features ? { features } : {}),
-});
+const toFound = (c: PlayableCase, e: Evidence): FoundEvidence => toPublicEvidence(e, clueFeatures(c, e.id));
 
 export function handleInvestigate(
   json: unknown,
@@ -46,7 +39,7 @@ function handleInvestigateCore(
   if (!parsed.success) {
     return { status: 400, body: { found: [], lines: [BAD_REQUEST_LINE], searchedLocationIds: [], error: "invalid_request" } };
   }
-  if (parsed.data.caseId !== undefined && parsed.data.caseId !== caseData.id) {
+  if (parsed.data.caseId !== undefined && !caseIdsMatch(parsed.data.caseId, caseData.id)) {
     return { status: 404, body: { found: [], lines: [UNKNOWN_CASE_LINE], searchedLocationIds: [], error: "unknown_case" } };
   }
   const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env, { legacyCaseId });

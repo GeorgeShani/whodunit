@@ -14,7 +14,7 @@ import type { PlayableCase } from "@/engine/case-schema";
 import type { ResumeSnapshot } from "@/engine/resume-schema";
 export type { ResumeSnapshot } from "@/engine/resume-schema";
 import { publicProgress } from "@/engine/progress";
-import { toPublicEvidence } from "@/engine/public-view";
+import { notebookEvidence } from "@/engine/public-view";
 import { CABINET_AHEAD_NOTICE, OFFLINE_RESUME_NOTICE, STALE_TOKEN_NOTICE } from "@/engine/session";
 import type { GameState } from "@/engine/types";
 import { publicTestimonies } from "@/engine/testimony";
@@ -42,7 +42,8 @@ export function snapshotFromGame(caseData: PlayableCase, game: import("@/engine/
   return {
     discoveredEvidenceIds: [...discovered],
     searchedLocationIds: [...game.searchedLocationIds],
-    evidence: caseData.evidence.filter((e) => discovered.has(e.id)).map((e) => toPublicEvidence(e)),
+    // The notebook shape every route shares (weapon flag and per-clue feature extras included).
+    evidence: notebookEvidence(caseData, discovered),
     testimonies: publicTestimonies(caseData, game),
     emotions: Object.fromEntries(Object.entries(game.characters).map(([id, r]) => [id, r.emotion.emotion])),
     stress: Object.fromEntries(Object.entries(game.characters).map(([id, r]) => [id, r.stress])),

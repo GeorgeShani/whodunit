@@ -13,6 +13,7 @@
  *    in the same exchange (the ordinary present rules; it still counts as one).
  */
 import { inSetting, settingOf } from "@/engine/presentation";
+import { caseIdsMatch } from "@/lib/cases";
 import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
 import { confrontationCaps } from "@/engine/confront-caps";
 import { CONFRONTATION_PRESSURE, openConfrontation, relieveBystanders, spendExchange, testimonyToThrow } from "@/engine/confrontation";
@@ -73,7 +74,7 @@ async function handleConfrontCore(json: unknown, deps: ConfrontDeps): Promise<{ 
   const parsed = ConfrontRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: { lines: [], error: "invalid_request" } };
   const { caseId, characterIds, question, stateToken, presentedEvidenceId, presentedTestimonyId } = parsed.data;
-  if (caseId !== undefined && caseId !== caseData.id) return { status: 404, body: { lines: [], error: "unknown_case" } };
+  if (caseId !== undefined && !caseIdsMatch(caseId, caseData.id)) return { status: 404, body: { lines: [], error: "unknown_case" } };
   const [aId, bId] = characterIds;
 
   const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });

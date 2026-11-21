@@ -8,6 +8,7 @@
  * on a win: a loss never carries the solution or per-field verdict).
  */
 import { UNKNOWN_CASE_LINE, unknownSuspectLine, DEFAULT_UNKNOWN_SUSPECT_LINE } from "./error-copy";
+import { caseIdsMatch } from "@/lib/cases";
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { citeCaps, gradeAccusation } from "./accusation";
 import { hasSolution, type LoadedCase, type PlayableCase } from "./case-schema";
@@ -161,7 +162,7 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
   const parsed = AccuseRequestSchema.safeParse(json);
   if (!parsed.success) return { status: 400, body: { error: "invalid_request", line: ACCUSE_LINES.invalid } };
   const { accusation, stateToken, caseId } = parsed.data;
-  if (caseId !== undefined && caseId !== caseData.id) return { status: 404, body: { error: "unknown_case", line: ACCUSE_LINES.unknownCase } };
+  if (caseId !== undefined && !caseIdsMatch(caseId, caseData.id)) return { status: 404, body: { error: "unknown_case", line: ACCUSE_LINES.unknownCase } };
 
   const { game, notice } = restoreSession(caseData, stateToken, env, { legacyCaseId });
   if (notice) return { status: 400, body: { error: "invalid_state", line: ACCUSE_LINES.badState, notice, stateToken: saveSession(game, env) } };

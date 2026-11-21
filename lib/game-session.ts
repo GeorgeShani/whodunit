@@ -12,15 +12,34 @@
  * leftover blob can't grant stress, reveals or undiscovered clues.
  */
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
-import type { PublicEvidence } from "@/engine/public-view";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { PublicProgress } from "@/engine/progress";
 import type { Emotion } from "@/engine/types";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { ContradictionNotes } from "@/components/evidence/notebook-model";
 import { canonicalCaseId, caseIdAliases } from "./cases";
+import type { PublicEvidence } from "@/engine/public-view";
 
 export const SESSION_VERSION = 1;
+
+/** What an older saved game may hold for one clue: an id, or a whole object (rebuilt from the server on resume). */
+export type StoredEvidence = PublicEvidence | string;
+
+/**
+ * The notebook a resume puts in state: the server's snapshot (rebuilt by id from the case, weapon flag included), else
+ * the page's public case view. Stored evidence objects are never used (old blobs only hand over their token).
+ */
+export function resumedEvidence(snap: { evidence: readonly PublicEvidence[] } | null | undefined, viewEvidence: PublicEvidence[]): PublicEvidence[] {
+  return snap?.evidence.length ? [...snap.evidence] : viewEvidence;
+}
+
+/** Saved-game entries worth keeping: ids and well-formed evidence objects (anything else is dropped). */
+export function storedEvidence(raw: readonly unknown[]): StoredEvidence[] {
+  return raw.filter(
+    (x): x is StoredEvidence =>
+      (typeof x === "string" && x.length > 0) || (typeof x === "object" && x !== null && typeof (x as PublicEvidence).id === "string" && typeof (x as PublicEvidence).name === "string"),
+  );
+}
 
 export interface SavedGame {
   v: typeof SESSION_VERSION;
@@ -30,7 +49,8 @@ export interface SavedGame {
   stateToken?: string;
   conversations: Record<string, DialogueMessage[]>;
   emotions: Record<string, Emotion>;
-  evidence: PublicEvidence[];
+  /** Found clues: ids, or whole objects from older builds (only the token is migrated; resume rebuilds the notebook server-side). */
+  evidence: StoredEvidence[];
   /** Testimony cards (revealed secrets' public summaries). Optional: older saves lack it. */
   testimonies?: PublicTestimony[];
   searched: string[];
@@ -108,7 +128,7 @@ export function parseSavedGame(raw: string | null, caseId: string): SavedGame | 
     ...(typeof j.stateToken === "string" ? { stateToken: j.stateToken } : {}),
     conversations: withoutUnansweredQuestions(j.conversations as SavedGame["conversations"]),
     emotions: j.emotions as SavedGame["emotions"],
-    evidence: j.evidence as PublicEvidence[],
+    evidence: storedEvidence(j.evidence as unknown[]),
     ...(Array.isArray(j.testimonies) ? { testimonies: (j.testimonies as unknown[]).filter(isTestimony) } : {}),
     searched: (j.searched as unknown[]).filter((x): x is string => typeof x === "string"),
     searchLines: j.searchLines as SavedGame["searchLines"],

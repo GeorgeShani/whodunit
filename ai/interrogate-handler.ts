@@ -11,6 +11,7 @@
  * Any failure yields the in-character fallback. Logs are non-secret only.
  */
 import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
+import { caseIdsMatch } from "@/lib/cases";
 import { attachProgress } from "@/engine/route-progress";
 import { isCaseClosed, systemLine, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
@@ -73,7 +74,7 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
   if (!parsed.success) return { status: 400, body: fallbackBody("invalid_request"), diag: { reason: "invalid_request" } };
   const { characterId, question, presentedEvidenceId, presentedTestimonyId, stateToken, caseId } = parsed.data;
   // The route resolves the case; a body naming a different one is a client bug, not a new game.
-  if (caseId !== undefined && caseId !== caseData.id) {
+  if (caseId !== undefined && !caseIdsMatch(caseId, caseData.id)) {
     return { status: 404, body: fallbackBody("unknown_case"), diag: { reason: "unknown_case" } };
   }
 

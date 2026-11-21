@@ -84,6 +84,7 @@
      "icon": "🗝️",
      "id": "library-key",
      "kind": "physical",
+     "locationId": "dining-room",
      "name": "The Missing Library Key"
     }
    ],
@@ -824,7 +825,9 @@
      "icon": "🕯️",
      "id": "silver-candlestick",
      "kind": "physical",
-     "name": "Silver Candlestick"
+     "locationId": "library",
+     "name": "Silver Candlestick",
+     "weapon": true
     }
    ],
    "lines": [
