@@ -7,6 +7,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { handleAccuse } from "@/engine/accuse-handler";
 import { checkCaseReferences, checkCaseWarnings } from "@/engine/case-validation";
 import { loadCase } from "@/engine/case-loader";
+import { winningAccusation } from "../helpers/winning";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
 import { searchLocation } from "@/engine/investigation";
@@ -228,7 +229,7 @@ describe("Blackwood progression: the accuse gate and the win rule", () => {
     g.discoveredEvidenceIds.push("silver-candlestick", "library-key", "burned-letter", "muddy-footprint");
     expect(accuseProgress(c, g).unlocked).toBe(false);
     const r = await handleAccuse(
-      { accusation: { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "burned-letter"], keyTestimonyIds: [] }, stateToken: encodeStateToken(g, TEST_ENV) },
+      { accusation: { ...winningAccusation(c, { keyEvidenceIds: [...c.solution.keyEvidenceIds], keyTestimonyIds: [] }), }, stateToken: encodeStateToken(g, TEST_ENV) },
       { caseData: c, env: TEST_ENV },
     );
     expect(r.status).toBe(403);
@@ -238,7 +239,7 @@ describe("Blackwood progression: the accuse gate and the win rule", () => {
 
   const accuse = (g: GameState, over: Record<string, unknown>) =>
     handleAccuse(
-      { accusation: { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "burned-letter"], keyTestimonyIds: ["s-archibald-false-alibi"], ...over }, stateToken: encodeStateToken(g, TEST_ENV) },
+      { accusation: { ...winningAccusation(c, { keyTestimonyIds: ["s-archibald-false-alibi"] }), ...over }, stateToken: encodeStateToken(g, TEST_ENV) },
       { caseData: c, env: TEST_ENV },
     );
 

@@ -410,7 +410,7 @@ beforeAll(async () => {
     ["fresh", "I loathe the dark, darling. Candlelight is so unflattering."],
     ["fresh", "The storm has been dreadful all evening."],
     ["fresh", "Archibald came back to the fire at twenty-two minutes past nine without any brandy."],
-    ["vNewwill", "Yes, I knew about the new will. And yes, I burned that wretched letter. There."],
+    ["vNewwill", "Yes, I knew about the new will. And yes, I burned the letter. There."],
     ["vNewwill", "I knew Edmund meant to sign a new will at ten tomorrow. I'm not a fool."],
     ["vLeft", "Very well. I left the dining room while Archibald was away. Where I went is my own affair."],
     ["vLeft", "I wasn't by the fire the whole time, darling. I stepped out for a little while."],

@@ -14,11 +14,14 @@ import { systemLine } from "@/engine/session";
 import type { Accusation } from "@/engine/types";
 import { decodeStateToken, encodeStateToken } from "@/engine/state-token";
 import { deepScan } from "../helpers/leak-scan";
+import { winningAccusation } from "../helpers/winning";
 import { mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
 let c: LoadedCase;
+let WIN: Accusation;
 beforeAll(async () => {
   c = ungated(await loadCase("blackwood"));
+  WIN = winningAccusation(c, { keyEvidenceIds: [c.solution.keyEvidenceIds[0], "muddy-footprint"] });
 });
 
 const ALL = ["silver-candlestick", "muddy-footprint", "burned-letter", "library-key"];
@@ -27,7 +30,6 @@ const token = (discovered = ALL) => {
   g.discoveredEvidenceIds.push(...discovered);
   return encodeStateToken(g, TEST_ENV);
 };
-const WIN = { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "muddy-footprint"] };
 const accuse = (accusation: Record<string, unknown>, stateToken = token(), accused?: AccusedStore) =>
   handleAccuse({ accusation, stateToken }, { caseData: c, env: TEST_ENV, ...(accused ? { accused } : {}) });
 const memoryStore = (): AccusedStore => {
@@ -40,7 +42,7 @@ describe("gradeAccusation branches through POST /api/accuse", () => {
     const r = await accuse(WIN);
     expect(r.status).toBe(200);
     expect(r.body.outcome).toBe("won");
-    expect(r.body.verdict).toEqual({ murdererCorrect: true, weaponCorrect: true, motiveCorrect: true, hasKeyEvidence: true, hasKeyTestimony: true, keyEvidenceCited: ["library-key"] });
+    expect(r.body.verdict).toEqual({ murdererCorrect: true, weaponCorrect: true, motiveCorrect: true, hasKeyEvidence: true, hasKeyTestimony: true, keyEvidenceCited: [c.solution.keyEvidenceIds[0]] });
     expect(r.body.ending?.headline).toBe("CASE CLOSED!");
   });
 
@@ -53,7 +55,7 @@ describe("gradeAccusation branches through POST /api/accuse", () => {
     const r = await accuse({ ...WIN, ...over });
     expect(r.status).toBe(200);
     expect(r.body.outcome).toBe("lost");
-    expect(r.body.ending?.headline).toBe(c.endings!.escapedLine);
+    expect(r.body.ending?.headline).toBe(c.endings!.escapedLine!);
     expect(r.body.verdict).toBeUndefined();
     expect(r.body.solution).toBeUndefined();
     const { keys, strings } = deepScan(r.body);
@@ -63,7 +65,7 @@ describe("gradeAccusation branches through POST /api/accuse", () => {
   });
 
   it("right person, wrong story: the murderer's own authored wrong ending plays (E4), never the generic loss lines", async () => {
-    const authored = c.endings!.wrong[c.solution.murdererId]!;
+    const authored = c.endings!.wrong![c.solution.murdererId]!;
     for (const over of [{ motiveId: "revenge" }, { weaponId: "library-key" }, { keyEvidenceIds: ["muddy-footprint", "silver-candlestick"] }]) {
       const r = await accuse({ ...WIN, ...over });
       expect(r.body.outcome).toBe("lost");
@@ -78,7 +80,7 @@ describe("gradeAccusation branches through POST /api/accuse", () => {
   it("a loss never gives away the real murderer: no gloating killer cameo in an innocent's ending, no unrelated clues", async () => {
     const right = await accuse({ ...WIN, motiveId: "revenge" }); // the real killer, wrong motive
     const wrong = await accuse({ ...WIN, murdererId: "reginald" });
-    expect(wrong.body.ending!.beats.some((b) => b.speaker === "victoria")).toBe(false); // her cameo gloats
+    expect(wrong.body.ending!.beats.some((b) => b.speaker === c.solution.murdererId)).toBe(false); // her cameo gloats
     expect(wrong.body.ending!.beats[0].speaker).toBe("reginald");
     const shown = new Set([...WIN.keyEvidenceIds, WIN.weaponId]);
     for (const e of [right, wrong]) expect((e.body.evidence ?? []).every((x) => shown.has(x.id))).toBe(true);
@@ -120,14 +122,15 @@ describe("accusation validation", () => {
   });
 
   it("client-side draft validation mirrors the rules", async () => {
-    const opts = { suspectIds: ["victoria"], evidenceIds: ["library-key"], motiveIds: ["inheritance"] };
+    const key = c.solution.keyEvidenceIds[0];
+    const opts = { suspectIds: [c.solution.murdererId], evidenceIds: [key], motiveIds: [c.solution.motiveId] };
     expect(validateAccusationDraft({ keyEvidenceIds: [] }, opts)).toMatchObject({ ok: false });
     expect((validateAccusationDraft({ keyEvidenceIds: [] }, opts) as { errors: string[] }).errors).toHaveLength(4);
-    expect(validateAccusationDraft({ murdererId: "victoria", weaponId: "library-key", motiveId: "inheritance", keyEvidenceIds: ["library-key", "library-key"] }, opts)).toEqual({
+    expect(validateAccusationDraft({ murdererId: c.solution.murdererId, weaponId: key, motiveId: c.solution.motiveId, keyEvidenceIds: [key, key] }, opts)).toEqual({
       ok: true,
-      accusation: { murdererId: "victoria", weaponId: "library-key", motiveId: "inheritance", keyEvidenceIds: ["library-key"] },
+      accusation: { murdererId: c.solution.murdererId, weaponId: key, motiveId: c.solution.motiveId, keyEvidenceIds: [key] },
     });
-    expect(validateAccusationDraft({ murdererId: "victoria", weaponId: "library-key", motiveId: "inheritance", keyEvidenceIds: ["nope"] }, opts).ok).toBe(false);
+    expect(validateAccusationDraft({ murdererId: c.solution.murdererId, weaponId: key, motiveId: c.solution.motiveId, keyEvidenceIds: ["nope"] }, opts).ok).toBe(false);
   });
 });
 
@@ -158,7 +161,7 @@ describe("one accusation per game, not per token (#22)", () => {
     const again = await accuse({ ...WIN, murdererId: "gregory" }, t0, store);
     expect(again.status).toBe(409);
     expect(again.body.outcome).toBe("won");
-    expect(again.body.solution?.murderer.id).toBe("victoria");
+    expect(again.body.solution?.murderer.id).toBe(c.solution.murdererId);
   });
 
   it("the id survives later turns, so ANY earlier token of the game is blocked, while a new game is not", async () => {
@@ -216,8 +219,8 @@ describe("after game over", () => {
 describe("no solution or ending before the accusation", () => {
   const secrets = () => [
     c.solution.explanation!,
-    ...[...c.endings!.correct.confession, ...c.endings!.correct.recap, ...Object.values(c.endings!.wrong).flat()].map((l) => l.text),
-    c.endings!.escapedLine,
+    ...[...c.endings!.correct!.confession, ...c.endings!.correct!.recap, ...Object.values(c.endings!.wrong!).flat()].map((l) => l.text),
+    c.endings!.escapedLine!,
   ];
   it("public view, interrogate, investigate and rejected accusations carry none of it", async () => {
     mockGrok({});
@@ -246,8 +249,8 @@ describe("no solution or ending before the accusation", () => {
 describe("ending payload shaping", () => {
   it("won: confession then Agatha's recap, verbatim, with speakers resolved and ending emotions kept", async () => {
     const e = buildEnding(c, { won: true }, WIN);
-    const n = c.endings!.correct.confession.length;
-    expect(e.beats.map((b) => b.text)).toEqual([...c.endings!.correct.confession, ...c.endings!.correct.recap].map((l) => l.text));
+    const n = c.endings!.correct!.confession.length;
+    expect(e.beats.map((b) => b.text)).toEqual([...c.endings!.correct!.confession, ...c.endings!.correct!.recap].map((l) => l.text));
     expect(e.beats.slice(0, n).every((b) => b.section === "confession")).toBe(true);
     expect(e.beats[1]).toMatchObject({ speaker: "archibald", speakerName: "Archibald Crane", emotion: "flustered", pauseMs: 1500 });
     expect(e.beats[n]).toMatchObject({ speaker: "narrator", section: "recap", evidenceIds: ["silver-candlestick"] });

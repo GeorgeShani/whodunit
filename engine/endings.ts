@@ -1,5 +1,7 @@
 /**
- * SERVER-ONLY. Authored endings (cases/<id>/endings.json).
+ * SERVER-ONLY. Authored endings (cases/<id>/endings.json), with an optional
+ * overlay on the solution (file or CASE_SOLUTION_* env) for culprit-naming
+ * endings that must not be committed.
  *
  * Endings spell out the solution, so they must never reach the public view,
  * the character context or the LLM. The engine picks and plays them after it
@@ -48,3 +50,30 @@ export const SecretEndingsSchema = z.strictObject({
   wrong: z.record(IdSchema, Lines).optional(),
 });
 export type SecretEndings = z.infer<typeof SecretEndingsSchema>;
+
+/**
+ * The committed endings.json may omit `correct` and any `wrong` entry that names the culprit;
+ * those can be supplied on the solution instead. A full Endings object is also valid here.
+ */
+export const PublicEndingsSchema = z.strictObject({
+  correct: z.strictObject({ confession: Lines, recap: Lines }).optional(),
+  wrong: z.record(IdSchema, Lines).optional(),
+  escapedLine: NonEmptyText.optional(),
+  sloppyRemark: EndingLineSchema.optional(),
+});
+export type PublicEndings = z.infer<typeof PublicEndingsSchema>;
+
+/** Overlay secret endings onto the public file. Secret `correct` / `wrong` entries win on conflict. */
+export function mergeEndings(file?: PublicEndings, fromSolution?: SecretEndings): PublicEndings | undefined {
+  if (!file && !fromSolution) return undefined;
+  const wrong = { ...(file?.wrong ?? {}), ...(fromSolution?.wrong ?? {}) };
+  const correct = fromSolution?.correct ?? file?.correct;
+  const escapedLine = file?.escapedLine;
+  const sloppyRemark = file?.sloppyRemark;
+  const out: PublicEndings = {};
+  if (correct) out.correct = correct;
+  if (Object.keys(wrong).length) out.wrong = wrong;
+  if (escapedLine) out.escapedLine = escapedLine;
+  if (sloppyRemark) out.sloppyRemark = sloppyRemark;
+  return out.correct || out.wrong || out.escapedLine || out.sloppyRemark ? out : undefined;
+}

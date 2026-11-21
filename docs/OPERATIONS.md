@@ -25,6 +25,12 @@ and must be supplied as the server-only env var `CASE_SOLUTION_BLACKWOOD` or `CA
 accusations fail closed in character (HTTP 503, `accusation_unavailable`) with no technical text and no
 crash. Set the var on Preview and Production, then redeploy so the preview build sees it.
 
+Blackwood's culprit-naming endings (the confession, recap, and the murderer's own `wrong` entry) travel
+in the same `CASE_SOLUTION_BLACKWOOD` payload, under `endings`. Innocent losing endings, `escapedLine`
+and `sloppyRemark` stay in the committed `cases/blackwood/endings.json`. Tallyho still ships a complete
+`endings.json`. Changing the payload on Vercel takes effect on the next deployment; do not redeploy
+Production just to refresh the var unless a new deploy is already planned.
+
 For local `npm test` / `validate:strict`, keep a gitignored copy of the file in the case folder (or set
 the env var). If neither is present, `validate:strict` skips that case cleanly, and tests that need the
 solution skip rather than fail. Older git commits still contain Blackwood's answer.

@@ -68,7 +68,7 @@ describe("CA-33 (r7 L1): one lightning wording everywhere, and Victoria's guard 
     expect(fact("loc-gregory-2119").statement).toMatch(/lightning flash and the flickers/);
     expect(ch("gregory").secrets.find((s) => s.id === "s-gregory-saw-victoria")!.description).toMatch(/lightning flash and the flickers/);
     expect(c.leads!.find((l) => l.id === "lead-eyewitness")!.closedLine).toMatch(/flash and its flickers/);
-    expect(c.endings!.correct.recap.map((l) => l.text).join(" ")).toMatch(/lightning flash and the flickers/);
+    expect(c.endings!.correct!.recap.map((l) => l.text).join(" ")).toMatch(/lightning flash and the flickers/);
   });
   it.each([
     "In the flickering lightning I stepped out of the library and locked the door.",
@@ -115,7 +115,7 @@ describe("CA-30 (r7 M4): Victoria may admit the burning, never when", () => {
     expect(ch("victoria").secrets.find((s) => s.id === "s-victoria-murder")!.relatedFactIds).toContain("ev-letter-burned");
   });
   it("the bare act passes on the reveal turn", () => {
-    const v = r7Verdict(c, "victoria", "Very well. I knew about the new will, and I burned that wretched letter.", G, "This letter was in your fire.", { allowReveal: true, presentedEvidenceId: "burned-letter" });
+    const v = r7Verdict(c, "victoria", "Very well. I knew about the new will, and I burned the letter.", G, "This letter was in your fire.", { allowReveal: true, presentedEvidenceId: "burned-letter" });
     expect(v).toBeNull();
   });
   it.each([

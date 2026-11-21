@@ -2,6 +2,7 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { handleAccuse } from "@/engine/accuse-handler";
 import { loadCase } from "@/engine/case-loader";
+import { winningAccusation } from "../helpers/winning";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
 import { searchLocation } from "@/engine/investigation";
@@ -91,7 +92,7 @@ describe("the accuse gate failing solely on the alibi lead (closedLeadIds)", () 
   };
   const accuse = (g: ReturnType<typeof ready>) =>
     handleAccuse(
-      { caseId: "blackwood", stateToken: saveSession(g, TEST_ENV), accusation: { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "burned-letter"] } },
+      { caseId: "blackwood", stateToken: saveSession(g, TEST_ENV), accusation: winningAccusation(c) },
       { caseData: c, env: TEST_ENV },
     );
 

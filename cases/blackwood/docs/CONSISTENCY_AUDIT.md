@@ -1,3 +1,5 @@
+<!-- The official answer is not committed: it lives in the gitignored cases/blackwood/solution.json or CASE_SOLUTION_BLACKWOOD. This document may still name public suspects, clues and secret ids that also live in committed case/character files. -->
+
 # Blackwood consistency audit (loopholes, wormholes, inconsistencies)
 
 > **SPOILERS / SERVER-SIDE DESIGN DOC.** Do not ship to the client or feed to the model.
@@ -387,7 +389,7 @@ Source: `/workspace/qa/r7/review.md` (Gremlin, 2026-10-11, offline: no model cal
 
 Every new `forbiddenPhrases` entry carries an `[r7-…]` tag in its `note`, so it can be traced. All fixes are in draft PR #57.
 
-### CA-27 · High · Innocents could name Victoria as the killer: fixed (#57) + Dexter (E8)
+### CA-27 · High · Innocents could name the culprit as the killer: fixed (#57) + Dexter (E8)
 
 **Evidence (r7 H1):** on a fresh state, all of these passed for Reginald, Archibald and Gregory:
 - "She'd killed him by then", "she'd done for him", "she did him in", "her ladyship's done him in";
@@ -499,7 +501,7 @@ None of them mentions money, the telephone, the sighting, the letter, the will, 
 - Reginald: the bent fork, then "thirty years in service… I shall see to the tea while you think again";
 - Archibald: "I threaten everybody!", then his solicitors "first thing in the morning";
 - Gregory: "I only came in out of the rain", then he will stand in the kitchen till somebody believes him;
-- Victoria: "Accusing a grieving widow in her own hall. How terribly modern of you.", then "I shall be in the hall, being brave."
+- Victoria: the murderer's wrong ending is not quoted here; see the gitignored solution endings;
 
 Victoria's cameo lines in the innocents' endings were never played (#22) and are removed. Tests updated: `blackwood-content.test.ts` checks the shape and the forbidden content, and `ending-sequence.test.ts` no longer pins "right lady".
 

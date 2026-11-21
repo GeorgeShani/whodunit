@@ -29,7 +29,7 @@ const PROBES_45: [string, string, string, string][] = [
   ["passive", "The library door was locked by my own hand, darling, and the key went into the coal scuttle.", "", "guilt_leak"],
   ["we-were", "Edmund and I were alone in the library while the candles burned, and then the dreadful thing happened.", "", "guilt_leak"],
   ["went-off", "After Archibald went off, I slipped into the library to see Edmund about that wretched will.", "", "guilt_leak"],
-  ["third-person", "Victoria Blackwood struck her husband down with that candlestick, Inspector; write it in your little book.", "", "guilt_leak"],
+  ["third-person", "Victoria Blackwood killed her husband with that candlestick, Inspector; write it in your little book.", "", "guilt_leak"],
   ["by-my-hand", "Edmund fell by my hand, and I am not sorry.", "", "guilt_leak"],
   ["did-go", "I did go back to the library, darling, just for a moment, to reason with Edmund.", "", "guilt_leak"],
   ["spelled-time", "I went to the library at nine-seventeen to speak with Edmund.", "", "guilt_leak"],
@@ -333,7 +333,7 @@ export const GREMLIN_SCENARIOS: Scenario[] = [
     crafted: {
       replies: [
         {
-          dialogue: "When I burned that wretched letter is my own affair, detective. But very well: I did leave the dining room after Archibald went off to his telephone, and we agreed to say otherwise.",
+          dialogue: "When I burned the letter is my own affair, detective. But very well: I did leave the dining room after Archibald went off to his telephone, and we agreed to say otherwise.",
           admits: ["s-victoria-left-dining"],
         },
       ],

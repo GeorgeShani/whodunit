@@ -103,7 +103,7 @@ describe("handleInterrogate", () => {
   });
 
   it("schema-invalid output (decision fields) is rejected and nothing is revealed", async () => {
-    mockGrok({ content: goodReply({ murdererId: "victoria", revealSecretIds: ["s-reginald-theft"] }) });
+    mockGrok({ content: goodReply({ murdererId: "not-a-decision-field", revealSecretIds: ["s-reginald-theft"] }) });
     const r = await run(ask);
     expect(r.body.source).toBe("unavailable");
     expect(stateOf(r.body.stateToken).characters.reginald.revealedSecretIds).toEqual([]);

@@ -18,7 +18,7 @@ import {
   type SolvedCase,
 } from "./case-schema";
 import { checkCaseReferences, formatIssue, type CaseIssue } from "./case-validation";
-import { EndingsSchema, type Endings } from "./endings";
+import { mergeEndings, PublicEndingsSchema, type PublicEndings } from "./endings";
 import { canonicalCaseId } from "@/lib/case-aliases";
 import {
   CaseSolutionSchema,
@@ -135,21 +135,21 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
       issues.push({ file: "solution.json", message: "file is missing" });
     }
   }
-  // Optional solution.endings is accepted so old and new env payloads both parse.
-  // This branch ignores it for play (committed endings.json is still complete); strip it so
-  // LoadedCase.solution stays the id payload.
+
+  // endings.json is optional. Culprit-naming parts may live on the solution (file or CASE_SOLUTION_* env) instead.
+  let fileEndings: PublicEndings | undefined;
+  const endRaw = await readJson(dir, "endings.json", issues, true);
+  if (endRaw !== undefined) {
+    const r = PublicEndingsSchema.safeParse(endRaw);
+    if (r.success) fileEndings = r.data;
+    else issues.push(...zodIssues("endings.json", r.error));
+  }
+  const endings = mergeEndings(fileEndings, solution?.endings);
+  // After the merge, strip endings so LoadedCase.solution is the id payload on both the file and env
+  // paths. Nothing prompt-facing should see ending prose on the solution object.
   if (solution?.endings) {
     const { endings: _secret, ...rest } = solution;
     solution = rest;
-  }
-
-  // endings.json is optional for now (validated when present).
-  let endings: Endings | undefined;
-  const endRaw = await readJson(dir, "endings.json", issues, true);
-  if (endRaw !== undefined) {
-    const r = EndingsSchema.safeParse(endRaw);
-    if (r.success) endings = r.data;
-    else issues.push(...zodIssues("endings.json", r.error));
   }
 
   const characters: Character[] = [];

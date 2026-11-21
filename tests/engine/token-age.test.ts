@@ -10,6 +10,7 @@ import { COLD_CASE_NOTICE, RESET_NOTICE, restoreSession } from "@/engine/session
 import { decodeStateToken, encodeStateToken, isExpired, LEGACY_TOKEN_GRACE_UNTIL, signPayloadForTests, STATE_TOKEN_MAX_AGE_MS, unverifiedPayload } from "@/engine/state-token";
 import { ACCUSED_TTL_SECONDS } from "@/lib/accused-store";
 import { mockGrok, TEST_ENV } from "../helpers/grok-mock";
+import { winningAccusation } from "../helpers/winning";
 
 let c: LoadedCase;
 beforeAll(async () => {
@@ -109,7 +110,7 @@ describe("#39 state token max age", () => {
     const inv = handleInvestigate({ caseId: "blackwood", locationId: "library", stateToken: token }, { caseData: c, env: TEST_ENV });
     expect(inv.body.notice).toBe(COLD_CASE_NOTICE);
     const acc = await handleAccuse(
-      { accusation: { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key"] }, stateToken: token },
+      { accusation: winningAccusation(c, { keyEvidenceIds: [c.solution.keyEvidenceIds[0]] }), stateToken: token },
       { caseData: c, env: TEST_ENV },
     );
     expect(acc.status).toBe(400);

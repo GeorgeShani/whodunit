@@ -4,8 +4,10 @@
  * The env value and the solution itself must never appear in a public view or a fail-closed response.
  */
 import { execSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { unlink } from "node:fs/promises";
+import { cp, mkdtemp, rm, unlink } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import { ACCUSE_LINES, handleAccuse } from "@/engine/accuse-handler";
@@ -148,11 +150,38 @@ describe("CASE_SOLUTION_<ID> env loader", () => {
     delete process.env.CASE_SOLUTION_BLACKWOOD;
     try {
       const c = await loadCase("blackwood");
-      expect(c.solution?.murdererId).toBe("victoria");
+      const local = JSON.parse(readFileSync("cases/blackwood/solution.json", "utf8")) as { murdererId: string };
+      expect(c.solution?.murdererId).toBe(local.murdererId);
+      expect(c.solution).not.toHaveProperty("endings");
+      expect(c.endings?.correct).toBeDefined();
     } finally {
       if (prev !== undefined) process.env.CASE_SOLUTION_BLACKWOOD = prev;
     }
   });
+
+  it.skipIf(!existsSync("cases/blackwood/solution.json"))(
+    "LoadedCase.solution has no endings key when the Blackwood payload comes from the env",
+    async () => {
+      const raw = readFileSync("cases/blackwood/solution.json");
+      expect(raw.length).toBe(5643);
+      expect(createHash("sha256").update(raw).digest("hex").startsWith("0f4eea49a923b598")).toBe(true);
+
+      const tmp = await mkdtemp(path.join(tmpdir(), "bw-env-endings-"));
+      const prev = process.env.CASE_SOLUTION_BLACKWOOD;
+      try {
+        await cp(path.resolve("cases/blackwood"), path.join(tmp, "blackwood"), { recursive: true });
+        await unlink(path.join(tmp, "blackwood", "solution.json"));
+        process.env.CASE_SOLUTION_BLACKWOOD = raw.toString("base64");
+        const c = await loadCase("blackwood", tmp);
+        expect(c.solution).not.toHaveProperty("endings");
+        expect(c.endings?.correct).toBeDefined();
+      } finally {
+        if (prev === undefined) delete process.env.CASE_SOLUTION_BLACKWOOD;
+        else process.env.CASE_SOLUTION_BLACKWOOD = prev;
+        await rm(tmp, { recursive: true, force: true });
+      }
+    },
+  );
 
   it("does not track Tallyho's or Blackwood's solution.json, and CASE_SOLUTION_ is never a NEXT_PUBLIC_ name in the repo", () => {
     const tracked = execSync("git ls-files cases/tallyho/solution.json cases/_tallyho/solution.json cases/blackwood/solution.json", { encoding: "utf8" }).trim();
