@@ -10,7 +10,7 @@ export const UNKNOWN_CASE_LINE =
   "The case file's gone missing. Wherever that mystery happened, Detective, we can't get there from here.";
 
 /**
- * Fallback `unknown_suspect` line (Blackwood's hat-stand wording). Used when
+ * Fallback `unknown_suspect` line (the original hat-stand wording). Used when
  * `copy.unknownSuspect` is omitted. `inSetting` rewrites "house" for cases that
  * set a `setting.site`; a case-specific `copy.unknownSuspect` is used as written.
  */

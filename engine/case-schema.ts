@@ -119,7 +119,7 @@ export const CaseEnvelopeSchema = z.strictObject({
     .optional(),
   /**
    * Optional case-level error copy. `unknownSuspect` is the accuse-form line when the named person is not in the
-   * roster. Omitted: the engine default (Blackwood's hat-stand wording; see engine/error-copy.ts). `unknown_case`
+   * roster. Omitted: the engine default (the original hat-stand wording; see engine/error-copy.ts). `unknown_case`
    * is a single neutral line for every case and is not overridable here.
    */
   copy: z
