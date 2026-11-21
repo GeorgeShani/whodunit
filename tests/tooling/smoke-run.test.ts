@@ -4,13 +4,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { loadCase } from "@/engine/case-loader";
 import { fastestPath, fastestPlan } from "@/engine/progression-validation";
 import { smokeRun } from "@/tools/smoke/playthrough";
+import { hasLocalOrEnvSolution } from "../helpers/has-solution";
 
 const FIXTURES = path.join(process.cwd(), "tests/fixtures/progression");
 
 afterEach(() => vi.unstubAllGlobals());
 
 describe("fastestPlan", () => {
-  it("Blackwood: exact, 10 actions, the steps replay the path (the accusation is the last action)", async () => {
+  it.skipIf(!hasLocalOrEnvSolution("blackwood"))("Blackwood: exact, 10 actions, the steps replay the path (the accusation is the last action)", async () => {
     const c = await loadCase("blackwood");
     const p = fastestPlan(c)!;
     expect(p).toMatchObject({ actions: 10, exact: true, atLeast: 10 });
@@ -19,7 +20,9 @@ describe("fastestPlan", () => {
     for (const s of p.steps) expect(["search", "talk", "show", "confront"]).toContain(s.kind);
   });
   it("full-gate search agrees with the general search when the gate questions everyone", async () => {
-    for (const [id, dir] of [["blackwood", undefined], ["progress-light", FIXTURES]] as const) {
+    const cases: [string, string | undefined][] = [["progress-light", FIXTURES]];
+    if (hasLocalOrEnvSolution("blackwood")) cases.unshift(["blackwood", undefined]);
+    for (const [id, dir] of cases) {
       const c = await loadCase(id, dir);
       const sq = c.accuseGate!.minSuspectsQuestioned ?? { count: 1, minExchanges: 1 };
       for (const minExchanges of [1, 2, 3]) {
@@ -38,7 +41,7 @@ describe("fastestPlan", () => {
 });
 
 describe("smoke run (offline)", () => {
-  it("Blackwood wins on the plan, ACCUSE stays locked until the end, wrong fields lose, nothing leaves the process", async () => {
+  it.skipIf(!hasLocalOrEnvSolution("blackwood"))("Blackwood wins on the plan, ACCUSE stays locked until the end, wrong fields lose, nothing leaves the process", async () => {
     const real = vi.fn(async () => new Response("live call"));
     vi.stubGlobal("fetch", real);
     const r = await smokeRun(await loadCase("blackwood"));
@@ -54,13 +57,13 @@ describe("smoke run (offline)", () => {
     expect(r.failures).toEqual([]);
     expect(r.ok).toBe(true);
   });
-  it("catches a soft gate: one clue opens ACCUSE long before the case can be won", async () => {
+  it.skipIf(!hasLocalOrEnvSolution("blackwood"))("catches a soft gate: one clue opens ACCUSE long before the case can be won", async () => {
     const c = await loadCase("blackwood");
     const r = await smokeRun({ ...c, accuseGate: { minEvidence: 1 } });
     expect(r.ok).toBe(false);
     expect(r.failures.join("\n")).toMatch(/ACCUSE was not locked/);
   });
-  it("catches an unwinnable solution: a motive that is not in the case", async () => {
+  it.skipIf(!hasLocalOrEnvSolution("blackwood"))("catches an unwinnable solution: a motive that is not in the case", async () => {
     const c = await loadCase("blackwood");
     const r = await smokeRun({ ...c, solution: { ...c.solution, motiveId: "no-such-motive" } });
     expect(r.ok).toBe(false);
