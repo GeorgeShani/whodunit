@@ -129,7 +129,9 @@
      "totalUsed": 0
     },
     "freshLocationIds": [
-     "dining-room"
+     "library",
+     "dining-room",
+     "hall"
     ],
     "leads": [
      {
@@ -334,7 +336,10 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library",
+     "hall"
+    ],
     "leads": [
      {
       "closedLine": "A candlestick! The butler will be mortified about the polish.",
@@ -411,7 +416,8 @@
    "lines": [
     "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
     "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles.",
-    "The draughty hall has more to say, but you don't yet know what to ask it. Poke about outside, or ask someone who watches their feet."
+    "The draughty hall has more to say, but you don't yet know what to ask it. Poke about outside, or ask someone who watches their feet.",
+    "Archibald's hall table has more on it than gloves, but it can wait."
    ],
    "locationId": "hall",
    "progress": {
@@ -494,16 +500,26 @@
  },
  "search:hall@mid": {
   "body": {
-   "found": [],
+   "found": [
+    {
+     "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+     "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+     "icon": "🗡️",
+     "id": "letter-opener",
+     "kind": "physical",
+     "name": "Brass Letter Opener"
+    }
+   ],
    "lines": [
-    "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here."
+    "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+    "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
    ],
    "locationId": "hall",
    "progress": {
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 2,
+       "have": 3,
        "need": 3
       },
       "leads": {
@@ -524,7 +540,7 @@
       "testimony": 2
      },
      "citeTestimony": true,
-     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "line": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
      "unlocked": false
     },
     "confront": {
@@ -534,7 +550,9 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library"
+    ],
     "leads": [
      {
       "closedLine": "A candlestick! The butler will be mortified about the polish.",
@@ -729,7 +747,10 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library",
+     "hall"
+    ],
     "leads": [
      {
       "closedLine": "A candlestick! The butler will be mortified about the polish.",
@@ -808,7 +829,8 @@
    ],
    "lines": [
     "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
-    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
+    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note.",
+    "The fire-irons sit in their stand, under a coat of yesterday's soot. They can wait."
    ],
    "locationId": "library",
    "progress": {
@@ -846,7 +868,9 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library"
+    ],
     "leads": [
      {
       "closedLine": "A candlestick! The butler will be mortified about the polish.",
@@ -883,16 +907,26 @@
  },
  "search:library@mid": {
   "body": {
-   "found": [],
+   "found": [
+    {
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, a pale unmoved stripe in the soot on the hearthstone, with days of dust in the groove. Tonight's fire was fed without it: the poker has not been lifted.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed in days. This one stayed home.",
+     "icon": "🔥",
+     "id": "fireplace-poker",
+     "kind": "physical",
+     "name": "Fireplace Poker"
+    }
+   ],
    "lines": [
-    "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here."
+    "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
    ],
    "locationId": "library",
    "progress": {
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 2,
+       "have": 3,
        "need": 3
       },
       "leads": {
@@ -913,7 +947,7 @@
       "testimony": 2
      },
      "citeTestimony": true,
-     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "line": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
      "unlocked": false
     },
     "confront": {
@@ -923,7 +957,9 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "hall"
+    ],
     "leads": [
      {
       "closedLine": "A candlestick! The butler will be mortified about the polish.",
@@ -1057,7 +1093,7 @@
    "evidence": [],
    "locations": [
     {
-     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
      "id": "library",
      "name": "The Library",
      "searchFlavor": {
@@ -1082,7 +1118,7 @@
      }
     },
     {
-     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
      "id": "hall",
      "name": "The Hall",
      "searchFlavor": {
@@ -1329,7 +1365,10 @@
     "total": 12,
     "totalUsed": 0
    },
-   "freshLocationIds": [],
+   "freshLocationIds": [
+    "library",
+    "hall"
+   ],
    "leads": [
     {
      "closedLine": "A candlestick! The butler will be mortified about the polish.",
@@ -1411,7 +1450,7 @@
    ],
    "locations": [
     {
-     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
      "id": "library",
      "name": "The Library",
      "searchFlavor": {
@@ -1436,7 +1475,7 @@
      }
     },
     {
-     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
      "id": "hall",
      "name": "The Hall",
      "searchFlavor": {
@@ -1652,7 +1691,7 @@
    "accuse": {
     "checklist": {
      "clues": {
-      "have": 4,
+      "have": 6,
       "need": 3
      },
      "leads": {
@@ -1790,11 +1829,31 @@
      "kind": "physical",
      "locationId": "dining-room",
      "name": "The Missing Library Key"
+    },
+    {
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, a pale unmoved stripe in the soot on the hearthstone, with days of dust in the groove. Tonight's fire was fed without it: the poker has not been lifted.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed in days. This one stayed home.",
+     "icon": "🔥",
+     "id": "fireplace-poker",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Fireplace Poker",
+     "weapon": true
+    },
+    {
+     "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+     "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+     "icon": "🗡️",
+     "id": "letter-opener",
+     "kind": "physical",
+     "locationId": "hall",
+     "name": "Brass Letter Opener",
+     "weapon": true
     }
    ],
    "locations": [
     {
-     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
      "id": "library",
      "name": "The Library",
      "searchFlavor": {
@@ -1819,7 +1878,7 @@
      }
     },
     {
-     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
      "id": "hall",
      "name": "The Hall",
      "searchFlavor": {

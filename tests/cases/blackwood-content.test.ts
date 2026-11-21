@@ -22,7 +22,9 @@ describe("Blackwood location search", () => {
   it("clues are found where the solution proof puts them", () => {
     expect(Object.fromEntries(c.evidence.map((e) => [e.id, e.locationId]))).toEqual({
       "silver-candlestick": "library",
+      "fireplace-poker": "library",
       "muddy-footprint": "hall",
+      "letter-opener": "hall",
       "burned-letter": "dining-room",
       "library-key": "dining-room",
     });

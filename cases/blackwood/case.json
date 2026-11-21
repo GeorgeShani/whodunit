@@ -26,7 +26,7 @@
     {
       "id": "library",
       "name": "The Library",
-      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
       "searchFlavor": {
         "lines": [
           "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
@@ -56,7 +56,7 @@
     {
       "id": "hall",
       "name": "The Hall",
-      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
       "searchFlavor": {
         "lines": [
           "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
