@@ -4,7 +4,7 @@
  * config exists for an undeclared one (all load errors, never silently ignored). A module's solution-bearing part
  * (`proof`) lives in solution.json `featureProof.<name>`, never in case.json; it is validated here, server-side only.
  */
-import type { LoadedCase } from "../case-schema";
+import type { LoadedCase, PlayableCase } from "../case-schema";
 import type { CaseIssue } from "../case-validation";
 import { shipList } from "./ship-list";
 import { timeMisdirection } from "./time-misdirection";
@@ -110,10 +110,10 @@ export function featureCanonCheck(c: LoadedCase, line: FeatureLine): FeatureCano
 }
 
 /** The public slices, keyed by module name; undefined when no declared module publishes anything. */
-export function publicFeatures(c: LoadedCase): Record<string, unknown> | undefined {
+export function publicFeatures(c: PlayableCase): Record<string, unknown> | undefined {
   const out: Record<string, unknown> = {};
   for (const { mod, config } of caseFeatures(c)) {
-    const v = mod.publicConfig?.(c, config);
+    const v = mod.publicConfig?.(c as LoadedCase, config);
     if (v !== undefined) out[mod.name] = v;
   }
   return Object.keys(out).length ? out : undefined;

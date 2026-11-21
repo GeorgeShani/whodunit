@@ -226,15 +226,21 @@ export type FactSource = z.infer<typeof FactSourceSchema>;
 /**
  * Explicit per-fact hiding (knowledge gate). The fact's knowers do not see it
  * until ANY listed secret is unlocked for them (they confessed it themselves, or
- * the detective confronted them with it as testimony) or ANY listed intended lie
- * is broken for its owner. A fact with hiddenUntil skips the proximity heuristic.
+ * the detective confronted them with it as testimony), ANY listed intended lie
+ * is broken for its owner, or ANY listed evidence is found or shown in this
+ * game (the same "found or shown" rule as `guard.gatedTopics`). A fact with
+ * hiddenUntil skips the proximity heuristic.
  */
 export const HiddenUntilSchema = z
   .strictObject({
     secretIds: z.array(IdSchema).default([]),
     lieIds: z.array(IdSchema).default([]),
+    /** Optional: unlock when any of these clues is found or shown (signed state). Omitted on existing facts. */
+    evidenceIds: z.array(IdSchema).optional(),
   })
-  .refine((h) => h.secretIds.length + h.lieIds.length > 0, { message: "hiddenUntil needs secretIds and/or lieIds" });
+  .refine((h) => h.secretIds.length + h.lieIds.length + (h.evidenceIds?.length ?? 0) > 0, {
+    message: "hiddenUntil needs secretIds, lieIds, and/or evidenceIds",
+  });
 export type HiddenUntil = z.infer<typeof HiddenUntilSchema>;
 
 /** Shared shape of facts and timeline entries (refinements are added per schema). */
@@ -258,7 +264,7 @@ const FactBaseSchema = z.strictObject({
   source: FactSourceSchema.default("canonical"),
   /** Certainty of the fact as held (1 = certain). */
   confidence: UnitIntervalSchema.default(1),
-  /** Explicit hiding: withhold from its knowers until a listed secret/lie unlocks it. */
+  /** Explicit hiding: withhold from its knowers until a listed secret, lie, or found/shown clue unlocks it. */
   hiddenUntil: HiddenUntilSchema.optional(),
 });
 
@@ -495,6 +501,17 @@ export const CharacterSchema = z.strictObject({
    * (Lady/Mrs/Miss/her ladyship -> she; Lord/Mr/Sir/his lordship -> he), else no pronoun is matched.
    */
   pronoun: z.enum(["she", "he", "they"]).optional(),
+  /**
+   * Optional grammatical pronouns for in-fiction system lines (model-down fallback, #103).
+   * Absent: derived from `pronoun` (he/him/his, she/her/her, they/them/their), else they/them/their.
+   */
+  pronouns: z
+    .strictObject({
+      subject: z.string().trim().min(1).max(16),
+      object: z.string().trim().min(1).max(16),
+      possessive: z.string().trim().min(1).max(16),
+    })
+    .optional(),
   /** Short public bio shown to the player. */
   bio: NonEmptyText,
   personality: PersonalitySchema,

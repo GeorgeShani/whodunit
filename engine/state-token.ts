@@ -28,7 +28,7 @@
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { z } from "zod";
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { confrontationCaps } from "./confront-caps";
 import { canonicalCaseId, caseIdsMatch } from "@/lib/cases";
 import { CLAIM_LIMITS, MAX_CONFRONTATION_TURNS } from "./constants";
@@ -369,7 +369,7 @@ export function peekStateTokenOffline(token: string | undefined, env?: Env): boo
   return v.ok ? v.p.offline === true : undefined;
 }
 
-export function decodeStateToken(token: string | undefined, caseData: LoadedCase, env?: Env, options: DecodeOptions = {}): DecodeResult {
+export function decodeStateToken(token: string | undefined, caseData: PlayableCase, env?: Env, options: DecodeOptions = {}): DecodeResult {
   const v = verifiedPayload(token, env);
   if (!v.ok) return v;
   const p = v.p;

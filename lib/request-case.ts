@@ -9,11 +9,11 @@
  * case resets in character (wrong_case).
  */
 import { getPublicCase, isPublicCaseId } from "@/engine/case-registry";
-import type { LoadedCase } from "@/engine/case-schema";
+import type { PlayableCase } from "@/engine/case-schema";
 import { peekStateTokenCaseId, type Env } from "@/engine/state-token";
 import { canonicalCaseId, DEFAULT_CASE_ID } from "./cases";
 
-export type RequestCase = { ok: true; caseData: LoadedCase; legacyCaseId: string } | { ok: false; error: "unknown_case" };
+export type RequestCase = { ok: true; caseData: PlayableCase; legacyCaseId: string } | { ok: false; error: "unknown_case" };
 
 export async function resolveRequestCase(json: unknown, env: Env = process.env): Promise<RequestCase> {
   const body = typeof json === "object" && json !== null ? (json as Record<string, unknown>) : {};

@@ -1,7 +1,7 @@
 """S.S. Tallyho (case two) sounds: synthesized from scratch in numpy/scipy (original code, CC0). No samples, no paid services.
 
     WHODUNIT_MASTERS=<dir> python3 make_tallyho.py      # float WAV masters + loudness/true-peak mastering + ogg/mp3
-                                                        # -> assets/cases/_tallyho/audio/, report -> <dir>/tallyho_report.json
+                                                        # -> assets/cases/tallyho/audio/, report -> <dir>/tallyho_report.json
 
 Beds are exactly periodic by construction (integer-cycle LFOs, FFT noise, wrapped events), so they loop with no seam.
 Cue overrides keep the shared cue key as the file stem (case_open, door_creak, door_slam).
@@ -18,7 +18,7 @@ from measure import measure
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MASTERS = os.environ.get("WHODUNIT_MASTERS", os.path.join(HERE, "masters_tallyho"))
-OUT = os.environ.get("TALLYHO_AUDIO_OUT", os.path.join(HERE, "..", "..", "assets", "cases", "_tallyho", "audio"))
+OUT = os.environ.get("TALLYHO_AUDIO_OUT", os.path.join(HERE, "..", "..", "assets", "cases", "tallyho", "audio"))
 
 # ------------------------------------------------------------------ instruments
 

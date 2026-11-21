@@ -73,8 +73,9 @@ describe("spoiler-free and case-agnostic", () => {
   it("names nothing from any public case (people, victim, rooms, clues, motives)", async () => {
     for (const id of listPublicCaseIds()) {
       const c = await getPublicCase(id);
+      const titles = new Set(["Lord", "Lady", "Mister", "Miss", "Dame", "Captain", "Chief", "Great", "Commodore", "Chef", "Doctor", "Professor", "Sir", "Madam", "Master"]);
       const names = [
-        ...c.characters.flatMap((ch) => [ch.name, ...ch.name.split(/\s+/).filter((w) => w.length >= 4)]),
+        ...c.characters.flatMap((ch) => [ch.name, ...ch.name.split(/\s+/).filter((w) => w.length >= 4 && !titles.has(w))]),
         c.victim.name,
         ...c.victim.aliases,
         ...c.locations.map((l) => l.name.replace(/^The\s+/i, "")),

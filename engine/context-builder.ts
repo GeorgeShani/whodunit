@@ -132,7 +132,7 @@ export function buildCharacterContext(caseState: CaseState, characterId: string,
   const personName = (id: string) =>
     id === c.victim.id ? c.victim.name : c.characters.find((x) => x.id === id)?.name ?? id;
 
-  const gate = knowledgeGate(c, ch, gateRuntime, game.characters);
+  const gate = knowledgeGate(c, ch, gateRuntime, game.characters, game.discoveredEvidenceIds);
   const known = new Set(ch.knownFactIds.filter((id) => !gate.withheldFactIds.has(id)));
   const revealed = new Set(runtime?.revealedSecretIds ?? []);
   const discovered = new Set(game.discoveredEvidenceIds);

@@ -21,7 +21,7 @@
  */
 import { contentWords, nameWords } from "./memory";
 import { keepNameToken } from "./name-tokens";
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { gameMinutes } from "./time";
 import type { Character, Fact, Secret } from "./types";
 
@@ -349,7 +349,9 @@ export function guiltProfile(
  * accomplice with an accompliceAct (accompliceView; window, place and objects from the core facts covering the act).
  * A single-culprit case gets exactly [guiltProfile(c)].
  */
-export function guiltProfiles(c: Parameters<typeof guiltProfile>[0]): GuiltProfile[] {
-  const view = accompliceView(c);
-  return [guiltProfile(c), ...(view ? [{ ...guiltProfile(view, { actFactsOnly: true }), role: "accomplice" as const }] : [])];
+export function guiltProfiles(c: PlayableCase | Parameters<typeof guiltProfile>[0]): GuiltProfile[] {
+  if (!c.solution) return [];
+  const full = c as Parameters<typeof guiltProfile>[0];
+  const view = accompliceView(full);
+  return [guiltProfile(full), ...(view ? [{ ...guiltProfile(view, { actFactsOnly: true }), role: "accomplice" as const }] : [])];
 }

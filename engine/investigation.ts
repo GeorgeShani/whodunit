@@ -3,7 +3,7 @@
  * Searching a location reveals every evidence item whose locationId matches.
  * All locations are searchable from the start; repeat searches are idempotent.
  */
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { isUnlocked, leadStates } from "./progress";
 import type { Evidence, GameState } from "./types";
 
@@ -25,7 +25,7 @@ export const defaultEmptyLine = (locationName: string) =>
   `You turn ${locationName} upside down, check under every cushion twice... and find nothing new.`;
 
 /** Search a location. Mutates `game` (discoveredEvidenceIds, searchedLocationIds). Caller checks the id exists. */
-export function searchLocation(caseData: LoadedCase, game: GameState, locationId: string): SearchResult {
+export function searchLocation(caseData: PlayableCase, game: GameState, locationId: string): SearchResult {
   const loc = caseData.locations.find((l) => l.id === locationId);
   if (!loc) throw new Error(`searchLocation: unknown location "${locationId}"`);
 

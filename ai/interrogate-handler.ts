@@ -10,13 +10,13 @@
  *  -> engine commits (clamped deltas, reveal only if performed) -> new token.
  * Any failure yields the in-character fallback. Logs are non-secret only.
  */
-import type { LoadedCase } from "@/engine/case-schema";
+import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
 import { attachProgress } from "@/engine/route-progress";
 import { isCaseClosed, systemLine, RESET_NOTICE, restoreSession, saveSession } from "@/engine/session";
 import { publicTestimonies, revealedSecretIds } from "@/engine/testimony";
 import type { GrokResult } from "./grok";
 import { isTurnUnavailable, performTurn, type AttemptHook } from "./perform-turn";
-import { answeredLine, breatherLine, stillAnsweringLine, unavailable, type Unavailable } from "./model-down";
+import { answeredLine, breatherLine, displayNameOf, pronounsOf, stillAnsweringLine, unavailable, type CharacterPronouns, type Unavailable } from "./model-down";
 import type { ModelGate } from "./model-gate";
 import { claimTurn } from "./turn-lock";
 import type { KvStore } from "@/lib/runtime-kv";
@@ -37,7 +37,7 @@ export interface HandlerResult {
 }
 
 export interface HandlerDeps {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   env?: Env;
   /** Case assumed for legacy state tokens that predate caseId (the app's default case). */
   legacyCaseId?: string;
@@ -52,8 +52,8 @@ export interface HandlerDeps {
 }
 
 /** The per-IP limit refused the turn: HTTP 429, nothing spent, the token is unchanged. */
-export function breather(refusal: { retryAfterSec: number }, name: string): Unavailable {
-  return { kind: "breather", line: breatherLine(name, refusal.retryAfterSec), retryAfter: refusal.retryAfterSec };
+export function breather(refusal: { retryAfterSec: number }, name: string, pronouns?: CharacterPronouns): Unavailable {
+  return { kind: "breather", line: breatherLine(name, refusal.retryAfterSec, pronouns), retryAfter: refusal.retryAfterSec };
 }
 const fallbackBody = (error: string, stateToken?: string, seed = 0): InterrogateResponseBody => ({
   response: createFallbackCharacterResponse({ seed }),
@@ -121,7 +121,9 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
 
   // 3-5. Engine effects + reveal decision, prompt, model (or fallback), engine commit (ai/perform-turn.ts).
   const heldToken = notice ? unchangedToken() : (stateToken ?? unchangedToken());
-  const name = caseData.characters.find((c) => c.id === characterId)?.name ?? "They";
+  const character = caseData.characters.find((c) => c.id === characterId);
+  const name = displayNameOf(character);
+  const pronouns = pronounsOf(character);
 
   // #40: this exact state may be spent on the model once. A duplicate (parallel or replayed) costs nothing.
   const held = deps.claims && stateToken && !notice ? await claimTurn(deps.claims, ensureGameId(game), game.turn) : null;
@@ -148,7 +150,7 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
     if (pass && !pass.ok && pass.reason === "rate_limited") {
       return {
         status: 429,
-        body: withNotice({ response: createFallbackCharacterResponse({ seed: game.turn }), source: "unavailable", unavailable: breather(pass, name), stateToken: heldToken, error: pass.reason }),
+        body: withNotice({ response: createFallbackCharacterResponse({ seed: game.turn }), source: "unavailable", unavailable: breather(pass, name, pronouns), stateToken: heldToken, error: pass.reason }),
         diag: { reason: pass.reason },
       };
     }
@@ -186,7 +188,7 @@ async function handleInterrogateCore(json: unknown, deps: HandlerDeps): Promise<
         body: withNotice({
           response: createFallbackCharacterResponse({ seed: game.turn }),
           source: "unavailable",
-          unavailable: unavailable(turn.kind, name, game.turn),
+          unavailable: unavailable(turn.kind, name, game.turn, pronouns),
           stateToken: heldToken,
           error: offline ?? turn.reason,
         }),

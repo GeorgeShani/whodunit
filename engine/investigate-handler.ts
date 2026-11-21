@@ -3,7 +3,8 @@
  * shared signed state -> deterministic search -> public fields only -> new token.
  */
 import { inSetting, settingOf } from "./presentation";
-import type { LoadedCase } from "./case-schema";
+import { UNKNOWN_CASE_LINE } from "./error-copy";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { clueFeatures } from "./features/registry";
 import { searchLocation } from "./investigation";
@@ -14,11 +15,10 @@ import type { Evidence } from "./types";
 
 export const UNKNOWN_LOCATION_LINE =
   "You march off confidently... straight into a broom cupboard. There's no such place in this house, detective.";
-export const UNKNOWN_CASE_LINE =
-  "You knock at the door of a house that isn't there. Wrong address, detective.";
+export { UNKNOWN_CASE_LINE } from "./error-copy";
 export const BAD_REQUEST_LINE = "You scribble in your notebook, but even you can't read it. Try that again, detective.";
 
-const toFound = (c: LoadedCase, e: Evidence, features = clueFeatures(c, e.id)): FoundEvidence => ({
+const toFound = (c: PlayableCase, e: Evidence, features = clueFeatures(c, e.id)): FoundEvidence => ({
   id: e.id,
   name: e.name,
   description: e.description,
@@ -31,7 +31,7 @@ const toFound = (c: LoadedCase, e: Evidence, features = clueFeatures(c, e.id)): 
 
 export function handleInvestigate(
   json: unknown,
-  deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string },
+  deps: { caseData: PlayableCase; env?: Env; legacyCaseId?: string },
 ): { status: number; body: InvestigateResponseBody } {
   const r = handleInvestigateCore(json, deps);
   return { ...r, body: attachProgress(deps.caseData, json, r.body, deps) };
@@ -39,7 +39,7 @@ export function handleInvestigate(
 
 function handleInvestigateCore(
   json: unknown,
-  deps: { caseData: LoadedCase; env?: Env; legacyCaseId?: string },
+  deps: { caseData: PlayableCase; env?: Env; legacyCaseId?: string },
 ): { status: number; body: InvestigateResponseBody } {
   const { caseData, env, legacyCaseId } = deps;
   const parsed = InvestigateRequestSchema.safeParse(json);
