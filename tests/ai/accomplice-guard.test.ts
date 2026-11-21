@@ -5,6 +5,7 @@
  * accomplice with an accompliceAct.
  */
 import { existsSync, readFileSync } from "node:fs";
+import { hasLocalOrEnvSolution } from "../helpers/has-solution";
 import { beforeAll, describe, expect, it } from "vitest";
 import { compileForbiddenPhrase, findForbiddenPhrase, forbiddenStateOf, isPhraseLive } from "@/ai/forbidden-phrases";
 import { checkReply } from "@/ai/guard";
@@ -17,6 +18,7 @@ import { accompliceView, coreGuiltSecretIds, derivedCoreGuilt, guiltProfile, gui
 import { createInitialGameState } from "@/engine/game-state";
 import { ForbiddenPhraseSchema } from "@/engine/types";
 
+describe.skipIf(!hasLocalOrEnvSolution("blackwood"))("Blackwood accomplice guard", () => {
 let bw: LoadedCase;
 beforeAll(async () => {
   bw = await loadCase("blackwood");
@@ -151,6 +153,8 @@ describe("DX7: unlessRevealed as an array, unlessBroken", () => {
     expect(checkCaseReferences(c).some((i) => i.path === `forbiddenPhrases.${ch.forbiddenPhrases.length - 1}.unlessBroken.0`)).toBe(true);
     expect(checkCaseReferences(c).some((i) => i.path?.startsWith(`forbiddenPhrases.${ch.forbiddenPhrases.length - 1}.unlessRevealed`))).toBe(false);
   });
+});
+
 });
 
 const SOL = "cases/tallyho/solution.json";
