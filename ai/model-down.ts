@@ -45,7 +45,7 @@ export function displayNameOf(ch: { name?: string } | undefined | null, fallback
 type LineFn = (n: string, p: CharacterPronouns) => string;
 
 const BUSY: readonly LineFn[] = [
-  (n, p) => `${n} falters and asks for a moment to collect ${p.possessive} thoughts. Give it a breath, detective, then ask again.`,
+  (n) => `${n} falters and asks for a moment. Give it a breath, detective, then ask again.`,
   (n) => `A crack of thunder swallows ${n}'s answer whole. Nobody caught a word. Ask again, detective.`,
   (n) => `The old house creaks and ${n} hesitates, the words won't come. A moment, detective, then try once more.`,
 ];
