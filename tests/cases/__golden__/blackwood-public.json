@@ -136,7 +136,7 @@
     ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -343,7 +343,7 @@
     ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -469,9 +469,9 @@
     "freshLocationIds": [],
     "leads": [
      {
-      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
-      "state": "open",
+      "state": "closed",
       "title": "What struck his lordship down?"
      },
      {
@@ -491,6 +491,7 @@
      "dining-room"
     ],
     "newLeadIds": [
+     "lead-weapon",
      "lead-eyewitness"
     ],
     "questioned": {
@@ -568,7 +569,7 @@
     ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -766,7 +767,7 @@
     ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -895,7 +896,7 @@
     "freshLocationIds": [],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -986,7 +987,7 @@
     ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -1395,7 +1396,7 @@
    ],
    "leads": [
     {
-     "closedLine": "A candlestick! The butler will be mortified about the polish.",
+     "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
      "id": "lead-weapon",
      "state": "closed",
      "title": "What struck his lordship down?"
@@ -1748,7 +1749,7 @@
    "freshLocationIds": [],
    "leads": [
     {
-     "closedLine": "A candlestick! The butler will be mortified about the polish.",
+     "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
      "id": "lead-weapon",
      "state": "closed",
      "title": "What struck his lordship down?"

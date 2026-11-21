@@ -40,8 +40,8 @@ describe("a lead that closes before it ever opened (#38)", () => {
     expect(before["lead-boots"]).toBe("hidden");
     expect(searchLocation(c, g, "hall").newlyFound.map((e) => e.id)).toEqual(["muddy-footprint", "letter-opener"]);
     const p = publicProgress(c, g, before);
-    expect(p.leads.filter((l) => l.state === "closed").map((l) => l.id)).toEqual(["lead-lantern"]);
-    expect(p.newLeadIds.sort()).toEqual(["lead-eyewitness", "lead-lantern"]);
+    expect(p.leads.filter((l) => l.state === "closed").map((l) => l.id).sort()).toEqual(["lead-lantern", "lead-weapon"]);
+    expect(p.newLeadIds.sort()).toEqual(["lead-eyewitness", "lead-lantern", "lead-weapon"]);
   });
 
   it("no NEW LEAD / LEAD SOLVED for it; leads the player did see open still announce", () => {

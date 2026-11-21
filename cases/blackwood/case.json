@@ -297,11 +297,14 @@
       "title": "What struck his lordship down?",
       "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
       "closesWhen": {
+        "mode": "any",
         "evidenceIds": [
-          "silver-candlestick"
+          "silver-candlestick",
+          "fireplace-poker",
+          "letter-opener"
         ]
       },
-      "closedLine": "A candlestick! The butler will be mortified about the polish."
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?"
     },
     {
       "id": "lead-motive",
