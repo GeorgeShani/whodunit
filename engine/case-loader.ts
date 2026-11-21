@@ -136,7 +136,7 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
     }
   }
 
-  // endings.json is optional. Culprit-naming parts may live on the solution instead.
+  // endings.json is optional. Culprit-naming parts may live on the solution (file or CASE_SOLUTION_* env) instead.
   let fileEndings: PublicEndings | undefined;
   const endRaw = await readJson(dir, "endings.json", issues, true);
   if (endRaw !== undefined) {
@@ -145,7 +145,8 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
     else issues.push(...zodIssues("endings.json", r.error));
   }
   const endings = mergeEndings(fileEndings, solution?.endings);
-  // Keep culprit-naming endings on c.endings only, so LoadedCase.solution stays the id payload.
+  // After the merge, strip endings so LoadedCase.solution is the id payload on both the file and env
+  // paths. Nothing prompt-facing should see ending prose on the solution object.
   if (solution?.endings) {
     const { endings: _secret, ...rest } = solution;
     solution = rest;

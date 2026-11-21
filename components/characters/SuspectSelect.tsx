@@ -1,6 +1,7 @@
 "use client";
 
 import { SCREEN_ACTIONS, SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
+import { HUD_CLEAR_BOTTOM, HudClear } from "@/components/game/HudClear";
 import { StressMeter } from "@/components/stress/StressMeter";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
@@ -49,11 +50,12 @@ export function SuspectSelect({
   const L = suspectLayout(suspects.length);
   return (
     <main
-      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-8 sm:px-6 sm:py-10 ${
+      className={`screen-scroll ${HUD_CLEAR_BOTTOM} flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pt-3 sm:gap-8 sm:px-6 sm:pt-10 ${
         backdrop ? "bg-backdrop bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#7b1fa2_0%,var(--backdrop)_70%)]"
       }`}
       style={backdropStyle(backdrop)}
     >
+      <HudClear />
       {/* Phones: back link (the mute toggle and the How to Play button own the top-right corner), then the title, then a two-button action bar. */}
       <div className={`${SCREEN_HEADER} max-w-6xl`}>
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to the case file" className="order-1 min-h-12 shrink-0 text-base">
@@ -87,20 +89,26 @@ export function SuspectSelect({
         )}
       </div>
       {onAccuse && (
-        <CartoonButton
-          tone="red"
-          onClick={onAccuse}
-          data-accuse-open
-          {...(accuseReady ? {} : { "data-accuse-locked": true, "aria-label": "Accuse: case not ready" })}
-          className={`relative min-h-14 w-full max-w-sm font-display text-3xl tracking-widest sm:-my-4 sm:w-auto ${accuseReady ? "ring-4 ring-accent" : "opacity-80 ring-4 ring-neutral-400"}`}
-        >
-          {accuseReady ? "⚖️ ACCUSE!" : <>🔒 ACCUSE</>}
+        <div className={`relative w-full max-w-sm sm:w-auto ${accuseReady ? "sm:-my-4" : "mb-6 sm:mb-4"}`}>
+          <CartoonButton
+            tone="red"
+            onClick={onAccuse}
+            data-accuse-open
+            {...(accuseReady ? {} : { "data-accuse-locked": true, "aria-label": "Accuse: case not ready" })}
+            className={`relative min-h-14 w-full font-display text-3xl tracking-widest ${accuseReady ? "ring-4 ring-accent" : "opacity-80 ring-4 ring-neutral-400"}`}
+          >
+            {accuseReady ? "⚖️ ACCUSE!" : <>🔒 ACCUSE</>}
+          </CartoonButton>
           {!accuseReady && (
-            <span aria-hidden className="absolute -bottom-3 -right-2 rotate-[-6deg] rounded-md border-[3px] border-black bg-accent px-2 py-0.5 font-sans text-sm font-black uppercase tracking-normal text-ink shadow-[2px_2px_0_#000]">
+            <span
+              aria-hidden
+              data-case-not-ready-stamp
+              className="absolute left-1/2 top-[calc(100%-0.2rem)] z-10 -translate-x-1/2 rotate-[-6deg] rounded-md border-[3px] border-black bg-accent px-2 py-0.5 font-sans text-sm font-black uppercase tracking-normal text-ink shadow-[2px_2px_0_#000]"
+            >
               Case not ready
             </span>
           )}
-        </CartoonButton>
+        </div>
       )}
       <ul className={L.list} {...(L.compact ? { "data-suspects-compact": true } : {})}>
         {suspects.map((s, i) => {

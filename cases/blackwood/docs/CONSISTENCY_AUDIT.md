@@ -501,7 +501,7 @@ None of them mentions money, the telephone, the sighting, the letter, the will, 
 - Reginald: the bent fork, then "thirty years in service… I shall see to the tea while you think again";
 - Archibald: "I threaten everybody!", then his solicitors "first thing in the morning";
 - Gregory: "I only came in out of the rain", then he will stand in the kitchen till somebody believes him;
-- Victoria: "Accusing a grieving widow in her own hall. How terribly modern of you.", then "I shall be in the hall, being brave."
+- Victoria: the murderer's wrong ending is not quoted here; see the gitignored solution endings;
 
 Victoria's cameo lines in the innocents' endings were never played (#22) and are removed. Tests updated: `blackwood-content.test.ts` checks the shape and the forbidden content, and `ending-sequence.test.ts` no longer pins "right lady".
 

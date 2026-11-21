@@ -115,7 +115,7 @@ describe("CA-30 (r7 M4): Victoria may admit the burning, never when", () => {
     expect(ch("victoria").secrets.find((s) => s.id === "s-victoria-murder")!.relatedFactIds).toContain("ev-letter-burned");
   });
   it("the bare act passes on the reveal turn", () => {
-    const v = r7Verdict(c, "victoria", "Very well. I knew about the new will, and I burned that wretched letter.", G, "This letter was in your fire.", { allowReveal: true, presentedEvidenceId: "burned-letter" });
+    const v = r7Verdict(c, "victoria", "Very well. I knew about the new will, and I burned the letter.", G, "This letter was in your fire.", { allowReveal: true, presentedEvidenceId: "burned-letter" });
     expect(v).toBeNull();
   });
   it.each([

@@ -62,7 +62,7 @@ const ROWS: Record<string, Row> = {
     ch: "victoria",
     after: { ev: ["silver-candlestick", "library-key", "burned-letter"], rev: [["victoria", "s-victoria-new-will"]], shown: { victoria: ["burned-letter"] } },
     lie: ["Our little chat? The Sunday menu. Nothing more.", "I've never seen that letter in my life."],
-    truth: ["Yes, I knew about the new will. And yes, I burned that wretched letter."],
+    truth: ["Yes, I knew about the new will. And yes, I burned the letter."],
   },
 };
 

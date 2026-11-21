@@ -1,6 +1,7 @@
 "use client";
 
 import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
+import { HUD_CLEAR_BOTTOM, HudClear } from "@/components/game/HudClear";
 import { motion } from "framer-motion";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
@@ -43,11 +44,12 @@ export function InvestigateScreen({
 }) {
   return (
     <main
-      className={`screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-8 pt-3 sm:gap-6 sm:px-6 sm:py-8 ${
+      className={`screen-scroll ${HUD_CLEAR_BOTTOM} flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pt-3 sm:gap-6 sm:px-6 sm:pt-8 ${
         backdrop ? "bg-backdrop bg-cover bg-center" : "bg-[radial-gradient(circle_at_top,#3b1d6e_0%,var(--backdrop)_70%)]"
       }`}
       style={backdropStyle(backdrop)}
     >
+      <HudClear />
       <div className={`${SCREEN_HEADER} max-w-6xl`}>
         <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0">
           ← <span className="max-sm:hidden">Back to suspects</span>

@@ -138,7 +138,7 @@ describe("George's live-play bug: Archibald's card made Victoria confess the mur
   it("a bare motive admission passes: 'I knew about the will and burned the letter' is not core guilt", async () => {
     const g = createInitialGameState(c);
     g.discoveredEvidenceIds = ["burned-letter"];
-    const line = "Oh, very well. I knew about the new will, and I burned that wretched letter in the fire. There.";
+    const line = "Oh, very well. I knew about the new will, and I burned the letter in the fire. There.";
     const { calls } = mockGrok({ content: goodReply({ dialogue: line }) });
     const r = await handleInterrogate({ characterId: "victoria", question: "And this?", presentedEvidenceId: "burned-letter", stateToken: tok(g) }, { caseData: c, env: TEST_ENV });
     expect(calls).toHaveLength(1);
@@ -321,7 +321,7 @@ describe("guilt-leak check (both directions)", () => {
     expect(findGuiltLeak(line, P(), "victoria")).not.toBeNull();
   });
   it.each([
-    "Oh, very well. I knew about the new will, and I burned that wretched letter.",
+    "Oh, very well. I knew about the new will, and I burned the letter.",
     "I left the dining room for some air from 21:13 to 21:22. I wandered.",
     "I never killed him, detective!",
     "You think I killed my own husband! How vulgar.",
@@ -392,7 +392,7 @@ describe("guilt check: Agatha's leak-audit gaps (window times, core objects, pre
   const PASS_VICTORIA = [
     "I knew about the new will and burned the letter, it would look dreadful.",
     "I left the dining room for air.",
-    "I burned that wretched letter in the fire, and I'm glad.",
+    "I burned the letter in the fire, and I'm glad.",
     "Archibald and I sat by the fire from the moment the candles were lit until the scream.",
     "I was by the fire at a quarter past nine, with Archibald.",
     "I left at thirteen minutes past nine and was back by twenty-two minutes past.",
