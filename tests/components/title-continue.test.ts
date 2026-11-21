@@ -54,3 +54,20 @@ describe("title Continue / New game", () => {
     expect(onNewGame).toHaveBeenCalledOnce();
   });
 });
+
+describe("#96 Continue shows the resume notice in character", () => {
+  const NOTICE = "These notes were already turned ahead, detective. I've put the latest pages back in your hand.";
+  it("shows the notice by Continue, as a polite status line", () => {
+    act(() => root.render(h(TitleScreen, { tagline: "A dark and stormy night.", onStart: () => {}, hasSave: true, onContinue: () => {}, onNewGame: () => {}, resumeNotice: NOTICE })));
+    const n = q("[data-resume-notice]");
+    expect(n?.textContent).toBe(NOTICE);
+    expect(n?.getAttribute("role")).toBe("status");
+    expect(q("[data-continue]")).not.toBeNull();
+  });
+  it("shows nothing without a notice, or without a save to continue", () => {
+    act(() => root.render(h(TitleScreen, { tagline: "t", onStart: () => {}, hasSave: true, onContinue: () => {} })));
+    expect(q("[data-resume-notice]")).toBeNull();
+    act(() => root.render(h(TitleScreen, { tagline: "t", onStart: () => {}, resumeNotice: NOTICE })));
+    expect(q("[data-resume-notice]")).toBeNull();
+  });
+});

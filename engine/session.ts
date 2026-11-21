@@ -22,9 +22,11 @@ export const COLD_CASE_NOTICE =
 export const STALE_TOKEN_NOTICE =
   "These notes were already turned ahead, detective. I've put the latest pages back in your hand.";
 
-/** Narrator line when an offline-lineage leftover is ignored in favour of the cabinet row (#94). */
-export const OFFLINE_RESUME_NOTICE =
-  "These notes were jotted while the cabinet was shut, detective. I've put the file from the cabinet back in your hand.";
+/**
+ * An offline-lineage leftover reconnecting is sent back to the cabinet row (#94): it gets the same in-character stale
+ * notice, so the player knows the moves made while the cabinet was shut were rolled back.
+ */
+export const OFFLINE_RESUME_NOTICE = STALE_TOKEN_NOTICE;
 
 /** Narrator line when this instance already issued a newer version and we cannot put those pages back (outage, best-effort). */
 export const CABINET_AHEAD_NOTICE =

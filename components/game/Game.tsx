@@ -40,6 +40,7 @@ import type { Emotion } from "@/engine/types";
 import { CaseNotReady } from "@/components/progress/CaseNotReady";
 import { NewLeadToast } from "@/components/progress/NewLeadToast";
 import type { PublicProgress } from "@/engine/progress";
+import { cabinetAhead, resumeNotice, swappedSnapshot, withNotice, type CabinetAhead } from "./cabinet-notice";
 import { clearGame, clearSavePointer, isPublicProgress, loadSavePointer, readTokenFallback, writeSavePointer, writeTokenFallback } from "@/lib/game-session";
 import { bindQuietSave, createQuietSave } from "@/lib/quiet-save";
 import type { ResumeResponseBody, ResumeSnapshot } from "@/engine/resume-schema";
@@ -65,34 +66,11 @@ async function timedFetch(url: string, init: RequestInit): Promise<Response> {
   }
 }
 
-/**
- * #95: another tab saved first. The server refused this move (409 stale_token) and handed back the winner's save:
- * its token, public snapshot and an in-character notice. The caller loads that snapshot, shows the notice and stops.
- */
-interface CabinetAhead {
-  snapshot: ResumeSnapshot;
-  stateToken: string;
-  gameId?: string;
-  saveVersion?: number;
-  notice: string;
-}
-
-function cabinetAhead(j: unknown): CabinetAhead | undefined {
-  const o = j as { error?: unknown; snapshot?: { searchedLocationIds?: unknown; evidence?: unknown }; stateToken?: unknown; gameId?: unknown; saveVersion?: unknown; notice?: unknown } | null;
-  if (!o || o.error !== "stale_token" || typeof o.stateToken !== "string" || typeof o.notice !== "string") return undefined;
-  if (!o.snapshot || !Array.isArray(o.snapshot.searchedLocationIds) || !Array.isArray(o.snapshot.evidence)) return undefined;
-  return {
-    snapshot: o.snapshot as unknown as ResumeSnapshot,
-    stateToken: o.stateToken,
-    notice: o.notice,
-    ...(typeof o.gameId === "string" ? { gameId: o.gameId } : {}),
-    ...(typeof o.saveVersion === "number" ? { saveVersion: o.saveVersion } : {}),
-  };
-}
-
 interface InterrogateResult {
   /** #95: another tab saved first; load this instead. */
   ahead?: CabinetAhead;
+  /** The move ran on the stored save (stale/diverged/offline tab rolled back): rebuild from this, show the notice. */
+  swap?: { snapshot: ResumeSnapshot; notice: string };
   /** The model could not answer: show this narration + a retry; nothing was spent and `response` is a placeholder. */
   unavailable?: Unavailable;
   /** #49: what to offer after `unavailable`: AGAIN, AGAIN after a countdown, or nothing (already answered). */
@@ -141,6 +119,7 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
         ...(typeof json?.saveVersion === "number" ? { saveVersion: json.saveVersion } : {}),
         ...(json?.offline === true ? { offline: true as const } : {}),
         ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
+        ...(swappedSnapshot(json) ? { swap: swappedSnapshot(json) } : {}),
         ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
       };
     }
@@ -155,6 +134,7 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
         ...(typeof json?.saveVersion === "number" ? { saveVersion: json.saveVersion } : {}),
         ...(json?.offline === true ? { offline: true as const } : {}),
       ...(typeof json?.notice === "string" ? { notice: json.notice } : {}),
+      ...(swappedSnapshot(json) ? { swap: swappedSnapshot(json) } : {}),
       ...(Array.isArray(json?.testimonies) ? { testimonies: json.testimonies as PublicTestimony[] } : {}),
       ...(json?.contradiction && typeof json.contradiction.characterName === "string" ? { contradiction: json.contradiction } : {}),
       ...(isPublicProgress(json?.progress) ? { progress: json.progress } : {}),
@@ -169,6 +149,8 @@ async function interrogate(req: InterrogateRequest, seed: number, name: string):
 interface InvestigateResult {
   /** #95: another tab saved first; load this instead. */
   ahead?: CabinetAhead;
+  /** The move ran on the stored save (stale/diverged/offline tab rolled back): rebuild from this, show the notice. */
+  swap?: { snapshot: ResumeSnapshot; notice: string };
   found: FoundEvidence[];
   lines: string[];
   searchedLocationIds?: string[];
@@ -256,6 +238,7 @@ async function investigate(req: InvestigateRequest): Promise<InvestigateResult> 
       ...(typeof j.saveVersion === "number" ? { saveVersion: j.saveVersion } : {}),
       ...(j.offline === true ? { offline: true as const } : {}),
       ...(typeof j.notice === "string" ? { notice: j.notice } : {}),
+      ...(swappedSnapshot(j) ? { swap: swappedSnapshot(j) } : {}),
       ...(isPublicProgress(j.progress) ? { progress: j.progress } : {}),
     };
   } catch {
@@ -366,7 +349,7 @@ export function Game({
   const inFlight = useRef(false);
   const [restored, setRestored] = useState(false);
   /** A resumable case file (pointer + a verified snapshot). Stays on the title until Continue. */
-  const [pendingResume, setPendingResume] = useState<{ gameId: string; snapshot: ResumeSnapshot; token: string; closed?: ResumeResponseBody["closed"]; saveVersion?: number; offline?: boolean } | null>(null);
+  const [pendingResume, setPendingResume] = useState<{ gameId: string; snapshot: ResumeSnapshot; token: string; closed?: ResumeResponseBody["closed"]; saveVersion?: number; offline?: boolean; notice?: string } | null>(null);
   const gameIdRef = useRef<string | undefined>(undefined);
   const quietSave = useRef(createQuietSave());
   const rememberGame = useCallback((id: string | undefined, token: string | undefined, meta?: { saveVersion?: number; offline?: boolean }) => {
@@ -381,6 +364,8 @@ export function Game({
   }, [caseId]);
   /** #95: load the save another tab won with (set once applySnapshot exists, below). */
   const loadAhead = useRef<(a: CabinetAhead) => void>(() => {});
+  /** Rebuild the notebook from a snapshot the server sent with a notice (set once applySnapshot exists, below). */
+  const rebuildFrom = useRef<(snap: ResumeSnapshot) => void>(() => {});
   /** Latest emotions, readable from async reply handlers (for the reply sting). */
   const emotionsRef = useRef(emotions);
   const evidenceRef = useRef(evidence);
@@ -455,7 +440,8 @@ export function Game({
           gameIdRef.current = json.gameId;
           writeSavePointer({ v: 1, gameId: json.gameId, caseId });
           writeTokenFallback(caseId, json.stateToken);
-          setPendingResume({ gameId: json.gameId, snapshot: json.snapshot, token: json.stateToken, closed: json.closed, saveVersion: json.saveVersion, offline: json.offline });
+          const notice = resumeNotice(json);
+          setPendingResume({ gameId: json.gameId, snapshot: json.snapshot, token: json.stateToken, closed: json.closed, saveVersion: json.saveVersion, offline: json.offline, ...(notice ? { notice } : {}) });
         }
       } catch {
         /* cabinet stuck and no usable leftover: stay on the title with no Continue */
@@ -535,7 +521,7 @@ export function Game({
       if (!isRetry) push(characterId, { speaker: "player", text: question });
       setPendingId(characterId);
       void (async () => {
-        const { ahead, response, stateToken: next, gameId: gid, saveVersion, offline, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
+        const { ahead, swap, response, stateToken: next, gameId: gid, saveVersion, offline, notice, testimonies: cards, contradiction, stress: reading, progress: prog, unavailable: down, offer, waitSeconds, replay } = await interrogate(
           {
             characterId,
             question,
@@ -562,8 +548,11 @@ export function Game({
           // The model could not answer (out of reach, slow, or an unusable reply). Nothing was spent: no stress, trust, turn or
           // progress change, no sound or pose change. The question stays in the log and can be asked again.
           if (notice) {
-            resetProgress();
-            setStress({});
+            if (swap) rebuildFrom.current(swap.snapshot);
+            else {
+              resetProgress();
+              setStress({});
+            }
             push(characterId, { speaker: "narrator", text: notice });
           }
           applyProgress(prog);
@@ -586,7 +575,8 @@ export function Game({
         }
         if (cards) setTestimonies(cards);
         if (notice) {
-          resetProgress();
+          if (swap) rebuildFrom.current(swap.snapshot);
+          else resetProgress();
           if (cards) setTestimonies(cards);
           push(characterId, { speaker: "player", text: question });
           push(characterId, { speaker: "narrator", text: notice });
@@ -609,7 +599,7 @@ export function Game({
             push(characterId, { speaker: "narrator", text: `💥 BREAKDOWN! ${who} cracks under the pressure!` });
             setBeats((q) => [...q, { key: `${characterId}:breakdown`, title: "BREAKDOWN!", line: `${who} cracks under the pressure!`, kind: "breakdown" }]);
           }
-        } else if (notice) setStress({});
+        } else if (notice && !swap) setStress({});
         // Every reply makes a sound: the pose's sting when the emotion changes pose, else a dialogue pop (ART_BIBLE §6).
         const poses = view.suspects.find((s) => s.id === characterId)?.poses ?? [];
         const sfx = replySfx(emotionsRef.current[characterId], response.emotion, poses);
@@ -662,7 +652,9 @@ export function Game({
         if (r.unavailable) {
           // Nothing was spent (no exchange, no stress). The question is still in the log; offer to put it again.
           if (r.notice) {
-            resetProgress();
+            const swap = swappedSnapshot(r);
+            if (swap) rebuildFrom.current(swap.snapshot);
+            else resetProgress();
             push(logKey, { speaker: "narrator", text: r.notice });
           }
           applyProgress(r.progress);
@@ -682,7 +674,9 @@ export function Game({
           return;
         }
         if (r.notice) {
-          resetProgress();
+          const swap = swappedSnapshot(r);
+          if (swap) rebuildFrom.current(swap.snapshot);
+          else resetProgress();
           push(logKey, { speaker: "narrator", text: r.notice });
         }
         if (r.testimonies) setTestimonies(r.testimonies);
@@ -797,6 +791,16 @@ export function Game({
       }
       if (r.stateToken) stateToken.current = r.stateToken;
       rememberGame(r.gameId, r.stateToken, r);
+      if (r.swap) {
+        // Ran on the stored save (e.g. an offline tab reconnecting): the snapshot already holds this search's finds.
+        rebuildFrom.current(r.swap.snapshot);
+        applyProgress(r.progress);
+        setSearchLines({ [locationId]: [r.swap.notice, ...r.lines] });
+        if (r.found.length) setStingQueue((q) => [...q, ...r.found]);
+        inFlight.current = false;
+        setSearchingId(null);
+        return;
+      }
       if (r.notice) resetProgress();
       applyProgress(r.progress);
       if (r.searchedLocationIds) setSearched(r.searchedLocationIds);
@@ -836,7 +840,15 @@ export function Game({
       }
       if (r.stateToken) stateToken.current = r.stateToken;
       rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
+      const swap = swappedSnapshot(r);
+      if (swap) rebuildFrom.current(swap.snapshot);
       applyProgress(r.progress);
+      if (r.notice && !(r.outcome && r.ending && r.accusation)) {
+        // The file in hand was replaced by the cabinet's (e.g. moves made offline were rolled back): say so here,
+        // in character, and let the player look again before accusing.
+        setAccuseError(withNotice(r.notice, r.error && r.line ? r.line : ""));
+        return;
+      }
       // A replay after game over (409) still carries the original verdict and ending.
       if (r.outcome && r.ending && r.accusation) {
         // Phase 10 (3.8): only a server-graded WIN marks the case solved in this browser (opens the next case).
@@ -884,6 +896,7 @@ export function Game({
       rememberGame(a.gameId, a.stateToken, { saveVersion: a.saveVersion });
       applySnapshot(a.snapshot);
     };
+    rebuildFrom.current = (snap: ResumeSnapshot) => applySnapshot(snap);
   }, [applySnapshot, rememberGame]);
 
   const onContinue = useCallback(() => {
@@ -947,9 +960,13 @@ export function Game({
     }
     if (r.stateToken) stateToken.current = r.stateToken;
     rememberGame((r as { gameId?: string }).gameId, r.stateToken, r as { saveVersion?: number; offline?: boolean });
-    if (r.notice) resetProgress();
+    if (r.notice) {
+      const swap = swappedSnapshot(r);
+      if (swap) rebuildFrom.current(swap.snapshot);
+      else resetProgress();
+    }
     applyProgress(r.progress);
-    setHint({ line: r.line, found: r.hint !== null });
+    setHint({ line: withNotice(r.notice, r.line), found: r.hint !== null });
     if (r.hint) getAudio().play("clue_stinger", { gain: 0.6 });
     else getAudio().play("ui_tap");
     setHintBusy(false);
@@ -991,7 +1008,7 @@ export function Game({
         data-screen={screen}
       >
         {screen === "title" && (
-          <TitleScreen tagline={view.meta.tagline} backdrop={view.theme?.titleArt ?? view.backdrops.title} {...(view.theme?.logo ? { logo: view.theme.logo, logoAlt: view.meta.title } : {})} onStart={() => go("intro")} hasSave={pendingResume !== null} onContinue={onContinue} onNewGame={onNewGame} {...(manual ? { onHowToPlay: openHelp } : {})} {...(openNext.length ? { nextCases: openNext } : {})} />
+          <TitleScreen tagline={view.meta.tagline} backdrop={view.theme?.titleArt ?? view.backdrops.title} {...(view.theme?.logo ? { logo: view.theme.logo, logoAlt: view.meta.title } : {})} onStart={() => go("intro")} hasSave={pendingResume !== null} onContinue={onContinue} {...(pendingResume?.notice ? { resumeNotice: pendingResume.notice } : {})} onNewGame={onNewGame} {...(manual ? { onHowToPlay: openHelp } : {})} {...(openNext.length ? { nextCases: openNext } : {})} />
         )}
         {screen === "intro" && <IntroScreen view={view} onContinue={() => go("suspects")} />}
         {screen === "suspects" && (

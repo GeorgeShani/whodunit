@@ -101,6 +101,8 @@ export interface SyncedIncoming {
   rejectStale?: boolean;
   /** The save path refused this request (rate cap or limiter error): answer SAVE_BUSY_LINE, run nothing. */
   rateLimited?: boolean;
+  /** The action runs on the stored row instead of the player's token (stale, diverged or offline leftover). */
+  swapped?: boolean;
   /** The repo used for the read (so the write after the action uses the same one, incl. the preview outage switch). */
   repo?: SavedGamesRepo | null;
 }
@@ -145,9 +147,9 @@ export async function syncIncomingToken(
       const stored = decodeStateToken(row.stateToken, caseData, env);
       if (!stored.ok) return { json, cabinetOffline: false, repo: r };
       // Offline leftovers never overwrite or continue past a real row, regardless of version (#94).
-      if (incomingOffline) return { json: { ...body, stateToken: row.stateToken }, notice: OFFLINE_RESUME_NOTICE, cabinetOffline: false, repo: r };
+      if (incomingOffline) return { json: { ...body, stateToken: row.stateToken }, notice: OFFLINE_RESUME_NOTICE, swapped: true, cabinetOffline: false, repo: r };
       // Behind, or diverged at any version: the row is the one true lineage (#40, #95, #96).
-      if (incoming !== undefined) return { json: { ...body, stateToken: row.stateToken }, notice: STALE_TOKEN_NOTICE, cabinetOffline: false, repo: r };
+      if (incoming !== undefined) return { json: { ...body, stateToken: row.stateToken }, notice: STALE_TOKEN_NOTICE, swapped: true, cabinetOffline: false, repo: r };
     }
     return { json, cabinetOffline: false, repo: r };
   } catch {
@@ -211,6 +213,23 @@ function downgradeToOffline<B extends { stateToken?: string; offline?: boolean }
  * Never throws: a failing write downgrades the issued token to offline lineage instead.
  */
 export async function commitSavedAction<B extends { stateToken?: string; notice?: string; offline?: boolean }>(
+  status: number,
+  body: B,
+  synced: SyncedIncoming,
+  caseData: LoadedCase,
+  env?: Env,
+): Promise<CommitOutcome> {
+  const out = await commitInner(status, body, synced, caseData, env);
+  // The player's notes were replaced by the cabinet's (stale, diverged, or an offline tab reconnecting): send the
+  // public snapshot of the resulting state, so the client rebuilds its notebook from it next to the notice.
+  if (out.kind === "ok" && synced.swapped && body.stateToken) {
+    const d = decodeStateToken(body.stateToken, caseData, env);
+    if (d.ok) (body as B & { snapshot?: ResumeSnapshot }).snapshot = snapshotFromGame(caseData, d.game);
+  }
+  return out;
+}
+
+async function commitInner<B extends { stateToken?: string; notice?: string; offline?: boolean }>(
   status: number,
   body: B,
   synced: SyncedIncoming,

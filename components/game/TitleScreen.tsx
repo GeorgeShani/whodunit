@@ -19,6 +19,7 @@ export function TitleScreen({
   onContinue,
   onNewGame,
   hasSave = false,
+  resumeNotice,
   onHowToPlay,
   nextCases = [],
 }: {
@@ -34,6 +35,11 @@ export function TitleScreen({
   onNewGame?: () => void;
   /** A game is already in progress (or waiting to be replayed) for this case. */
   hasSave?: boolean;
+  /**
+   * #96: the in-character line /api/resume sent with the save (the notes in this tab were behind, diverged from, or
+   * jotted offline against the cabinet's file, which is the one Continue will open). Shown by Continue.
+   */
+  resumeNotice?: string;
   /** Opens the How to Play manual (absent: no button). */ onHowToPlay?: () => void;
   /** Phase 10 (3.8): cases this browser has opened by solving this one ("Next case: <title>"); absent until solved. */
   nextCases?: UnlockLink[] }) {
@@ -88,6 +94,16 @@ export function TitleScreen({
         >
           {tagline}
         </motion.p>
+        {hasSave && onContinue && resumeNotice && (
+          <p
+            role="status"
+            aria-live="polite"
+            data-resume-notice
+            className="relative mt-4 max-w-xl rounded-2xl border-[3px] border-black bg-yellow-100 px-5 py-2 text-base italic text-ink shadow-[4px_4px_0_#000] max-sm:max-w-80 max-sm:text-sm short:mt-2 short:py-1"
+          >
+            {resumeNotice}
+          </p>
+        )}
         {/* Phones held sideways: START and HOW TO PLAY share a row so both stay on screen. */}
         <div className="flex flex-col items-center short:mt-3 short:flex-row short:gap-4">
         {hasSave && onContinue && (
