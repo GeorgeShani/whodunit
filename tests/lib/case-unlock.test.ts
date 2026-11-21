@@ -15,7 +15,7 @@ import { EndScreen } from "@/components/ending/EndScreen";
 import { CaseGate } from "@/components/game/CaseGate";
 import { LockedScreen } from "@/components/game/LockedScreen";
 import { TitleScreen } from "@/components/game/TitleScreen";
-import { loadCase } from "@/engine/case-loader";
+import { loadCase, loadPlayableCase } from "@/engine/case-loader";
 import { caseUnlocks, listPublicCaseIds } from "@/engine/case-registry";
 import { checkCaseReferences, checkUnlockGraph } from "@/engine/case-validation";
 import { isUnlocked, markSolved, readSolved, resetSolvedMemory, SOLVED_KEY } from "@/lib/solved-store";
@@ -98,7 +98,7 @@ describe("unlock graph (V31)", () => {
   });
   it("the repo's own cases form a valid graph and the first case is open to everyone", async () => {
     const ids = listPublicCaseIds();
-    const cases = await Promise.all(ids.map((id) => loadCase(id)));
+    const cases = await Promise.all(ids.map((id) => loadPlayableCase(id)));
     expect(checkUnlockGraph(cases)).toEqual([]);
     expect(cases.find((c) => c.id === "blackwood")?.unlockedBy).toBeUndefined();
   });
