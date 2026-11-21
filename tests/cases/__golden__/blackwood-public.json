@@ -130,11 +130,13 @@
      "totalUsed": 0
     },
     "freshLocationIds": [
-     "dining-room"
+     "library",
+     "dining-room",
+     "hall"
     ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -335,10 +337,13 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library",
+     "hall"
+    ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -408,7 +413,18 @@
  },
  "search:hall@fresh": {
   "body": {
-   "found": [],
+   "found": [
+    {
+     "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+     "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+     "icon": "🗡️",
+     "id": "letter-opener",
+     "kind": "physical",
+     "locationId": "hall",
+     "name": "Brass Letter Opener",
+     "weapon": true
+    }
+   ],
    "lines": [
     "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
     "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles.",
@@ -419,7 +435,7 @@
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 0,
+       "have": 1,
        "need": 3
       },
       "leads": {
@@ -453,9 +469,9 @@
     "freshLocationIds": [],
     "leads": [
      {
-      "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
-      "state": "open",
+      "state": "closed",
       "title": "What struck his lordship down?"
      },
      {
@@ -475,6 +491,7 @@
      "dining-room"
     ],
     "newLeadIds": [
+     "lead-weapon",
      "lead-eyewitness"
     ],
     "questioned": {
@@ -495,16 +512,28 @@
  },
  "search:hall@mid": {
   "body": {
-   "found": [],
+   "found": [
+    {
+     "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+     "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+     "icon": "🗡️",
+     "id": "letter-opener",
+     "kind": "physical",
+     "locationId": "hall",
+     "name": "Brass Letter Opener",
+     "weapon": true
+    }
+   ],
    "lines": [
-    "You stare at the portraits. The portraits stare back. The grandfather clock clears its throat. Nothing new here."
+    "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
+    "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles."
    ],
    "locationId": "hall",
    "progress": {
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 2,
+       "have": 3,
        "need": 3
       },
       "leads": {
@@ -525,7 +554,7 @@
       "testimony": 2
      },
      "citeTestimony": true,
-     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "line": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
      "unlocked": false
     },
     "confront": {
@@ -535,10 +564,12 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library"
+    ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -730,10 +761,13 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "library",
+     "hall"
+    ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -807,6 +841,16 @@
      "locationId": "library",
      "name": "Silver Candlestick",
      "weapon": true
+    },
+    {
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
+     "icon": "🔥",
+     "id": "fireplace-poker",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Fireplace Poker",
+     "weapon": true
     }
    ],
    "lines": [
@@ -818,7 +862,7 @@
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 1,
+       "have": 2,
        "need": 3
       },
       "leads": {
@@ -852,7 +896,7 @@
     "freshLocationIds": [],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -886,16 +930,28 @@
  },
  "search:library@mid": {
   "body": {
-   "found": [],
+   "found": [
+    {
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
+     "icon": "🔥",
+     "id": "fireplace-poker",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Fireplace Poker",
+     "weapon": true
+    }
+   ],
    "lines": [
-    "You re-check the shelves, the rug and the dead fire. Four thousand books, still not talking. Nothing new here."
+    "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
+    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
    ],
    "locationId": "library",
    "progress": {
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 2,
+       "have": 3,
        "need": 3
       },
       "leads": {
@@ -916,7 +972,7 @@
       "testimony": 2
      },
      "citeTestimony": true,
-     "line": "A hunch and a hat don't close a case, detective. Keep looking.",
+     "line": "Plenty of chatter, no cracks. Somebody here is sitting on a story. Lean on them with what's in your notebook.",
      "unlocked": false
     },
     "confront": {
@@ -926,10 +982,12 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [],
+    "freshLocationIds": [
+     "hall"
+    ],
     "leads": [
      {
-      "closedLine": "A candlestick! The butler will be mortified about the polish.",
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
       "id": "lead-weapon",
       "state": "closed",
       "title": "What struck his lordship down?"
@@ -1060,7 +1118,7 @@
    "evidence": [],
    "locations": [
     {
-     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
      "id": "library",
      "name": "The Library",
      "searchFlavor": {
@@ -1085,7 +1143,7 @@
      }
     },
     {
-     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
      "id": "hall",
      "name": "The Hall",
      "searchFlavor": {
@@ -1332,10 +1390,13 @@
     "total": 12,
     "totalUsed": 0
    },
-   "freshLocationIds": [],
+   "freshLocationIds": [
+    "library",
+    "hall"
+   ],
    "leads": [
     {
-     "closedLine": "A candlestick! The butler will be mortified about the polish.",
+     "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
      "id": "lead-weapon",
      "state": "closed",
      "title": "What struck his lordship down?"
@@ -1414,7 +1475,7 @@
    ],
    "locations": [
     {
-     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
      "id": "library",
      "name": "The Library",
      "searchFlavor": {
@@ -1439,7 +1500,7 @@
      }
     },
     {
-     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
      "id": "hall",
      "name": "The Hall",
      "searchFlavor": {
@@ -1655,7 +1716,7 @@
    "accuse": {
     "checklist": {
      "clues": {
-      "have": 4,
+      "have": 6,
       "need": 3
      },
      "leads": {
@@ -1688,7 +1749,7 @@
    "freshLocationIds": [],
    "leads": [
     {
-     "closedLine": "A candlestick! The butler will be mortified about the polish.",
+     "closedLine": "Plenty of likely weapons in this house. Which one did the deed?",
      "id": "lead-weapon",
      "state": "closed",
      "title": "What struck his lordship down?"
@@ -1793,11 +1854,31 @@
      "kind": "physical",
      "locationId": "dining-room",
      "name": "The Missing Library Key"
+    },
+    {
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
+     "icon": "🔥",
+     "id": "fireplace-poker",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Fireplace Poker",
+     "weapon": true
+    },
+    {
+     "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+     "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+     "icon": "🗡️",
+     "id": "letter-opener",
+     "kind": "physical",
+     "locationId": "hall",
+     "name": "Brass Letter Opener",
+     "weapon": true
     }
    ],
    "locations": [
     {
-     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+     "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
      "id": "library",
      "name": "The Library",
      "searchFlavor": {
@@ -1822,7 +1903,7 @@
      }
     },
     {
-     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+     "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
      "id": "hall",
      "name": "The Hall",
      "searchFlavor": {

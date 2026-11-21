@@ -26,7 +26,7 @@
     {
       "id": "library",
       "name": "The Library",
-      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire.",
+      "description": "Lord Blackwood's book-lined sanctum at the end of the hall. One oak door to the hall with a single key; tall windows shuttered and bolted against the storm; a coal fire with a stand of fire-irons.",
       "searchFlavor": {
         "lines": [
           "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
@@ -56,7 +56,7 @@
     {
       "id": "hall",
       "name": "The Hall",
-      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it.",
+      "description": "The manor's central hall joining every room. Tall windows, a grandfather clock, and a garden door with a dark alcove beside it. On Archibald's side, opposite the garden door, a narrow hall table holds his gloves and a stack of post.",
       "searchFlavor": {
         "lines": [
           "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
@@ -240,6 +240,28 @@
       "involvesCharacterIds": [
         "gregory"
       ]
+    },
+    {
+      "id": "f-reginald-banked-fire",
+      "statement": "Before dinner, Reginald banked the library fire and set the poker in its stand. He did not take the poker out again.",
+      "category": "object",
+      "locationId": "library",
+      "involvesCharacterIds": [
+        "reginald"
+      ],
+      "source": "witnessed",
+      "confidence": 1
+    },
+    {
+      "id": "f-archibald-letter-opener",
+      "statement": "Before dinner, Archibald used his brass letter opener on Lord Blackwood's ledgers and letters at the hall table on his side of the hall. He is nervous the opener will be taken as proof he had been through those papers.",
+      "category": "object",
+      "locationId": "hall",
+      "involvesCharacterIds": [
+        "archibald"
+      ],
+      "source": "witnessed",
+      "confidence": 1
     }
   ],
   "motives": [
@@ -275,11 +297,14 @@
       "title": "What struck his lordship down?",
       "hint": "Somebody used something heavy. The library is where it happened, so that is where a tidy detective starts.",
       "closesWhen": {
+        "mode": "any",
         "evidenceIds": [
-          "silver-candlestick"
+          "silver-candlestick",
+          "fireplace-poker",
+          "letter-opener"
         ]
       },
-      "closedLine": "A candlestick! The butler will be mortified about the polish."
+      "closedLine": "Plenty of likely weapons in this house. Which one did the deed?"
     },
     {
       "id": "lead-motive",
