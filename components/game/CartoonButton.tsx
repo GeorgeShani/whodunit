@@ -5,7 +5,7 @@ import { getAudio } from "@/components/effects/audio";
 
 type Tone = "red" | "yellow" | "white" | "violet";
 const TONES: Record<Tone, string> = {
-  red: "bg-red-500 text-white hover:bg-red-400",
+  red: "bg-red-600 text-white hover:bg-red-500", // #103: white on red-500 is 3.76:1; red-600 is 4.83:1 (WCAG AA)
   yellow: "bg-accent text-ink hover:bg-yellow-200",
   white: "bg-white text-ink hover:bg-yellow-50",
   violet: "bg-violet-400 text-ink hover:bg-violet-300",
