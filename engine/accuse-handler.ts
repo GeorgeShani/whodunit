@@ -115,9 +115,11 @@ interface AccuseDeps {
  * re-grade as "no one helped", a loss), since only the outcome, the accused and the helper are stored. A LOSS
  * carries the stored outcome and the accused's reaction only: no solution, no verdict, no cited clues.
  */
-function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: StoredClose, sentToken: string, env?: Env): AccuseResponseBody {
+export function storedOutcomeBody(caseData: PlayableCase, game: GameState, stored: StoredClose, sentToken: string, env?: Env): AccuseResponseBody {
   const closed = { error: "case_closed", line: ACCUSE_LINES.caseClosed } as const;
   if (stored.outcome === "won") {
+    // A win replay needs the solution (it was earned in this game). If it isn't at hand, fail closed: no verdict, no reveal.
+    if (!hasSolution(caseData)) return { outcome: "won", stateToken: sentToken, ...closed };
     const s = caseData.solution;
     const accusation: Accusation = {
       murdererId: s.murdererId,
@@ -136,6 +138,8 @@ function storedOutcomeBody(caseData: LoadedCase, game: GameState, stored: Stored
   // token goes back exactly as sent: it can still never accuse again (every try lands here), and nothing is revealed.
   if (!stored.accusedId || !caseData.characters.some((c) => c.id === stored.accusedId)) return { outcome: "lost", stateToken: sentToken, ...closed };
   // The loss reaction is built from the accused alone: no weapon or clue of theirs is known, so none is flashed.
+  // buildEnding still reads the solution internally; if it isn't at hand, fail closed with no ending beats.
+  if (!hasSolution(caseData)) return { outcome: "lost", stateToken: sentToken, ...closed };
   const ending = buildEnding(caseData, { won: false }, { murdererId: stored.accusedId, weaponId: "", motiveId: "", keyEvidenceIds: [] });
   const bare = { ...ending, beats: ending.beats.map((b) => ({ ...b, evidenceIds: [] })) };
   return { outcome: "lost", ending: bare, stateToken: sentToken, ...closed };

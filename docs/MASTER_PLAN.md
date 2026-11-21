@@ -44,6 +44,9 @@ An agent receiving this document should be able to understand:
 
 This document should be treated as the project's primary source of truth unless a newer architectural decision explicitly overrides part of it.
 
+**Override (2026-11-20, George):** the game uses Postgres (Supabase) for `closed_games` (the permanent accusation record, #39) and `saved_games` (the latest signed token for a game in progress). There is still no auth and no player accounts. See `docs/OPERATIONS.md`.
+
+
 ---
 
 # 1. Product Overview

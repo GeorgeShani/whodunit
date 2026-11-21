@@ -76,6 +76,18 @@ export function EndScreen({
       >
         {result.ending.headline}
       </motion.h1>
+      {result.notice && (
+        // The accusation was graded on the cabinet's file, not the tab's notes (stale, diverged, or moves made while
+        // the cabinet was shut were rolled back): say so here too, in character, for screen readers as well.
+        <p
+          role="status"
+          aria-live="polite"
+          data-end-notice
+          className="max-w-xl rounded-2xl border-[3px] border-black bg-yellow-100 px-5 py-2 text-center text-base italic text-ink shadow-[4px_4px_0_#000]"
+        >
+          {result.notice}
+        </p>
+      )}
       <p className="max-w-xl text-center text-lg font-bold text-yellow-100">
         {won ? inSite("Justice is served, detective. The whole house is talking about you.") : "Your case didn't hold up. The case went unsolved."}
       </p>

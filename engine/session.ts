@@ -6,6 +6,7 @@
 import { inSetting, settingOf } from "./presentation";
 import type { LoadedCase, PlayableCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
+import { mintOfflineThisRequest, noteIssuedVersion } from "@/lib/save-context";
 import { decodeStateToken, encodeStateToken, newGameId, type DecodeOptions, type Env } from "./state-token";
 import type { GameState } from "./types";
 
@@ -16,6 +17,20 @@ export const RESET_NOTICE =
 /** Narrator line when a token is older than the max age (#39): a fresh start, in character. */
 export const COLD_CASE_NOTICE =
   "This case file has gone cold, detective. The household has scattered and the trail with it, so it's a fresh start: the same night, the same house, a clean notebook.";
+
+/** Narrator line when the client's token is behind the saved version (#40): we put the latest pages back in their hand. */
+export const STALE_TOKEN_NOTICE =
+  "A few of your latest moves didn't make it into the case file, Detective. I've put it back to the last pages I could trust.";
+
+/**
+ * An offline-lineage leftover reconnecting is sent back to the cabinet row (#94): it gets the same in-character stale
+ * notice, so the player knows the moves made while the cabinet was shut were rolled back.
+ */
+export const OFFLINE_RESUME_NOTICE = STALE_TOKEN_NOTICE;
+
+/** Narrator line when this instance already issued a newer version and we cannot put those pages back (outage, best-effort). */
+export const CABINET_AHEAD_NOTICE =
+  "These notes were already turned ahead, detective. Keep the latest pages you already have.";
 
 export interface RestoredSession {
   game: GameState;
@@ -42,6 +57,12 @@ export function restoreSession(
 }
 
 export function saveSession(game: GameState, env?: Env): string {
+  // Tokens minted while the cabinet is shut, and every token derived from one,
+  // carry a signed `offline` flag. They keep the same-tab game going but are
+  // never written to saved_games; once the cabinet is open the row is truth (#94).
+  if (game.offline || mintOfflineThisRequest()) game.offline = true;
+  game.saveVersion = (game.saveVersion ?? 0) + 1;
+  if (game.gameId) noteIssuedVersion(game.gameId, game.saveVersion);
   return encodeStateToken(game, env);
 }
 

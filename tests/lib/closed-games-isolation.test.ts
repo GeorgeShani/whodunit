@@ -1,6 +1,6 @@
 /**
- * #39: only the accuse route and /api/health may reach the database. Interrogate, confront, investigate and hints
- * neither import the DB code (static import graph) nor call it (runtime, with the DB client mocked to fail loudly).
+ * #39 / saved games: `closed_games` is only imported by /api/accuse, /api/health and /api/resume.
+ * State-changing routes may import `saved_games` / `db/client` (saves are best-effort and must not throw).
  */
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -12,8 +12,8 @@ const getDb = vi.fn(() => {
 vi.mock("@/db/client", () => ({ getDb, dbConfigured: () => true, closeDb: async () => {} }));
 
 const ROOT = resolve(__dirname, "../..");
-const DB_MODULE = /(^|\/)(db\/(client|schema)|lib\/closed-games)\.ts$/;
-const DB_PACKAGE = /^(postgres|drizzle-orm|drizzle-kit|@electric-sql\/pglite)(\/|$)/;
+const CLOSED_MODULE = /(^|\/)lib\/closed-games\.ts$/;
+const SAVED_OR_DB = /(^|\/)(db\/(client|schema)|lib\/saved-games)\.ts$/;
 
 /** Every file (and bare package) reachable from `entry` through static and dynamic imports. */
 function importGraph(entry: string): { files: Set<string>; packages: Set<string> } {
@@ -38,30 +38,33 @@ function importGraph(entry: string): { files: Set<string>; packages: Set<string>
   return { files, packages };
 }
 
-const NON_ACCUSE = ["interrogate", "confront", "investigate", "hint"];
+const NON_CLOSED = ["interrogate", "confront", "investigate", "hint", "save"];
 
-describe("#39 DB isolation", () => {
-  it.each(NON_ACCUSE)("/api/%s imports no DB module or driver (static graph)", (route) => {
-    const { files, packages } = importGraph(join(ROOT, `app/api/${route}/route.ts`));
-    expect(files.size).toBeGreaterThan(5); // the walk really followed the imports
-    expect([...files].map((f) => f.slice(ROOT.length + 1)).filter((f) => DB_MODULE.test(f))).toEqual([]);
-    expect([...packages].filter((p) => DB_PACKAGE.test(p))).toEqual([]);
+describe("#39 / saved-games DB isolation", () => {
+  it.each(NON_CLOSED)("/api/%s imports no closed_games module (static graph)", (route) => {
+    const { files } = importGraph(join(ROOT, `app/api/${route}/route.ts`));
+    expect(files.size).toBeGreaterThan(5);
+    expect([...files].map((f) => f.slice(ROOT.length + 1)).filter((f) => CLOSED_MODULE.test(f))).toEqual([]);
   });
 
-  it("the accuse route and /api/health DO reach it (the walk can see it)", () => {
-    for (const route of ["accuse", "health"]) {
+  it.each(NON_CLOSED)("/api/%s may reach saved_games / the db client (saves are best-effort)", (route) => {
+    const { files } = importGraph(join(ROOT, `app/api/${route}/route.ts`));
+    expect([...files].some((f) => SAVED_OR_DB.test(f)), route).toBe(true);
+  });
+
+  it("the accuse route, /api/health and /api/resume DO reach closed_games", () => {
+    for (const route of ["accuse", "health", "resume"]) {
       const { files } = importGraph(join(ROOT, `app/api/${route}/route.ts`));
       expect([...files].some((f) => f.endsWith("lib/closed-games.ts")), route).toBe(true);
     }
   });
 
-  it.each(NON_ACCUSE)("/api/%s makes no DB call at runtime", async (route) => {
+  it.each(NON_CLOSED)("/api/%s still answers if getDb throws (saves must not break play)", async (route) => {
     const mod = (await import(`@/app/api/${route}/route`)) as { POST: (r: Request) => Promise<Response> };
     const bodies = [{}, { caseId: "blackwood" }, { caseId: "blackwood", characterId: "victoria", question: "Hello?", locationId: "library", characterIds: ["victoria", "archibald"] }];
     for (const b of bodies) {
       const res = await mod.POST(new Request(`http://t/api/${route}`, { method: "POST", body: JSON.stringify(b) }));
       expect(res.status).toBeLessThan(600);
     }
-    expect(getDb).not.toHaveBeenCalled();
   });
 });
