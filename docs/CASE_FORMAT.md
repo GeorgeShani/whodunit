@@ -450,17 +450,19 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 
 ## solution.json (server-only)
 
-A committed `cases/<id>/solution.json` is the usual source (Blackwood). If the file is absent, the server
-reads `CASE_SOLUTION_<ID>` (e.g. `CASE_SOLUTION_TALLYHO`): base64 of the same JSON, Zod-validated, never
-`NEXT_PUBLIC_`. Missing or invalid: the case still loads, accusations fail closed in character, and no
-technical text is returned. `validate:case --strict` still requires a valid solution (local file or env).
+A `cases/<id>/solution.json` is the usual source when present (local authoring, or a committed file).
+If the file is absent, the server reads `CASE_SOLUTION_<ID>` (e.g. `CASE_SOLUTION_BLACKWOOD`,
+`CASE_SOLUTION_TALLYHO`): base64 of the same JSON, Zod-validated, never `NEXT_PUBLIC_`. Missing or
+invalid: the case still loads, accusations fail closed in character, and no technical text is returned.
+`validate:case --strict` requires a valid solution (local file or env). Env-backed cases whose
+solution.json is gitignored skip cleanly when both the file and the env var are missing.
 
 
 ```jsonc
 {
-  "murdererId": "victoria", "weaponId": "silver-candlestick", "locationId": "library", "time": "21:17",
-  "motiveId": "inheritance",                        // one of case.json motives[].id
-  "keyEvidenceIds": ["silver-candlestick", "…"],    // ≥ 1; the proof an accusation must cite
+  "murdererId": "alpha", "weaponId": "heavy-wrench", "locationId": "workshop", "time": "21:00",
+  "motiveId": "partnership-dispute",                 // one of case.json motives[].id
+  "keyEvidenceIds": ["note", "…"],                   // ≥ 1; the proof an accusation must cite
   "supportingEvidenceIds": ["…"],                   // optional (E2): clues that also support the case
   "supportingTestimonyIds": ["…"],                  // optional (E2): secrets that also support the case
   "featureProof": { "<feature>": { … } },           // optional (phase 6): a feature module's solution data, e.g. time-misdirection's provedBy

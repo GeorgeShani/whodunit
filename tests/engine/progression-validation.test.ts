@@ -5,6 +5,7 @@ import { loadCase, validateCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { fastestPath, simulate, usesProgression } from "@/engine/progression-validation";
 import { getPublicCaseView } from "@/engine/public-view";
+import { hasLocalOrEnvSolution } from "../helpers/has-solution";
 
 const DIR = path.join(process.cwd(), "tests/fixtures/progression");
 let base: LoadedCase;
@@ -35,8 +36,10 @@ describe("the progress-light fixture", () => {
     expect(s.unlockedLocationIds.sort()).toEqual(["dock", "galley", "lamp-room"]);
   });
   it("the other shipped cases do not use progression (no behaviour change); Blackwood does, with a 10-action fastest path", async () => {
-    expect(usesProgression(await loadCase("blackwood"))).toBe(true);
-    expect(fastestPath(await loadCase("blackwood"))).toBe(10);
+    if (hasLocalOrEnvSolution("blackwood")) {
+      expect(usesProgression(await loadCase("blackwood"))).toBe(true);
+      expect(fastestPath(await loadCase("blackwood"))).toBe(10);
+    }
     expect(usesProgression(await loadCase("harbor-light", "tests/fixtures/cases"))).toBe(false);
   });
 });

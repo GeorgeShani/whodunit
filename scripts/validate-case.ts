@@ -9,8 +9,10 @@
  * offline smoke run (tools/smoke/playthrough.ts: the plan played through the real handlers, zero live calls).
  * --all validates every case folder whose name has no leading "_" (the public ones).
  */
+import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
+import { caseSolutionEnvName } from "../engine/solution";
 import { assetExists } from "../lib/case-art";
 import { CLUE_ART_DIR, CLUE_FALLBACK_ICON } from "../lib/clue-art";
 import { validateCase } from "../engine/case-loader";
@@ -26,6 +28,26 @@ import { caseCharacterSprites } from "../lib/case-sprites.server";
 /** Does an illustration for this clue exist under assets/evidence/ (same lookup order as lib/clue-art.ts)? */
 function clueArtExists(caseId: string, e: { id: string; image?: string | undefined }): boolean {
   return [`${caseId}/${e.id}`, e.id, ...(e.image ? [`${caseId}/${e.image}`, e.image] : [])].some((k) => assetExists(`${CLUE_ART_DIR}/${k}.webp`));
+}
+
+
+/** True when cases/<id>/solution.json is gitignored (env-backed). The file need not exist. */
+function isSolutionGitignored(caseId: string, casesDir: string): boolean {
+  const rel = path.relative(process.cwd(), path.join(casesDir, caseId, "solution.json")) || path.join(casesDir, caseId, "solution.json");
+  try {
+    execFileSync("git", ["check-ignore", "-q", "--", rel], { stdio: "ignore" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isMissingEnvBackedSolution(issues: { file: string; message: string }[]): boolean {
+  return (
+    issues.length > 0 &&
+    issues.every((i) => i.file === "solution.json" || i.file.startsWith("CASE_SOLUTION_")) &&
+    issues.every((i) => i.message === "file is missing")
+  );
 }
 
 async function main() {
@@ -132,6 +154,10 @@ async function validateOne(caseId: string, casesDir: string, strict: boolean): P
     }
     if (warned) console.error(`❌ Case "${caseId}" fails --strict: ${warned} warning line(s) above.`);
     return warned === 0;
+  }
+  if (result.playable && isMissingEnvBackedSolution(result.issues) && isSolutionGitignored(caseId, casesDir)) {
+    out(`⏭ Case "${caseId}" skipped: no local solution.json and ${caseSolutionEnvName(caseId)} is unset (env-backed; copy the file locally or set the env to validate).`);
+    return true;
   }
   console.error(`❌ Case "${caseId}" has ${result.issues.length} problem(s) (${where}):\n`);
   for (const issue of result.issues) console.error(`  • ${formatIssue(issue)}`);

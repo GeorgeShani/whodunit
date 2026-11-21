@@ -6,8 +6,8 @@
 import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import { loadCase } from "@/engine/case-loader";
-import type { LoadedCase } from "@/engine/case-schema";
+import { loadPlayableCase } from "@/engine/case-loader";
+import type { PlayableCase } from "@/engine/case-schema";
 import { listPublicCaseIds } from "@/engine/case-registry";
 
 const walk = (dir: string): string[] =>
@@ -16,7 +16,7 @@ const walk = (dir: string): string[] =>
   );
 
 /** Distinctive terms from a case: ids and proper names (common words like "hall" are skipped). */
-function caseTerms(c: LoadedCase): string[] {
+function caseTerms(c: PlayableCase): string[] {
   const names = [c.victim.name, ...c.characters.map((ch) => ch.name)].flatMap((n) => n.split(/[\s.]+/)).filter((w) => w.length >= 4 && /^[A-Z]/.test(w));
   const ids = [
     c.id,
@@ -48,7 +48,7 @@ let files: { file: string; text: string }[];
 let terms: string[];
 beforeAll(async () => {
   files = ["engine", "ai", "components", "lib", "app"].flatMap(walk).map((file) => ({ file, text: readFileSync(file, "utf8") }));
-  const cases = await Promise.all(listPublicCaseIds().map((id) => loadCase(id)));
+  const cases = await Promise.all(listPublicCaseIds().map((id) => loadPlayableCase(id)));
   terms = cases.flatMap(caseTerms);
 });
 
