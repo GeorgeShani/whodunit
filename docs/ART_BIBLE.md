@@ -477,7 +477,7 @@ Non-neutral poses use the xAI image edit endpoint with that character's approved
 Five icons (4 Blackwood clues + fallback) drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) because the image API was out of credits at the time; one pass each, checked at 256 px and 64 px on light and dark backgrounds (`toon-drafts/evidence_contact.png`).
 
 ### Evidence icons — fireplace poker and letter opener
-Two more Blackwood clue icons drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) and packed the same way as v0.1. `fireplace-poker` is an iron fire-iron with a soot stripe down the shaft. `letter-opener` is a slim brass letter opener with a small ink smear on the blade. Checked at 256 px and 64 px on light and dark (`toon-drafts/evidence_contact_v2.png`). In-repo preview: `docs/art/evidence_contact.jpg`.
+Two more Blackwood clue icons drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) and packed the same way as v0.1. `fireplace-poker` is an iron fire-iron with a soot stripe down the shaft. `letter-opener` is a slim brass letter opener with a small ink smear on the blade. The silver candlestick was cleaned to match the set (plain metal, same shape and highlights). The fireplace poker's hook has a lighter rim so it reads on the dark backdrop. Checked at 256 px and 64 px on light and dark (`toon-drafts/evidence_contact_v2.png`). In-repo preview: `docs/art/evidence_contact.jpg`.
 
 ## 10. S.S. Tallyho (case two) — v0.1
 
