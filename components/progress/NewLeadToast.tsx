@@ -8,9 +8,23 @@ import type { PublicProgress } from "@/engine/progress";
 export const NEW_LEAD_TOAST_MS = 2200;
 
 /**
- * "NEW LEAD!" sting (driven by progress.newLeadIds). Purely informational (#37): it never takes a tap
- * (pointer-events-none on the whole thing, not a button) and sits low, above the safe area and clear of the
- * header (Back, title, stress meter) and the input row, so the player can keep playing underneath it.
+ * Motion for the sting card. Only y / opacity / scale — never `x` or a centering
+ * `translateX`, so Framer Motion's `transform` cannot fight a `left-1/2 -translate-x-1/2`
+ * class and slide the toast sideways before it settles.
+ */
+export const NEW_LEAD_TOAST_MOTION = {
+  initial: { y: 40, opacity: 0, scale: 0.96 },
+  animate: { y: 0, opacity: 1, scale: 1 },
+  exit: { y: 40, opacity: 0, scale: 0.96 },
+} as const;
+
+/**
+ * "NEW LEAD!" sting (driven by progress.newLeadIds, shown by LeadToastHost). Purely
+ * informational (#37): it never takes a tap (pointer-events-none on the whole thing, not a
+ * button) and sits low, above the safe area and clear of the header (Back, title, stress
+ * meter) and the input row, so the player can keep playing underneath it.
+ *
+ * Positioned in a `fixed` full-width flex row so centering never depends on transforms.
  * Reduced motion comes from the global <MotionConfig reducedMotion="user">.
  */
 export function NewLeadToast({ lead, onDone, holdMs = NEW_LEAD_TOAST_MS }: { lead: PublicProgress["leads"][number] | null; onDone: () => void; holdMs?: number }) {
@@ -22,7 +36,8 @@ export function NewLeadToast({ lead, onDone, holdMs = NEW_LEAD_TOAST_MS }: { lea
   return (
     <div
       data-new-lead-layer
-      className="pointer-events-none absolute inset-x-0 bottom-[calc(6.75rem+env(safe-area-inset-bottom))] z-30 flex justify-center px-3 short:bottom-[calc(4.5rem+env(safe-area-inset-bottom))]"
+      data-lead-toast-host
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(6.75rem+env(safe-area-inset-bottom))] z-[55] flex justify-center px-3 short:bottom-[calc(4.5rem+env(safe-area-inset-bottom))]"
       aria-live="polite"
       role="status"
     >
@@ -31,9 +46,9 @@ export function NewLeadToast({ lead, onDone, holdMs = NEW_LEAD_TOAST_MS }: { lea
           <motion.div
             key={lead.id + lead.state}
             data-new-lead
-            initial={{ y: 40, rotate: -3, opacity: 0 }}
-            animate={{ y: 0, rotate: -1.5, opacity: 1 }}
-            exit={{ y: 40, opacity: 0 }}
+            initial={NEW_LEAD_TOAST_MOTION.initial}
+            animate={NEW_LEAD_TOAST_MOTION.animate}
+            exit={NEW_LEAD_TOAST_MOTION.exit}
             transition={{ type: "spring", stiffness: 260, damping: 18 }}
             className="pointer-events-none max-w-sm rounded-2xl border-4 border-black bg-accent px-4 py-1.5 text-ink shadow-[4px_4px_0_#000]"
           >

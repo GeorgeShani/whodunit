@@ -9,7 +9,7 @@ import { Notebook } from "@/components/evidence/Notebook";
 import { InvestigateScreen } from "@/components/investigate/InvestigateScreen";
 import { LeadsPanel } from "@/components/progress/LeadsPanel";
 import { CaseNotReady } from "@/components/progress/CaseNotReady";
-import { NewLeadToast, NEW_LEAD_TOAST_MS } from "@/components/progress/NewLeadToast";
+import { NewLeadToast, NEW_LEAD_TOAST_MS, NEW_LEAD_TOAST_MOTION } from "@/components/progress/NewLeadToast";
 import { publicProgress, type PublicProgress } from "@/engine/progress";
 import { GameStateSchema } from "@/engine/types";
 import { isPublicProgress, parseSavedGame, SESSION_VERSION } from "@/lib/game-session";
@@ -103,9 +103,23 @@ describe("NewLeadToast (#37)", () => {
     expect(out).not.toContain("<button");
     expect(out).not.toContain("tabindex");
     expect(out.match(/pointer-events-none/g)?.length).toBeGreaterThanOrEqual(2); // the layer and the card
+    expect(out).toContain("fixed");
+    expect(out).toContain("inset-x-0");
+    expect(out).toContain("justify-center");
+    expect(out).not.toContain("left-1/2");
+    expect(out).not.toContain("-translate-x-1/2");
     expect(out).not.toMatch(/top-\[|top-\d/); // bottom-anchored
     expect(out).toContain("safe-area-inset-bottom");
     expect(NEW_LEAD_TOAST_MS).toBeLessThanOrEqual(2200);
+  });
+  it("animates only y, opacity and scale, never a horizontal transform", () => {
+    for (const frame of Object.values(NEW_LEAD_TOAST_MOTION)) {
+      expect(frame).toHaveProperty("y");
+      expect(frame).toHaveProperty("opacity");
+      expect(frame).toHaveProperty("scale");
+      expect(frame).not.toHaveProperty("x");
+      expect(frame).not.toHaveProperty("rotate");
+    }
   });
   it("says LEAD SOLVED for a closed lead and renders an empty layer (still pointer-events-none) with no lead", () => {
     expect(html(h(NewLeadToast, { lead: leads[1]!, onDone: () => {} }))).toContain("LEAD SOLVED!");
