@@ -421,7 +421,7 @@ Scene: the grand entrance hall of the same old mansion at night during a storm. 
 ### 8.1 Evidence icons — v0.1
 One cartoon icon per clue, replacing the kind emoji (🔧 📜 🗣️ 👣) in the notebook, clue sting, accuse screen and ending recap.
 - **Path / format:** `assets/evidence/<evidenceId>.webp`, where `<evidenceId>` is exactly the `id` in `cases/<case>/evidence.json`. 256 × 256, RGBA, transparent, lossy WebP (quality 85, alpha quality 90, method 6; 5 to 10 KB each). Neutral fallback: `assets/evidence/_fallback.webp` (magnifying glass over a "?" tag). Display at 64 px in lists, 96 to 256 px in detail views.
-- **Blackwood ids:** `silver-candlestick`, `muddy-footprint`, `burned-letter`, `library-key`.
+- **Blackwood ids:** `silver-candlestick`, `muddy-footprint`, `burned-letter`, `library-key`, `fireplace-poker`, `letter-opener`.
 - **Style:** one object, centered, about 8% transparent padding, slight comic tilt. Same ink as the effects (`#111114`, one consistent heavy outline, round joins), flat fills with ONE shade tone per material, one tiny white highlight, warm limited palette (cream, brass, silver-grey, oxblood, mud brown, ember orange). No text/letters (the "?" is a shape; writing is rounded bars), no background, no baked shadow. Must read at 64 px on both light and dark UI.
 - **Method:** hand-authored SVG like the effects (§5), rasterized with cairosvg and auto-fitted. Lossless masters and SVG sources stay out of git in `toon-drafts/evidence/`. If generated instead, prepend the style prefix in `assets/evidence/README.md` and keep the object on a pure green key.
 - **New cases:** keep Blackwood flat; use `assets/evidence/<caseId>/<id>.webp` for new cases (id uniqueness is only per case). Full convention and the Tallyho id list: `assets/evidence/README.md`. Preview: `docs/art/evidence_contact.jpg`.
@@ -475,6 +475,9 @@ Non-neutral poses use the xAI image edit endpoint with that character's approved
 
 ### Evidence icons v0.1
 Five icons (4 Blackwood clues + fallback) drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) because the image API was out of credits at the time; one pass each, checked at 256 px and 64 px on light and dark backgrounds (`toon-drafts/evidence_contact.png`).
+
+### Evidence icons — fireplace poker and letter opener
+Two more Blackwood clue icons drawn as SVG in code (`toon-drafts/tools/evidence_svg.py`) and packed the same way as v0.1. `fireplace-poker` is an iron fire-iron with a soot stripe down the shaft. `letter-opener` is a slim brass letter opener with a small ink smear on the blade. Checked at 256 px and 64 px on light and dark (`toon-drafts/evidence_contact_v2.png`). In-repo preview: `docs/art/evidence_contact.jpg`.
 
 ## 10. S.S. Tallyho (case two) — v0.1
 
