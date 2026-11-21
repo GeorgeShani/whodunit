@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clearGame, loadGame, parseSavedGame, withoutUnansweredQuestions, saveGame, sessionKey, SESSION_VERSION, type SavedGame } from "@/lib/game-session";
+import { clearGame, clearSavePointer, loadGame, loadSavePointer, parseSavedGame, withoutUnansweredQuestions, saveGame, savePointerKey, sessionKey, SESSION_VERSION, writeSavePointer, type SavedGame } from "@/lib/game-session";
 
 const memStore = () => {
   const m = new Map<string, string>();
@@ -82,5 +82,35 @@ describe("game session persistence (#11)", () => {
     expect(loadGame("blackwood", bad)).toBeNull();
     expect(() => saveGame(sample, bad)).not.toThrow();
     expect(() => clearGame("blackwood", bad)).not.toThrow();
+  });
+});
+
+function mem(): { getItem: (k: string) => string | null; setItem: (k: string, v: string) => void; removeItem: (k: string) => void; data: Record<string, string> } {
+  const data: Record<string, string> = {};
+  return { data, getItem: (k) => data[k] ?? null, setItem: (k, v) => { data[k] = v; }, removeItem: (k) => { delete data[k]; } };
+}
+
+describe("save pointer and sessionStorage migration", () => {
+  it("stores only gameId and caseId, and migrates an old session blob's token", () => {
+    const local = mem();
+    const session = mem();
+    writeSavePointer({ v: 1, gameId: "abcdefghijklmnopqr", caseId: "blackwood" }, local);
+    expect(JSON.parse(local.data[savePointerKey("blackwood")]!)).toEqual({ v: 1, gameId: "abcdefghijklmnopqr", caseId: "blackwood" });
+    expect(loadSavePointer("blackwood", local, session).pointer?.gameId).toBe("abcdefghijklmnopqr");
+
+    const old = mem();
+    old.data[sessionKey("_tallyho")] = JSON.stringify({ v: SESSION_VERSION, caseId: "_tallyho", screen: "suspects", activeId: null, stateToken: "v2.legacy.token", conversations: {}, emotions: {}, evidence: [], searched: [], searchLines: {}, nextId: 0 });
+    const migrated = loadSavePointer("tallyho", mem(), old);
+    expect(migrated.legacyToken).toBe("v2.legacy.token");
+    expect(old.data[sessionKey("_tallyho")]).toBeUndefined();
+  });
+
+  it("clearSavePointer drops the pointer and leftover tokens", () => {
+    const local = mem();
+    const session = mem();
+    writeSavePointer({ v: 1, gameId: "abcdefghijklmnopqr", caseId: "blackwood" }, local);
+    session.data[sessionKey("blackwood")] = "old";
+    clearSavePointer("blackwood", local, session);
+    expect(loadSavePointer("blackwood", local, session).pointer).toBeNull();
   });
 });

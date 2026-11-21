@@ -6,7 +6,7 @@
  *  - PRIVATE outputs, as sha256 digests only (blackwood-private.sha256.json), so no solution text is committed twice:
  *    each suspect's context and full system prompt (via prepareTurn), the grade and full /api/accuse response for a set
  *    of accusations (endings included: the win and every accused's loss), and the validator result.
- * State tokens (random IV and game id) are stripped. Regenerate after an INTENDED Blackwood change with
+ * State tokens and game ids (random IV and id) are stripped. Regenerate after an INTENDED Blackwood change with
  * `UPDATE_GOLDEN=1 npx vitest run tests/cases/blackwood-golden.test.ts`; set GOLDEN_DUMP=<dir> to write the private
  * values in full to a local (uncommitted) folder for diffing.
  */
@@ -42,7 +42,7 @@ beforeAll(async () => {
 /** Stable JSON: sorted keys, no state tokens. */
 const stable = (v: unknown): string =>
   JSON.stringify(v, (k, x) =>
-    k === "stateToken"
+    k === "stateToken" || k === "gameId" || k === "saveVersion" || k === "offline"
       ? undefined
       : x && typeof x === "object" && !Array.isArray(x)
         ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a.localeCompare(b)))

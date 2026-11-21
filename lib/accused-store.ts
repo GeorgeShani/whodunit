@@ -6,7 +6,7 @@
  * pre-check plus a write-through copy of the full accusation (#39). Without it, the guard is only as strong as the
  * cache: a request that lands in another region, or after the TTL, or after an eviction, or in the instant before
  * the first write lands, is not caught (the documented fallback risk). The state-token max age
- * (7 days) bounds how long a saved pre-accusation token can be replayed at all. Outside
+ * (30 days) bounds how long a saved pre-accusation token can be replayed at all. Outside
  * Vercel (dev, tests) it falls back to a bounded in-process map.
  * It fails OPEN: a cache error never blocks a legitimate accusation.
  */
@@ -15,7 +15,7 @@ import type { AccusedStore } from "@/engine/accuse-handler";
 import { AccusationSchema, type Accusation } from "@/engine/types";
 
 /**
- * 30 days: well past the 7-day state-token max age (engine/state-token.ts), so while a pre-accusation token can still
+ * 30 days: at least the state-token max age (engine/state-token.ts), so while a pre-accusation token can still
  * be played the record should still be there. Vercel documents the Runtime Cache as persisting across deployments,
  * but it is a cache (per region, LRU eviction), so this is best effort, not a guarantee (#39).
  */

@@ -47,20 +47,20 @@ const midGame = () => {
 };
 
 describe("#39 state token max age", () => {
-  it("numbers: 7 days; legacy tokens (no iat) accepted until 2026-10-15 UTC", () => {
-    expect(STATE_TOKEN_MAX_AGE_MS).toBe(7 * DAY);
+  it("numbers: 30 days; legacy tokens (no iat) accepted until 2026-10-15 UTC", () => {
+    expect(STATE_TOKEN_MAX_AGE_MS).toBe(30 * DAY);
     expect(new Date(LEGACY_TOKEN_GRACE_UNTIL).toISOString()).toBe("2026-10-15T00:00:00.000Z");
   });
   it("every token carries its issue time (seconds)", () => {
     at(NOW);
     expect(payloadOf(encodeStateToken(midGame(), TEST_ENV)).iat).toBe(NOW / 1000);
   });
-  it("a 6-day-old token still plays; one older than 7 days is refused as expired", () => {
+  it("a 29-day-old token still plays; one older than 30 days is refused as expired", () => {
     at(NOW);
     const token = encodeStateToken(midGame(), TEST_ENV);
-    at(NOW + 6 * DAY);
+    at(NOW + 29 * DAY);
     expect(decodeStateToken(token, c, TEST_ENV).ok).toBe(true);
-    at(NOW + 7 * DAY + 1000);
+    at(NOW + 30 * DAY + 1000);
     expect(decodeStateToken(token, c, TEST_ENV)).toEqual({ ok: false, reason: "expired" });
   });
   it("each save re-stamps it, so an active game never goes cold", () => {
@@ -91,7 +91,7 @@ describe("#39 state token max age", () => {
   it("an expired token is a fresh start with the in-character 'gone cold' line (other bad tokens keep the old line)", () => {
     at(NOW);
     const token = encodeStateToken(midGame(), TEST_ENV);
-    at(NOW + 8 * DAY);
+    at(NOW + 30 * DAY + 1000);
     const s = restoreSession(c, token, TEST_ENV);
     expect(s).toMatchObject({ notice: COLD_CASE_NOTICE, resetReason: "expired" });
     expect(s.game.turn).toBe(0);
@@ -105,7 +105,7 @@ describe("#39 state token max age", () => {
     const g = midGame();
     g.discoveredEvidenceIds.push("muddy-footprint", "burned-letter", "library-key");
     const token = encodeStateToken(g, TEST_ENV);
-    at(NOW + 8 * DAY);
+    at(NOW + 30 * DAY + 1000);
     const inv = handleInvestigate({ caseId: "blackwood", locationId: "library", stateToken: token }, { caseData: c, env: TEST_ENV });
     expect(inv.body.notice).toBe(COLD_CASE_NOTICE);
     const acc = await handleAccuse(
@@ -120,19 +120,19 @@ describe("#39 state token max age", () => {
     mockGrok({});
     at(NOW);
     const token = encodeStateToken(midGame(), TEST_ENV);
-    at(NOW + 30 * DAY);
+    at(NOW + 30 * DAY + 1000);
     const r = await handleInterrogate({ caseId: "blackwood", characterId: "reginald", question: "Hello?", stateToken: token }, { caseData: c, env: TEST_ENV });
     expect(r.body.notice).toBe(COLD_CASE_NOTICE);
-    at(NOW + 30 * DAY);
+    at(NOW + 30 * DAY + 1000);
     const back = decodeStateToken(r.body.stateToken, c, TEST_ENV);
     expect(back.ok && back.game.turn).toBe(1);
   });
 });
 
 describe("#39 accusation record and the cache backend", () => {
-  it("the accused-game record lives 30 days, past the 7-day token age", () => {
+  it("the accused-game record lives 30 days, matching the token age", () => {
     expect(ACCUSED_TTL_SECONDS).toBe(30 * 24 * 3600);
-    expect(ACCUSED_TTL_SECONDS * 1000).toBeGreaterThan(STATE_TOKEN_MAX_AGE_MS);
+    expect(ACCUSED_TTL_SECONDS * 1000).toBeGreaterThanOrEqual(STATE_TOKEN_MAX_AGE_MS);
   });
   it("GET /api/health reports which cache backs the limits (memory off Vercel), no-store", async () => {
     const prev = process.env.DATABASE_URL;

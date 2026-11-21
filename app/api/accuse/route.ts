@@ -11,8 +11,11 @@ import { NextResponse } from "next/server";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import { ACCUSE_LINES, handleAccuse } from "@/engine/accuse-handler";
 import { accusedStore } from "@/lib/accused-store";
-import { closedGamesRepo } from "@/lib/closed-games";
+import { closedGamesRepoFor } from "@/lib/closed-games";
 import { resolveRequestCase } from "@/lib/request-case";
+import { runWithSaveContext } from "@/lib/save-context";
+import { commitSavedAction, SAVE_BUSY_LINE, syncIncomingToken } from "@/lib/saved-session";
+import { savedGamesRepoFor } from "@/lib/saved-games";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +29,28 @@ export async function POST(request: Request) {
   try {
     const rc = await resolveRequestCase(json);
     if (!rc.ok) return NextResponse.json<AccuseResponseBody>({ error: rc.error, line: ACCUSE_LINES.unknownCase }, { status: 404 });
-    const { status, body } = await handleAccuse(json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId, accused: accusedStore, closed: closedGamesRepo() });
+    const synced = await syncIncomingToken(json, rc.caseData, undefined, savedGamesRepoFor(request.headers), { headers: request.headers });
+    if (synced.rateLimited) {
+      // Fail closed and in character: nothing runs, the player's token is untouched (#102).
+      return NextResponse.json<AccuseResponseBody>({ error: "rate_limited", line: SAVE_BUSY_LINE }, { status: 429, headers: { "retry-after": "5" } });
+    }
+    if (synced.rejectStale) {
+      return NextResponse.json<AccuseResponseBody>(
+        { error: "stale_token", line: synced.notice ?? "", notice: synced.notice },
+        { status: 409 },
+      );
+    }
+    const { status, body } = await runWithSaveContext(synced.cabinetOffline, () =>
+      handleAccuse(synced.json, { caseData: rc.caseData, legacyCaseId: rc.legacyCaseId, accused: accusedStore, closed: closedGamesRepoFor(request.headers) }),
+    );
+    const c = await commitSavedAction(status, body, synced, rc.caseData);
+    if (c.kind === "stale") {
+      // Lost the compare-and-swap (#95): never a 200 at N+1. Hand back the winner's row, its snapshot and the notice.
+      return NextResponse.json<AccuseResponseBody>({ ...c.stale }, { status: 409 });
+    }
+    if (c.kind === "throttled") {
+      return NextResponse.json<AccuseResponseBody>({ error: "rate_limited", line: SAVE_BUSY_LINE }, { status: 429, headers: { "retry-after": "5" } });
+    }
     return NextResponse.json<AccuseResponseBody>(body, { status, ...(status === 503 ? { headers: { "retry-after": "5" } } : {}) });
   } catch (e) {
     console.error("[accuse] failed:", (e as Error).name);

@@ -16,18 +16,21 @@
  * tamper-proof). The key material is never logged or returned.
  *
  * Age (#39): every token carries `iat` (issued-at, seconds) and is refused as "expired" once it is older than
- * STATE_TOKEN_MAX_AGE_MS (7 days), so a saved token can only be replayed for a week. Tokens issued before `iat`
+ * STATE_TOKEN_MAX_AGE_MS (30 days, matching saved_games row retention). Tokens issued before `iat`
  * existed are accepted until LEGACY_TOKEN_GRACE_UNTIL, then expire too.
  *
- * Known limit: tokens are not bound to a session, so a player can replay an
- * OLDER token of their own (e.g. to undo stress). That is harmless for a
- * single-player game: they can only reach states the server itself issued.
+ * Known limit: tokens are not bound to a session. An older *online* token is
+ * refused when a newer saved_games row exists (#40). Tokens minted while the
+ * cabinet is shut carry a signed `offline: true` flag (inherited by every
+ * derived token) and are never written to saved_games; when the cabinet is
+ * open again the row is truth (#94). Fallback play itself is same-tab only.
  */
 import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { deflateRawSync, inflateRawSync } from "node:zlib";
 import { z } from "zod";
 import type { LoadedCase, PlayableCase } from "./case-schema";
 import { confrontationCaps } from "./confront-caps";
+import { canonicalCaseId, caseIdsMatch } from "@/lib/cases";
 import { CLAIM_LIMITS, MAX_CONFRONTATION_TURNS } from "./constants";
 import { createInitialGameState } from "./game-state";
 import { revealedSecretIds, secretIndex } from "./testimony";
@@ -99,8 +102,8 @@ const TokenCharacterSchema = z.strictObject({
   playerClaims: z.array(PlayerClaimSchema).max(STATE_LIMITS.claimsPerCharacter).default([]),
 });
 
-/** A token older than this is refused ("this case file has gone cold"). Every save re-stamps it. */
-export const STATE_TOKEN_MAX_AGE_MS = 7 * 24 * 3600 * 1000;
+/** A token older than this is refused ("this case file has gone cold"). Every save re-stamps it. Matches saved_games retention. */
+export const STATE_TOKEN_MAX_AGE_MS = 30 * 24 * 3600 * 1000;
 /** Tokens without `iat` (issued before 2026-10-08) are accepted until this instant (UTC). */
 export const LEGACY_TOKEN_GRACE_UNTIL = Date.UTC(2026, 9, 15);
 
@@ -111,6 +114,10 @@ const TokenPayloadSchema = z.strictObject({
   caseId: CaseIdSchema.optional(),
   /** Random id of this game (absent in older tokens: derived from the token). */
   gameId: z.string().regex(/^[A-Za-z0-9_-]{8,48}$/).optional(),
+  /** Monotone save version (absent in older tokens: treated as 0). */
+  saveVersion: z.number().int().nonnegative().optional(),
+  /** Present and true only on tokens minted while the cabinet was shut, and those derived from them (#94). */
+  offline: z.boolean().optional(),
   turn: z.number().int().nonnegative(),
   discoveredEvidenceIds: z.array(IdSchema),
   searchedLocationIds: z.array(IdSchema).default([]),
@@ -188,8 +195,10 @@ function unseal(sealed: string, env?: Env): z.infer<typeof SealedSchema> | null 
   }
 }
 
-/** A fresh random game id (also assigned to a game the first time it is saved). */
-export const newGameId = () => randomBytes(12).toString("base64url");
+/** A 128-bit server-minted game id (base64url, 22 chars). Older 96-bit ids (16 chars) still verify. */
+export const GAME_ID_RE = /^[A-Za-z0-9_-]{8,48}$/;
+export const isGameId = (id: unknown): id is string => typeof id === "string" && GAME_ID_RE.test(id);
+export const newGameId = () => randomBytes(16).toString("base64url");
 export function ensureGameId(game: GameState): string {
   return (game.gameId ??= newGameId());
 }
@@ -202,6 +211,8 @@ function toPayload(game: GameState, env?: Env): TokenPayload {
     iat: Math.floor(Date.now() / 1000),
     caseId: game.caseId,
     gameId: ensureGameId(game),
+    saveVersion: game.saveVersion ?? 0,
+    ...(game.offline ? { offline: true } : {}),
     turn: game.turn,
     discoveredEvidenceIds: [...game.discoveredEvidenceIds],
     searchedLocationIds: [...game.searchedLocationIds],
@@ -335,14 +346,34 @@ function verifiedPayload(token: string | undefined, env?: Env): { ok: true; p: T
  */
 export function peekStateTokenCaseId(token: string | undefined, env?: Env, options: DecodeOptions = {}): string | undefined {
   const v = verifiedPayload(token, env);
-  return v.ok ? (v.p.caseId ?? options.legacyCaseId) : undefined;
+  if (!v.ok) return undefined;
+  const id = v.p.caseId ?? options.legacyCaseId;
+  return id ? canonicalCaseId(id) : undefined;
+}
+
+/** The game id inside a verified token, if the signature is good. */
+export function peekStateTokenGameId(token: string | undefined, env?: Env): string | undefined {
+  const v = verifiedPayload(token, env);
+  return v.ok ? v.p.gameId : undefined;
+}
+
+/** The save version inside a verified token (0 when the field is absent). Undefined when the signature fails. */
+export function peekStateTokenSaveVersion(token: string | undefined, env?: Env): number | undefined {
+  const v = verifiedPayload(token, env);
+  return v.ok ? (v.p.saveVersion ?? 0) : undefined;
+}
+
+/** Whether a verified token is offline-lineage (#94). Undefined when the signature fails. */
+export function peekStateTokenOffline(token: string | undefined, env?: Env): boolean | undefined {
+  const v = verifiedPayload(token, env);
+  return v.ok ? v.p.offline === true : undefined;
 }
 
 export function decodeStateToken(token: string | undefined, caseData: PlayableCase, env?: Env, options: DecodeOptions = {}): DecodeResult {
   const v = verifiedPayload(token, env);
   if (!v.ok) return v;
   const p = v.p;
-  if ((p.caseId ?? options.legacyCaseId) !== caseData.id) return { ok: false, reason: "wrong_case" };
+  if (!caseIdsMatch(p.caseId ?? options.legacyCaseId ?? caseData.id, caseData.id)) return { ok: false, reason: "wrong_case" };
   if (isExpired(p.iat, Date.now())) return { ok: false, reason: "expired" };
 
   // Defence in depth: every id must still exist in the case (case edits between deploys).
@@ -395,6 +426,8 @@ export function decodeStateToken(token: string | undefined, caseData: PlayableCa
   const game = createInitialGameState(caseData);
   // Older tokens have no id: derive a stable one from the token itself so replays of the same token share it.
   game.gameId = p.gameId ?? createHash("sha256").update(token ?? "").digest("base64url").slice(0, 22);
+  game.saveVersion = p.saveVersion ?? 0;
+  if (p.offline) game.offline = true;
   game.activeConfrontation = p.confrontation;
   game.confrontedPairs = [...p.confrontedPairs];
   // Older tokens had only the active pair's count: carry it over so it isn't lost.

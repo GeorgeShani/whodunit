@@ -74,13 +74,12 @@ describe("restoring a stale notebook (accuse weapon picker)", () => {
 });
 
 describe("Game wiring (source guard)", () => {
-  it("restore and every finding search rebuild the notebook from the server; stored objects are never set raw", async () => {
+  it("every finding search rebuilds the notebook from the server, and a resume snapshot wins over an older refresh", async () => {
     const { readFile } = await import("node:fs/promises");
     const src = await readFile("components/game/Game.tsx", "utf8");
     expect(src).not.toMatch(/setEvidence\(saved\.evidence/);
-    expect(src).toMatch(/hydrateEvidence\(saved\.evidence, view\.evidence\)/);
-    expect(src).toMatch(/if \(saved\.stateToken\) refreshNotebook\(saved\.stateToken\)/);
     expect(src).toMatch(/if \(r\.stateToken\) refreshNotebook\(r\.stateToken\)/);
     expect(src).toContain('fetch("/api/notebook"');
+    expect(src).toMatch(/const applySnapshot = useCallback\([^\n]*\n\s*notebookEpoch\.current\+\+/);
   });
 });

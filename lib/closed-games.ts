@@ -17,6 +17,7 @@ import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import { getDb } from "@/db/client";
 import { closedGames } from "@/db/schema";
 import { classifyDbError, diagnoseDatabaseUrl, type DbUrlDiagnostic } from "./db-diagnostic";
+import { SimulatedOutageError, simulatedDbOutage } from "./test-outage";
 
 export type ClosedOutcome = "won" | "lost";
 
@@ -115,6 +116,15 @@ let repo: { db: unknown; repo: ClosedGamesRepo } | null = null;
  * The production repository, or null when DATABASE_URL is unset (then: one warning per process, and the accuse route
  * keeps today's Runtime Cache-only record, so deploying before the env var exists cannot break accusations).
  */
+/** closedGamesRepo() for one request: honours the preview-only outage switch (lib/test-outage.ts). */
+export function closedGamesRepoFor(headers: Headers | undefined | null, env: NodeJS.ProcessEnv = process.env): ClosedGamesRepo | null {
+  if (simulatedDbOutage(headers, env)) {
+    const reject = () => Promise.reject(new SimulatedOutageError());
+    return { getClosed: reject, closeGame: reject };
+  }
+  return closedGamesRepo(env);
+}
+
 export function closedGamesRepo(env: NodeJS.ProcessEnv = process.env, log: (msg: string) => void = console.warn): ClosedGamesRepo | null {
   let db: ReturnType<typeof getDb>;
   try {
@@ -154,7 +164,7 @@ export function dbDiagnostic(env: NodeJS.ProcessEnv = process.env, error?: unkno
 }
 
 /** ONE structured server log line per failure: non-secret fields only (never the URL, user, password or message). */
-export function logDbFailure(source: "health" | "accuse", e: unknown, env: NodeJS.ProcessEnv = process.env, log: (line: string) => void = console.error): void {
+export function logDbFailure(source: "health" | "accuse" | "save" | "resume", e: unknown, env: NodeJS.ProcessEnv = process.env, log: (line: string) => void = console.error): void {
   log(`[db] ${JSON.stringify({ event: "db_unreachable", source, ...dbDiagnostic(env, e) })}`);
 }
 

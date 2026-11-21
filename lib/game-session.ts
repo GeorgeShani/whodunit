@@ -1,11 +1,15 @@
 /**
  * Client-only persistence of an investigation across reloads (#11).
  *
- * Stores the opaque server-signed state token plus UI state (transcripts,
- * notebook, searched rooms, current screen) in sessionStorage under one key
- * per case. The token stays authoritative: the server re-verifies it on every
- * request and resets (with an in-character notice) if it was tampered with, so
- * editing this blob can't grant stress, reveals or undiscovered clues.
+ * After saved games: the client keeps only game_id and case_id in localStorage.
+ * The signed token lives on the server (and, briefly, in memory during play).
+ * Old sessionStorage blobs (token + UI) are migrated once: the token is handed
+ * to POST /api/resume and the blob is dropped. Dialogue transcripts are not
+ * restored (accepted).
+ *
+ * The token stays authoritative: the server re-verifies it on every request and
+ * resets (with an in-character notice) if it was tampered with, so editing a
+ * leftover blob can't grant stress, reveals or undiscovered clues.
  */
 import type { DialogueMessage } from "@/components/dialogue/DialogueLog";
 import type { PublicTestimony } from "@/engine/testimony";
@@ -13,6 +17,7 @@ import type { PublicProgress } from "@/engine/progress";
 import type { Emotion } from "@/engine/types";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { ContradictionNotes } from "@/components/evidence/notebook-model";
+import { canonicalCaseId, caseIdAliases } from "./cases";
 import { storedEvidence, type StoredEvidence } from "@/components/evidence/hydrate-evidence";
 
 export const SESSION_VERSION = 1;
@@ -135,9 +140,113 @@ export function saveGame(g: SavedGame, s: Store | null = store()): void {
   }
 }
 
-export function clearGame(caseId: string, s: Store | null = store()): void {
+export function clearGame(caseId: string, s: Store | null = store(), local: Store | null = localStore()): void {
   try {
     s?.removeItem(sessionKey(caseId));
+    clearSavePointer(caseId, local, s);
+  } catch {
+    /* ignore */
+  }
+}
+
+
+/** localStorage pointer: only the server-minted game id and the case id. Never a token, never put in a URL. */
+export const SAVE_POINTER_VERSION = 1;
+export const savePointerKey = (caseId: string) => `whodunit:save:${canonicalCaseId(caseId)}`;
+
+export interface SavePointer {
+  v: typeof SAVE_POINTER_VERSION;
+  gameId: string;
+  caseId: string;
+}
+
+function localStore(): Store | null {
+  try {
+    return typeof window !== "undefined" ? window.localStorage : null;
+  } catch {
+    return null;
+  }
+}
+
+export function parseSavePointer(raw: string | null, caseId: string): SavePointer | null {
+  if (!raw) return null;
+  try {
+    const j = JSON.parse(raw) as unknown;
+    if (!isObj(j) || j.v !== SAVE_POINTER_VERSION) return null;
+    if (typeof j.gameId !== "string" || typeof j.caseId !== "string") return null;
+    if (canonicalCaseId(j.caseId) !== canonicalCaseId(caseId)) return null;
+    if (!/^[A-Za-z0-9_-]{8,48}$/.test(j.gameId)) return null;
+    return { v: SAVE_POINTER_VERSION, gameId: j.gameId, caseId: canonicalCaseId(j.caseId) };
+  } catch {
+    return null;
+  }
+}
+
+export function loadSavePointer(caseId: string, local: Store | null = localStore(), session: Store | null = store()): { pointer: SavePointer | null; legacyToken?: string } {
+  for (const id of caseIdAliases(caseId)) {
+    const pointer = parseSavePointer(local?.getItem(savePointerKey(id)) ?? null, caseId);
+    if (pointer) return { pointer };
+  }
+  // Migrate a pre-deploy sessionStorage blob: keep the token only long enough to resume, then drop the blob.
+  for (const id of caseIdAliases(caseId)) {
+    const saved = parseSavedGame(session?.getItem(sessionKey(id)) ?? null, id) ?? parseSavedGame(session?.getItem(sessionKey(id)) ?? null, caseId);
+    if (!saved?.stateToken) continue;
+    try {
+      session?.removeItem(sessionKey(id));
+    } catch {
+      /* ignore */
+    }
+    return { pointer: null, legacyToken: saved.stateToken };
+  }
+  return { pointer: null };
+}
+
+export function writeSavePointer(pointer: SavePointer, local: Store | null = localStore()): void {
+  try {
+    local?.setItem(savePointerKey(pointer.caseId), JSON.stringify({ ...pointer, caseId: canonicalCaseId(pointer.caseId) }));
+  } catch {
+    /* quota or disabled: persistence is best effort */
+  }
+}
+
+export function clearSavePointer(caseId: string, local: Store | null = localStore(), session: Store | null = store()): void {
+  try {
+    for (const id of caseIdAliases(caseId)) {
+      local?.removeItem(savePointerKey(id));
+      session?.removeItem(sessionKey(id));
+      session?.removeItem(tokenFallbackKey(id));
+    }
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Tab-scoped leftover token so a refresh can fall back if the cabinet is stuck. Dropped when the tab closes. */
+export const tokenFallbackKey = (caseId: string) => `whodunit:token:${canonicalCaseId(caseId)}`;
+
+export function writeTokenFallback(caseId: string, token: string, session: Store | null = store()): void {
+  try {
+    session?.setItem(tokenFallbackKey(caseId), token);
+  } catch {
+    /* ignore */
+  }
+}
+
+export function readTokenFallback(caseId: string, session: Store | null = store()): string | undefined {
+  try {
+    for (const id of caseIdAliases(caseId)) {
+      const t = session?.getItem(tokenFallbackKey(id));
+      if (t) return t;
+    }
+  } catch {
+    /* ignore */
+  }
+  return undefined;
+}
+
+export function clearTokenFallback(caseId: string, session: Store | null = store()): void {
+  try {
+    for (const id of caseIdAliases(caseId)) session?.removeItem(tokenFallbackKey(id));
   } catch {
     /* ignore */
   }
