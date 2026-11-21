@@ -7,11 +7,13 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { cabinetAhead, resumeNotice, swappedSnapshot, withNotice } from "@/components/game/cabinet-notice";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
+import { handleAccuse } from "@/engine/accuse-handler";
+import { createInitialGameState } from "@/engine/game-state";
 import { handleHint } from "@/engine/hint-handler";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { handleResume } from "@/engine/resume-handler";
 import { OFFLINE_RESUME_NOTICE, STALE_TOKEN_NOTICE } from "@/engine/session";
-import { decodeStateToken, encodeStateToken, peekStateTokenOffline } from "@/engine/state-token";
+import { decodeStateToken, encodeStateToken, newGameId, peekStateTokenOffline } from "@/engine/state-token";
 import { memoryClosedGames } from "@/lib/closed-games";
 import { resetIssuedHighWater, runWithSaveContext } from "@/lib/save-context";
 import { commitSavedAction, syncIncomingToken } from "@/lib/saved-session";
@@ -125,4 +127,56 @@ describe("client helpers", () => {
     expect(withNotice("n", "")).toBe("n");
     expect(withNotice("n", "line")).toBe("n line");
   });
+});
+
+describe("a stale or swapped accusation graded straight away carries the notice to the ending", () => {
+  /** Gate open: every clue, every secret, everyone questioned. */
+  const readyGame = (version: number) => {
+    const g = createInitialGameState(blackwood);
+    g.gameId = newGameId();
+    g.saveVersion = version;
+    g.discoveredEvidenceIds.push(...blackwood.evidence.map((e) => e.id));
+    for (const ch of blackwood.characters) {
+      g.characters[ch.id]!.interrogationCount = 5;
+      for (const sec of ch.secrets) {
+        g.characters[ch.id]!.revealedSecretIds.push(sec.id);
+        g.revealedSecretIds.push(sec.id);
+      }
+    }
+    return g;
+  };
+  const sol = () => blackwood.solution;
+  const accusation = () => ({
+    murdererId: sol().murdererId,
+    weaponId: sol().weaponId,
+    motiveId: sol().motiveId,
+    keyEvidenceIds: sol().keyEvidenceIds.slice(0, sol().minKeyEvidence ?? 1),
+    ...((sol().minKeyTestimony ?? 0) > 0 ? { keyTestimonyIds: sol().keyTestimonyIds!.slice(0, sol().minKeyTestimony) } : {}),
+  });
+
+  for (const kind of ["stale", "offline"] as const) {
+    it(`${kind} tab: graded on the stored save, and the accuse body carries STALE_TOKEN_NOTICE with the verdict`, async () => {
+      resetIssuedHighWater();
+      const repo = memorySavedGames();
+      const stored = readyGame(4);
+      const storedToken = encodeStateToken(stored, TEST_ENV);
+      await repo.upsertSave({ gameId: stored.gameId!, caseId: "blackwood", stateToken: storedToken, version: 4 });
+      // The tab's own notes: behind the row (stale) or jotted offline with a pumped version.
+      const mine = createInitialGameState(blackwood);
+      Object.assign(mine, { gameId: stored.gameId, saveVersion: kind === "stale" ? 2 : 9, ...(kind === "offline" ? { offline: true } : {}) });
+      const json = { caseId: "blackwood", accusation: accusation(), stateToken: encodeStateToken(mine, TEST_ENV) };
+      const synced = await syncIncomingToken(json, blackwood, TEST_ENV, repo);
+      expect(synced.swapped).toBe(true);
+      const { status, body } = await runWithSaveContext(synced.cabinetOffline, () =>
+        handleAccuse(synced.json, { caseData: blackwood, env: TEST_ENV, closed: memoryClosedGames() }),
+      );
+      const c = await commitSavedAction(status, body, synced, blackwood, TEST_ENV);
+      expect(c.kind).toBe("ok");
+      expect(status).toBe(200);
+      // Graded straight away (the client goes to the ending) and the notice rides along for the ending screen.
+      expect(body.outcome).toBe("won");
+      expect(body.ending).toBeDefined();
+      expect(body.notice).toBe(STALE_TOKEN_NOTICE);
+    });
+  }
 });

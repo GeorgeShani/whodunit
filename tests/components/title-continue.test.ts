@@ -7,6 +7,7 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { TitleScreen } from "@/components/game/TitleScreen";
+import { STALE_TOKEN_NOTICE } from "@/engine/session";
 
 vi.mock("@/components/effects/audio", () => ({
   getAudio: () => ({ unlock: () => {}, play: () => {}, isUnlocked: () => true }),
@@ -56,7 +57,7 @@ describe("title Continue / New game", () => {
 });
 
 describe("#96 Continue shows the resume notice in character", () => {
-  const NOTICE = "These notes were already turned ahead, detective. I've put the latest pages back in your hand.";
+  const NOTICE = STALE_TOKEN_NOTICE;
   it("shows the notice by Continue, as a polite status line", () => {
     act(() => root.render(h(TitleScreen, { tagline: "A dark and stormy night.", onStart: () => {}, hasSave: true, onContinue: () => {}, onNewGame: () => {}, resumeNotice: NOTICE })));
     const n = q("[data-resume-notice]");

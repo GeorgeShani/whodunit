@@ -20,7 +20,7 @@ export const COLD_CASE_NOTICE =
 
 /** Narrator line when the client's token is behind the saved version (#40): we put the latest pages back in their hand. */
 export const STALE_TOKEN_NOTICE =
-  "These notes were already turned ahead, detective. I've put the latest pages back in your hand.";
+  "A few of your latest moves didn't make it into the case file, Detective. I've put it back to the last pages I could trust.";
 
 /**
  * An offline-lineage leftover reconnecting is sent back to the cabinet row (#94): it gets the same in-character stale
