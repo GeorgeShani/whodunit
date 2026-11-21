@@ -1,5 +1,5 @@
 /**
- * Exhaustive searches for the Tallyho draft (cases/_tallyho), where the engine's generic searches (fastestPath,
+ * Exhaustive searches for the Tallyho draft (cases/tallyho), where the engine's generic searches (fastestPath,
  * accuseOpenWithoutWin) run out of budget at six suspects. Same rules as engine/progression-validation.ts (a search
  * yields every clue unlocked before it; showing the right clue cracks one secret and is an exchange with its owner;
  * confrontations never shorten anything here, since no Tallyho secret has a testimony condition), with one reduction:

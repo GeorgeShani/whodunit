@@ -59,6 +59,10 @@ cases/<caseId>/
   "intro": "Para one.\n\nPara two.",     // intro screen
   "dayStartsAt": "12:00",               // optional
   "knowledgeGate": "proximity",         // optional: "proximity" (default) | "explicit"; see "Knowledge gate" below
+  "copy": {                             // optional: case-level error lines
+    "unknownSuspect": "…"                //   accuse form, when the named person is not on the roster (max 300)
+  },                                     //   omitted: engine default (Blackwood hat-stand wording). unknown_case is a single
+                                         //   neutral line for every case and is not set here.
   "systemLines": {                      // optional (E10): the case's own wording for engine system lines
     "caseClosed": "…",                   //   a suspect addressed after the accusation (interrogate, confront, hint)
     "caseClosedSearch": "…",             //   a search after the accusation
@@ -221,14 +225,15 @@ Patterns are regex sources (case-insensitive, at most 600 characters, no nested 
   "confidence": 0.8,                    // optional 0–1, default 1
   "hiddenUntil": {                      // optional explicit hiding (see "Knowledge gate")
     "secretIds": ["s-archibald-false-alibi"],   // any character's secret ids…
-    "lieIds": ["l-archibald-together"]          // …and/or any character's lie ids (need to be unique case-wide)
+    "lieIds": ["l-archibald-together"],         // …and/or any character's lie ids (need to be unique case-wide)
+    "evidenceIds": ["heel-chart"]               // …and/or evidence ids: unlocks when any listed clue is found or shown
   }
 }
 ```
 
 **Time ranges.** A ranged fact is tagged `[21:13-21:30, The Hall]` in the prompt, and for the canon check any minute inside the range counts as a time the character knows. Timeline entries have always accepted `from`/`to`; plain facts now can too.
 
-**`hiddenUntil`.** The fact is withheld from everyone who knows it until ANY listed secret is unlocked *for that character* (they confessed it themselves, or the detective confronted them with it as testimony) or ANY listed lie is broken for its owner. A fact with `hiddenUntil` follows only this rule: the automatic links and the proximity heuristic skip it. At least one id is required.
+**`hiddenUntil`.** The fact is withheld from everyone who knows it until ANY listed secret is unlocked *for that character* (they confessed it themselves, or the detective confronted them with it as testimony), ANY listed lie is broken for its owner, or ANY listed evidence is found or shown in this game (the same "found or shown" rule as `guard.gatedTopics`). A fact with `hiddenUntil` follows only this rule: the automatic links and the proximity heuristic skip it. At least one of `secretIds`, `lieIds`, or `evidenceIds` is required. Existing facts may omit `evidenceIds`.
 
 ```jsonc
 // Archibald only "remembers" the phone call once he has admitted the false alibi, or his story has cracked.
@@ -303,6 +308,9 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
   "pronoun": "he",                                     // optional (E8): "she" | "he" | "they"; others' subject pronoun for this
                                                        //   character (guard over-claim check). Absent: guessed from titles in
                                                        //   name/aliases (Lady/Mrs/Miss/her ladyship: she; Lord/Mr/Sir: he)
+  "pronouns": { "subject": "he", "object": "him", "possessive": "his" },
+                                                       // optional (#103): system-line pronouns (model-down fallback).
+                                                       //   Absent: derived from `pronoun`, else they/them/their.
   "personality": {
     "traits": ["proper"], "speechStyle": "…",          // descriptive (traits ≥ 1)
     "catchphrases": [], "quirks": [], "tells": [],     // optional
@@ -434,13 +442,19 @@ With `breakMode: "any"` one condition is enough; with `"all"` every listed one m
 
 While a secret is locked or a lie unbroken, the character's context withholds the truth behind it (`engine/knowledge-gate.ts`), in three layers:
 
-1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower or a listed lie is broken. Nothing else applies to that fact.
+1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower, a listed lie is broken, or listed evidence is found or shown. Nothing else applies to that fact.
 2. **Direct links** (both modes): an unbroken lie's `aboutFactId` and a locked own secret's `relatedFactIds`.
 **Guilt-check name tokens (C3).** The guilt check matches every name in full and, for multi-word names (victim name and aliases, location names, a witness's first name), each word of 4+ letters alone too, except ordinary English words in the generic stoplist (`engine/name-tokens.ts`: "king", "deck", "brine", "marmalade", "room", "captain", ...). The weapon's head noun always counts. `guiltCheck.ignoreNameTokens` drops more words, `keepNameTokens` restores a stoplisted one; `validate:case` errors on a word in both lists and warns about a word that is no word of any multi-word name.
 
 3. **Proximity heuristic** (`"knowledgeGate": "proximity"`, the default): the character's own time-bound facts that fall within a padded window around a protected time are withheld too. `"knowledgeGate": "explicit"` turns this off, so only layers 1 and 2 apply.
 
 ## solution.json (server-only)
+
+A committed `cases/<id>/solution.json` is the usual source (Blackwood). If the file is absent, the server
+reads `CASE_SOLUTION_<ID>` (e.g. `CASE_SOLUTION_TALLYHO`): base64 of the same JSON, Zod-validated, never
+`NEXT_PUBLIC_`. Missing or invalid: the case still loads, accusations fail closed in character, and no
+technical text is returned. `validate:case --strict` still requires a valid solution (local file or env).
+
 
 ```jsonc
 {
@@ -551,7 +565,7 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
    - locations used by the victim, facts, timeline and evidence;
    - people (characters or the victim) used by `involvesCharacterIds`, `relatedCharacters` and `targetCharacterId`;
    - facts used by `knownFactIds`, beliefs, secrets, lies and evidence;
-   - evidence used by reveal conditions, `brokenByEvidenceIds` and `keyEvidenceIds`;
+   - evidence used by reveal conditions, `brokenByEvidenceIds`, `keyEvidenceIds` and `hiddenUntil.evidenceIds`;
    - own secrets used by `afterSecretIds`;
    - any character's secrets used by `breaksOnSecretIds` and `hiddenUntil.secretIds`; facts used by `breaksOnFactIds`;
    - lies used by `hiddenUntil.lieIds` (must exist and be unique across characters);
@@ -576,8 +590,12 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
 - `howToPlayTips` that repeat each other or mention the culprit's name, the weapon or the true motive;
 - `confrontation.perPair` greater than `confrontation.total` (or than the default 12 when `total` is omitted): the engine clamps it to the total.
 
+**Display order (`characterOrder`).** Optional and public in `case.json`: `"characterOrder": ["gherkina", "bilge", …]` is the order of the suspect cards and the accuse grid. Omitted: characters load in alphabetical file-name order. When present it must list every character id exactly once.
+
 **Case unlock (`unlockedBy`; phase 10).** Optional and public in `case.json`: `"unlockedBy": ["blackwood"]` keeps the case sealed until this browser has solved (won) every listed case. Omitted: open to everyone (the first case, which `/` always serves). The solved store is client-side (`localStorage` `whodunit:solved`, `lib/solved-store.ts`), set only by a server-graded win; it is pacing, not security, and the API does not enforce it. A sealed case's page shows a teaser (title, tagline, "Play <required case>") instead of the game; a win shows "NEXT CASE: <title>" for each public case it opens, and the title screen shows "Next case" once open. `validate:case` (V31): every id is a case folder in the cases dir, never the case itself, no cycles, and at least one case has no `unlockedBy`.
 
 **Feature modules (`features`, `featureConfig`; phase 6).** Optional in `case.json`: `"features": ["time-misdirection", "ship-list"]` opts the case into registered modules (`engine/features/registry.ts`), each with its config under `"featureConfig": { "<name>": {...} }`. An unknown or duplicate name, a declared feature without config, config for an undeclared feature, or config that fails the module's schema is a load error. `featureConfig` is server-only; the client gets only each module's public slice (no solution ids, V18).
 - `time-misdirection`: `{ stagedClaims: [{ time, kind: "death" | "alive", factIds?, evidenceIds? }], appearanceWords: [...] }` in case.json, plus `solution.json` `"featureProof": { "time-misdirection": { "provedBy": [<key evidence>] } }` (required; server-only, validated there; a `provedBy` in case.json is an error, so no key-evidence id is committed in case data). A `featureProof` entry for an undeclared feature, or one that takes no proof, is an error. Staged times must sit outside the opportunity window and a `provedBy` clue must point at a fact holding the murder minute; the alibi shape is a warning. In play, a sentence with a staged time, a death/alive assertion and no appearance word is rejected (`staged_time`) unless the speaker's own maintained story says it.
 - `ship-list`: `{ history: [{ from, list: "port" | "starboard" | "level", degrees }], flipShownBy: <clue>, diagrams?: [{ evidenceId, frames: [{ label, image: "/assets/..." } x2] }], locationTilt?: { <locationId>: { asFound } } }`. The history is sorted, the list changes after the murder (and before a staged death time when `time-misdirection` is declared), and each diagram clue `requires` the `flipShownBy` clue. A found diagram clue shows its two labelled frames in the notebook; tilted rooms show a static tilt on Investigate.
+
+**Output guard (`guard`; server-only).** Optional in `case.json`. Omitted or empty: the existing output contract is unchanged. Schema and checks live in `engine/output-guard.ts` (Zod `CaseGuardSchema`). The block never reaches the public case view. `guard.aliveUntil` rejects a line that places the victim alive or interacting after a cutoff (clock times in any wording, after-phrases, or at-or-after anchor events), except appearance-framed times (watch, horn, and similar) and a line that matches the speaker's current beliefs or knowledge. `guard.gatedTopics` rejects listed terms or patterns until `unlockedBy` evidence is found or shown in this game. An optional `concept: { instruments, measures, window }` also fires when an instrument noun is within `window` words of a measure word (backward compatible: omitted `concept` leaves terms/patterns-only topics unchanged). Within one reply, naming the victim or an after-cutoff anchor carries the victim referent and the after-anchor state to the next two sentences (`he` / `him` / `his` / configured aliases). Field-by-field shape: see the engine types; case authors fill the values in the case files.

@@ -13,9 +13,9 @@ describe("SEO routes", () => {
     expect(r.sitemap).toBe(`${DEFAULT_SITE_URL}/sitemap.xml`);
   });
 
-  it("sitemap lists only the root URL", () => {
+  it("sitemap lists the root URL and every non-default public case", () => {
     const s = sitemap();
-    expect(s.map((e) => e.url)).toEqual([DEFAULT_SITE_URL]);
+    expect(s.map((e) => e.url)).toEqual([DEFAULT_SITE_URL, `${DEFAULT_SITE_URL}/case/tallyho`]);
   });
 
   it("manifest is a standalone app starting at /", () => {

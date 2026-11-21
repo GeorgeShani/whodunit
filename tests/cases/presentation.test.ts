@@ -191,7 +191,7 @@ describe("per-case audio (Q14): rooms and the case folder", () => {
   });
 
   it("the build-time list: Tallyho's stems with both files; a missing folder is []", () => {
-    expect(caseAudioFiles("_tallyho")).toEqual(["bed_engine_room", "bed_ship_deck", "bed_ship_interior", "case_open", "door_creak", "door_slam"]);
+    expect(caseAudioFiles("tallyho")).toEqual(["bed_engine_room", "bed_ship_deck", "bed_ship_interior", "case_open", "door_creak", "door_slam"]);
     expect(caseAudioFiles("blackwood")).toEqual([]);
     expect(caseAudioFiles("../etc")).toEqual([]);
   });
@@ -199,7 +199,7 @@ describe("per-case audio (Q14): rooms and the case folder", () => {
   it("Toon's Tallyho audio block (TALLYHO_SOUND.md) validates against the real files", () => {
     // Tallyho's room ids (its solution.json is not committed, so the case itself isn't loaded here).
     const ids = ["cabin-deck", "ballroom", "bridge", "galley", "engine-room", "boat-deck"];
-    const t = { ...hl, id: "_tallyho", locations: ids.map((id) => ({ ...hl.locations[0]!, id })) } as LoadedCase;
+    const t = { ...hl, id: "tallyho", locations: ids.map((id) => ({ ...hl.locations[0]!, id })) } as LoadedCase;
     const rooms = Object.fromEntries(t.locations.map((l) => [l.id, l.id === "engine-room" ? "bed_engine_room" : l.id === "boat-deck" ? "bed_ship_deck" : "bed_ship_interior"]));
     const c = { ...t, audio: CaseAudioSchema.parse({ beds: { intro: "bed_ship_interior" }, rooms }) } as LoadedCase;
     expect(checkPresentationAssets(c, { exists: (p) => assetExists(p), cueNames: Object.keys(CUES) })).toEqual([]);

@@ -9,7 +9,8 @@
  *                  the engine still has it MAINTAIN, or more than one new secret.
  *  3. canon time : every clock time must come from the character's context (ai/canon-check.ts).
  *  4. order      : relative timings fit the real order of events (ai/order-check.ts); 4b. the case's feature-module
- *                  canon checks (engine/features, e.g. a staged time stated as fact).
+ *                  canon checks (engine/features, e.g. a staged time stated as fact);
+ *                  4c. optional case-data `guard` (alive-after-cutoff, gated topics).
  *  5. names      : no titled or "poor X"-style person name that is not in the prompt or the player's words.
  *  6. confrontation hygiene, breakdown outburst, period vocabulary (performance rules).
  *
@@ -26,6 +27,7 @@ import { isOutburst, outburstRuleText } from "@/engine/stress";
 import { checkTimes, findModernWord, type CanonTimes } from "./canon-check";
 import { checkOrder } from "./order-check";
 import { featureCanonCheck } from "@/engine/features/registry";
+import { checkOutputGuard } from "@/engine/output-guard";
 import { caseWorld } from "./world";
 import { findGuiltLeak, findReplyGuiltLeakAny, guiltRetryNote, speakerNamesOf } from "./guilt-check";
 import { addressesWrongPerson, repeatsEarlier } from "./confront-check";
@@ -46,6 +48,8 @@ export type GuardReason =
   | "event_order"
   | "event_time"
   | "staged_time"
+  | "alive_after"
+  | "gated_topic"
   | "unknown_name"
   | "repeat"
   | "wrong_addressee"
@@ -85,7 +89,7 @@ export interface GuardReply {
 
 export interface GuardInput {
   caseData: Pick<LoadedCase, "characters" | "victim"> &
-    Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution" | "setting" | "orderLandmarks" | "orderWords" | "features" | "featureConfig">>;
+    Partial<Pick<LoadedCase, "facts" | "timeline" | "dayStartsAt" | "solution" | "setting" | "orderLandmarks" | "orderWords" | "features" | "featureConfig" | "guard" | "evidence">>;
   characterId: string;
   ctx: CharacterContext;
   directives: TurnDirectives;
@@ -100,6 +104,8 @@ export interface GuardInput {
   confrontation?: ConfrontDirective;
   /** E12/E13: every secret revealed so far in the game (any character's, core guilt never), for forbidden-phrase switches. */
   revealedAnyIds?: readonly string[];
+  /** Evidence found in this game (signed state). Used by `guard.gatedTopics`. Shown/presented ids are also treated as found. */
+  foundEvidenceIds?: readonly string[];
 }
 
 export interface GuardVerdict {
@@ -268,6 +274,16 @@ function checkReplyRules(r: GuardReply, g: GuardInput): GuardVerdict | null {
     const maintainedStories = g.ctx.intendedLies.filter((l) => l.status === "maintain").map((l) => l.claim);
     const hit = featureCanonCheck(g.caseData as LoadedCase, { said, characterId: g.characterId, maintainedStories });
     if (hit) return { reason: "staged_time", note: hit.note, detail: hit.detail };
+  }
+  // 4c. Case-data output guard (`guard.aliveUntil`, `guard.gatedTopics`). Omitted data: no-op.
+  {
+    const found = [
+      ...(g.foundEvidenceIds ?? []),
+      ...g.ctx.evidenceShown.map((e) => e.id),
+      ...(g.directives.presentedEvidence ? [g.directives.presentedEvidence.id] : []),
+    ];
+    const hit = checkOutputGuard(said, g.caseData, g.ctx, found);
+    if (hit) return { reason: hit.reason, note: hit.note, detail: hit.detail };
   }
   // 5. Names: nobody the character was never told about.
   const name = findUnknownName(said, `${g.promptText}\n${g.heard}`);

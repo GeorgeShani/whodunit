@@ -15,6 +15,17 @@ Before the model is called, `/api/interrogate` and `/api/confront` pass the cost
 
 Invalid values fall back to the defaults. Changing an env var on Vercel takes effect on the next deployment.
 
+
+## Case solutions on the server
+
+Blackwood's `cases/blackwood/solution.json` is committed. Tallyho's solution is **not**: it is gitignored
+and must be supplied as the server-only env var `CASE_SOLUTION_TALLYHO` (base64 of the JSON). Never use a
+`NEXT_PUBLIC_` prefix. The loader reads the file first if present (local authoring), then this env var.
+If it is missing or invalid, the case still loads and accusations fail closed in character (HTTP 503,
+`accusation_unavailable`) with no technical text and no crash. Set the var on Preview and Production, then
+redeploy so the preview build sees it.
+
+
 How it counts:
 - A turn is reserved **before** the model call, so a parallel burst is counted. A refused request spends nothing.
 - A turn the model never actually saw (the circuit breaker in `ai/grok.ts` answered, or the key is missing) is given back, so an exhausted account cannot lock players out.

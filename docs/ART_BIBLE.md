@@ -480,7 +480,7 @@ Five icons (4 Blackwood clues + fallback) drawn as SVG in code (`toon-drafts/too
 
 Case two is a 1936 private steam yacht in a thunderstorm at sea. Same cartoon rules as Blackwood (§1–§3): the character style and avoid blocks are reused **verbatim**; only the backgrounds get a sea palette (night navy, slate teal, mahogany, tarnished brass) instead of the manor's plum and bottle green. Blackwood's assets and default theme are untouched.
 
-Case id is `_tallyho` while it is a draft, so every file lives in `assets/cases/_tallyho/` (the theme validator requires theme art in the case's own folder). If the folder is renamed on publish, the paths move with it.
+Case id is `tallyho` while it is a draft, so every file lives in `assets/cases/tallyho/` (the theme validator requires theme art in the case's own folder). If the folder is renamed on publish, the paths move with it.
 
 ### 10.1 Theme (Q7) and contrast
 
@@ -489,8 +489,8 @@ Case id is `_tallyho` while it is a draft, so every file lives in `assets/cases/
 ```json
 "theme": {
   "palette": { "backdrop": "#0c1a2e", "paper": "#f6ecd2", "ink": "#16120e", "accent": "#f2a93b" },
-  "logo": "/assets/cases/_tallyho/logo.webp",
-  "titleArt": "/assets/cases/_tallyho/title.webp"
+  "logo": "/assets/cases/tallyho/logo.webp",
+  "titleArt": "/assets/cases/tallyho/title.webp"
 }
 ```
 
@@ -528,7 +528,7 @@ Negative: §7's locked background negative, unchanged (the engine room drops "fa
 
 ### 10.4 Backgrounds
 
-`assets/cases/_tallyho/backgrounds/<locationId>.webp`, 1920×1080 q80, graded with §7's gameplay `grade()`. They follow the §7 sprite placement rule (feet at 74% of frame height). Wire them with each location's `background` field (the conventional `assets/backgrounds/<id>.webp` fallback is Blackwood's flat namespace, so it is not used).
+`assets/cases/tallyho/backgrounds/<locationId>.webp`, 1920×1080 q80, graded with §7's gameplay `grade()`. They follow the §7 sprite placement rule (feet at 74% of frame height). Wire them with each location's `background` field (the conventional `assets/backgrounds/<id>.webp` fallback is Blackwood's flat namespace, so it is not used).
 
 | Location id | Size | Contents |
 |---|---|---|
@@ -543,9 +543,9 @@ Not made yet (lean pass): the stateroom variants, `_lightning` frames and window
 
 ### 10.5 Characters (neutral only in v0.1)
 
-`assets/cases/_tallyho/characters/<id>/neutral.webp`, the §8 sprite spec unchanged: 784×1224 RGBA, feet on y=1200, feet centre x=392, facing left, one uniform scale per character (heights against Reginald below). Lossy WebP q86, alpha q90. Prompt: §2 style + description + pose + facing line + §3 avoid list. Dame Gherkina wears green, so she is generated on a **pure magenta (#FF00FF)** key: the style line swaps green for magenta and the avoid list swaps "green clothing" for "magenta, pink or purple clothing". The other five use the green key.
+`assets/cases/tallyho/characters/<id>/neutral.webp`, the §8 sprite spec unchanged: 784×1224 RGBA, feet on y=1200, feet centre x=392, facing left, one uniform scale per character (heights against Reginald below). Lossy WebP q86, alpha q90. Prompt: §2 style + description + pose + facing line + §3 avoid list. Dame Gherkina wears green, so she is generated on a **pure magenta (#FF00FF)** key: the style line swaps green for magenta and the avoid list swaps "green clothing" for "magenta, pink or purple clothing". The other five use the green key.
 
-Anchors: `assets/cases/_tallyho/characters/anchors.json`, the same shape as `assets/characters/anchors.json` (same `canvas`, `facing`, `units`, `fields`; per pose `headCenter`, `headTop`, `faceFront`, `headBack`, `bodyCenter`, `bodyBack`, `feet`, `bboxTop`). Neutral entries for all six, measured from alpha with the Blackwood method (largest skin blob in the top 42% of the figure; Percy skips the top 17% so the plume and hat brim are not taken for her face). Hats count as the head top, as with Gregory's cap. Overlay check: `docs/art/tallyho_anchors.jpg`; script `toon-drafts/tallyho/anchors.py`. Not yet in `assets/effects/effects.json` `effectScale` (defaults to 1).
+Anchors: `assets/cases/tallyho/characters/anchors.json`, the same shape as `assets/characters/anchors.json` (same `canvas`, `facing`, `units`, `fields`; per pose `headCenter`, `headTop`, `faceFront`, `headBack`, `bodyCenter`, `bodyBack`, `feet`, `bboxTop`). Neutral entries for all six, measured from alpha with the Blackwood method (largest skin blob in the top 42% of the figure; Percy skips the top 17% so the plume and hat brim are not taken for her face). Hats count as the head top, as with Gregory's cap. Overlay check: `docs/art/tallyho_anchors.jpg`; script `toon-drafts/tallyho/anchors.py`. Not yet in `assets/effects/effects.json` `effectScale` (defaults to 1).
 
 The other six poses (talking, angry, nervous, shocked, smug, sad) and their anchor entries come next, as image edits from these neutrals (§ Prompt assembly). The engine loads sprites from `assets/characters/<portrait>/` today, so these need either a per-case sprite path or a move there before they show in game.
 
@@ -608,7 +608,7 @@ Chef Boris Buttercrumb, an original cartoon ship's chef: a huge, very tall and v
 
 ### 10.6 Ship-list diagram frames
 
-For the `ship-list` module (#72): `assets/cases/_tallyho/ship-list-<evidenceId>-before.webp` and `-after.webp`, 1200×900 (4:3), opaque warm chart paper, no baked text, vital content inside a 7% margin, q88 (about 36 KB each). One diagram clue: `marmalade-run`. Both frames are the same top-down plan of the stateroom as found (bow up, so port is left with a red lamp and starboard is right with a green lamp; door aft). Only the cues change: a stern-view heel gauge with a downhill arrow leans one way per frame, and the marks that the downhill direction explains are drawn at full strength while the rest are dimmed. Labels come from data. Code-drawn: `toon-drafts/tallyho/shiplist.py`.
+For the `ship-list` module (#72): `assets/cases/tallyho/ship-list-<evidenceId>-before.webp` and `-after.webp`, 1200×900 (4:3), opaque warm chart paper, no baked text, vital content inside a 7% margin, q88 (about 36 KB each). One diagram clue: `marmalade-run`. Both frames are the same top-down plan of the stateroom as found (bow up, so port is left with a red lamp and starboard is right with a green lamp; door aft). Only the cues change: a stern-view heel gauge with a downhill arrow leans one way per frame, and the marks that the downhill direction explains are drawn at full strength while the rest are dimmed. Labels come from data. Code-drawn: `toon-drafts/tallyho/shiplist.py`.
 
 v0.1.1 (after frame only): the watch's smear now starts at the marmalade pool by the starboard wall and runs along the aft carpet, below the body, to the watch in the port corner (it used to start at the body's hip). Everything else, and the whole before frame, is unchanged.
 

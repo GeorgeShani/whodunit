@@ -8,7 +8,7 @@
  */
 import { clueFeatures, publicFeatures } from "./features/registry";
 import { publicSetting, type CaseAudio, type PublicSetting, type Theme } from "./presentation";
-import type { CaseBackdrops, LoadedCase, MotiveOption, Victim } from "./case-schema";
+import type { CaseBackdrops, LoadedCase, MotiveOption, PlayableCase, Victim } from "./case-schema";
 import { createInitialGameState } from "./game-state";
 import { publicProgress, type PublicProgress } from "./progress";
 import type { EmotionalState, Evidence, Location, PublicLocation } from "./types";
@@ -89,7 +89,7 @@ export interface PublicCaseView {
   features?: Record<string, unknown>;
 }
 
-export function initialDiscoveredEvidenceIds(c: LoadedCase): string[] {
+export function initialDiscoveredEvidenceIds(c: PlayableCase): string[] {
   return c.evidence.filter((e) => e.initiallyAvailable).map((e) => e.id);
 }
 
@@ -105,7 +105,7 @@ export function toPublicEvidence(e: Evidence, features?: Record<string, unknown>
 }
 
 export function getPublicCaseView(
-  c: LoadedCase,
+  c: PlayableCase,
   options: {
     discoveredEvidenceIds?: readonly string[];
     portraitPoses?: Record<string, string[]>;

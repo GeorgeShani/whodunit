@@ -13,6 +13,7 @@
 import { z } from "zod";
 import { MAX_CASE_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 import { EndingsSchema } from "./endings";
+import { CaseGuardSchema } from "./output-guard";
 import { CaseAudioSchema, OrderLandmarkSchema, OrderWordsSchema, SettingSchema, ThemeSchema } from "./presentation";
 import { CaseSolutionSchema } from "./solution";
 import { DEFAULT_DAY_STARTS_AT } from "./time";
@@ -117,6 +118,16 @@ export const CaseEnvelopeSchema = z.strictObject({
     })
     .optional(),
   /**
+   * Optional case-level error copy. `unknownSuspect` is the accuse-form line when the named person is not in the
+   * roster. Omitted: the engine default (the original hat-stand wording; see engine/error-copy.ts). `unknown_case`
+   * is a single neutral line for every case and is not overridable here.
+   */
+  copy: z
+    .strictObject({
+      unknownSuspect: z.string().trim().min(1).max(300).optional(),
+    })
+    .optional(),
+  /**
    * E10 (optional): the case's own wording for engine system lines, so they can match its canon (who is in charge,
    * whether anyone can reach the house). Each falls back to a neutral engine default (engine/session.ts SYSTEM_LINES).
    */
@@ -178,10 +189,21 @@ export const CaseEnvelopeSchema = z.strictObject({
    * Omitted: open to everyone (the first case). The unlock is client-side pacing, not security (lib/solved-store.ts).
    */
   unlockedBy: z.array(IdSchema).min(1).max(8).optional(),
+  /**
+   * Optional PUBLIC display order of character ids (suspect cards and the accuse grid).
+   * Omitted: characters load in alphabetical file-name order. When present it must list every
+   * character id exactly once (checked at load).
+   */
+  characterOrder: z.array(IdSchema).min(2).optional(),
   /** Phase 6 (4.1): the feature modules this case opts into (engine/features/registry.ts). Omitted: none. */
   features: z.array(z.string().regex(/^[a-z][a-z0-9-]*$/)).max(8).optional(),
   /** Phase 6: SERVER-ONLY config per declared feature, parsed by that module's configSchema (load errors otherwise). */
   featureConfig: z.record(z.string(), z.unknown()).optional(),
+  /**
+   * SERVER-ONLY output-guard data (`engine/output-guard.ts`). Omitted: existing guard behaviour is unchanged.
+   * `aliveUntil` blocks placing the victim alive after a cutoff; `gatedTopics` hide terms until a clue is found.
+   */
+  guard: CaseGuardSchema.optional(),
 });
 export type CaseEnvelope = z.infer<typeof CaseEnvelopeSchema>;
 
@@ -201,5 +223,15 @@ export const LoadedCaseSchema = CaseEnvelopeSchema.extend({
   endings: EndingsSchema.optional(),
 });
 export type LoadedCase = z.infer<typeof LoadedCaseSchema>;
+/** A loaded case whose solution is present and valid. */
+export type SolvedCase = LoadedCase;
+/**
+ * Playable case data used by pages and APIs. `solution` is missing when the file and
+ * CASE_SOLUTION_<ID> are both absent or invalid; accusations must then fail closed.
+ */
+export type PlayableCase = Omit<LoadedCase, "solution"> & { solution?: LoadedCase["solution"] };
+export function hasSolution(c: PlayableCase): c is SolvedCase {
+  return c.solution !== undefined;
+}
 
 export { CaseIdSchema };

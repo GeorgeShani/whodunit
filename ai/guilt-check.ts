@@ -37,7 +37,7 @@ const BLOCK = String.raw`you|he|she|they|we|it|someone|somebody|anyone|who|that|
 /** Between the "I" and the verb: at most a few words, none of them a negation, a modal or another subject. */
 const gap = (words: number) => String.raw`(?:[\s,]+(?!(?:${NEG}|${BLOCK})\b)[\w'’-]+){0,${words}}?[\s,]+`;
 
-const KILL = String.raw`(?:kill(?:ed)?|murder(?:ed)?|struck|strike|hit|bludgeon(?:ed)?|club(?:bed)?|bash(?:ed)?|cosh(?:ed)?|brain(?:ed)?|smash(?:ed)?|clobber(?:ed)?|whack(?:ed)?|walloped|crowned|did\s+away\s+with|did\s+for|done\s+for|did\s+(?:him|her)\s+in|finished\s+(?:him|her)\s+off|silenced)(?!\s+(?:a\s+|the\s+)?(?:match|light|bargain|deal|note|chord|pose|nerve|snag|wall|roof|ceiling))`;
+const KILL = String.raw`(?:kill(?:ed)?|murder(?:ed)?|struck|strike|hit|bludgeon(?:ed)?|club(?:bed)?|bash(?:ed)?|cosh(?:ed)?|brain(?:ed)?|smash(?:ed)?|clobber(?:ed)?|whack(?:ed)?|walloped|crowned|bonk(?:ed|ing)?|did\s+away\s+with|did\s+for|done\s+for|did\s+(?:him|her)\s+in|finished\s+(?:him|her)\s+off|silenced)(?!\s+(?:a\s+|the\s+)?(?:match|light|bargain|deal|note|chord|pose|nerve|snag|wall|roof|ceiling))`;
 /** R10: killing phrases that carry their own object ("did him in", "finished him", "caved his head in"). */
 const KILL_SELF = String.raw`d(?:id|one)\s+(?:him|her|['’]im|['’]er)\s+in\b|finished\s+(?:him|her|['’]im|['’]er)(?:\s+off)?(?=\s*(?:[,.;!—–]|$|\s+with\b|\s+off\b))|cav(?:ed|e)\s+(?:his|her|['’]is)\s+(?:head|skull)\s+in\b|did\s+for\s+(?:him|her|['’]im)\b|did\s+away\s+with\s+(?:him|her)\b|beat\s+(?:him|her)\s+to\s+death\b|bashed\s+(?:his|her)\s+(?:head|brains)\s+in\b`;
 const WEAPON_ACT = String.raw`swung|swing|raised|lifted|brought(?:\s+down)?|picked\s+up|seized|grabbed|snatched|used(?!\s+to\b)|wiped|cleaned|wielded|carried|took|struck|hit|bashed|brained`;
@@ -152,7 +152,7 @@ export function findGuiltLeak(text: string, profile: GuiltProfile, speakerId: st
   const anchored = (s: string) => windowAnchor(s, profile);
   const whileAway = /\bwhile\b[^.!?;]{0,40}\b(?:away|gone|out|off|telephon\w*|on\s+the\s+(?:tele)?phone)\b|\b(?:after|once|when)\s+\w+(?:\s+\w+)?\s+(?:left|had\s+gone|went\s+out|went\s+off|had\s+left|stepped\s+out|was\s+called\s+away|was\s+gone)\b/i;
   // "Passive" and possessive admissions about oneself: "he was struck by me", "the deed was mine", "by my own hand".
-  const KILL_PP = String.raw`(?:killed|murdered|struck(?:\s+down)?|hit|bludgeoned|clubbed|bashed|brained|coshed|smashed|silenced|done\s+in|finished\s+off)`;
+  const KILL_PP = String.raw`(?:killed|murdered|struck(?:\s+down)?|hit|bludgeoned|clubbed|bashed|brained|coshed|smashed|silenced|bonked|done\s+in|finished\s+off)`;
   const passive = new RegExp(String.raw`\b(?:${victim}|he|she)\s+(?:was|got)\s+(?:\w+\s+){0,2}?${KILL_PP}\b[^.!?;]{0,40}?\bby\s+(?:me|my\s+(?:own\s+)?hands?)\b`, "i");
   const mine = /\b(?:the|that)\s+(?:deed|blow|crime|murder|killing|guilt|hand\s+that\s+\w+)\s+(?:was|is)\s+mine\b|\bmine\s+(?:was|is)\s+the\s+(?:hand|blow|deed|guilt)\b|\bguilty\s+as\s+charged\b|\bI\s+plead\s+guilty\b|\byou(?:'ve|\s+have)\s+(?:got|caught|found)\s+(?:your|the)\s+(?:murder(?:er|ess)|killer|culprit)\b/i;
   const byMyHand = /\bby\s+my\s+(?:own\s+)?hands?\b/i;

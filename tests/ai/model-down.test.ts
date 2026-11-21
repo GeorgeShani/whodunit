@@ -9,7 +9,7 @@ import {
   resetGrokBreaker,
   TRANSIENT_BREAKER_MS,
 } from "@/ai/grok";
-import { confrontDownLine, modelDownLine, stillDownLine } from "@/ai/model-down";
+import { confrontDownLine, displayNameOf, modelDownLine, pronounsOf, stillDownLine } from "@/ai/model-down";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
@@ -155,8 +155,7 @@ describe("the player's lines", () => {
       for (const kind of ["busy", "quiet"] as const) {
         const line = modelDownLine(kind, "Reginald Hargreaves", seed);
         expect(line, line).not.toMatch(FORBIDDEN_WORDS);
-        expect(line).toContain("Reginald");
-        expect(line).not.toContain("Hargreaves");
+        expect(line).toContain("Reginald Hargreaves");
       }
       expect(confrontDownLine("busy", "Archibald Crane", "Victoria Blackwood")).not.toMatch(FORBIDDEN_WORDS);
       expect(confrontDownLine("quiet", "Archibald Crane", "Victoria Blackwood")).not.toMatch(FORBIDDEN_WORDS);
@@ -164,6 +163,43 @@ describe("the player's lines", () => {
     for (const kind of ["busy", "quiet"] as const) expect(stillDownLine(kind)).not.toMatch(FORBIDDEN_WORDS);
     expect(modelDownLine("busy", "Reginald")).not.toBe(modelDownLine("quiet", "Reginald"));
     expect(modelDownLine("quiet", "Reginald")).toMatch(/search|notebook|accus/i); // points at what still works
+  });
+});
+
+describe("display name and pronouns (#103)", () => {
+  it("uses the full case-data name, not a bare title or first token", () => {
+    const line = modelDownLine("busy", "Captain Horatio Bilge", 0, pronounsOf({ pronoun: "he" }));
+    expect(line).toContain("Captain Horatio Bilge");
+    expect(line).not.toMatch(/\bCaptain falters\b/);
+    expect(line).not.toContain("bilge");
+    expect(line).toMatch(/collect his thoughts/);
+    expect(line).not.toMatch(/collect their thoughts/);
+  });
+
+  it("agrees with she/her and falls back to they/them/their when no pronoun is given", () => {
+    expect(modelDownLine("busy", "Victoria Blackwood", 0, pronounsOf({ pronoun: "she" }))).toMatch(/collect her thoughts/);
+    expect(modelDownLine("busy", "A Guest", 0, pronounsOf({}))).toMatch(/collect their thoughts/);
+    expect(pronounsOf({ pronouns: { subject: "she", object: "her", possessive: "her" } }).possessive).toBe("her");
+    expect(displayNameOf({ name: "Captain Horatio Bilge" })).toBe("Captain Horatio Bilge");
+    expect(displayNameOf({ name: "  " }, "They")).toBe("They");
+  });
+
+  it("the interrogate fallback uses the character's display name and pronoun, not a bare title", async () => {
+    const tagged = structuredClone(c);
+    const who = tagged.characters.find((ch) => ch.id === "archibald")!;
+    who.name = "Captain Horatio Bilge";
+    who.pronoun = "he";
+    failWith(() => json(429, { error: "Too many requests" }));
+    const r = await handleInterrogate(
+      { caseId: tagged.id, characterId: "archibald", question: "What happened at the horn?" },
+      { caseData: tagged, env: TEST_ENV },
+    );
+    const line = r.body.unavailable?.line ?? "";
+    expect(r.status).toBe(503);
+    expect(line).toContain("Captain Horatio Bilge");
+    expect(line).not.toMatch(/\bCaptain falters\b/);
+    expect(line).toMatch(/collect his thoughts/);
+    expect(line).not.toMatch(FORBIDDEN_WORDS);
   });
 });
 

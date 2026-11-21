@@ -24,7 +24,17 @@ const nextConfig: NextConfig = {
   // Case JSON is read from disk at request time by API routes; make sure the
   // files ship with the serverless functions on Vercel.
   outputFileTracingIncludes: {
-    "/api/**": ["./cases/**/*.json"],
+    // Explicit files only: never ship solution.json (gitignored / env-only for some cases).
+    "/api/**": [
+      "./cases/**/case.json",
+      "./cases/**/timeline.json",
+      "./cases/**/evidence.json",
+      "./cases/**/endings.json",
+      "./cases/**/characters/*.json",
+    ],
+  },
+  async redirects() {
+    return [{ source: "/case/_tallyho", destination: "/case/tallyho", permanent: true }];
   },
   env: { NEXT_PUBLIC_CLUE_ART: clueArtFiles() },
 };

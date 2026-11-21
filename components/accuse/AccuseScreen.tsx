@@ -368,7 +368,7 @@ export function AccuseScreen({
 }
 
 /** "Are you sure?" — a real modal (#25): focus trapped, Escape = "Not yet", focus returns to the button that opened it. */
-/** Phase 5: the roles in words for the confirm dialog ("Amadeo struck the blow. Horatio helped."). */
+/** Phase 5: the roles in words for the confirm dialog ("X struck the blow. Y helped."). */
 export function rolesLine(murderer: string, helper: string | null): string {
   return `${murderer} struck the blow. ${helper ? `${helper} helped.` : "No one helped."}`;
 }

@@ -67,18 +67,18 @@ describe("real assets", () => {
   });
 
   it("Tallyho: every character resolves to its case neutral.webp", () => {
-    const dir = path.join(process.cwd(), "cases", "_tallyho", "characters");
+    const dir = path.join(process.cwd(), "cases", "tallyho", "characters");
     const characters = readdirSync(dir).map((f) => ({ id: f.replace(/\.json$/, "") }));
     expect(characters.length).toBe(6);
     // Toon's per-case anchors (neutral only for now): one entry per character, on the shared canvas baseline.
-    const anchors = caseAnchors("_tallyho");
+    const anchors = caseAnchors("tallyho");
     expect(Object.keys(anchors).sort()).toEqual(characters.map((c) => c.id).sort());
     for (const { id } of characters) expect(anchors[id]?.neutral?.feet).toEqual([392, 1200]);
-    const sprites = caseCharacterSprites({ id: "_tallyho", characters });
+    const sprites = caseCharacterSprites({ id: "tallyho", characters });
     for (const { id } of characters) {
       const s = sprites[id]!;
       expect(s.poses).toContain("neutral");
-      expect(portraitSrc({ portrait: id, ...s }, resolvePose("angry", s.poses)!)).toBe(`/assets/cases/_tallyho/characters/${id}/neutral.webp`);
+      expect(portraitSrc({ portrait: id, ...s }, resolvePose("angry", s.poses)!)).toBe(`/assets/cases/tallyho/characters/${id}/neutral.webp`);
     }
     expect(caseSpriteFiles("no-such-case").size).toBe(0);
   });

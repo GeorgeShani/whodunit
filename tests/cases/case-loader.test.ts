@@ -264,3 +264,30 @@ describe("getPublicCaseView", () => {
     expect(getPublicCaseView(c, { discoveredEvidenceIds: ["heavy-wrench"] }).evidence.map((e) => e.id)).toEqual(["heavy-wrench"]);
   });
 });
+
+describe("characterOrder (L4)", () => {
+  it("loads characters in case.json characterOrder, not alphabetical file order", async () => {
+    const { casesDir, cleanup } = await makeBrokenCopy(async (edit) => {
+      await edit("case.json", (j) => {
+        j.characterOrder = ["charlie", "alpha", "bravo"];
+      });
+    });
+    try {
+      const c = await loadCase(FIXTURE_ID, casesDir);
+      expect(c.characters.map((ch) => ch.id)).toEqual(["charlie", "alpha", "bravo"]);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  it("stays alphabetical when characterOrder is omitted (Blackwood / fixture default)", async () => {
+    const c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
+    expect(c.characterOrder).toBeUndefined();
+    expect(c.characters.map((ch) => ch.id)).toEqual(["alpha", "bravo", "charlie"]);
+  });
+
+  it("rejects a characterOrder that is not a permutation of the character ids", async () => {
+    const out = await issuesFor((edit) => edit("case.json", (j) => (j.characterOrder = ["alpha", "bravo"])));
+    expect(out).toMatch(/character "charlie" is missing from characterOrder/);
+  });
+});

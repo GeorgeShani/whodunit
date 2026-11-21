@@ -5,7 +5,7 @@
  * MAX_CONFRONTATION_TURNS exchanges, then never faces off again. No agent
  * ever talks to another on its own.
  */
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { DEFAULT_CONFRONTATION_CAPS, type ConfrontationCaps } from "./confront-caps";
 import { MAX_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
 import { RELIEF } from "./memory";
@@ -72,7 +72,7 @@ export function spendExchange(game: GameState, caps: ConfrontationCaps = DEFAULT
  * (E.g. once A has admitted leaving the room, facing B makes A say it to B's
  * face, which breaks B's "we were together" story.) Null if none.
  */
-export function testimonyToThrow(c: LoadedCase, game: GameState, addressedId: string, partnerId: string): string | null {
+export function testimonyToThrow(c: PlayableCase, game: GameState, addressedId: string, partnerId: string): string | null {
   const own = game.characters[addressedId]?.revealedSecretIds ?? [];
   const partner = c.characters.find((x) => x.id === partnerId);
   const heard = game.characters[partnerId]?.testimonyShownIds ?? [];

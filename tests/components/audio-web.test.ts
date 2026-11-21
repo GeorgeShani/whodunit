@@ -291,13 +291,13 @@ describe("audio scenes", () => {
 });
 
 describe("per-case audio folder (Q14)", () => {
-  const tally = { caseId: "_tallyho", files: ["case_open", "bed_ship_deck"] };
+  const tally = { caseId: "tallyho", files: ["case_open", "bed_ship_deck"] };
   const done = () => registerCaseAudio(undefined);
 
   it("audioUrl: the case's folder for stems it ships, else assets/audio; other cases and no case use the shared files", () => {
     registerCaseAudio(undefined, tally);
-    expect(audioUrl("case_open", "ogg")).toBe("/assets/cases/_tallyho/audio/case_open.ogg");
-    expect(audioUrl("case_open", "mp3")).toBe("/assets/cases/_tallyho/audio/case_open.mp3");
+    expect(audioUrl("case_open", "ogg")).toBe("/assets/cases/tallyho/audio/case_open.ogg");
+    expect(audioUrl("case_open", "mp3")).toBe("/assets/cases/tallyho/audio/case_open.mp3");
     expect(audioUrl("ui_tap", "ogg")).toBe("/assets/audio/ui_tap.ogg");
     registerCaseAudio(undefined, { caseId: "blackwood", files: [] });
     expect(audioUrl("case_open", "ogg")).toBe("/assets/audio/case_open.ogg");
@@ -312,11 +312,11 @@ describe("per-case audio folder (Q14)", () => {
     const t = setup({ failOgg: true });
     t.m.unlock();
     await t.flush();
-    expect(t.fetched).toContain("/assets/cases/_tallyho/audio/case_open.ogg");
-    expect(t.fetched).toContain("/assets/cases/_tallyho/audio/case_open.mp3");
+    expect(t.fetched).toContain("/assets/cases/tallyho/audio/case_open.ogg");
+    expect(t.fetched).toContain("/assets/cases/tallyho/audio/case_open.mp3");
     expect(t.fetched).toContain("/assets/audio/ui_tap.mp3");
     t.m.play("case_open");
-    expect((t.src("case_open").at(-1)!.buffer as { file: string }).file).toBe("/assets/cases/_tallyho/audio/case_open.mp3");
+    expect((t.src("case_open").at(-1)!.buffer as { file: string }).file).toBe("/assets/cases/tallyho/audio/case_open.mp3");
     // Back to a case without its own case_open: the shared file is fetched and played, never the cached Tallyho one.
     registerCaseAudio(undefined, { caseId: "blackwood", files: [] });
     t.tick(10_000);
@@ -334,7 +334,7 @@ describe("per-case audio folder (Q14)", () => {
     await t.flush();
     t.m.setBed("bed_ship_deck");
     await t.flush();
-    expect(t.fetched).toContain("/assets/cases/_tallyho/audio/bed_ship_deck.ogg");
+    expect(t.fetched).toContain("/assets/cases/tallyho/audio/bed_ship_deck.ogg");
     const s = t.src("bed_ship_deck").at(-1)!;
     expect(s.loop).toBe(true);
     expect(t.gainOf("bed_ship_deck")!.value).toBeCloseTo(0.4);

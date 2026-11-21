@@ -1,10 +1,13 @@
 {
-  "id": "_tallyho",
+  "id": "tallyho",
   "title": "Murder Cruise on the S.S. Tallyho",
   "tagline": "A storm at sea. A cheer at 22:38. A marmalade king bonked at the Gala, and six guests who all have something to hide.",
   "intro": "The summer of 1936, the Bay of Bother, and a thunderstorm the size of a county. The private steam yacht S.S. Tallyho is wallowing through the Commodore's Last Tally-Ho Gala: a band, a buffet, a magician in a glass chest, and a Midnight Announcement that nobody is allowed to know about.\n\nYou came aboard as a guest and spent the evening flat on your back in a forward cabin, seasick from nine o'clock, hearing nothing but the storm. At ten past eleven the purser knocks. Commodore Barnabas \"Barnacle\" Brine, the Marmalade King, is dead in his stateroom.\n\nAt 22:38 the whole ship heard him bellow his famous cheer, \"TALLY-HO! SPREAD THE BRINE!\", over the Voice-Horns. At 22:55 his niece opened his door and found him bonked on the head among a great deal of marmalade, his orange toupee gone and his pocket-watch smashed at 22:41. Whatever hit him has vanished.\n\nThe wireless died in the squall, there is no doctor aboard, and the police take over when the Tallyho makes port in the morning. Until then the purser keeps the inquiry, and he has asked you to find out what happened. Six people had a reason to want the Commodore quiet. Every one of them is lying about something.",
   "dayStartsAt": "18:00",
   "knowledgeGate": "explicit",
+  "copy": {
+    "unknownSuspect": "Nobody by that name is on the passenger list. Perhaps they went overboard, or never came aboard at all."
+  },
   "systemLines": {
     "caseClosed": "The purser has everyone's statements, and the police take over when we make port.",
     "caseClosedSearch": "The purser has locked every door below decks. There is nothing left to find tonight.",
@@ -38,7 +41,7 @@
         ],
         "emptyLine": "The stateroom has told you everything it is willing to tell, for now. The marmalade disagrees, loudly."
       },
-      "background": "/assets/cases/_tallyho/backgrounds/cabin-deck.webp"
+      "background": "/assets/cases/tallyho/backgrounds/cabin-deck.webp"
     },
     {
       "id": "ballroom",
@@ -51,7 +54,7 @@
         ],
         "emptyLine": "Nothing here but cold canapes and a rabbit giving you a look."
       },
-      "background": "/assets/cases/_tallyho/backgrounds/ballroom.webp"
+      "background": "/assets/cases/tallyho/backgrounds/ballroom.webp"
     },
     {
       "id": "bridge",
@@ -73,7 +76,7 @@
         ]
       },
       "lockedLine": "A brass chain across the bridge ladder, and a sign in a square hand: NO ADMITTANCE WITHOUT A PROPER WORD WITH THE MASTER.",
-      "background": "/assets/cases/_tallyho/backgrounds/bridge.webp"
+      "background": "/assets/cases/tallyho/backgrounds/bridge.webp"
     },
     {
       "id": "galley",
@@ -95,7 +98,7 @@
         ]
       },
       "lockedLine": "A cleaver quivers in the door frame. A tearful voice: \"Ask first. Search after.\"",
-      "background": "/assets/cases/_tallyho/backgrounds/galley.webp"
+      "background": "/assets/cases/tallyho/backgrounds/galley.webp"
     },
     {
       "id": "engine-room",
@@ -117,7 +120,7 @@
         ]
       },
       "lockedLine": "The hatch is bolted. A hand-painted sign: NO ENTRY WITHOUT A WORD FIRST. THE SPANNER IS NOT A JOKE.",
-      "background": "/assets/cases/_tallyho/backgrounds/engine-room.webp"
+      "background": "/assets/cases/tallyho/backgrounds/engine-room.webp"
     },
     {
       "id": "boat-deck",
@@ -136,7 +139,7 @@
         ]
       },
       "lockedLine": "The storm hatch is dogged shut. There is no good reason to go up there yet. Somebody on this ship has one.",
-      "background": "/assets/cases/_tallyho/backgrounds/boat-deck.webp"
+      "background": "/assets/cases/tallyho/backgrounds/boat-deck.webp"
     }
   ],
   "facts": [
@@ -957,7 +960,9 @@
       "left\\s+the\\s+(?:bridge|saloon|galley)"
     ]
   },
-  "accuse": { "askHelper": true },
+  "accuse": {
+    "askHelper": true
+  },
   "features": [
     "time-misdirection",
     "ship-list"
@@ -1056,11 +1061,11 @@
           "frames": [
             {
               "label": "Leaning starboard (21:40 to 22:14): downhill is the starboard wall",
-              "image": "/assets/cases/_tallyho/ship-list-marmalade-run-before.webp"
+              "image": "/assets/cases/tallyho/ship-list-marmalade-run-before.webp"
             },
             {
               "label": "Leaning port (from 22:14): downhill is the port side",
-              "image": "/assets/cases/_tallyho/ship-list-marmalade-run-after.webp"
+              "image": "/assets/cases/tallyho/ship-list-marmalade-run-after.webp"
             }
           ]
         }
@@ -1074,11 +1079,11 @@
       "ink": "#16120e",
       "accent": "#f2a93b"
     },
-    "logo": "/assets/cases/_tallyho/logo.webp",
-    "titleArt": "/assets/cases/_tallyho/title.webp"
+    "logo": "/assets/cases/tallyho/logo.webp",
+    "titleArt": "/assets/cases/tallyho/title.webp"
   },
   "backdrops": {
-    "suspects": "/assets/cases/_tallyho/backgrounds/ballroom.webp"
+    "suspects": "/assets/cases/tallyho/backgrounds/ballroom.webp"
   },
   "unlockedBy": [
     "blackwood"
@@ -1102,5 +1107,261 @@
       "engine-room": "bed_engine_room",
       "boat-deck": "bed_ship_deck"
     }
+  },
+  "characterOrder": [
+    "gherkina",
+    "bilge",
+    "percy",
+    "zippelli",
+    "ottilie",
+    "boris"
+  ],
+  "guard": {
+    "aliveUntil": {
+      "victimId": "commodore-brine",
+      "aliases": [
+        "the Commodore",
+        "Commodore",
+        "Commodore Brine",
+        "Commodore Barnabas",
+        "Barnacle",
+        "Barnabas",
+        "Barnabas Brine",
+        "Uncle Barnabas",
+        "Uncle",
+        "the Old Man",
+        "Old Man",
+        "the Marmalade King",
+        "the Owner",
+        "Owner"
+      ],
+      "until": "22:14",
+      "anchors": [
+        {
+          "id": "ev-great-lurch",
+          "terms": [
+            "the Great Lurch",
+            "the great lurch",
+            "the lurch",
+            "Great Lurch",
+            "lurched",
+            "the ship lurched"
+          ]
+        },
+        {
+          "id": "f-list-history",
+          "terms": [
+            "listed to port",
+            "list to port",
+            "rolled to port",
+            "heeled to port",
+            "heeled port",
+            "leaned to port",
+            "went over to port",
+            "gone over to port",
+            "the ship swung over",
+            "swung over",
+            "the list changed",
+            "the tilt changed",
+            "she rolled to port",
+            "took the port list",
+            "took her port list",
+            "heeled the other way",
+            "the floor sloped port",
+            "floor sloped port",
+            "downhill became the port side",
+            "the ship tipped",
+            "plunge of the deck"
+          ]
+        }
+      ],
+      "alivePhrases": [
+        "alive",
+        "still alive",
+        "was alive",
+        "were alive",
+        "been alive",
+        "living",
+        "living and breathing",
+        "still breathing",
+        "still with us",
+        "up and about",
+        "had a word",
+        "had a chat",
+        "spoke",
+        "spoken",
+        "talked",
+        "called out",
+        "chatted",
+        "conversed",
+        "saw",
+        "seen",
+        "spotted",
+        "met",
+        "ran into",
+        "bumped into",
+        "heard him",
+        "heard his",
+        "heard his voice",
+        "his voice",
+        "he told me",
+        "he said",
+        "told me",
+        "cheered",
+        "bellowed",
+        "bellowing",
+        "in his cabin with",
+        "survived",
+        "was fine",
+        "came back up",
+        "still going",
+        "still kicking",
+        "still barking orders",
+        "barking orders",
+        "still giving orders",
+        "giving orders",
+        "didn't kill him",
+        "did not kill him",
+        "spoke to him later",
+        "chatty",
+        "waved",
+        "answered me",
+        "answered",
+        "toasted with",
+        "passed the time of day"
+      ],
+      "pronouns": [
+        "he",
+        "him",
+        "his"
+      ],
+      "appearancePhrases": [
+        "watch",
+        "clock",
+        "dial",
+        "hands",
+        "crown",
+        "read",
+        "reads",
+        "programme",
+        "horn",
+        "horns",
+        "Voice-Horn",
+        "bellow",
+        "sounded",
+        "cylinder",
+        "Cheer-Box",
+        "trumpet",
+        "bellowed his cheer"
+      ],
+      "afterPhrases": [
+        "later that night",
+        "later that evening",
+        "later in the night",
+        "afterwards that night",
+        "post-lurch",
+        "post lurch",
+        "subsequent to the plunge of the deck",
+        "after the bump",
+        "following the roll",
+        "after the roll",
+        "once we rolled",
+        "after we rolled"
+      ]
+    },
+    "gatedTopics": [
+      {
+        "unlockedBy": "heel-chart",
+        "terms": [
+          "heel recorder",
+          "heel-recorder",
+          "heel chart",
+          "heel-chart",
+          "heel log",
+          "heel-log",
+          "heel strip",
+          "heel-strip",
+          "inclinometer",
+          "clinometer",
+          "angle of heel",
+          "angle-of-heel",
+          "recorder reading",
+          "tilt gauge",
+          "tilt-gauge",
+          "roll recorder",
+          "roll-recorder",
+          "list log",
+          "list-log",
+          "list recorder",
+          "list-recorder",
+          "paper that tracks the lean",
+          "lean gauge",
+          "lean-gauge",
+          "lean-log",
+          "lean log",
+          "recorder in the engine room",
+          "engine-room recorder",
+          "engine room recorder",
+          "engine-room graph",
+          "engine room graph",
+          "inclinograph",
+          "instrument in the engine room",
+          "paper tick",
+          "penciled LURCH",
+          "pencilled LURCH"
+        ],
+        "patterns": [
+          "heel[-\\s]?recorders?",
+          "heel[-\\s]?charts?",
+          "heel[-\\s]?(?:logs?|strips?)",
+          "inclinometers?",
+          "clinometers?",
+          "angle[-\\s]of[-\\s]heel",
+          "tilt[-\\s]?gauges?",
+          "roll[-\\s]?recorders?",
+          "list[-\\s]?logs?",
+          "list[-\\s]?recorders?",
+          "lean[-\\s]?gauges?",
+          "lean[-\\s]?logs?",
+          "inclinographs?",
+          "engine[-\\s]room[-\\s](?:recorders?|graphs?)",
+          "recorders?\\s+in\\s+the\\s+engine[-\\s]room",
+          "instrument\\s+in\\s+the\\s+engine[-\\s]room",
+          "paper\\s+that\\s+tracks\\s+the\\s+lean",
+          "paper\\s+ticks?",
+          "pencil(?:l?ed)?[^.!?]{0,80}\\blurch\\b",
+          "\\blurch\\b[^.!?]{0,40}\\bon the strip\\b"
+        ],
+        "concept": {
+          "instruments": [
+            "recorder",
+            "gauge",
+            "log",
+            "strip",
+            "inclinometer",
+            "meter",
+            "inclinograph",
+            "graph",
+            "paper",
+            "paper tick",
+            "the paper that",
+            "the thing that tracks",
+            "instrument"
+          ],
+          "measures": [
+            "heel",
+            "tilt",
+            "roll",
+            "list",
+            "lean",
+            "lurch",
+            "flip",
+            "flipped",
+            "degrees"
+          ],
+          "window": 8
+        }
+      }
+    ]
   }
 }

@@ -27,7 +27,10 @@ function caseTerms(c: LoadedCase): string[] {
     ...c.timeline.map((t) => t.id),
     ...c.facts.map((f) => f.id),
   ];
-  const generic = new Set(["Lord", "Lady", "Mister", "Miss"]);
+  const generic = new Set([
+    "Lord", "Lady", "Mister", "Miss", "Dame", "Captain", "Chief", "Great", "Commodore",
+    "Chef", "Doctor", "Professor", "Sir", "Madam", "Master",
+  ]);
   return [...new Set([...names, ...ids])].filter((t) => !generic.has(t));
 }
 
@@ -35,6 +38,10 @@ function caseTerms(c: LoadedCase): string[] {
 const ALLOWED: Record<string, string[]> = {
   // The case "/" serves (and the legacy default for a token without a case id): which case is the default is a product decision.
   [path.join("lib", "cases.ts")]: ["blackwood", "Blackwood"],
+  // Draft-id → published-id map after a rename. The map must name the published id.
+  [path.join("lib", "case-aliases.ts")]: ["tallyho"],
+  // Global name-token stoplist includes ordinary words that also appear in a published case's names.
+  [path.join("engine", "name-tokens.ts")]: ["Brine"],
 };
 
 let files: { file: string; text: string }[];

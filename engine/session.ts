@@ -4,7 +4,7 @@
  * SAME token format and reset behaviour.
  */
 import { inSetting, settingOf } from "./presentation";
-import type { LoadedCase } from "./case-schema";
+import type { LoadedCase, PlayableCase } from "./case-schema";
 import { createInitialGameState } from "./game-state";
 import { decodeStateToken, encodeStateToken, newGameId, type DecodeOptions, type Env } from "./state-token";
 import type { GameState } from "./types";
@@ -27,7 +27,7 @@ export interface RestoredSession {
 
 /** No token = new game. Invalid token = reset + in-character notice. */
 export function restoreSession(
-  caseData: LoadedCase,
+  caseData: PlayableCase,
   token: string | undefined,
   env?: Env,
   options: DecodeOptions = {},

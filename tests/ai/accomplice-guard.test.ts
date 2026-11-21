@@ -1,7 +1,7 @@
 /**
  * Case-two plan 3.9: the accomplice's guilt gets the murderer's protection (DX1, DX2), the guard-data validator rules
  * (DX4/V33, DX10/V34) and the forbidden-phrase switches unlessBroken / array unlessRevealed (DX7). Offline only: no
- * model calls. The Tallyho block skips until cases/_tallyho/solution.json (gitignored, regenerated locally) names an
+ * model calls. The Tallyho block skips until cases/tallyho/solution.json (gitignored, regenerated locally) names an
  * accomplice with an accompliceAct.
  */
 import { existsSync, readFileSync } from "node:fs";
@@ -153,14 +153,14 @@ describe("DX7: unlessRevealed as an array, unlessBroken", () => {
   });
 });
 
-const SOL = "cases/_tallyho/solution.json";
+const SOL = "cases/tallyho/solution.json";
 const sol = existsSync(SOL) ? JSON.parse(readFileSync(SOL, "utf8")) : {};
 const READY = typeof sol.accompliceId === "string" && !!sol.accompliceAct;
 
 describe.skipIf(!READY)("Tallyho: the stager's guilt (draft data, real lines)", () => {
   let c: LoadedCase;
   beforeAll(async () => {
-    c = await loadCase("_tallyho");
+    c = await loadCase("tallyho");
   });
   /** `bare`: the case's own forbiddenPhrases dropped, so the generic guard (not the data) has to catch the line. */
   const turn = (who: string, bare = false) => {

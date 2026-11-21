@@ -12,6 +12,7 @@ import { compileForbiddenPhrase, unlessRevealedIds } from "@/ai/forbidden-phrase
 import { findGuiltLeak, speakerNamesOf } from "@/ai/guilt-check";
 import { knowledgeGate } from "./knowledge-gate";
 import { checkFeatureConfig, featureWarnings } from "./features/registry";
+import { validateOutputGuard } from "./output-guard";
 import { checkPresentation } from "./presentation-validation";
 
 /**
@@ -90,6 +91,19 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const personIds = new Set([...characterIds, c.victim.id]);
   const motiveIds = new Set(c.motives.map((m) => m.id));
 
+  // L4: characterOrder must be a permutation of the character ids when present.
+  if (c.characterOrder) {
+    const seen = new Set<string>();
+    c.characterOrder.forEach((id, i) => {
+      if (!characterIds.has(id)) issues.push({ file: CASE, path: `characterOrder.${i}`, message: `characterOrder id "${id}" is not a character` });
+      if (seen.has(id)) issues.push({ file: CASE, path: `characterOrder.${i}`, message: `"${id}" is listed twice in characterOrder` });
+      seen.add(id);
+    });
+    for (const id of characterIds) {
+      if (!seen.has(id)) issues.push({ file: CASE, path: "characterOrder", message: `character "${id}" is missing from characterOrder` });
+    }
+  }
+
   const dupes = (kind: string, file: string, ids: string[]) => {
     const seen = new Set<string>();
     for (const id of ids) {
@@ -113,13 +127,14 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const allSecretIds = new Set(c.characters.flatMap((ch) => ch.secrets.map((s) => s.id)));
   const lieOwners = new Map<string, string[]>();
   for (const ch of c.characters) for (const l of ch.intendedLies) lieOwners.set(l.id, [...(lieOwners.get(l.id) ?? []), ch.id]);
-  const checkHidden = (h: { secretIds: string[]; lieIds: string[] } | undefined, file: string, p: string) => {
+  const checkHidden = (h: { secretIds: string[]; lieIds: string[]; evidenceIds?: string[] } | undefined, file: string, p: string) => {
     h?.secretIds.forEach((id, k) => ref(allSecretIds, "secret", id, file, `${p}.hiddenUntil.secretIds.${k}`));
     h?.lieIds.forEach((id, k) => {
       const owners = lieOwners.get(id) ?? [];
       if (owners.length === 0) issues.push({ file, path: `${p}.hiddenUntil.lieIds.${k}`, message: `unknown intended lie "${id}"` });
       else if (owners.length > 1) issues.push({ file, path: `${p}.hiddenUntil.lieIds.${k}`, message: `lie id "${id}" is used by several characters (${owners.join(", ")}); make it unique` });
     });
+    h?.evidenceIds?.forEach((id, k) => ref(evidenceIds, "evidence", id, file, `${p}.hiddenUntil.evidenceIds.${k}`));
   };
 
   // case.json
@@ -220,7 +235,8 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
     dupes("intended lie", f, ch.intendedLies.map((l) => l.id));
   }
 
-  // solution.json
+  // solution.json (caller supplies a valid solution; playable loads without one skip this function)
+  if (!c.solution) return issues;
   const s = c.solution;
   const murderer = c.characters.find((ch) => ch.id === s.murdererId);
   if (!murderer) issues.push({ file: SOL, path: "murdererId", message: `murderer "${s.murdererId}" is not a character in characters/` });
@@ -320,6 +336,7 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   issues.push(...checkProgression(c));
   issues.push(...checkPresentation(c));
   issues.push(...checkFeatureConfig(c));
+  issues.push(...validateOutputGuard(c));
   (c.unlockedBy ?? []).forEach((id, i) => {
     if (id === c.id) issues.push({ file: "case.json", path: `unlockedBy.${i}`, message: "a case cannot be unlocked by itself (V31)" });
     if (c.unlockedBy!.indexOf(id) !== i) issues.push({ file: "case.json", path: `unlockedBy.${i}`, message: `"${id}" is listed twice` });

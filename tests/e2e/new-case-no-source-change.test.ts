@@ -12,7 +12,7 @@ import { handleInterrogate } from "@/ai/interrogate-handler";
 import { handleAccuse } from "@/engine/accuse-handler";
 import { validateCase } from "@/engine/case-loader";
 import { getPublicCase, isPublicCaseId, listPublicCaseIds } from "@/engine/case-registry";
-import type { LoadedCase } from "@/engine/case-schema";
+import type { LoadedCase, PlayableCase } from "@/engine/case-schema";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { getPublicCaseView } from "@/engine/public-view";
 import { decodeStateToken, encodeStateToken, peekStateTokenCaseId } from "@/engine/state-token";
@@ -23,7 +23,7 @@ import { goodReply, mockGrok, TEST_ENV } from "../helpers/grok-mock";
 
 const NEW_ID = "zz-new-case";
 let dir: string;
-let c: LoadedCase;
+let c: PlayableCase;
 
 beforeAll(async () => {
   dir = mkdtempSync(path.join(tmpdir(), "new-case-"));
@@ -69,7 +69,7 @@ describe("a new case needs no source change", () => {
     expect(r.status).toBe(200);
     expect(r.body.source).toBe("model");
 
-    const sol = c.solution;
+    const sol = c.solution!;
     // Accuse from that game once every clue is in the notebook (the fixture's gate).
     const g = stateOf(r.body.stateToken!);
     for (const e of c.evidence) if (!g.discoveredEvidenceIds.includes(e.id)) g.discoveredEvidenceIds.push(e.id);
