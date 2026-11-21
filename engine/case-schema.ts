@@ -118,6 +118,16 @@ export const CaseEnvelopeSchema = z.strictObject({
     })
     .optional(),
   /**
+   * Optional case-level error copy. `unknownSuspect` is the accuse-form line when the named person is not in the
+   * roster. Omitted: the engine default (Blackwood's hat-stand wording; see engine/error-copy.ts). `unknown_case`
+   * is a single neutral line for every case and is not overridable here.
+   */
+  copy: z
+    .strictObject({
+      unknownSuspect: z.string().trim().min(1).max(300).optional(),
+    })
+    .optional(),
+  /**
    * E10 (optional): the case's own wording for engine system lines, so they can match its canon (who is in charge,
    * whether anyone can reach the house). Each falls back to a neutral engine default (engine/session.ts SYSTEM_LINES).
    */

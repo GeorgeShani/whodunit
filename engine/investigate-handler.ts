@@ -3,6 +3,7 @@
  * shared signed state -> deterministic search -> public fields only -> new token.
  */
 import { inSetting, settingOf } from "./presentation";
+import { UNKNOWN_CASE_LINE } from "./error-copy";
 import type { LoadedCase, PlayableCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
 import { clueFeatures } from "./features/registry";
@@ -14,8 +15,7 @@ import type { Evidence } from "./types";
 
 export const UNKNOWN_LOCATION_LINE =
   "You march off confidently... straight into a broom cupboard. There's no such place in this house, detective.";
-export const UNKNOWN_CASE_LINE =
-  "You knock at the door of a house that isn't there. Wrong address, detective.";
+export { UNKNOWN_CASE_LINE } from "./error-copy";
 export const BAD_REQUEST_LINE = "You scribble in your notebook, but even you can't read it. Try that again, detective.";
 
 const toFound = (c: PlayableCase, e: Evidence, features = clueFeatures(c, e.id)): FoundEvidence => ({

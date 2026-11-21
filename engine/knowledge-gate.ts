@@ -7,9 +7,11 @@
  *
  * 1. Explicit hiding (per fact): a fact with `hiddenUntil` is withheld from its
  *    knowers until ANY listed secret is unlocked for this character (they
- *    confessed it, or were confronted with it as testimony) or ANY listed lie
- *    is broken for its owner. Such a fact follows ONLY this rule: the direct
- *    links and the proximity heuristic below skip it.
+ *    confessed it, or were confronted with it as testimony), ANY listed lie
+ *    is broken for its owner, or ANY listed evidence is found or shown in this
+ *    game (the same "found or shown, in signed state" rule as `guard.gatedTopics`).
+ *    Such a fact follows ONLY this rule: the direct links and the proximity
+ *    heuristic below skip it.
  * 2. Direct links (both modes): every unbroken lie's `aboutFactId` and every
  *    locked own secret's `relatedFactIds` are withheld.
  * 3. Proximity heuristic (case `knowledgeGate: "proximity"`, the default): the
@@ -58,6 +60,7 @@ export function knowledgeGate(
   ch: Character,
   rt: GateState | undefined,
   others: Record<string, LieState | undefined> = {},
+  foundEvidenceIds: readonly string[] = [],
 ): KnowledgeGate {
   // Core guilt is never "revealed" for its owner before the accusation (legacy tokens may still list it).
   const core = coreGuiltSecretIds(c);
@@ -65,6 +68,8 @@ export function knowledgeGate(
   const heard = new Set(rt?.testimonyShownIds ?? []);
   const exposedLieIds = new Set(brokenLieIds(c, ch, rt && { ...rt, revealedSecretIds: [...revealed] }));
   const proximity = (c.knowledgeGate ?? "proximity") === "proximity";
+  const shownEvidence = new Set(rt?.evidenceShownIds ?? []);
+  const foundEvidence = new Set(foundEvidenceIds);
 
   const allFacts: Fact[] = [...c.facts, ...c.timeline];
   const byId = new Map(allFacts.map((f) => [f.id, f]));
@@ -86,7 +91,9 @@ export function knowledgeGate(
     if (!f.hiddenUntil) continue;
     explicit.add(f.id);
     const unlocked =
-      f.hiddenUntil.secretIds.some((id) => revealed.has(id) || heard.has(id)) || f.hiddenUntil.lieIds.some(lieBroken);
+      f.hiddenUntil.secretIds.some((id) => revealed.has(id) || heard.has(id)) ||
+      f.hiddenUntil.lieIds.some(lieBroken) ||
+      (f.hiddenUntil.evidenceIds ?? []).some((id) => foundEvidence.has(id) || shownEvidence.has(id));
     if (!unlocked) withheldFactIds.add(f.id);
   }
 
