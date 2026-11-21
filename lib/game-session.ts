@@ -18,9 +18,20 @@ import type { Emotion } from "@/engine/types";
 import type { AccuseResponseBody } from "@/engine/accuse-schema";
 import type { ContradictionNotes } from "@/components/evidence/notebook-model";
 import { canonicalCaseId, caseIdAliases } from "./cases";
-import { storedEvidence, type StoredEvidence } from "@/components/evidence/hydrate-evidence";
+import type { PublicEvidence } from "@/engine/public-view";
 
 export const SESSION_VERSION = 1;
+
+/** What an older saved game may hold for one clue: an id, or a whole object (rebuilt from the server on resume). */
+export type StoredEvidence = PublicEvidence | string;
+
+/** Saved-game entries worth keeping: ids and well-formed evidence objects (anything else is dropped). */
+export function storedEvidence(raw: readonly unknown[]): StoredEvidence[] {
+  return raw.filter(
+    (x): x is StoredEvidence =>
+      (typeof x === "string" && x.length > 0) || (typeof x === "object" && x !== null && typeof (x as PublicEvidence).id === "string" && typeof (x as PublicEvidence).name === "string"),
+  );
+}
 
 export interface SavedGame {
   v: typeof SESSION_VERSION;
@@ -30,7 +41,7 @@ export interface SavedGame {
   stateToken?: string;
   conversations: Record<string, DialogueMessage[]>;
   emotions: Record<string, Emotion>;
-  /** Found clues: ids, or whole objects from older builds. Rebuilt by id from the case view on load (hydrate-evidence). */
+  /** Found clues: ids, or whole objects from older builds (only the token is migrated; resume rebuilds the notebook server-side). */
   evidence: StoredEvidence[];
   /** Testimony cards (revealed secrets' public summaries). Optional: older saves lack it. */
   testimonies?: PublicTestimony[];

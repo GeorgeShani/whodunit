@@ -15,7 +15,6 @@ import { ClueArtProvider } from "@/components/evidence/ClueArt";
 import { Notebook } from "@/components/evidence/Notebook";
 import { HowToPlayButton, HowToPlayDialog } from "@/components/help/HowToPlay";
 import { GRADING_SECTION_ID, type Manual } from "@/lib/how-to-play";
-import { parseNotebook } from "@/components/evidence/hydrate-evidence";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
 import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
@@ -161,18 +160,6 @@ interface InvestigateResult {
   offline?: boolean;
   notice?: string;
   progress?: PublicProgress;
-}
-
-/** POST /api/notebook: the token's found clues from the case's current public view; null when unavailable. */
-async function fetchNotebook(caseId: string, stateToken: string): Promise<PublicEvidence[] | null> {
-  try {
-    const res = await fetch("/api/notebook", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ caseId, stateToken }) });
-    if (!res.ok) return null;
-    const ev = parseNotebook(await res.json());
-    return ev && ev.length ? ev : null;
-  } catch {
-    return null;
-  }
 }
 
 /** Search a location. Network/shape failure degrades to an in-character line. */
@@ -382,18 +369,6 @@ export function Game({
   /** Latest emotions, readable from async reply handlers (for the reply sting). */
   const emotionsRef = useRef(emotions);
   const evidenceRef = useRef(evidence);
-  /** Bumped by every notebook refresh and reset, so a slower refresh never overwrites a newer notebook. */
-  const notebookEpoch = useRef(0);
-  /** Replace the notebook with the server's, rebuilt from the case for `token` (keeps the local copy if it can't answer). */
-  const refreshNotebook = useCallback(
-    (token: string) => {
-      const epoch = ++notebookEpoch.current;
-      void fetchNotebook(caseId, token).then((ev) => {
-        if (ev && notebookEpoch.current === epoch) setEvidence(ev);
-      });
-    },
-    [caseId],
-  );
   useEffect(() => {
     emotionsRef.current = emotions;
     evidenceRef.current = evidence;
@@ -510,7 +485,6 @@ export function Game({
 
   /** The server reset the state (tampered/expired token): the notebook and searches start over. */
   const resetProgress = useCallback(() => {
-    notebookEpoch.current++;
     setEvidence(view.evidence);
     setTestimonies([]);
     setSearched([]);
@@ -840,13 +814,11 @@ export function Game({
           ];
         });
         setStingQueue((q) => [...q, ...r.found]);
-        // The search reply is display-only; the notebook itself is rebuilt from the case for the new token.
-        if (r.stateToken) refreshNotebook(r.stateToken);
       }
       inFlight.current = false;
       setSearchingId(null);
     },
-    [caseId, view.evidence, resetProgress, applyProgress, rememberGame, refreshNotebook],
+    [caseId, view.evidence, resetProgress, applyProgress, rememberGame],
   );
 
   const onAccuse = useCallback(
@@ -899,7 +871,6 @@ export function Game({
 
 
   const applySnapshot = useCallback((snap: ResumeSnapshot, closed?: ResumeResponseBody["closed"]) => {
-    notebookEpoch.current++; // the snapshot is the server's notebook: an older refresh must not overwrite it
     setEvidence(snap.evidence.length ? snap.evidence : view.evidence);
     setTestimonies(snap.testimonies);
     setProgress(snap.progress);
