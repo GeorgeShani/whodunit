@@ -135,6 +135,13 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
       issues.push({ file: "solution.json", message: "file is missing" });
     }
   }
+  // Optional solution.endings is accepted so old and new env payloads both parse.
+  // This branch ignores it for play (committed endings.json is still complete); strip it so
+  // LoadedCase.solution stays the id payload.
+  if (solution?.endings) {
+    const { endings: _secret, ...rest } = solution;
+    solution = rest;
+  }
 
   // endings.json is optional for now (validated when present).
   let endings: Endings | undefined;

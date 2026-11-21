@@ -6,6 +6,7 @@
  * accusations and set `GameState.outcome`.
  */
 import { z } from "zod";
+import { SecretEndingsSchema } from "./endings";
 import { GameTimeSchema, IdSchema } from "./types";
 
 export const CaseSolutionSchema = z.strictObject({
@@ -54,6 +55,11 @@ export const CaseSolutionSchema = z.strictObject({
   featureProof: z.record(IdSchema, z.unknown()).optional(),
   /** Optional server-only write-up for the reveal screen. */
   explanation: z.string().trim().min(1).optional(),
+  /**
+   * Culprit-naming endings (`correct`, and `wrong` for the murderer / helper) when those
+   * must not be committed in endings.json. The loader merges them with the public file.
+   */
+  endings: SecretEndingsSchema.optional(),
 });
 export type CaseSolution = z.infer<typeof CaseSolutionSchema>;
 

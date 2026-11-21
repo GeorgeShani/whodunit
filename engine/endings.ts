@@ -40,3 +40,11 @@ export const EndingsSchema = z.strictObject({
   sloppyRemark: EndingLineSchema.optional(),
 });
 export type Endings = z.infer<typeof EndingsSchema>;
+
+/** Culprit-naming endings that may live on the solution instead of endings.json. */
+export const SecretEndingsSchema = z.strictObject({
+  correct: z.strictObject({ confession: Lines, recap: Lines }),
+  /** Typically the murderer's (and, in a two-culprit case, the helper's) own wrong entry. */
+  wrong: z.record(IdSchema, Lines).optional(),
+});
+export type SecretEndings = z.infer<typeof SecretEndingsSchema>;
