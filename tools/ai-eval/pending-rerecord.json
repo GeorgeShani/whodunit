@@ -1,3 +1,16 @@
 {
-  "_doc": "Fixtures whose recorded prompt is KNOWN to be out of date, waiting for the next combined re-record (npm run eval:ai -- --record --only <ids>). Each id maps to the change that made it stale. tests/tooling/ai-eval.test.ts requires the stale set to equal exactly these ids: a new stale fixture, or a listed one that is current again, fails the suite. Empty this list when re-recording."
+  "_doc": "Fixtures whose recorded prompt is KNOWN to be out of date, waiting for the next combined re-record (npm run eval:ai -- --record --only <ids>). Each id maps to the change that made it stale. tests/tooling/ai-eval.test.ts requires the stale set to equal exactly these ids: a new stale fixture, or a listed one that is current again, fails the suite. Empty this list when re-recording.",
+  "b-reginald-confess": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "c-archibald-reginald": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "c-reginald-victoria": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "conf-13-victoria-vs-archibald": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "e-reginald-letter": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "i-reginald-debug": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "n-reginald-victim": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "n-reginald-whereabouts": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "reg-07-archibald-card": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "reg-15-library-2117": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "reg-17-who-did-it": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "s-reginald-breakdown": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)",
+  "t-reginald-archibald-card": "Blackwood: Reginald's banked-fire fact and Archibald's letter-opener fact added to knownFactIds (optional weapon decoys)"
 }

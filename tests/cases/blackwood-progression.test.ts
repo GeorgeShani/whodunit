@@ -77,7 +77,7 @@ describe("Blackwood progression: gated rooms and clues", () => {
     expect(locked.locked).toBe(true);
     expect(locked.lines[0]).toMatch(/Crime scene first, detective! Procedure!/);
     expect(g.searchedLocationIds).toEqual([]);
-    expect(found(searchLocation(c, g, "library"))).toEqual(["silver-candlestick"]);
+    expect(found(searchLocation(c, g, "library"))).toEqual(["silver-candlestick", "fireplace-poker"]);
     expect(searchLocation(c, g, "dining-room").locked).toBeUndefined();
   });
 
@@ -113,7 +113,7 @@ describe("Blackwood progression: gated rooms and clues", () => {
     searchLocation(c, g, "dining-room"); // key
     const r = searchLocation(c, g, "dining-room");
     expect(found(r)).toEqual([]);
-    expect(g.discoveredEvidenceIds).toEqual(["silver-candlestick", "library-key"]);
+    expect(g.discoveredEvidenceIds).toEqual(["silver-candlestick", "fireplace-poker", "library-key"]);
     expect(r.lines.join(" ")).toMatch(/second helping/);
   });
 
@@ -127,14 +127,14 @@ describe("Blackwood progression: gated rooms and clues", () => {
   it("the footprint needs the lantern lead (garden searched) or the boots lead (Gregory x2)", () => {
     const a = fresh();
     const none = searchLocation(c, a, "hall");
-    expect(found(none)).toEqual([]);
+    expect(found(none)).toEqual(["letter-opener"]);
     expect(none.lines.join(" ")).toMatch(/don't yet know what to ask/);
     expect(found(searchLocation(c, a, "garden"))).toEqual([]);
     expect(found(searchLocation(c, a, "hall"))).toEqual(["muddy-footprint"]);
 
     const b = fresh();
     talk(b, "gregory", 2);
-    expect(found(searchLocation(c, b, "hall"))).toEqual(["muddy-footprint"]);
+    expect(found(searchLocation(c, b, "hall"))).toEqual(["muddy-footprint", "letter-opener"]);
   });
 
   it("the garden and the kitchen give leads, not clues", () => {
@@ -185,7 +185,7 @@ describe("Blackwood progression: the accuse gate and the win rule", () => {
   /** The fastest legal path from SOLUTION_PROOF §12, played against the real functions. */
   function fastest(): GameState {
     const g = fresh();
-    expect(found(searchLocation(c, g, "library"))).toEqual(["silver-candlestick"]); // 1
+    expect(found(searchLocation(c, g, "library"))).toEqual(["silver-candlestick", "fireplace-poker"]); // 1
     talk(g, "reginald", 2); // 2-3
     expect(found(searchLocation(c, g, "dining-room"))).toEqual(["library-key"]); // 4
     expect(found(searchLocation(c, g, "dining-room"))).toEqual(["burned-letter"]); // 5

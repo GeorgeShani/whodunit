@@ -102,6 +102,7 @@
     "f-lord-key-habit",
     "f-weapon-origin",
     "f-archibald-embezzlement",
+    "f-archibald-letter-opener",
     "ev-dinner-ends",
     "ev-archibald-threat",
     "ev-victoria-leaves-for-library",
@@ -163,7 +164,8 @@
       "relatedFactIds": [
         "f-archibald-embezzlement",
         "ev-archibald-phone",
-        "ev-archibald-threat"
+        "ev-archibald-threat",
+        "f-archibald-letter-opener"
       ],
       "testimonySummary": "Mr Crane admits he embezzled company money, and that between 21:15 and 21:20 he telephoned his broker to move it before midnight."
     },
