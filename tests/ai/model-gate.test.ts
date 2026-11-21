@@ -211,7 +211,7 @@ describe("POST /api/interrogate behind the gate", () => {
     const r = await handleInterrogate({ ...ask, stateToken: token }, { caseData: c, env: TEST_ENV, gate });
     expect(r.status).toBe(429);
     expect(r.body).toMatchObject({ source: "unavailable", error: "rate_limited", stateToken: token, unavailable: { kind: "breather" } });
-    expect(r.body.unavailable!.line).toMatch(/^Reginald needs a breather, detective\. Give them 10 minutes, then ask again\.$/);
+    expect(r.body.unavailable!.line).toMatch(/^Reginald needs a breather, detective\. Give him 10 minutes, then ask again\.$/);
     expect(r.body.unavailable!.line).not.toMatch(FORBIDDEN_WORDS);
     expect(r.body.unavailable!.retryAfter).toBe(600);
     expect(fetchFn).not.toHaveBeenCalled();
@@ -286,7 +286,7 @@ describe("POST /api/confront behind the gate", () => {
     const second = await handleConfront({ ...body, stateToken: first.body.stateToken }, { caseData: c, env: TEST_ENV, gate });
     expect(second.status).toBe(429);
     expect(second.body).toMatchObject({ lines: [], error: "rate_limited", stateToken: first.body.stateToken, unavailable: { kind: "breather" } });
-    expect(second.body.line).toMatch(/^Victoria and Archibald need a breather, detective\./);
+    expect(second.body.line).toMatch(/^Victoria Blackwood and Archibald Crane need a breather, detective\./);
     expect(second.body.unavailable!.retryAfter).toBeGreaterThan(0);
     expect(fetchFn).toHaveBeenCalledTimes(2);
     expect(stateOf(second.body.stateToken).pairTurns).toEqual(stateOf(first.body.stateToken).pairTurns);

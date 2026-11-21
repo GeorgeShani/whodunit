@@ -7,7 +7,7 @@
  * This is the only place solution or ending data leaves the server (and only
  * on a win: a loss never carries the solution or per-field verdict).
  */
-import { inSetting, settingOf } from "./presentation";
+import { UNKNOWN_CASE_LINE, unknownSuspectLine, DEFAULT_UNKNOWN_SUSPECT_LINE } from "./error-copy";
 import { AccuseRequestSchema, type AccuseResponseBody } from "./accuse-schema";
 import { citeCaps, gradeAccusation } from "./accusation";
 import { hasSolution, type LoadedCase, type PlayableCase } from "./case-schema";
@@ -21,9 +21,9 @@ import type { Accusation, GameState } from "./types";
 
 export const ACCUSE_LINES = {
   invalid: "You clear your throat for the big accusation... and forget what you were going to say. Try that again, detective.",
-  unknownCase: "You knock at the door of a house that isn't there. Wrong address, detective.",
+  unknownCase: UNKNOWN_CASE_LINE,
   badState: "Your notebook has gone missing! You can't accuse anyone without your notes. Start the questioning afresh.",
-  unknownSuspect: "You point dramatically at... a hat stand. Nobody by that name is in this house.",
+  unknownSuspect: DEFAULT_UNKNOWN_SUSPECT_LINE,
   /** G1: the same suspect named as the murderer and as their own helper. */
   accompliceIsMurderer: "Nobody helps themselves to a murder, detective. Name someone else as the helper, or say no one helped.",
   unknownMotive: "That's not a motive anyone here could have, detective.",
@@ -189,9 +189,9 @@ async function handleAccuseCore(json: unknown, deps: AccuseDeps): Promise<Accuse
   if (!gate.unlocked) return { status: 403, body: { error: "accuse_locked", line: gate.line ?? ACCUSE_LINES.locked, stateToken: saveSession(game, env) } };
 
   const reject = (error: string, line: string): AccuseResult => ({ status: 400, body: { error, line, stateToken: saveSession(game, env) } });
-  if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", inSetting(ACCUSE_LINES.unknownSuspect, settingOf(caseData)));
+  if (!caseData.characters.some((c) => c.id === accusation.murdererId)) return reject("unknown_suspect", unknownSuspectLine(caseData));
   const helper = accusation.accompliceId ?? null;
-  if (helper !== null && !caseData.characters.some((c) => c.id === helper)) return reject("unknown_suspect", inSetting(ACCUSE_LINES.unknownSuspect, settingOf(caseData)));
+  if (helper !== null && !caseData.characters.some((c) => c.id === helper)) return reject("unknown_suspect", unknownSuspectLine(caseData));
   if (helper !== null && helper === accusation.murdererId) return reject("accomplice_is_murderer", ACCUSE_LINES.accompliceIsMurderer);
   if (!caseData.motives.some((m) => m.id === accusation.motiveId)) return reject("unknown_motive", ACCUSE_LINES.unknownMotive);
   const discovered = new Set(game.discoveredEvidenceIds);

@@ -207,7 +207,7 @@ describe("#40 POST /api/confront: the caps hold against parallel and replayed to
     expect(won.body.confrontation).toMatchObject({ turnsUsed: 6, over: true });
     for (const r of rs.filter((x) => x.status === 409)) {
       expect(r.body).toMatchObject({ lines: [], error: "in_flight", stateToken: token, unavailable: { kind: "answered" } });
-      expect(r.body.line).toMatch(/^Victoria and Archibald are still at it/);
+      expect(r.body.line).toMatch(/^Victoria Blackwood and Archibald Crane are still at it/);
     }
     // Replaying the 5/6 token afterwards: already answered, the 6/6 token comes back, no model call.
     const replay = await handleConfront({ ...body, stateToken: token }, { caseData: c, env: TEST_ENV, claims });

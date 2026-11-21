@@ -127,13 +127,14 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
   const allSecretIds = new Set(c.characters.flatMap((ch) => ch.secrets.map((s) => s.id)));
   const lieOwners = new Map<string, string[]>();
   for (const ch of c.characters) for (const l of ch.intendedLies) lieOwners.set(l.id, [...(lieOwners.get(l.id) ?? []), ch.id]);
-  const checkHidden = (h: { secretIds: string[]; lieIds: string[] } | undefined, file: string, p: string) => {
+  const checkHidden = (h: { secretIds: string[]; lieIds: string[]; evidenceIds?: string[] } | undefined, file: string, p: string) => {
     h?.secretIds.forEach((id, k) => ref(allSecretIds, "secret", id, file, `${p}.hiddenUntil.secretIds.${k}`));
     h?.lieIds.forEach((id, k) => {
       const owners = lieOwners.get(id) ?? [];
       if (owners.length === 0) issues.push({ file, path: `${p}.hiddenUntil.lieIds.${k}`, message: `unknown intended lie "${id}"` });
       else if (owners.length > 1) issues.push({ file, path: `${p}.hiddenUntil.lieIds.${k}`, message: `lie id "${id}" is used by several characters (${owners.join(", ")}); make it unique` });
     });
+    h?.evidenceIds?.forEach((id, k) => ref(evidenceIds, "evidence", id, file, `${p}.hiddenUntil.evidenceIds.${k}`));
   };
 
   // case.json

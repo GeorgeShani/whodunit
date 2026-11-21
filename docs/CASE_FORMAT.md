@@ -59,6 +59,10 @@ cases/<caseId>/
   "intro": "Para one.\n\nPara two.",     // intro screen
   "dayStartsAt": "12:00",               // optional
   "knowledgeGate": "proximity",         // optional: "proximity" (default) | "explicit"; see "Knowledge gate" below
+  "copy": {                             // optional: case-level error lines
+    "unknownSuspect": "…"                //   accuse form, when the named person is not on the roster (max 300)
+  },                                     //   omitted: engine default (Blackwood hat-stand wording). unknown_case is a single
+                                         //   neutral line for every case and is not set here.
   "systemLines": {                      // optional (E10): the case's own wording for engine system lines
     "caseClosed": "…",                   //   a suspect addressed after the accusation (interrogate, confront, hint)
     "caseClosedSearch": "…",             //   a search after the accusation
@@ -221,14 +225,15 @@ Patterns are regex sources (case-insensitive, at most 600 characters, no nested 
   "confidence": 0.8,                    // optional 0–1, default 1
   "hiddenUntil": {                      // optional explicit hiding (see "Knowledge gate")
     "secretIds": ["s-archibald-false-alibi"],   // any character's secret ids…
-    "lieIds": ["l-archibald-together"]          // …and/or any character's lie ids (need to be unique case-wide)
+    "lieIds": ["l-archibald-together"],         // …and/or any character's lie ids (need to be unique case-wide)
+    "evidenceIds": ["heel-chart"]               // …and/or evidence ids: unlocks when any listed clue is found or shown
   }
 }
 ```
 
 **Time ranges.** A ranged fact is tagged `[21:13-21:30, The Hall]` in the prompt, and for the canon check any minute inside the range counts as a time the character knows. Timeline entries have always accepted `from`/`to`; plain facts now can too.
 
-**`hiddenUntil`.** The fact is withheld from everyone who knows it until ANY listed secret is unlocked *for that character* (they confessed it themselves, or the detective confronted them with it as testimony) or ANY listed lie is broken for its owner. A fact with `hiddenUntil` follows only this rule: the automatic links and the proximity heuristic skip it. At least one id is required.
+**`hiddenUntil`.** The fact is withheld from everyone who knows it until ANY listed secret is unlocked *for that character* (they confessed it themselves, or the detective confronted them with it as testimony), ANY listed lie is broken for its owner, or ANY listed evidence is found or shown in this game (the same "found or shown" rule as `guard.gatedTopics`). A fact with `hiddenUntil` follows only this rule: the automatic links and the proximity heuristic skip it. At least one of `secretIds`, `lieIds`, or `evidenceIds` is required. Existing facts may omit `evidenceIds`.
 
 ```jsonc
 // Archibald only "remembers" the phone call once he has admitted the false alibi, or his story has cracked.
@@ -303,6 +308,9 @@ If an image fails to load the screen falls back to the icon. `npm run validate:c
   "pronoun": "he",                                     // optional (E8): "she" | "he" | "they"; others' subject pronoun for this
                                                        //   character (guard over-claim check). Absent: guessed from titles in
                                                        //   name/aliases (Lady/Mrs/Miss/her ladyship: she; Lord/Mr/Sir: he)
+  "pronouns": { "subject": "he", "object": "him", "possessive": "his" },
+                                                       // optional (#103): system-line pronouns (model-down fallback).
+                                                       //   Absent: derived from `pronoun`, else they/them/their.
   "personality": {
     "traits": ["proper"], "speechStyle": "…",          // descriptive (traits ≥ 1)
     "catchphrases": [], "quirks": [], "tells": [],     // optional
@@ -434,7 +442,7 @@ With `breakMode: "any"` one condition is enough; with `"all"` every listed one m
 
 While a secret is locked or a lie unbroken, the character's context withholds the truth behind it (`engine/knowledge-gate.ts`), in three layers:
 
-1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower or a listed lie is broken. Nothing else applies to that fact.
+1. **Explicit** (`hiddenUntil` on a fact): withheld until a listed secret is unlocked for the knower, a listed lie is broken, or listed evidence is found or shown. Nothing else applies to that fact.
 2. **Direct links** (both modes): an unbroken lie's `aboutFactId` and a locked own secret's `relatedFactIds`.
 **Guilt-check name tokens (C3).** The guilt check matches every name in full and, for multi-word names (victim name and aliases, location names, a witness's first name), each word of 4+ letters alone too, except ordinary English words in the generic stoplist (`engine/name-tokens.ts`: "king", "deck", "brine", "marmalade", "room", "captain", ...). The weapon's head noun always counts. `guiltCheck.ignoreNameTokens` drops more words, `keepNameTokens` restores a stoplisted one; `validate:case` errors on a word in both lists and warns about a word that is no word of any multi-word name.
 
@@ -557,7 +565,7 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
    - locations used by the victim, facts, timeline and evidence;
    - people (characters or the victim) used by `involvesCharacterIds`, `relatedCharacters` and `targetCharacterId`;
    - facts used by `knownFactIds`, beliefs, secrets, lies and evidence;
-   - evidence used by reveal conditions, `brokenByEvidenceIds` and `keyEvidenceIds`;
+   - evidence used by reveal conditions, `brokenByEvidenceIds`, `keyEvidenceIds` and `hiddenUntil.evidenceIds`;
    - own secrets used by `afterSecretIds`;
    - any character's secrets used by `breaksOnSecretIds` and `hiddenUntil.secretIds`; facts used by `breaksOnFactIds`;
    - lies used by `hiddenUntil.lieIds` (must exist and be unique across characters);

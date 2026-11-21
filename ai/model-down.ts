@@ -22,27 +22,48 @@ export interface Unavailable {
   retryAfter?: number;
 }
 
-const first = (name: string) => name.trim().split(/\s+/)[0] || "They";
+export type CharacterPronouns = { subject: string; object: string; possessive: string };
 
-const BUSY: readonly ((n: string) => string)[] = [
-  (n) => `${n} falters and asks for a moment to collect their thoughts. Give it a breath, detective, then ask again.`,
+const THEY: CharacterPronouns = { subject: "they", object: "them", possessive: "their" };
+
+/** Pronouns for system lines: `pronouns` if set, else derived from `pronoun`, else they/them/their. */
+export function pronounsOf(
+  ch: { pronoun?: "she" | "he" | "they"; pronouns?: CharacterPronouns } | undefined | null,
+): CharacterPronouns {
+  if (ch?.pronouns) return ch.pronouns;
+  if (ch?.pronoun === "he") return { subject: "he", object: "him", possessive: "his" };
+  if (ch?.pronoun === "she") return { subject: "she", object: "her", possessive: "her" };
+  return THEY;
+}
+
+/** The character's display name from case data (the `name` field), never a bare title, first token, or id. */
+export function displayNameOf(ch: { name?: string } | undefined | null, fallback = "They"): string {
+  const n = ch?.name?.trim();
+  return n || fallback;
+}
+
+type LineFn = (n: string, p: CharacterPronouns) => string;
+
+const BUSY: readonly LineFn[] = [
+  (n, p) => `${n} falters and asks for a moment to collect ${p.possessive} thoughts. Give it a breath, detective, then ask again.`,
   (n) => `A crack of thunder swallows ${n}'s answer whole. Nobody caught a word. Ask again, detective.`,
   (n) => `The old house creaks and ${n} hesitates, the words won't come. A moment, detective, then try once more.`,
 ];
 
-const QUIET: readonly ((n: string) => string)[] = [
+const QUIET: readonly LineFn[] = [
   (n) => `The telephone line is down for the night and ${n} won't be drawn. Search the rooms, check your notebook, or accuse; talk resumes when it's mended.`,
   (n) => `The storm has cut the lines and ${n} has gone silent. Search the rooms, go over the notebook, or accuse, and ask again later.`,
 ];
 
 /** The in-fiction line for an unavailable model. `seed` picks a variant deterministically. */
-export function modelDownLine(kind: ModelDownKind, characterName: string, seed = 0): string {
+export function modelDownLine(kind: ModelDownKind, characterName: string, seed = 0, pronouns: CharacterPronouns = THEY): string {
   const list = kind === "quiet" ? QUIET : BUSY;
-  return list[Math.abs(Math.trunc(seed)) % list.length](first(characterName));
+  const name = characterName.trim() || "They";
+  return list[Math.abs(Math.trunc(seed)) % list.length](name, pronouns);
 }
 
-export function unavailable(kind: ModelDownKind, characterName: string, seed = 0): Unavailable {
-  return { kind, line: modelDownLine(kind, characterName, seed) };
+export function unavailable(kind: ModelDownKind, characterName: string, seed = 0, pronouns: CharacterPronouns = THEY): Unavailable {
+  return { kind, line: modelDownLine(kind, characterName, seed, pronouns) };
 }
 
 const minutes = (seconds: number) => {
@@ -51,22 +72,27 @@ const minutes = (seconds: number) => {
 };
 
 /** The per-player rate limit (HTTP 429): nothing was spent; ask again after `retryAfter` seconds. */
-export function breatherLine(characterName: string, retryAfterSec: number): string {
-  return `${first(characterName)} needs a breather, detective. Give them ${minutes(retryAfterSec)}, then ask again.`;
+export function breatherLine(characterName: string, retryAfterSec: number, pronouns: CharacterPronouns = THEY): string {
+  const name = characterName.trim() || "They";
+  return `${name} needs a breather, detective. Give ${pronouns.object} ${minutes(retryAfterSec)}, then ask again.`;
 }
 
 export function confrontBreatherLine(a: string, b: string, retryAfterSec: number): string {
-  return `${first(a)} and ${first(b)} need a breather, detective. Give them ${minutes(retryAfterSec)}, then put it to them again.`;
+  const left = a.trim() || "They";
+  const right = b.trim() || "They";
+  return `${left} and ${right} need a breather, detective. Give them ${minutes(retryAfterSec)}, then put it to them again.`;
 }
 
 /** A duplicate of a request already answered (HTTP 409): the client is handed the newest state. */
 export function answeredLine(characterName: string): string {
-  return `${first(characterName)} gives you an odd look: "I've only just answered that, detective." Your notes are up to date now; ask again if you wish.`;
+  const name = characterName.trim() || "They";
+  return `${name} gives you an odd look: "I've only just answered that, detective." Your notes are up to date now; ask again if you wish.`;
 }
 
 /** A duplicate of a request that is still being answered (HTTP 409). */
 export function stillAnsweringLine(characterName: string): string {
-  return `${first(characterName)} is still answering your last question, detective. One thing at a time.`;
+  const name = characterName.trim() || "They";
+  return `${name} is still answering your last question, detective. One thing at a time.`;
 }
 
 /** Read an `unavailable` object from a response body (unknown kinds read as "busy"). */
@@ -91,7 +117,7 @@ export function stillDownLine(kind: ModelDownKind): string {
 
 /** Confrontations are two voices at once, so the line is about the pair. */
 export function confrontDownLine(kind: ModelDownKind, a: string, b: string): string {
-  const names = `${first(a)} and ${first(b)}`;
+  const names = `${a.trim() || "They"} and ${b.trim() || "They"}`;
   return kind === "quiet"
     ? `The telephone line is down for the night and ${names} will say nothing more just now. Search the rooms, check your notebook, or make your accusation; they will talk when the line is mended.`
     : `Thunder rolls through the hall and ${names} both lose the thread. Nobody caught a word. Put it to them again, detective.`;
