@@ -39,7 +39,7 @@ describe("search reply carries the public weapon flag (Blackwood candlestick)", 
   it("after finding it, the accuse weapon list is non-empty and offers the candlestick", () => {
     const view = getPublicCaseView(c);
     const notebook = [...view.evidence, ...search("library").body.found];
-    expect(weaponChoices(notebook, view.weaponsMarked).map((e) => e.id)).toEqual(["silver-candlestick"]);
+    expect(weaponChoices(notebook, view.weaponsMarked).map((e) => e.id)).toEqual(["silver-candlestick", "fireplace-poker"]);
     const html = renderToStaticMarkup(
       h(AccuseScreen, { suspects: [], motives: [], busy: false, onSubmit: () => {}, onBack: () => {}, evidence: notebook, weaponsMarked: view.weaponsMarked } as never),
     );

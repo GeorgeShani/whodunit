@@ -508,7 +508,9 @@
      "icon": "🗡️",
      "id": "letter-opener",
      "kind": "physical",
-     "name": "Brass Letter Opener"
+     "locationId": "hall",
+     "name": "Brass Letter Opener",
+     "weapon": true
     }
    ],
    "lines": [
@@ -833,7 +835,7 @@
    "lines": [
     "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
     "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note.",
-    "The fire-irons sit in their stand, under a coat of yesterday's soot. They can wait."
+    "The fire-irons sit in their stand, under a coat of soot. They can wait."
    ],
    "locationId": "library",
    "progress": {
@@ -912,12 +914,14 @@
   "body": {
    "found": [
     {
-     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, a pale unmoved stripe in the soot on the hearthstone, with days of dust in the groove. Tonight's fire was fed without it: the poker has not been lifted.",
-     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed in days. This one stayed home.",
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
      "icon": "🔥",
      "id": "fireplace-poker",
      "kind": "physical",
-     "name": "Fireplace Poker"
+     "locationId": "library",
+     "name": "Fireplace Poker",
+     "weapon": true
     }
    ],
    "lines": [
@@ -1834,8 +1838,8 @@
      "name": "The Missing Library Key"
     },
     {
-     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, a pale unmoved stripe in the soot on the hearthstone, with days of dust in the groove. Tonight's fire was fed without it: the poker has not been lifted.",
-     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed in days. This one stayed home.",
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
      "icon": "🔥",
      "id": "fireplace-poker",
      "kind": "physical",

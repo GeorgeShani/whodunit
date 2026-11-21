@@ -240,6 +240,28 @@
       "involvesCharacterIds": [
         "gregory"
       ]
+    },
+    {
+      "id": "f-reginald-banked-fire",
+      "statement": "Before dinner, Reginald banked the library fire and set the poker in its stand. He did not take the poker out again.",
+      "category": "object",
+      "locationId": "library",
+      "involvesCharacterIds": [
+        "reginald"
+      ],
+      "source": "witnessed",
+      "confidence": 1
+    },
+    {
+      "id": "f-archibald-letter-opener",
+      "statement": "Before dinner, Archibald used his brass letter opener on Lord Blackwood's ledgers and letters at the hall table on his side of the hall. He is nervous the opener will be taken as proof he had been through those papers.",
+      "category": "object",
+      "locationId": "hall",
+      "involvesCharacterIds": [
+        "archibald"
+      ],
+      "source": "witnessed",
+      "confidence": 1
     }
   ],
   "motives": [
