@@ -89,11 +89,11 @@ describe("Tallyho context audit (root cause)", () => {
   });
 
   it("does not put heel-instrument wording in anyone else's context before heel-chart is found", () => {
-    // ev-chart-flip is a known data bug (Ottilie, no hiddenUntil) — covered by the it.fails below.
+    // ev-chart-flip is a gated on heel-chart via hiddenUntil.evidenceIds — covered by the test below.
     expect(collect(c, false, (item, ch) => HEEL_INSTRUMENT_RE.test(item.text) && !(ch === "ottilie" && item.id === "ev-chart-flip"))).toEqual([]);
   });
 
-  it.fails("ev-chart-flip is withheld from Ottilie until heel-chart is found (data: ev-chart-flip needs hiddenUntil on heel-chart)", () => {
+  it("ev-chart-flip is withheld from Ottilie until heel-chart is found", () => {
     const hits = collect(c, false, (item, ch) => ch === "ottilie" && item.id === "ev-chart-flip");
     expect(hits, "Agatha: gate timeline ev-chart-flip with hiddenUntil.evidenceIds: [\"heel-chart\"]").toEqual([]);
   });
