@@ -6,7 +6,7 @@
 import type { ResumeResponseBody } from "./resume-schema";
 export type { ResumeResponseBody } from "./resume-schema";
 import { storedOutcomeBody } from "./accuse-handler";
-import type { LoadedCase } from "./case-schema";
+import type { PlayableCase } from "./case-schema";
 import { COLD_CASE_NOTICE, CABINET_AHEAD_NOTICE, OFFLINE_RESUME_NOTICE, RESET_NOTICE, STALE_TOKEN_NOTICE, restoreSession } from "./session";
 import { inSetting, settingOf } from "./presentation";
 import {
@@ -38,7 +38,7 @@ export interface ResumeRequest {
 }
 
 export interface ResumeDeps {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   env?: Env;
   saves?: SavedGamesRepo | null;
   closed?: ClosedGamesRepo | null;
@@ -154,6 +154,6 @@ export async function handleResume(json: unknown, deps: ResumeDeps): Promise<{ s
 }
 
 /** For tests: wrap restoreSession so a missing token is a miss, not a new game. */
-export function peekResumeSession(caseData: LoadedCase, token: string, env?: Env) {
+export function peekResumeSession(caseData: PlayableCase, token: string, env?: Env) {
   return restoreSession(caseData, token, env);
 }

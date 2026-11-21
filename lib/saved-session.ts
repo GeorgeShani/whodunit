@@ -10,7 +10,7 @@
  *   persistSavedGame():  the quiet tab-close flush (/api/save): it can only create a missing row, never replace one.
  *   snapshotFromGame():  the public view a resume needs (no solution, no proof list, no sealed lies).
  */
-import type { LoadedCase } from "@/engine/case-schema";
+import type { PlayableCase } from "@/engine/case-schema";
 import type { ResumeSnapshot } from "@/engine/resume-schema";
 export type { ResumeSnapshot } from "@/engine/resume-schema";
 import { publicProgress } from "@/engine/progress";
@@ -34,7 +34,7 @@ import { runtimeKv, type KvStore } from "./runtime-kv";
 import { SAVE_TOKEN_MAX_CHARS, savedGamesRepo, type SavedGameRecord, type SavedGamesRepo } from "./saved-games";
 
 /** Public, spoiler-safe view of a restored game (Agatha's list, no solution or hidden proof). */
-export function snapshotFromGame(caseData: LoadedCase, game: import("@/engine/types").GameState): ResumeSnapshot {
+export function snapshotFromGame(caseData: PlayableCase, game: import("@/engine/types").GameState): ResumeSnapshot {
   const discovered = new Set([...game.discoveredEvidenceIds, ...caseData.evidence.filter((e) => e.initiallyAvailable).map((e) => e.id)]);
   const pair = game.activeConfrontation?.characterIds;
   const caps = game.pairTurns;
@@ -117,7 +117,7 @@ export interface SyncedIncoming {
  */
 export async function syncIncomingToken(
   json: unknown,
-  caseData: LoadedCase,
+  caseData: PlayableCase,
   env?: Env,
   repo: SavedGamesRepo | null | undefined = savedGamesRepo(),
   opts: { headers?: Headers; kv?: KvStore } = {},
@@ -183,7 +183,7 @@ export type CommitOutcome =
   /** The per-game throttle refused the write: answer 429 SAVE_BUSY_LINE, keep the player's current token. */
   | { kind: "throttled" };
 
-function staleFromRow(caseData: LoadedCase, row: SavedGameRecord, env?: Env): StaleCommit | null {
+function staleFromRow(caseData: PlayableCase, row: SavedGameRecord, env?: Env): StaleCommit | null {
   const d = decodeStateToken(row.stateToken, caseData, env);
   if (!d.ok) return null;
   return {
@@ -198,7 +198,7 @@ function staleFromRow(caseData: LoadedCase, row: SavedGameRecord, env?: Env): St
 }
 
 /** Re-sign an issued token as offline lineage (#94): it keeps this tab playing but can never be written. */
-function downgradeToOffline<B extends { stateToken?: string; offline?: boolean }>(body: B, caseData: LoadedCase, env?: Env): void {
+function downgradeToOffline<B extends { stateToken?: string; offline?: boolean }>(body: B, caseData: PlayableCase, env?: Env): void {
   if (!body.stateToken) return;
   const d = decodeStateToken(body.stateToken, caseData, env);
   if (!d.ok) return;
@@ -216,7 +216,7 @@ export async function commitSavedAction<B extends { stateToken?: string; notice?
   status: number,
   body: B,
   synced: SyncedIncoming,
-  caseData: LoadedCase,
+  caseData: PlayableCase,
   env?: Env,
 ): Promise<CommitOutcome> {
   const out = await commitInner(status, body, synced, caseData, env);
@@ -233,7 +233,7 @@ async function commitInner<B extends { stateToken?: string; notice?: string; off
   status: number,
   body: B,
   synced: SyncedIncoming,
-  caseData: LoadedCase,
+  caseData: PlayableCase,
   env?: Env,
 ): Promise<CommitOutcome> {
   if (synced.notice && !body.notice) body.notice = synced.notice;

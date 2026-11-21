@@ -1,18 +1,17 @@
 /** App-level case configuration (the engine itself is case-agnostic). */
 
+import { CASE_ALIASES, canonicalCaseId } from "./case-aliases";
+
+export { CASE_ALIASES, canonicalCaseId };
+
 /** The case served at "/" and assumed for legacy state tokens that predate caseId. */
 export const DEFAULT_CASE_ID = "blackwood";
 
 /**
- * Published-id aliases for a draft folder that was later renamed (phase 11: `_tallyho` → `tallyho`).
- * Old tokens and save rows keep the draft id; every lookup uses the canonical (published) id.
+ * Published-id aliases for a draft folder that was later renamed live in
+ * lib/case-aliases.ts (the single map). Old tokens and save rows keep the draft id;
+ * every lookup uses the canonical (published) id via canonicalCaseId.
  */
-export const CASE_ALIASES: Readonly<Record<string, string>> = { _tallyho: "tallyho" };
-
-/** The published case id, if this id was renamed; otherwise the id itself. */
-export function canonicalCaseId(id: string): string {
-  return CASE_ALIASES[id] ?? id;
-}
 
 /** True when both ids name the same case, including a draft id and its published name. */
 export function caseIdsMatch(a: string, b: string): boolean {

@@ -7,7 +7,7 @@
  * tokens are skipped, and a refusal (row exists, rate cap, limiter error, per-game
  * throttle) is a silent 204: nothing is ever shown to the player.
  */
-import type { LoadedCase } from "./case-schema";
+import type { PlayableCase } from "./case-schema";
 import { decodeStateToken, isGameId, peekStateTokenGameId, type Env } from "./state-token";
 import { caseIdsMatch } from "@/lib/cases";
 import { persistSavedGame } from "@/lib/saved-session";
@@ -24,7 +24,7 @@ export interface SaveRequest {
 }
 
 export interface SaveDeps {
-  caseData: LoadedCase;
+  caseData: PlayableCase;
   env?: Env;
   saves?: SavedGamesRepo | null;
   headers?: Headers;
