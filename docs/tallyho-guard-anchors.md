@@ -11,7 +11,7 @@ Author data for the optional server-only `guard` block on `case.json` (issues #9
 | Role | Id | Notes |
 | --- | --- | --- |
 | True time of death | `solution.time` = `21:52` | Fact `ev-bonk`. Location `cabin-deck`. Murderer Zippelli; helper Bilge (bridge act at 22:38). |
-| Public proof he was already dead | `22:14` port lurch | Facts `ev-great-lurch`, `ev-chart-flip`, `f-list-history`. The marmalade set towards the starboard wall, then the chest ran to port at the lurch and stopped on his coat-tail: he was already lying there. |
+| Public proof he was already dead | `22:14` port lurch | Facts `ev-great-lurch`, `ev-chart-flip`, `f-list-history`. The marmalade set towards the starboard wall, then the chest ran to port at the lurch and stopped on his coat-tail: the body was already on the carpet. |
 | Proof evidence | `marmalade-run`, `heel-chart` | `heel-chart` is `featureConfig.ship-list.flipShownBy`. |
 | Time-misdirection proof | `featureProof.time-misdirection.provedBy` | `marmalade-run`, `cheer-cylinder`. Staged clocks: 22:38 (cheer / “alive”) and 22:41 (smashed watch / “death”). Evidence `smashed-watch`, `cheer-cylinder`. |
 | Heel-chart discovery (gated topic) | evidence `heel-chart` | Lift `gatedTopics` when `discoveredEvidenceIds` includes `heel-chart`, or the card is shown / presented to the speaker. |

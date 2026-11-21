@@ -183,6 +183,30 @@ describe("CASE_SOLUTION_<ID> env loader", () => {
     },
   );
 
+  it.skipIf(!existsSync("cases/tallyho/solution.json"))(
+    "LoadedCase.solution has no endings key when the Tallyho payload comes from the env",
+    async () => {
+      const raw = readFileSync("cases/tallyho/solution.json");
+      expect(raw.length).toBe(6339);
+      expect(createHash("sha256").update(raw).digest("hex").startsWith("ed7c60c0495104da")).toBe(true);
+
+      const tmp = await mkdtemp(path.join(tmpdir(), "th-env-endings-"));
+      const prev = process.env.CASE_SOLUTION_TALLYHO;
+      try {
+        await cp(path.resolve("cases/tallyho"), path.join(tmp, "tallyho"), { recursive: true });
+        await unlink(path.join(tmp, "tallyho", "solution.json"));
+        process.env.CASE_SOLUTION_TALLYHO = raw.toString("base64");
+        const c = await loadCase("tallyho", tmp);
+        expect(c.solution).not.toHaveProperty("endings");
+        expect(c.endings?.correct).toBeDefined();
+      } finally {
+        if (prev === undefined) delete process.env.CASE_SOLUTION_TALLYHO;
+        else process.env.CASE_SOLUTION_TALLYHO = prev;
+        await rm(tmp, { recursive: true, force: true });
+      }
+    },
+  );
+
   it("does not track Tallyho's or Blackwood's solution.json, and CASE_SOLUTION_ is never a NEXT_PUBLIC_ name in the repo", () => {
     const tracked = execSync("git ls-files cases/tallyho/solution.json cases/_tallyho/solution.json cases/blackwood/solution.json", { encoding: "utf8" }).trim();
     expect(tracked).toBe("");
