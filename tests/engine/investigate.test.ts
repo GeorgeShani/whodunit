@@ -33,8 +33,8 @@ describe("searchLocation (engine)", () => {
       c.locations.map((l) => [l.id, searchLocation(c, g, l.id).newlyFound.map((e) => e.id).sort()]),
     );
     expect(found).toEqual({
-      library: ["silver-candlestick"], // not initiallyAvailable: found by searching the library
-      hall: ["muddy-footprint"],
+      library: ["fireplace-poker", "silver-candlestick"], // not initiallyAvailable: found by searching the library
+      hall: ["letter-opener", "muddy-footprint"],
       "dining-room": ["burned-letter", "library-key"],
       garden: [],
       kitchen: [],

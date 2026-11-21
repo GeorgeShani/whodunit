@@ -39,12 +39,22 @@ describe("search reply carries the public weapon flag (Blackwood candlestick)", 
   it("after finding it, the accuse weapon list is non-empty and offers the candlestick", () => {
     const view = getPublicCaseView(c);
     const notebook = [...view.evidence, ...search("library").body.found];
-    expect(weaponChoices(notebook, view.weaponsMarked).map((e) => e.id)).toEqual(["silver-candlestick"]);
+    expect(weaponChoices(notebook, view.weaponsMarked).map((e) => e.id)).toEqual(["silver-candlestick", "fireplace-poker"]);
     const html = renderToStaticMarkup(
       h(AccuseScreen, { suspects: [], motives: [], busy: false, onSubmit: () => {}, onBack: () => {}, evidence: notebook, weaponsMarked: view.weaponsMarked } as never),
     );
     expect(html).toContain('data-accuse-weapon="silver-candlestick"');
     expect(html).not.toContain("No possible weapon in your notebook yet");
+  });
+
+  it("a hall search puts letter-opener into weaponChoices", () => {
+    const view = getPublicCaseView(c);
+    const notebook = [...view.evidence, ...search("hall").body.found];
+    expect(weaponChoices(notebook, view.weaponsMarked).map((e) => e.id)).toContain("letter-opener");
+    const html = renderToStaticMarkup(
+      h(AccuseScreen, { suspects: [], motives: [], busy: false, onSubmit: () => {}, onBack: () => {}, evidence: notebook, weaponsMarked: view.weaponsMarked } as never),
+    );
+    expect(html).toContain('data-accuse-weapon="letter-opener"');
   });
 
   it("non-weapon finds carry no flag, and no search reply carries solution keys", () => {
