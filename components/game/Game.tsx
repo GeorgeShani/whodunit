@@ -41,7 +41,7 @@ import { CaseNotReady } from "@/components/progress/CaseNotReady";
 import { NewLeadToast } from "@/components/progress/NewLeadToast";
 import type { PublicProgress } from "@/engine/progress";
 import { cabinetAhead, resumeNotice, swappedSnapshot, withNotice, type CabinetAhead } from "./cabinet-notice";
-import { clearGame, clearSavePointer, isPublicProgress, loadSavePointer, readTokenFallback, writeSavePointer, writeTokenFallback } from "@/lib/game-session";
+import { clearGame, clearSavePointer, isPublicProgress, loadSavePointer, resumedEvidence, readTokenFallback, writeSavePointer, writeTokenFallback } from "@/lib/game-session";
 import { bindQuietSave, createQuietSave } from "@/lib/quiet-save";
 import type { ResumeResponseBody, ResumeSnapshot } from "@/engine/resume-schema";
 import { IntroScreen } from "./IntroScreen";
@@ -871,7 +871,7 @@ export function Game({
 
 
   const applySnapshot = useCallback((snap: ResumeSnapshot, closed?: ResumeResponseBody["closed"]) => {
-    setEvidence(snap.evidence.length ? snap.evidence : view.evidence);
+    setEvidence(resumedEvidence(snap, view.evidence));
     setTestimonies(snap.testimonies);
     setProgress(snap.progress);
     setSearched(snap.searchedLocationIds);

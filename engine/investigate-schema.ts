@@ -1,7 +1,8 @@
 /** Request/response contract for POST /api/investigate (client-safe). */
 import type { PublicProgress } from "@/engine/progress";
 import { z } from "zod";
-import { CaseIdSchema, IdSchema, type Evidence } from "./types";
+import { CaseIdSchema, IdSchema } from "./types";
+import type { PublicEvidence } from "./public-view";
 
 export const InvestigateRequestSchema = z.strictObject({
   /** The case being played (from the page route). Omitted: the token's case, else the default case. */
@@ -12,18 +13,11 @@ export const InvestigateRequestSchema = z.strictObject({
 });
 export type InvestigateRequest = z.input<typeof InvestigateRequestSchema>;
 
-/** Public evidence fields shown when a clue is found. */
-export interface FoundEvidence {
-  id: string;
-  name: string;
-  description: string;
-  kind: Evidence["kind"];
-  image?: string;
-  icon?: string;
-  discoveryLine?: string;
-  /** Phase 6: this clue's public feature extras (see PublicEvidence.features). */
-  features?: Record<string, unknown>;
-}
+/**
+ * A clue found by this search: exactly the notebook shape every route shares (engine/public-view toPublicEvidence),
+ * so public flags such as `weapon` (a weapon candidate, never the solution) always reach the client.
+ */
+export type FoundEvidence = PublicEvidence;
 
 export interface InvestigateResponseBody {
   locationId?: string;
