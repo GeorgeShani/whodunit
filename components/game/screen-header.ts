@@ -23,3 +23,12 @@ export const SCREEN_ACTIONS = "order-3 basis-full sm:justify-center lg:mx-auto l
 
 /** Balances the back button from `lg` so the title sits near the centre; zero basis, so it never forces a wrap. */
 export const SCREEN_HEADER_SPACER = "order-3 hidden lg:block lg:max-w-40 lg:shrink lg:grow lg:basis-0";
+
+/**
+ * Header variant for screens with nothing on the right (investigate, accuse): from `lg` it's a three-column grid with
+ * equal outer columns, so the title sits exactly on the page centre (lined up with the centred content below) no matter
+ * how wide the back button is. Symmetric `px-56` keeps the HUD corner clear without pushing the title off centre.
+ * Below `lg` it stacks exactly like SCREEN_HEADER.
+ */
+export const SCREEN_HEADER_CENTERED =
+  "flex w-full flex-wrap items-center justify-between gap-x-3 gap-y-2 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-2 lg:max-[1700px]:px-56";

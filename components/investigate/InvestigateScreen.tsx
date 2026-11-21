@@ -1,6 +1,6 @@
 "use client";
 
-import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
+import { SCREEN_HEADER_CENTERED, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
 import { motion } from "framer-motion";
 import { CartoonButton } from "@/components/game/CartoonButton";
 import { backdropStyle } from "@/components/game/backdrop";
@@ -48,8 +48,8 @@ export function InvestigateScreen({
       }`}
       style={backdropStyle(backdrop)}
     >
-      <div className={`${SCREEN_HEADER} max-w-6xl`}>
-        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0">
+      <div className={`${SCREEN_HEADER_CENTERED} max-w-6xl`}>
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0 lg:justify-self-start">
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
