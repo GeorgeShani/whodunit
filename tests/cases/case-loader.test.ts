@@ -186,12 +186,34 @@ describe("validateCase (broken fixtures)", () => {
 describe("endings.json", () => {
   it("is loaded when present and optional when absent", async () => {
     const c = await loadCase(FIXTURE_ID, FIXTURES_DIR);
-    expect(c.endings?.correct.confession[0].speaker).toBe("alpha");
-    expect(Object.keys(c.endings!.wrong).sort()).toEqual(["alpha", "bravo", "charlie"]);
+    expect(c.endings?.correct?.confession[0].speaker).toBe("alpha");
+    expect(Object.keys(c.endings!.wrong ?? {}).sort()).toEqual(["alpha", "bravo", "charlie"]);
     await expectValid(async (_edit, dir) => {
       const { rm } = await import("node:fs/promises");
       await rm(`${dir}/endings.json`);
     });
+  });
+
+  it("merges culprit-naming endings from the solution when endings.json omits them", async () => {
+    const { casesDir, cleanup } = await makeBrokenCopy(async (edit) => {
+      let secret: { correct: unknown; wrong: Record<string, unknown> } | undefined;
+      await edit("endings.json", (e) => {
+        secret = { correct: e.correct, wrong: { alpha: e.wrong.alpha } };
+        delete e.correct;
+        delete e.wrong.alpha;
+      });
+      await edit("solution.json", (s) => {
+        s.endings = secret;
+      });
+    });
+    try {
+      const r = await validateCase(FIXTURE_ID, casesDir);
+      expect(r.issues).toEqual([]);
+      expect(r.data?.endings?.correct?.confession[0].speaker).toBe("alpha");
+      expect(Object.keys(r.data!.endings!.wrong ?? {}).sort()).toEqual(["alpha", "bravo", "charlie"]);
+    } finally {
+      await cleanup();
+    }
   });
 
   it("requires a wrong ending for EVERY suspect, including the murderer", async () => {

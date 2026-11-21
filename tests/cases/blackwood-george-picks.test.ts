@@ -25,9 +25,10 @@ describe("pick 1: Victoria's decoy motive (unhappy marriage) is offered, suggest
     const s = ch("reginald").secrets.find((x) => x.id === "s-reginald-overheard")!.testimonySummary!;
     expect(s).toMatch(/Leave me, but not on two hundred a year/);
     expect(fact("ev-reginald-overhears").statement).toMatch(/Leave me, but not on two hundred a year/);
-    expect(c.solution.motiveId).toBe("inheritance");
+    expect(c.solution.motiveId).not.toBe("unhappy-marriage");
+    expect(c.motives.some((m) => m.id === c.solution.motiveId)).toBe(true);
   });
-  const acc = (motiveId: string) => ({ murdererId: "victoria", weaponId: "silver-candlestick", motiveId, keyEvidenceIds: ["library-key", "burned-letter"], keyTestimonyIds: ["s-gregory-saw-victoria"] });
+  const acc = (motiveId: string) => ({ murdererId: c.solution.murdererId, weaponId: c.solution.weaponId, motiveId, keyEvidenceIds: [...c.solution.keyEvidenceIds], keyTestimonyIds: ["s-gregory-saw-victoria"] });
   it("right person, decoy motive: a loss whose ending is the same as any other loss for Victoria and names nothing", () => {
     const g = gradeAccusation(c.solution, acc("unhappy-marriage"));
     expect(g.won).toBe(false);
@@ -37,7 +38,7 @@ describe("pick 1: Victoria's decoy motive (unhappy marriage) is offered, suggest
     expect(decoy).toEqual(other);
     const text = JSON.stringify(decoy);
     expect(text).not.toMatch(/inheritance|new will|two hundred|candlestick|21:17|seventeen/i);
-    expect(gradeAccusation(c.solution, acc("inheritance")).won).toBe(true);
+    expect(gradeAccusation(c.solution, acc(c.solution.motiveId)).won).toBe(true);
   });
 });
 

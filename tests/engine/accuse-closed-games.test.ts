@@ -19,12 +19,17 @@ import { closedGamesRepo, memoryClosedGames, resetClosedGamesWarning } from "@/l
 import { deepScan } from "../helpers/leak-scan";
 import { TEST_ENV } from "../helpers/grok-mock";
 import { ungated } from "../helpers/ungated";
+import { winningAccusation } from "../helpers/winning";
 
 let c: LoadedCase;
 let real: LoadedCase;
+let WIN: Accusation;
+let LOSE: Accusation;
 beforeAll(async () => {
   real = await loadCase("blackwood");
   c = ungated(real);
+  WIN = winningAccusation(c, { keyEvidenceIds: [c.solution.keyEvidenceIds[0], "muddy-footprint"] });
+  LOSE = { ...WIN, murdererId: "reginald" };
 });
 
 const ALL = ["silver-candlestick", "muddy-footprint", "burned-letter", "library-key"];
@@ -33,8 +38,6 @@ const token = () => {
   g.discoveredEvidenceIds.push(...ALL);
   return encodeStateToken(g, TEST_ENV);
 };
-const WIN = { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "muddy-footprint"] };
-const LOSE = { ...WIN, murdererId: "reginald" };
 const cacheStore = (): AccusedStore & { m: Map<string, Accusation> } => {
   const m = new Map<string, Accusation>();
   return { m, get: async (id) => m.get(id) ?? null, put: async (id, a) => void m.set(id, a) };
@@ -82,7 +85,7 @@ describe("#39 accuse with the closed-games record (Postgres contract, in-memory)
     const again = await accuse(LOSE, t0, repo, cacheStore());
     expect(again.status).toBe(409);
     expect(again.body).toMatchObject({ error: "case_closed", outcome: "won" });
-    expect(again.body.solution?.murderer.id).toBe("victoria");
+    expect(again.body.solution?.murderer.id).toBe(c.solution.murdererId);
     expect(gameOf(again.body.stateToken)).toMatchObject({ outcome: "won", phase: "resolved" });
     // That game-over token replays without touching the record again.
     const spy = { closeGame: vi.fn(), getClosed: vi.fn() };

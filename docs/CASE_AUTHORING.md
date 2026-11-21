@@ -21,7 +21,7 @@ cases/<caseId>/                 folder name == case.json "id" (lowercase kebab/s
   docs/SOLUTION_PROOF.md        OPTIONAL  ignored by the loader. Ship it: it is the fairness proof (see §2, step 8)
 ```
 
-- **Server-only: `solution.json` and `endings.json`.** They spell out the answer. They never reach the public view, the character context, or the model. Never paste their contents into `case.json`, intro text, lead hints, or discovery lines. [CF "What the AI and the player can see"]
+- **Server-only: `solution.json` and `endings.json`.** They spell out the answer. They never reach the public view, the character context, or the model. Never paste their contents into `case.json`, intro text, lead hints, or discovery lines. Culprit-naming endings may live on the solution (`endings` field / `CASE_SOLUTION_*`) instead of the committed `endings.json`. [CF "What the AI and the player can see"]
 - Everything else in `case.json` / `evidence.json` marked PUBLIC in [CF] (victim, location text, `searchFlavor`, `discoveryLine`, motive options, lead titles/hints, `lockedLine`s, `testimonySummary` once revealed) is read by players. `requires`, `opensWhen`, `closesWhen`, `accuseGate` stay private.
 - `_`-prefixed folders are templates and never served; every other folder with a `case.json` is live at `/case/<caseId>`. [CF intro] **Do not push a half-finished case under a plain id to `main`.** Build it under `_<caseId>` or on a branch, and rename it for the release PR.
 - Optional art fields: `locations[].background`, `case.json backdrops.{title,suspects,interrogation,investigate}`, character `portrait`. Paths look like `/assets/<folder>/<file>.webp`. The validator warns if one is missing. [CF "Art fields"]

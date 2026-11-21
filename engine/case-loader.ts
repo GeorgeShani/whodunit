@@ -18,7 +18,7 @@ import {
   type SolvedCase,
 } from "./case-schema";
 import { checkCaseReferences, formatIssue, type CaseIssue } from "./case-validation";
-import { EndingsSchema, type Endings } from "./endings";
+import { mergeEndings, PublicEndingsSchema, type PublicEndings } from "./endings";
 import { canonicalCaseId } from "@/lib/case-aliases";
 import {
   CaseSolutionSchema,
@@ -136,13 +136,19 @@ export async function validateCase(caseId: string, casesDir = DEFAULT_CASES_DIR)
     }
   }
 
-  // endings.json is optional for now (validated when present).
-  let endings: Endings | undefined;
+  // endings.json is optional. Culprit-naming parts may live on the solution instead.
+  let fileEndings: PublicEndings | undefined;
   const endRaw = await readJson(dir, "endings.json", issues, true);
   if (endRaw !== undefined) {
-    const r = EndingsSchema.safeParse(endRaw);
-    if (r.success) endings = r.data;
+    const r = PublicEndingsSchema.safeParse(endRaw);
+    if (r.success) fileEndings = r.data;
     else issues.push(...zodIssues("endings.json", r.error));
+  }
+  const endings = mergeEndings(fileEndings, solution?.endings);
+  // Keep culprit-naming endings on c.endings only, so LoadedCase.solution stays the id payload.
+  if (solution?.endings) {
+    const { endings: _secret, ...rest } = solution;
+    solution = rest;
   }
 
   const characters: Character[] = [];

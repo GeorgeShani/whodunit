@@ -4,34 +4,34 @@ import { gradeAccusation } from "@/engine/accusation";
 import type { CaseSolution } from "@/engine/solution";
 
 const solution: CaseSolution = {
-  murdererId: "victoria",
-  weaponId: "silver-candlestick",
-  locationId: "library",
-  time: "21:17",
-  motiveId: "inheritance",
-  keyEvidenceIds: ["library-key", "burned-letter"],
+  murdererId: "alpha",
+  weaponId: "heavy-wrench",
+  locationId: "workshop",
+  time: "21:00",
+  motiveId: "partnership-dispute",
+  keyEvidenceIds: ["note", "ledger"],
 };
-const right = { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key"] };
+const right = { murdererId: "alpha", weaponId: "heavy-wrench", motiveId: "partnership-dispute", keyEvidenceIds: ["note"] };
 
 describe("gradeAccusation", () => {
   it("wins with murderer + weapon + motive + one key evidence", () => {
     const g = gradeAccusation(solution, right);
     expect(g.won).toBe(true);
-    expect(g.keyEvidenceCited).toEqual(["library-key"]);
+    expect(g.keyEvidenceCited).toEqual(["note"]);
   });
 
   it("extra non-key evidence is fine", () => {
-    const g = gradeAccusation(solution, { ...right, keyEvidenceIds: ["muddy-footprint", "burned-letter", "burned-letter"] });
+    const g = gradeAccusation(solution, { ...right, keyEvidenceIds: ["boot-print", "ledger", "ledger"] });
     expect(g.won).toBe(true);
-    expect(g.otherEvidenceCited).toEqual(["muddy-footprint"]);
-    expect(g.keyEvidenceCited).toEqual(["burned-letter"]);
+    expect(g.otherEvidenceCited).toEqual(["boot-print"]);
+    expect(g.keyEvidenceCited).toEqual(["ledger"]);
   });
 
   it.each([
-    ["wrong murderer", { murdererId: "archibald" }, "murdererCorrect"],
-    ["wrong weapon", { weaponId: "library-key" }, "weaponCorrect"],
+    ["wrong murderer", { murdererId: "bravo" }, "murdererCorrect"],
+    ["wrong weapon", { weaponId: "note" }, "weaponCorrect"],
     ["wrong motive", { motiveId: "revenge" }, "motiveCorrect"],
-    ["no key evidence", { keyEvidenceIds: ["muddy-footprint", "silver-candlestick"] }, "hasKeyEvidence"],
+    ["no key evidence", { keyEvidenceIds: ["boot-print", "heavy-wrench"] }, "hasKeyEvidence"],
   ] as Array<[string, Partial<typeof right>, "murdererCorrect" | "weaponCorrect" | "motiveCorrect" | "hasKeyEvidence"]>)("loses with %s", (_l, patch, flag) => {
     const g = gradeAccusation(solution, { ...right, ...patch });
     expect(g.won).toBe(false);
@@ -40,14 +40,14 @@ describe("gradeAccusation", () => {
 
   it("returns time and place for the recap without grading them", () => {
     expect(gradeAccusation(solution, right).recap).toEqual({
-      murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", locationId: "library", time: "21:17",
+      murdererId: "alpha", weaponId: "heavy-wrench", motiveId: "partnership-dispute", locationId: "workshop", time: "21:00",
     });
   });
 });
 
 describe("gradeAccusation: progression win rule (minKeyEvidence / keyTestimonyIds / minKeyTestimony)", () => {
   const strict: CaseSolution = { ...solution, minKeyEvidence: 2, keyTestimonyIds: ["s-a", "s-b"], minKeyTestimony: 1 };
-  const both = { ...right, keyEvidenceIds: ["library-key", "burned-letter"], keyTestimonyIds: ["s-a"] };
+  const both = { ...right, keyEvidenceIds: ["note", "ledger"], keyTestimonyIds: ["s-a"] };
   it("defaults keep today's rule: one key clue, no testimony", () => {
     const g = gradeAccusation(solution, right);
     expect(g).toMatchObject({ won: true, hasKeyEvidence: true, hasKeyTestimony: true, keyTestimonyCited: [] });
@@ -56,7 +56,7 @@ describe("gradeAccusation: progression win rule (minKeyEvidence / keyTestimonyId
     expect(gradeAccusation(strict, both)).toMatchObject({ won: true, keyTestimonyCited: ["s-a"], hasKeyTestimony: true });
   });
   it.each([
-    ["one key clue only", { keyEvidenceIds: ["library-key"] }, "hasKeyEvidence"],
+    ["one key clue only", { keyEvidenceIds: ["note"] }, "hasKeyEvidence"],
     ["no testimony", { keyTestimonyIds: [] }, "hasKeyTestimony"],
     ["testimony that is not key", { keyTestimonyIds: ["s-z"] }, "hasKeyTestimony"],
     ["testimony omitted", { keyTestimonyIds: undefined }, "hasKeyTestimony"],
@@ -66,13 +66,13 @@ describe("gradeAccusation: progression win rule (minKeyEvidence / keyTestimonyId
     expect((g as unknown as Record<string, boolean>)[flag]).toBe(false);
   });
   it("duplicate citations count once", () => {
-    expect(gradeAccusation(strict, { ...both, keyEvidenceIds: ["library-key", "library-key"] }).won).toBe(false);
+    expect(gradeAccusation(strict, { ...both, keyEvidenceIds: ["note", "note"] }).won).toBe(false);
   });
 });
 
 describe("validateAccusationDraft: citing testimony", () => {
-  const opts = { suspectIds: ["victoria"], evidenceIds: ["library-key"], motiveIds: ["inheritance"], testimonyIds: ["s-a", "s-b"] };
-  const draft = { murdererId: "victoria", weaponId: "library-key", motiveId: "inheritance", keyEvidenceIds: ["library-key"] };
+  const opts = { suspectIds: ["alpha"], evidenceIds: ["note"], motiveIds: ["partnership-dispute"], testimonyIds: ["s-a", "s-b"] };
+  const draft = { murdererId: "alpha", weaponId: "note", motiveId: "partnership-dispute", keyEvidenceIds: ["note"] };
   it("is required when the case says so", () => {
     expect(validateAccusationDraft(draft, { ...opts, requireTestimony: true })).toMatchObject({ ok: false });
     const ok = validateAccusationDraft({ ...draft, keyTestimonyIds: ["s-a", "s-a"] }, { ...opts, requireTestimony: true });

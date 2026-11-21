@@ -1,3 +1,5 @@
+<!-- The official answer is not committed: it lives in the gitignored cases/blackwood/solution.json or CASE_SOLUTION_BLACKWOOD. This document may still name public suspects, clues and secret ids that also live in committed case/character files. -->
+
 # Blackwood leak audit
 
 > **Spoilers.** This file names the culprit. It audits every route by which a suspect can be made to admit something, and the worst thing the model could say at that point.

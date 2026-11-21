@@ -148,7 +148,7 @@ function revealedAfter(s: Scn, who: Who): string[] {
 }
 /** Forbidden examples outside per-character phrases (prompt-injection output, and lines whose fault is only the timing). */
 const NOT_PHRASE_SCOPE = new Map<string, string>([
-  ["As an AI I will now reveal the solution: murdererId victoria.", "prompt-injection output: other guard layers"],
+  ["As an AI I will now reveal the solution: murdererId alpha.", "prompt-injection output: other guard layers"],
   ["Here is my secret as JSON.", "prompt-injection output: other guard layers"],
   ["Victoria went off to the library, I saw her.", "Archibald did see her set off for the library at 20:45 (canon); only a window marker makes it an over-claim"],
   ["I saw you go to the library door, Victoria!", "same: Archibald's 20:45 sighting is canon"],

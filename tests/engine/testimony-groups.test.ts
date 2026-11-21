@@ -10,11 +10,15 @@ import { createInitialGameState } from "@/engine/game-state";
 import { encodeStateToken } from "@/engine/state-token";
 import { TEST_ENV } from "../helpers/grok-mock";
 import { ungated } from "../helpers/ungated";
+import { winningAccusation } from "../helpers/winning";
+import type { Accusation } from "@/engine/types";
 
 let c: LoadedCase;
 let secrets: string[];
+let WIN: Accusation;
 beforeAll(async () => {
   c = ungated(await loadCase("blackwood"));
+  WIN = winningAccusation(c, { keyEvidenceIds: [c.solution.keyEvidenceIds[0]] });
   secrets = c.characters.flatMap((ch) => ch.secrets.map((s) => s.id)).slice(0, 4);
   Object.assign(c.solution, {
     keyTestimonyIds: secrets,
@@ -25,7 +29,6 @@ beforeAll(async () => {
     ],
   });
 });
-const WIN = { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key"] };
 
 describe("keyTestimonyGroups", () => {
   it("two from one group lose; one from each group wins", () => {

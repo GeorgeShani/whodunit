@@ -8,11 +8,11 @@
  *   evidence.json          -> EvidenceFileSchema (Evidence[])
  *   characters/<id>.json   -> CharacterSchema (one file per interrogable character)
  *   solution.json          -> CaseSolutionSchema (SERVER-ONLY)
- *   endings.json           -> EndingsSchema (SERVER-ONLY; optional for now)
+ *   endings.json           -> PublicEndingsSchema (SERVER-ONLY; optional; culprit-naming parts may live on the solution)
  */
 import { z } from "zod";
 import { MAX_CASE_CONFRONTATION_TOTAL, MAX_CONFRONTATION_TURNS } from "./constants";
-import { EndingsSchema } from "./endings";
+import { PublicEndingsSchema } from "./endings";
 import { CaseGuardSchema } from "./output-guard";
 import { CaseAudioSchema, OrderLandmarkSchema, OrderWordsSchema, SettingSchema, ThemeSchema } from "./presentation";
 import { CaseSolutionSchema } from "./solution";
@@ -219,8 +219,8 @@ export const LoadedCaseSchema = CaseEnvelopeSchema.extend({
   evidence: EvidenceFileSchema,
   characters: z.array(CharacterSchema).min(2),
   solution: CaseSolutionSchema,
-  /** Authored endings (SERVER-ONLY). Optional until every case ships endings.json. */
-  endings: EndingsSchema.optional(),
+  /** Authored endings (SERVER-ONLY), after merging endings.json with solution.endings. Optional. */
+  endings: PublicEndingsSchema.optional(),
 });
 export type LoadedCase = z.infer<typeof LoadedCaseSchema>;
 /** A loaded case whose solution is present and valid. */

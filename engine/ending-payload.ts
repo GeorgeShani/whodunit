@@ -60,10 +60,10 @@ export function buildEnding(c: LoadedCase, grade: Pick<AccusationGrade, "won"> &
   const e = c.endings;
   const escaped = e?.escapedLine ?? DEFAULT_ESCAPED_LINE;
   if (grade.won) {
-    const confession = e?.correct.confession.map((l) => toBeat(c, l, "confession")) ?? [
+    const confession = e?.correct?.confession?.map((l) => toBeat(c, l, "confession")) ?? [
       toBeat(c, { speaker: c.solution.murdererId, text: "...Fine. You've got me, detective.", emotion: "angry" }, "confession"),
     ];
-    const recap = e?.correct.recap.length
+    const recap = e?.correct?.recap?.length
       ? e.correct.recap.map((l) => toBeat(c, l, "recap"))
       : [toBeat(c, { speaker: "narrator", text: engineRecapLine(c), evidenceIds: [c.solution.weaponId] }, "recap")];
     return { outcome: "won", headline: WON_HEADLINE, accusedId: accusation.murdererId, beats: [...confession, ...recap, ...remarkBeats(c, grade.rating)] };
@@ -90,7 +90,7 @@ function unsolvedBeats(escaped: string): EndingBeat[] {
  */
 function lossBeats(c: LoadedCase, accusation: Accusation): EndingBeat[] {
   const accusedName = speakerName(c, accusation.murdererId);
-  const authored = c.endings?.wrong[accusation.murdererId];
+  const authored = c.endings?.wrong?.[accusation.murdererId];
   const culprits = new Set([c.solution.murdererId, ...(c.solution.accompliceId ? [c.solution.accompliceId] : [])]);
   // DX11: a culprit's lines play only in their OWN wrong ending: the other culprit's cameo in it (a helper chiming in
   // when the doer is named, or the doer when the helper is) would confirm both roles.

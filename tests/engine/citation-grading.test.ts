@@ -112,7 +112,7 @@ describe("E2 grading", () => {
       expect(r.body.ending!.beats.some((b) => b.section === "remark")).toBe(false);
       expect(JSON.stringify(r.body)).not.toContain(PLACEHOLDER);
     }
-    const authored = c.endings!.wrong[sol().murdererId]!.map((l) => `wrong:${l.text}`);
+    const authored = c.endings!.wrong![sol().murdererId]!.map((l) => `wrong:${l.text}`);
     expect(texts(sloppy.body).slice(0, authored.length)).toEqual(authored);
     expect(texts(sloppy.body)).toEqual(texts(clean.body));
   });

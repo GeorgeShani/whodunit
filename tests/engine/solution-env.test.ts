@@ -148,7 +148,8 @@ describe("CASE_SOLUTION_<ID> env loader", () => {
     delete process.env.CASE_SOLUTION_BLACKWOOD;
     try {
       const c = await loadCase("blackwood");
-      expect(c.solution?.murdererId).toBe("victoria");
+      const local = JSON.parse(readFileSync("cases/blackwood/solution.json", "utf8")) as { murdererId: string };
+      expect(c.solution?.murdererId).toBe(local.murdererId);
     } finally {
       if (prev !== undefined) process.env.CASE_SOLUTION_BLACKWOOD = prev;
     }

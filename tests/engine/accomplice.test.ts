@@ -21,17 +21,19 @@ import { memoryClosedGames } from "@/lib/closed-games";
 import { TEST_ENV } from "../helpers/grok-mock";
 import { deepScan } from "../helpers/leak-scan";
 import { ungated } from "../helpers/ungated";
+import { winningAccusation } from "../helpers/winning";
 
 let one: LoadedCase; // single culprit (Blackwood as shipped, ungated)
 let two: LoadedCase; // the same with a helper
+let WIN: Accusation;
 beforeAll(async () => {
   one = ungated(await loadCase("blackwood"));
   two = structuredClone(one);
   two.solution.accompliceId = "reginald";
+  WIN = winningAccusation(one, { keyEvidenceIds: [one.solution.keyEvidenceIds[0], "muddy-footprint"] });
 });
 
 const ALL = ["silver-candlestick", "muddy-footprint", "burned-letter", "library-key"];
-const WIN = { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "muddy-footprint"] };
 const token = (c: LoadedCase) => {
   const g = createInitialGameState(c);
   g.discoveredEvidenceIds.push(...ALL);
@@ -110,7 +112,7 @@ describe("G1 accuse route", () => {
       expect(lost.status).toBe(200);
       expect(lost.body.outcome).toBe("lost");
       // The accused (the real murderer here) still plays their own ending; nothing says the murderer was right.
-      expect(lost.body.ending?.accusedId).toBe("victoria");
+      expect(lost.body.ending?.accusedId).toBe(one.solution.murdererId);
       for (const k of ["verdict", "solution", "rating", "murdererCorrect", "accompliceCorrect"]) expect(lost.body).not.toHaveProperty(k);
       const { keys } = deepScan(lost.body);
       for (const k of ["accompliceCorrect", "murdererCorrect", "verdict"]) expect(keys.has(k)).toBe(false);
@@ -144,7 +146,7 @@ describe("G1 accuse route", () => {
     const again = await accuse(two, { ...WIN, murdererId: "gregory" }, { closed: repo, stateToken: t0 });
     expect(again).toMatchObject({
       status: 409,
-      body: { error: "case_closed", outcome: "won", accusation: { murdererId: "victoria", accompliceId: "reginald" } },
+      body: { error: "case_closed", outcome: "won", accusation: { murdererId: one.solution.murdererId, accompliceId: "reginald" } },
     });
     expect(gameOf(two, again.body.stateToken)).toMatchObject({ outcome: "won", accusation: { accompliceId: "reginald" } });
   });
@@ -162,8 +164,8 @@ describe("G1 endings never leak the helper", () => {
   it("an innocent's loss ending drops the helper's cameo; the helper's own loss keeps theirs", async () => {
     const c = structuredClone(two);
     const cameo = { speaker: "reginald", text: "Well, well. Somebody had to take the blame." };
-    c.endings!.wrong.gregory = [...c.endings!.wrong.gregory, cameo];
-    c.endings!.wrong.reginald = [...c.endings!.wrong.reginald, cameo];
+    c.endings!.wrong!.gregory = [...c.endings!.wrong!.gregory, cameo];
+    c.endings!.wrong!.reginald = [...c.endings!.wrong!.reginald, cameo];
     const innocent = await accuse(c, { ...WIN, murdererId: "gregory", accompliceId: null });
     expect(JSON.stringify(innocent.body.ending)).not.toContain(cameo.text);
     const helper = await accuse(c, { ...WIN, murdererId: "reginald", accompliceId: null });
@@ -171,7 +173,7 @@ describe("G1 endings never leak the helper", () => {
     expect(JSON.stringify(helper.body.ending)).toContain(cameo.text);
     // Single-culprit cases are unchanged: Reginald is innocent there, so his cameo in Gregory's ending stays.
     const s = structuredClone(one);
-    s.endings!.wrong.gregory = [...s.endings!.wrong.gregory, cameo];
+    s.endings!.wrong!.gregory = [...s.endings!.wrong!.gregory, cameo];
     expect(JSON.stringify((await accuse(s, { ...WIN, murdererId: "gregory" })).body.ending)).toContain(cameo.text);
   });
 
@@ -181,18 +183,18 @@ describe("G1 endings never leak the helper", () => {
     const doer = c.solution.murdererId;
     const byHelper = { speaker: helper, text: "Steady on. We agreed you'd keep quiet." };
     const byDoer = { speaker: doer, text: "Say nothing, you fool." };
-    c.endings!.wrong[doer] = [...c.endings!.wrong[doer], byHelper];
-    c.endings!.wrong[helper] = [...c.endings!.wrong[helper], byDoer];
-    const own = c.endings!.wrong[doer][0].text;
+    c.endings!.wrong![doer] = [...c.endings!.wrong![doer], byHelper];
+    c.endings!.wrong![helper] = [...c.endings!.wrong![helper], byDoer];
+    const own = c.endings!.wrong![doer][0].text;
     const doerLoss = await accuse(c, { ...WIN, accompliceId: null }); // right doer, no helper: a loss
     expect(doerLoss.body.ending?.outcome).toBe("lost");
     expect(JSON.stringify(doerLoss.body.ending)).toContain(own);
     expect(JSON.stringify(doerLoss.body.ending)).not.toContain(byHelper.text);
     expect(JSON.stringify((await accuse(c, { ...WIN, murdererId: helper, accompliceId: null })).body.ending)).not.toContain(byDoer.text);
-    expect(culpritEndingWarnings(c).map((w) => w.path)).toEqual([`wrong.${doer}.${c.endings!.wrong[doer].length - 1}`, `wrong.${helper}.${c.endings!.wrong[helper].length - 1}`]);
+    expect(culpritEndingWarnings(c).map((w) => w.path)).toEqual([`wrong.${doer}.${c.endings!.wrong![doer].length - 1}`, `wrong.${helper}.${c.endings!.wrong![helper].length - 1}`]);
     const named = structuredClone(two);
     const helperName = named.characters.find((x) => x.id === helper)!.name;
-    named.endings!.wrong[doer] = [...named.endings!.wrong[doer], { speaker: doer, text: `Ask ${helperName}, not me.` }];
+    named.endings!.wrong![doer] = [...named.endings!.wrong![doer], { speaker: doer, text: `Ask ${helperName}, not me.` }];
     expect(culpritEndingWarnings(named).some((w) => /names the other culprit/.test(w.message))).toBe(true);
     expect(culpritEndingWarnings(two)).toEqual([]);
     expect(culpritEndingWarnings(one)).toEqual([]);
