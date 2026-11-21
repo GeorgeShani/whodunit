@@ -5,6 +5,9 @@
   "intro": "The summer of 1936, the Bay of Bother, and a thunderstorm the size of a county. The private steam yacht S.S. Tallyho is wallowing through the Commodore's Last Tally-Ho Gala: a band, a buffet, a magician in a glass chest, and a Midnight Announcement that nobody is allowed to know about.\n\nYou came aboard as a guest and spent the evening flat on your back in a forward cabin, seasick from nine o'clock, hearing nothing but the storm. At ten past eleven the purser knocks. Commodore Barnabas \"Barnacle\" Brine, the Marmalade King, is dead in his stateroom.\n\nAt 22:38 the whole ship heard him bellow his famous cheer, \"TALLY-HO! SPREAD THE BRINE!\", over the Voice-Horns. At 22:55 his niece opened his door and found him bonked on the head among a great deal of marmalade, his orange toupee gone and his pocket-watch smashed at 22:41. Whatever hit him has vanished.\n\nThe wireless died in the squall, there is no doctor aboard, and the police take over when the Tallyho makes port in the morning. Until then the purser keeps the inquiry, and he has asked you to find out what happened. Six people had a reason to want the Commodore quiet. Every one of them is lying about something.",
   "dayStartsAt": "18:00",
   "knowledgeGate": "explicit",
+  "copy": {
+    "unknownSuspect": "Nobody by that name is on the passenger list. Perhaps they went overboard, or never came aboard at all."
+  },
   "systemLines": {
     "caseClosed": "The purser has everyone's statements, and the police take over when we make port.",
     "caseClosedSearch": "The purser has locked every door below decks. There is nothing left to find tonight.",

@@ -1627,7 +1627,12 @@
     "involvesCharacterIds": [
       "ottilie"
     ],
-    "source": "witnessed"
+    "source": "witnessed",
+    "hiddenUntil": {
+      "evidenceIds": [
+        "heel-chart"
+      ]
+    }
   },
   {
     "id": "ev-great-lurch",
