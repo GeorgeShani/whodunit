@@ -4,6 +4,7 @@
  * spoiler-safe line: never the lie, the item, or the lie id.
  */
 import type { PublicProgress } from "@/engine/progress";
+import { caseIdsMatch } from "@/lib/cases";
 import { z } from "zod";
 import type { LoadedCase, PlayableCase } from "./case-schema";
 import { UNKNOWN_CASE_LINE } from "./error-copy";
@@ -45,7 +46,7 @@ function handleHintCore(json: unknown, deps: { caseData: PlayableCase; env?: Env
   const parsed = HintRequestSchema.safeParse(json);
   const empty = { hint: null, readyInTurns: 0, cooldownTurns: HINT_COOLDOWN_TURNS };
   if (!parsed.success) return { status: 400, body: { ...empty, line: "The inspector squints at your request.", error: "invalid_request" } };
-  if (parsed.data.caseId !== undefined && parsed.data.caseId !== caseData.id) return { status: 404, body: { ...empty, line: UNKNOWN_CASE_LINE, error: "unknown_case" } };
+  if (parsed.data.caseId !== undefined && !caseIdsMatch(parsed.data.caseId, caseData.id)) return { status: 404, body: { ...empty, line: UNKNOWN_CASE_LINE, error: "unknown_case" } };
   const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env, { legacyCaseId });
   const extra = notice ? { notice } : {};
   if (isCaseClosed(game)) return { status: 409, body: { ...empty, ...extra, line: systemLine(caseData, "caseClosed"), error: "case_closed", stateToken: saveSession(game, env) } };

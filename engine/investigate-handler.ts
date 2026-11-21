@@ -3,6 +3,7 @@
  * shared signed state -> deterministic search -> public fields only -> new token.
  */
 import { inSetting, settingOf } from "./presentation";
+import { caseIdsMatch } from "@/lib/cases";
 import { UNKNOWN_CASE_LINE } from "./error-copy";
 import type { LoadedCase, PlayableCase } from "./case-schema";
 import { InvestigateRequestSchema, type FoundEvidence, type InvestigateResponseBody } from "./investigate-schema";
@@ -46,7 +47,7 @@ function handleInvestigateCore(
   if (!parsed.success) {
     return { status: 400, body: { found: [], lines: [BAD_REQUEST_LINE], searchedLocationIds: [], error: "invalid_request" } };
   }
-  if (parsed.data.caseId !== undefined && parsed.data.caseId !== caseData.id) {
+  if (parsed.data.caseId !== undefined && !caseIdsMatch(parsed.data.caseId, caseData.id)) {
     return { status: 404, body: { found: [], lines: [UNKNOWN_CASE_LINE], searchedLocationIds: [], error: "unknown_case" } };
   }
   const { game, notice } = restoreSession(caseData, parsed.data.stateToken, env, { legacyCaseId });
