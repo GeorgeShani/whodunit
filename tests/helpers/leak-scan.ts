@@ -36,7 +36,11 @@ export function forbiddenPromptStrings(c: LoadedCase, solution: CaseSolution, ch
     ...(motive ? [motive.description ?? motive.label] : []),
     // Endings spell out the solution: none of their lines may reach a prompt.
     ...(c.endings
-      ? [...c.endings.correct.confession, ...c.endings.correct.recap, ...Object.values(c.endings.wrong).flat()].map((l) => l.text).concat(c.endings.escapedLine)
+      ? [
+          ...(c.endings.correct?.confession ?? []),
+          ...(c.endings.correct?.recap ?? []),
+          ...Object.values(c.endings.wrong ?? {}).flat(),
+        ].map((l) => l.text).concat(c.endings.escapedLine ? [c.endings.escapedLine] : [])
       : []),
     ...others.flatMap((o) => [
       ...o.secrets.map((s) => s.description),

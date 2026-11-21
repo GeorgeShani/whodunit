@@ -10,25 +10,23 @@ import { handleHint } from "@/engine/hint-handler";
 import { handleInvestigate } from "@/engine/investigate-handler";
 import { encodeStateToken } from "@/engine/state-token";
 import { TEST_ENV } from "../helpers/grok-mock";
+import { winningAccusation } from "../helpers/winning";
+import type { Accusation } from "@/engine/types";
 
 const NEUTRAL =
   "The case file's gone missing. Wherever that mystery happened, Detective, we can't get there from here.";
 
 let c: LoadedCase;
+let WIN: Accusation;
 beforeAll(async () => {
   c = ungated(await loadCase("blackwood"));
+  WIN = winningAccusation(c, { keyEvidenceIds: [c.solution.keyEvidenceIds[0], "muddy-footprint"] });
 });
 
 const token = () => {
   const g = createInitialGameState(c);
   g.discoveredEvidenceIds.push("silver-candlestick", "muddy-footprint", "burned-letter", "library-key");
   return encodeStateToken(g, TEST_ENV);
-};
-const WIN = {
-  murdererId: "victoria",
-  weaponId: "silver-candlestick",
-  motiveId: "inheritance",
-  keyEvidenceIds: ["library-key", "muddy-footprint"],
 };
 
 describe("unknown_case", () => {

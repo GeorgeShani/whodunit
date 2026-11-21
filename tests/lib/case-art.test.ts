@@ -4,9 +4,10 @@ import { AssetPathSchema } from "@/engine/types";
 import { getPublicCaseView } from "@/engine/public-view";
 import { DEFAULT_BACKDROPS, assetExists, resolveCaseArt, resolveStageArt } from "@/lib/case-art";
 import { FIXTURES_DIR } from "../helpers/fixture";
+import { hasLocalOrEnvSolution } from "../helpers/has-solution";
 
 describe("case art resolution", () => {
-  it("blackwood: suspects get the manor hall (ART_BIBLE §7.2) and the library card its conventional background", async () => {
+  it.skipIf(!hasLocalOrEnvSolution("blackwood"))("blackwood: suspects get the manor hall (ART_BIBLE §7.2) and the library card its conventional background", async () => {
     const view = resolveCaseArt(getPublicCaseView(await loadCase("blackwood")));
     expect(view.backdrops.suspects).toBe("/assets/backgrounds/manor.webp");
     expect(view.locations.find((l) => l.id === "library")?.background).toBe("/assets/backgrounds/library.webp");
@@ -48,13 +49,15 @@ describe("case art resolution", () => {
   });
 
   it("interrogation stage (ART_BIBLE §7): the crime-scene room with its lightning frame, window mask and rain", async () => {
-    const view = resolveCaseArt(getPublicCaseView(await loadCase("blackwood")));
-    expect(view.stage).toEqual({
-      background: "/assets/backgrounds/library.webp",
-      lightning: "/assets/backgrounds/library_lightning.webp",
-      windowMask: "/assets/backgrounds/library_window_mask.webp",
-      rainTile: "/assets/effects/rain_tile.webp",
-    });
+    if (hasLocalOrEnvSolution("blackwood")) {
+      const view = resolveCaseArt(getPublicCaseView(await loadCase("blackwood")));
+      expect(view.stage).toEqual({
+        background: "/assets/backgrounds/library.webp",
+        lightning: "/assets/backgrounds/library_lightning.webp",
+        windowMask: "/assets/backgrounds/library_window_mask.webp",
+        rainTile: "/assets/effects/rain_tile.webp",
+      });
+    }
     const harbor = resolveCaseArt(getPublicCaseView(await loadCase("harbor-light", FIXTURES_DIR)));
     expect(harbor.stage?.background).toBe("/assets/backgrounds/manor.webp");
     expect(harbor.stage?.lightning).toBe("/assets/backgrounds/manor_lightning.webp");

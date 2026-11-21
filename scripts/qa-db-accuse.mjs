@@ -23,13 +23,34 @@
  * Prints the game id so the row can be checked in Supabase: select * from closed_games where game_id = '<id>';
  * Never prints tokens in full, never reads any credential.
  */
+import { existsSync, readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { inflateRawSync } from "node:zlib";
+
+function loadBlackwoodSolution() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const file = path.join(root, "cases/blackwood/solution.json");
+  if (existsSync(file)) return JSON.parse(readFileSync(file, "utf8"));
+  const raw = process.env.CASE_SOLUTION_BLACKWOOD;
+  if (!raw) return null;
+  try {
+    return JSON.parse(Buffer.from(raw, "base64").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
 const args = process.argv.slice(2);
 const BASE = (args.find((a) => !a.startsWith("--")) ?? "https://whodunit-game.vercel.app").replace(/\/$/, "");
 const DRY_RUN = args.includes("--dry-run");
 const ALLOW_MODEL = args.includes("--allow-model-calls") && !DRY_RUN; // a dry run never spends model calls
 const DRY = args.includes("--dry-run");
 const CASE = "blackwood";
+const solutionOrSkip = loadBlackwoodSolution();
+if (!solutionOrSkip) {
+  console.error("skip: no local or env Blackwood solution (cases/blackwood/solution.json or CASE_SOLUTION_BLACKWOOD)");
+  process.exit(0);
+}
 let modelCalls = 0; // /api/interrogate requests sent (each may reach the model)
 const MAX_MODEL_REQUESTS = 8;
 const NETWORK_RETRY_WAIT_MS = 3000;
@@ -157,7 +178,7 @@ if (gate && !gate.unlocked) fail("the accuse gate is still locked", gate);
 const saved = token;
 const gameId = gameIdOf(saved);
 console.log(`pre-accusation token saved: ${short(saved)}  game id: ${gameId}`);
-const WIN = { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key", "burned-letter"], keyTestimonyIds: ["s-archibald-false-alibi"] };
+const WIN = { murdererId: solutionOrSkip.murdererId, weaponId: solutionOrSkip.weaponId, motiveId: solutionOrSkip.motiveId, keyEvidenceIds: [...solutionOrSkip.keyEvidenceIds], keyTestimonyIds: ["s-archibald-false-alibi"] };
 const first = await call("/api/accuse", { caseId: CASE, accusation: WIN, stateToken: saved });
 console.log(`accuse: ${first.status} outcome=${first.json?.outcome} error=${first.json?.error ?? "-"}`);
 if (first.status === 503) fail("accuse got 503 record_unavailable: the DB write failed (fail closed)", first.json);

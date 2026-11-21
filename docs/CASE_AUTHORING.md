@@ -4,7 +4,7 @@ How to write a WHODUNIT?! case so the work is mostly storytelling and the machin
 
 WHODUNIT?! is live for public players. A new case ships complete: fair, funny, provable, and clean under the validator.
 
-Source tags used below: **[CF]** `docs/CASE_FORMAT.md` · **[PP]** `docs/BLACKWOOD_PROGRESSION_PROPOSAL.md` · **[SP]** `cases/blackwood/docs/SOLUTION_PROOF.md` · **[TD]** `docs/cases/TALLYHO_DESIGN.md` · **[MP]** `docs/MASTER_PLAN.md` · **[R2]** the Blackwood round-2 QA notes (#26/#27, commits `3a3fa3d`, `8eecb81`, `dc91bce`, `29a2b9c`).
+Source tags used below: **[CF]** `docs/CASE_FORMAT.md` · **[PP]** `docs/BLACKWOOD_PROGRESSION_PROPOSAL.md` · **[SP]** `cases/<id>/docs/SOLUTION_PROOF.md` (optional; do not commit it if it names the culprit) · **[TD]** `docs/cases/TALLYHO_DESIGN.md` · **[MP]** `docs/MASTER_PLAN.md` · **[R2]** the Blackwood round-2 QA notes (#26/#27, commits `3a3fa3d`, `8eecb81`, `dc91bce`, `29a2b9c`).
 
 ---
 
@@ -21,7 +21,7 @@ cases/<caseId>/                 folder name == case.json "id" (lowercase kebab/s
   docs/SOLUTION_PROOF.md        OPTIONAL  ignored by the loader. Ship it: it is the fairness proof (see §2, step 8)
 ```
 
-- **Server-only: `solution.json` and `endings.json`.** They spell out the answer. They never reach the public view, the character context, or the model. Never paste their contents into `case.json`, intro text, lead hints, or discovery lines. [CF "What the AI and the player can see"]
+- **Server-only: `solution.json` and `endings.json`.** They spell out the answer. They never reach the public view, the character context, or the model. Never paste their contents into `case.json`, intro text, lead hints, or discovery lines. Culprit-naming endings may live on the solution (`endings` field / `CASE_SOLUTION_*`) instead of the committed `endings.json`. [CF "What the AI and the player can see"]
 - Everything else in `case.json` / `evidence.json` marked PUBLIC in [CF] (victim, location text, `searchFlavor`, `discoveryLine`, motive options, lead titles/hints, `lockedLine`s, `testimonySummary` once revealed) is read by players. `requires`, `opensWhen`, `closesWhen`, `accuseGate` stay private.
 - `_`-prefixed folders are templates and never served; every other folder with a `case.json` is live at `/case/<caseId>`. [CF intro] **Do not push a half-finished case under a plain id to `main`.** Build it under `_<caseId>` or on a branch, and rename it for the release PR.
 - Optional art fields: `locations[].background`, `case.json backdrops.{title,suspects,interrogation,investigate}`, character `portrait`. Paths look like `/assets/<folder>/<file>.webp`. The validator warns if one is missing. [CF "Art fields"]
@@ -53,7 +53,7 @@ Do these in order. Skipping the design document is the single most expensive mis
    ```
 6. **Write the case tests** `tests/cases/<caseId>*.test.ts` (§7 template). The validator checks structure and reachability; **tests check the story** (who knew what, no giveaway wording, clue locations, endings).
 7. **Playtest the fastest path by hand** (or via the engine routes) and check it against the number the validator prints.
-8. **Write `cases/<caseId>/docs/SOLUTION_PROOF.md`**: the answer, the canonical timeline, the clue table, reveal rules, lies and what breaks them, the WHEN/HOW/WHO/WHY deduction chain, "proof without any confession", knowledge sources, gate and path tables. Model: `cases/blackwood/docs/SOLUTION_PROOF.md`. Keep it in sync with the data; the tests should assert the facts it states.
+8. **Write `cases/<caseId>/docs/SOLUTION_PROOF.md`**: the answer, the canonical timeline, the clue table, reveal rules, lies and what breaks them, the WHEN/HOW/WHO/WHY deduction chain, "proof without any confession", knowledge sources, gate and path tables. Keep it in sync with the data; the tests should assert the facts it states. If the proof names the culprit, do not commit it (Blackwood's is no longer in the repo; the answer is `CASE_SOLUTION_BLACKWOOD`).
 9. **Run everything** (`npm run validate:case -- <caseId>`, `npm test`, `npm run typecheck`, `npm run lint`), open a PR (not merged by you), hand art/sound needs to Toon.
 
 ---

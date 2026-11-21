@@ -450,21 +450,25 @@ While a secret is locked or a lie unbroken, the character's context withholds th
 
 ## solution.json (server-only)
 
-A committed `cases/<id>/solution.json` is the usual source (Blackwood). If the file is absent, the server
-reads `CASE_SOLUTION_<ID>` (e.g. `CASE_SOLUTION_TALLYHO`): base64 of the same JSON, Zod-validated, never
-`NEXT_PUBLIC_`. Missing or invalid: the case still loads, accusations fail closed in character, and no
-technical text is returned. `validate:case --strict` still requires a valid solution (local file or env).
+A `cases/<id>/solution.json` is the usual source when present (local authoring, or a committed file).
+If the file is absent, the server reads `CASE_SOLUTION_<ID>` (e.g. `CASE_SOLUTION_BLACKWOOD`,
+`CASE_SOLUTION_TALLYHO`): base64 of the same JSON, Zod-validated, never `NEXT_PUBLIC_`. Missing or
+invalid: the case still loads, accusations fail closed in character, and no technical text is returned.
+`validate:case --strict` requires a valid solution (local file or env). Env-backed cases whose
+solution.json is gitignored skip cleanly when both the file and the env var are missing.
 
 
 ```jsonc
 {
-  "murdererId": "victoria", "weaponId": "silver-candlestick", "locationId": "library", "time": "21:17",
-  "motiveId": "inheritance",                        // one of case.json motives[].id
-  "keyEvidenceIds": ["silver-candlestick", "…"],    // ≥ 1; the proof an accusation must cite
+  "murdererId": "alpha", "weaponId": "heavy-wrench", "locationId": "workshop", "time": "21:00",
+  "motiveId": "partnership-dispute",                 // one of case.json motives[].id
+  "keyEvidenceIds": ["note", "…"],                   // ≥ 1; the proof an accusation must cite
   "supportingEvidenceIds": ["…"],                   // optional (E2): clues that also support the case
   "supportingTestimonyIds": ["…"],                  // optional (E2): secrets that also support the case
   "featureProof": { "<feature>": { … } },           // optional (phase 6): a feature module's solution data, e.g. time-misdirection's provedBy
-  "explanation": "optional reveal write-up"
+  "explanation": "optional reveal write-up",
+  "endings": { "correct": { "confession": [Line], "recap": [Line] }, "wrong": { "<murdererId>": [Line] } }
+                                 // optional: culprit-naming endings when those must not be committed in endings.json
 }
 ```
 
@@ -489,9 +493,9 @@ Grading is strict: a win needs the murderer and the helper, each in their own ro
     "confession": [ Line, … ],        // the culprit cracks (≥ 1 line)
     "recap":      [ Line, … ]         // the detective / narrator explains (≥ 1 line)
   },
-  "wrong": {                          // keyed by the ACCUSED suspect id; EVERY suspect needs an entry,
-    "reginald": [ Line, … ],          // including the murderer ("right culprit, couldn't prove it")
-    "victoria": [ Line, … ]
+  "wrong": {                          // keyed by the ACCUSED suspect id; after merge, EVERY suspect needs an entry,
+    "bravo": [ Line, … ],             // including the murderer ("right culprit, couldn't prove it")
+    "alpha": [ Line, … ]
   },
   "escapedLine": "THE MURDERER ESCAPED!",
   "sloppyRemark": Line                // optional (E2): one extra line after a sloppy (right culprit) ending
@@ -502,7 +506,9 @@ Grading is strict: a win needs the murderer and the helper, each in their own ro
 
 Endings spell out the solution, so they never reach the public view, the character context or the model.
 
-**A loss confirms as little as possible (one accusation per game).** The loss response carries no solution and no per-field right/wrong. Every loss plays the accused's own `wrong` entry (E4, Marvin's decision): accusing the real murderer with the wrong story plays THEIR entry (Victoria's "right lady, wrong story"), and the validator flags a missing one. In everyone else's `wrong` entry, lines **spoken by the real murderer** are dropped (a gloating killer cameo would name them). Write each innocent's entry so it works with no cameo from the killer, and note the player then sees `escapedLine` followed by "The case went unsolved."
+The committed `endings.json` may omit `correct` and any `wrong` entry that names the culprit. Those can live on the solution instead (`solution.json` / `CASE_SOLUTION_<ID>`, in an `endings` field). The loader merges them (solution entries win on conflict). After the merge, a loaded case with a solution must still have a complete set: `correct`, `escapedLine`, and `wrong` for every suspect. Losing endings that do not name the culprit can stay in the public file. Tallyho still ships a complete `endings.json`; Blackwood keeps the confession and the murderer's own `wrong` entry on `CASE_SOLUTION_BLACKWOOD`.
+
+**A loss confirms as little as possible (one accusation per game).** The loss response carries no solution and no per-field right/wrong. Every loss plays the accused's own `wrong` entry (E4, Marvin's decision): accusing the real murderer with the wrong story plays THEIR entry, and the validator flags a missing one (it may be supplied on the solution). In everyone else's `wrong` entry, lines **spoken by the real murderer** are dropped (a gloating killer cameo would name them). Write each innocent's entry so it works with no cameo from the killer, and note the player then sees `escapedLine` followed by "The case went unsolved."
 
 ## Progression (optional): gated rooms and clues, leads, the accuse gate
 
@@ -576,7 +582,7 @@ Engine behaviour: a locked room answers with its `lockedLine` and is not marked 
    - Point entries: `|time − murder time| ≤ 15`.
    - Window entries: `from − 15 ≤ murder time ≤ to + 15`.
 8. Every innocent character has at least one secret.
-9. `endings.json` (if present): every `speaker` is a character id or `"narrator"`, every `evidenceIds` entry is evidence, every `wrong` key is a suspect, and `wrong` covers **every** suspect including the murderer.
+9. Endings (if present, after merging `endings.json` with `solution.endings`): every `speaker` is a character id or `"narrator"`, every `evidenceIds` entry is evidence, every `wrong` key is a suspect, and `wrong` covers **every** suspect including the murderer. Culprit-naming parts may live on the solution.
 
 `validate:case` also warns (without failing) about:
 

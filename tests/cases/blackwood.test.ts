@@ -74,13 +74,11 @@ describe("Blackwood loads with the engine loader (contract v2)", () => {
     expect(c.characters.map((ch) => ch.id)).toEqual(["archibald", "gregory", "reginald", "victoria"]);
     expect(c.locations.map((l) => l.id).sort()).toEqual(["dining-room", "garden", "hall", "kitchen", "library"]);
     expect(c.evidence.map((e) => e.id).sort()).toEqual(["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"]);
-    expect(c.solution).toMatchObject({
-      murdererId: "victoria",
-      weaponId: "silver-candlestick",
-      locationId: "library",
-      time: "21:17",
-      motiveId: "inheritance",
-    });
+    expect(c.characters.some((ch) => ch.id === c.solution.murdererId)).toBe(true);
+    expect(c.evidence.some((e) => e.id === c.solution.weaponId)).toBe(true);
+    expect(c.motives.some((m) => m.id === c.solution.motiveId)).toBe(true);
+    expect(c.locations.some((l) => l.id === c.solution.locationId)).toBe(true);
+    expect(c.solution.time).toMatch(/^\d{2}:\d{2}$/);
     expect(c.solution.keyEvidenceIds.length).toBeGreaterThan(0);
   });
 
@@ -92,7 +90,7 @@ describe("Blackwood loads with the engine loader (contract v2)", () => {
 
   it("keeps the public intro spoiler-free", () => {
     const publicText = `${c.tagline} ${c.intro} ${c.victim.description} ${c.victim.causeOfDeath}`.toLowerCase();
-    for (const spoiler of ["victoria", "candlestick", "will", "letter", "coal scuttle", "telephone"]) {
+    for (const spoiler of [c.solution.murdererId, "candlestick", "will", "letter", "coal scuttle", "telephone"]) {
       expect(publicText, spoiler).not.toMatch(new RegExp(`\\b${spoiler}\\b`));
     }
   });
@@ -233,7 +231,7 @@ describe("Blackwood characters: relationships, beliefs and secrets", () => {
     expect(byId("reginald").beliefs.find((b) => b.id === "b-reginald-crane-did-it")?.isAccurate).toBe(false);
     expect(topSuspect("reginald")).toBe("archibald");
     expect(topSuspect("archibald")).toBe("gregory");
-    expect(topSuspect("gregory")).toBe("victoria");
+    expect(topSuspect("gregory")).toBe(c.solution.murdererId);
   });
 
   it("every innocent has a secret and a wrong belief; every secret is revealable except the murderer's core guilt", () => {

@@ -14,8 +14,10 @@ let endings: Endings;
 
 beforeAll(async () => {
   c = await loadCase("blackwood");
-  if (!c.endings) throw new Error("blackwood must ship endings.json");
-  endings = c.endings;
+  if (!c.endings?.correct || !c.endings.wrong || !c.endings.escapedLine) {
+    throw new Error("blackwood must ship complete endings (public file + solution.endings)");
+  }
+  endings = c.endings as Endings;
 });
 
 describe("Blackwood location search", () => {

@@ -4,7 +4,7 @@
  * The env value and the solution itself must never appear in a public view or a fail-closed response.
  */
 import { execSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { unlink } from "node:fs/promises";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
@@ -143,19 +143,20 @@ describe("CASE_SOLUTION_<ID> env loader", () => {
     }
   });
 
-  it("Blackwood still loads from its committed file when CASE_SOLUTION_BLACKWOOD is unset", async () => {
+  it.skipIf(!existsSync("cases/blackwood/solution.json"))("Blackwood still loads from its local gitignored file when CASE_SOLUTION_BLACKWOOD is unset", async () => {
     const prev = process.env.CASE_SOLUTION_BLACKWOOD;
     delete process.env.CASE_SOLUTION_BLACKWOOD;
     try {
       const c = await loadCase("blackwood");
-      expect(c.solution?.murdererId).toBe("victoria");
+      const local = JSON.parse(readFileSync("cases/blackwood/solution.json", "utf8")) as { murdererId: string };
+      expect(c.solution?.murdererId).toBe(local.murdererId);
     } finally {
       if (prev !== undefined) process.env.CASE_SOLUTION_BLACKWOOD = prev;
     }
   });
 
-  it("does not track Tallyho's solution.json, and CASE_SOLUTION_ is never a NEXT_PUBLIC_ name in the repo", () => {
-    const tracked = execSync("git ls-files cases/tallyho/solution.json cases/_tallyho/solution.json", { encoding: "utf8" }).trim();
+  it("does not track Tallyho's or Blackwood's solution.json, and CASE_SOLUTION_ is never a NEXT_PUBLIC_ name in the repo", () => {
+    const tracked = execSync("git ls-files cases/tallyho/solution.json cases/_tallyho/solution.json cases/blackwood/solution.json", { encoding: "utf8" }).trim();
     expect(tracked).toBe("");
     const needle = "NEXT_PUBLIC_" + "CASE_SOLUTION";
     const hits = execSync(`git grep -l ${needle} -- . ':!node_modules' ':!.git' ':!tests' || true`, {

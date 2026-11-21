@@ -7,7 +7,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { bedForScreen } from "@/components/effects/audio-scenes";
 import { cueDef, CUES, registerCaseAudio } from "@/components/effects/audio";
 import { handleAccuse } from "@/engine/accuse-handler";
-import { loadCase } from "@/engine/case-loader";
+import { loadCase, loadPlayableCase } from "@/engine/case-loader";
 import { listPublicCaseIds } from "@/engine/case-registry";
 import type { LoadedCase } from "@/engine/case-schema";
 import { CaseEnvelopeSchema } from "@/engine/case-schema";
@@ -40,7 +40,7 @@ describe("theme palette", () => {
   });
   it("every case's palette passes the contrast check, and its theme and audio files exist", async () => {
     for (const id of listPublicCaseIds()) {
-      const c = await loadCase(id);
+      const c = await loadPlayableCase(id);
       expect(contrastFailures(resolvePalette(c.theme)), id).toEqual([]);
       expect(checkPresentationAssets(c, { exists: (p) => assetExists(p), cueNames: Object.keys(CUES) }), id).toEqual([]);
     }

@@ -14,6 +14,7 @@ import {
 } from "@/components/ending/sequence";
 import { buildEnding } from "@/engine/ending-payload";
 import { loadCase } from "@/engine/case-loader";
+import { winningAccusation } from "../helpers/winning";
 import type { EndingBeat } from "@/engine/accuse-schema";
 
 const beat = (speaker: string, text: string, extra: Partial<EndingBeat> = {}): EndingBeat => ({
@@ -111,20 +112,22 @@ describe("ending sequencer", () => {
 
   it("plays Blackwood's real endings end to end", async () => {
     const c = await loadCase("blackwood");
-    const won = buildEnding(c, { won: true }, { murdererId: "victoria", weaponId: "silver-candlestick", motiveId: "inheritance", keyEvidenceIds: ["library-key"] });
+    const won = buildEnding(c, { won: true }, winningAccusation(c, { keyEvidenceIds: [c.solution.keyEvidenceIds[0]] }));
     let s = seqStart();
     const speakers: string[] = [];
+    const murderer = c.solution.murdererId;
     while (s.phase !== "done") {
       s = seqNext(s, won.beats.length);
-      if (s.phase === "lines") speakers.push(castAt(won.beats, s, { accusedId: "victoria", won: true }).actors.map((a) => a.id).join("+"));
+      if (s.phase === "lines") speakers.push(castAt(won.beats, s, { accusedId: murderer, won: true }).actors.map((a) => a.id).join("+"));
     }
-    expect(speakers[0]).toBe("victoria");
-    expect(speakers[1]).toBe("victoria+archibald");
+    expect(speakers[0]).toBe(murderer);
+    expect(speakers[1]).toContain(murderer);
+    expect(speakers[1]).toContain("archibald");
     expect(speakers).toHaveLength(won.beats.length);
-    const lost = buildEnding(c, { won: false }, { murdererId: "victoria", weaponId: "muddy-footprint", motiveId: "revenge", keyEvidenceIds: ["muddy-footprint"] });
+    const lost = buildEnding(c, { won: false }, { murdererId: murderer, weaponId: "muddy-footprint", motiveId: "revenge", keyEvidenceIds: ["muddy-footprint"] });
     expect(lost.beats.at(-1)?.section).toBe("escaped");
-    // E4: the real murderer accused with the wrong story plays HER authored wrong ending.
-    expect(lost.beats[0].text).toBe(c.endings!.wrong.victoria![0].text);
-    expect(lost.beats.filter((b) => b.section === "wrong").map((b) => b.text)).toEqual(c.endings!.wrong.victoria!.map((l) => l.text));
+    // E4: the real murderer accused with the wrong story plays their authored wrong ending.
+    expect(lost.beats[0].text).toBe(c.endings!.wrong![murderer]![0].text);
+    expect(lost.beats.filter((b) => b.section === "wrong").map((b) => b.text)).toEqual(c.endings!.wrong![murderer]!.map((l) => l.text));
   });
 });

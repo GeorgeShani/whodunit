@@ -41,7 +41,7 @@ describe("callGrok", () => {
   it.each([
     ["non-JSON text", "Sure! Here is my answer."],
     ["unknown emotion", JSON.stringify(goodReply({ emotion: "hangry" }))],
-    ["extra decision field", JSON.stringify(goodReply({ murdererId: "victoria" }))],
+    ["extra decision field", JSON.stringify(goodReply({ murdererId: "not-a-decision-field" }))],
     ["empty dialogue", JSON.stringify(goodReply({ dialogue: "  " }))],
     ["array", "[]"],
   ])("rejects %s and gives up after exactly 2 attempts", async (_l, content) => {

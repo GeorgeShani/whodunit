@@ -309,19 +309,30 @@ export function checkCaseReferences(c: LoadedCase): CaseIssue[] {
         }
         (l.evidenceIds ?? []).forEach((id, j) => ref(evidenceIds, "evidence", id, END, `${p}.${k}.evidenceIds.${j}`));
       });
-    checkLines(c.endings.correct.confession, "correct.confession");
-    checkLines(c.endings.correct.recap, "correct.recap");
+    if (c.endings.correct) {
+      checkLines(c.endings.correct.confession, "correct.confession");
+      checkLines(c.endings.correct.recap, "correct.recap");
+    } else {
+      issues.push({
+        file: END,
+        path: "correct",
+        message: "missing correct ending (put it in endings.json or in the solution's endings field)",
+      });
+    }
     if (c.endings.sloppyRemark) checkLines([c.endings.sloppyRemark], "sloppyRemark");
-    for (const [suspectId, lines] of Object.entries(c.endings.wrong)) {
+    if (!c.endings.escapedLine) {
+      issues.push({ file: END, path: "escapedLine", message: "missing escapedLine" });
+    }
+    for (const [suspectId, lines] of Object.entries(c.endings.wrong ?? {})) {
       if (!characterIds.has(suspectId)) issues.push({ file: END, path: `wrong.${suspectId}`, message: `"${suspectId}" is not a suspect` });
       checkLines(lines, `wrong.${suspectId}`);
     }
     for (const id of characterIds) {
-      if (!c.endings.wrong[id]) {
+      if (!c.endings.wrong?.[id]) {
         issues.push({
           file: END,
           path: "wrong",
-          message: `missing wrong ending for suspect "${id}"${id === s.murdererId ? " (the murderer: right culprit, couldn't prove it)" : ""}`,
+          message: `missing wrong ending for suspect "${id}"${id === s.murdererId ? " (the murderer: right culprit, couldn't prove it; may live on the solution)" : ""}`,
         });
       }
     }
@@ -694,7 +705,7 @@ export function culpritEndingWarnings(c: Pick<LoadedCase, "solution" | "characte
       const other = c.characters.find((ch) => ch.id !== id && culpritIds.includes(ch.id));
       if (!other) continue;
       const names = [other.name, ...(other.aliases ?? [])].filter((n) => n.length > 2);
-      (c.endings.wrong[id] ?? []).forEach((l, k) => {
+      (c.endings.wrong?.[id] ?? []).forEach((l, k) => {
         const path = `wrong.${id}.${k}`;
         if (l.speaker === other.id) out.push({ file: "endings.json", path, message: `a line by the other culprit (${other.id}) in ${id}'s own wrong ending is never played (DX11)` });
         else if (names.some((n) => new RegExp(`\\b${n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(l.text)))
