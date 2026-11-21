@@ -135,14 +135,7 @@
     "relatedCharacters": [
       "reginald"
     ],
-    "initiallyAvailable": false,
-    "requires": {
-      "mode": "all",
-      "searchedLocationIds": [
-        "library"
-      ]
-    },
-    "lockedLine": "The fire-irons sit in their stand, under a coat of soot. They can wait."
+    "initiallyAvailable": false
   },
   {
     "id": "letter-opener",
@@ -159,16 +152,6 @@
     "relatedCharacters": [
       "archibald"
     ],
-    "initiallyAvailable": false,
-    "requires": {
-      "mode": "all",
-      "searchedLocationIds": [
-        "hall"
-      ],
-      "evidenceIds": [
-        "muddy-footprint"
-      ]
-    },
-    "lockedLine": "Archibald's hall table has more on it than gloves, but it can wait."
+    "initiallyAvailable": false
   }
 ]

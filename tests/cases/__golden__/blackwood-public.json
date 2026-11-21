@@ -413,19 +413,29 @@
  },
  "search:hall@fresh": {
   "body": {
-   "found": [],
+   "found": [
+    {
+     "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+     "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+     "icon": "🗡️",
+     "id": "letter-opener",
+     "kind": "physical",
+     "locationId": "hall",
+     "name": "Brass Letter Opener",
+     "weapon": true
+    }
+   ],
    "lines": [
     "The grandfather clock ticks, the thunder booms, and every portrait on the wall seems to be staring at the library door.",
     "Doors in every direction, a draughty garden door that won't stop rattling, and puddles. Mind the puddles.",
-    "The draughty hall has more to say, but you don't yet know what to ask it. Poke about outside, or ask someone who watches their feet.",
-    "Archibald's hall table has more on it than gloves, but it can wait."
+    "The draughty hall has more to say, but you don't yet know what to ask it. Poke about outside, or ask someone who watches their feet."
    ],
    "locationId": "hall",
    "progress": {
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 0,
+       "have": 1,
        "need": 3
       },
       "leads": {
@@ -830,19 +840,28 @@
      "locationId": "library",
      "name": "Silver Candlestick",
      "weapon": true
+    },
+    {
+     "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+     "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
+     "icon": "🔥",
+     "id": "fireplace-poker",
+     "kind": "physical",
+     "locationId": "library",
+     "name": "Fireplace Poker",
+     "weapon": true
     }
    ],
    "lines": [
     "A dying fire, a splintered door and four thousand books that saw everything and aren't saying a word.",
-    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note.",
-    "The fire-irons sit in their stand, under a coat of soot. They can wait."
+    "You tiptoe around his lordship's favourite rug. Somewhere, a violin plays one very ominous note."
    ],
    "locationId": "library",
    "progress": {
     "accuse": {
      "checklist": {
       "clues": {
-       "have": 1,
+       "have": 2,
        "need": 3
       },
       "leads": {
@@ -873,9 +892,7 @@
      "total": 12,
      "totalUsed": 0
     },
-    "freshLocationIds": [
-     "library"
-    ],
+    "freshLocationIds": [],
     "leads": [
      {
       "closedLine": "A candlestick! The butler will be mortified about the polish.",

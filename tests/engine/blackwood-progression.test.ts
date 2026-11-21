@@ -38,7 +38,7 @@ describe("a lead that closes before it ever opened (#38)", () => {
     const before = visibleLeadStates(c, g);
     expect(before["lead-lantern"]).toBe("open");
     expect(before["lead-boots"]).toBe("hidden");
-    expect(searchLocation(c, g, "hall").newlyFound.map((e) => e.id)).toEqual(["muddy-footprint"]);
+    expect(searchLocation(c, g, "hall").newlyFound.map((e) => e.id)).toEqual(["muddy-footprint", "letter-opener"]);
     const p = publicProgress(c, g, before);
     expect(p.leads.filter((l) => l.state === "closed").map((l) => l.id)).toEqual(["lead-lantern"]);
     expect(p.newLeadIds.sort()).toEqual(["lead-eyewitness", "lead-lantern"]);
