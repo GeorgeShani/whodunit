@@ -8,7 +8,7 @@ Scope (Marvin, relaying George, 2026-10-11): an adversarial pass over Blackwood 
 - Sequence breaks.
 - What the model could plausibly improvise against canon.
 
-This audit builds on `SOLUTION_PROOF.md` and `LEAK_AUDIT.md` (leak paths, card matrix, forbidden phrases) and does not repeat them. Where a point overlaps `docs/HOW_TO_PLAY.md` "Mechanics I found ambiguous or surprising" (#54), the note number is given.
+This audit builds on `LEAK_AUDIT.md` (leak paths, card matrix, forbidden phrases) and does not repeat them. The canonical solution is not documented in this repository (server-only `CASE_SOLUTION_BLACKWOOD`, plus a local gitignored `solution.json` for authoring and tests). Where a point overlaps `docs/HOW_TO_PLAY.md` "Mechanics I found ambiguous or surprising" (#54), the note number is given.
 
 **Method.** I read every file by hand and cross-checked them. I read the engine's grading, gate, ending, hint and lead code (`engine/accusation.ts`, `accuse-handler.ts`, `accuse-schema.ts`, `progress.ts`, `ending-payload.ts`, `hints.ts`, `progression-validation.ts`) without changing it.
 
@@ -90,7 +90,7 @@ The fastest legal path is still **10**, because the letter was already on it.
 - Mutation check: with the old gate the search finds **288** reachable states that are open but unwinnable, across **13** distinct clue and testimony combinations, including the eyewitness one. The test prints only the first five (`.slice(0, 5)`). Gremlin's r7 recount, fixed in CA-38.
 - I updated the two existing tests that pinned the old gate and line.
 
-**Decision (George):** the gate in `SOLUTION_PROOF.md` §12.3 was "the approved one". This changes it, so please confirm. The alternative is a gate field for required evidence (Dexter, E1).
+**Decision (George):** the published accuse gate was "the approved one". This changes it, so please confirm. The alternative is a gate field for required evidence (Dexter, E1).
 
 ### CA-02 · Medium · Proof citations can be hedged at no cost: Dexter (E2) / decision (HOW_TO_PLAY #2)
 
@@ -110,7 +110,7 @@ Citing everything held always meets the key-evidence and key-testimony rules. Wi
 
 ### CA-03 · Medium · Motives map one-to-one onto suspects: decided by George, fixed (#57, CA-63)
 
-**Evidence:** `case.json` `motives` are `inheritance` (Victoria), `business-ruin` (Archibald), `stolen-money` (Reginald) and `revenge` (Gregory), one each, as `SOLUTION_PROOF.md` §9 says.
+**Evidence:** `case.json` `motives` are the four public options `inheritance`, `business-ruin`, `stolen-money` and `revenge`, one each.
 
 Naming the killer picks the motive by elimination. "Right lady, wrong motive" happens only by blunder. Together with CA-02 and CA-04, the accusation comes down to one real choice out of four suspects.
 
@@ -133,7 +133,7 @@ Only one of Blackwood's four clues is a weapon, so the weapon choice is a formal
 
 A returning player who sees the generic version knows they named the killer and only missed the proof. #22 meant to prevent exactly that.
 
-There is also dead data: `endings.json` `wrong.victoria` (3 lines, the "right lady, wrong story" ending) and Victoria's six cameo lines in the other three wrong endings are never played. `SOLUTION_PROOF.md` §10 still describes `wrong.victoria` as if it were played; that doc fix rides with PR B, because #53 also edits SOLUTION_PROOF.
+There is also dead data: `endings.json` `wrong.victoria` (3 lines) and Victoria's six cameo lines in the other three wrong endings are never played.
 
 **Proposed fix (engine; George picks):**
 - (i) Every loss plays the same generic shape. Simplest, and #22-pure.
@@ -819,7 +819,7 @@ Relayed by Marvin, 2026-10-11. All four questions (§6 items 2 to 5) are now dec
 
 ### CA-63 · Medium · Victoria's decoy motive: fixed (#57)
 
-`case.json` `motives` gains "Unhappy marriage" ("Someone wanted to be free of Lord Blackwood, whatever it cost."), kept alphabetical (it sorts last). **Suggested by** the 20:54 row Reginald saw (`ev-reginald-overhears`, his overheard card): a wife crying "You wouldn't dare, Edmund!" at her husband. **Disproved by** the same card, which now gives her next words, "Leave me, but not on two hundred a year!", and by the burned letter: she would let him go; the money is what she killed for (SOLUTION_PROOF §5 step 12). No new clue or fact. Grading is unchanged (`motiveId` must equal `inheritance`); a test grades Victoria + candlestick + both key clues + Gregory's card with "Unhappy marriage" as a loss and checks the ending equals her ordinary loss ending with no motive, weapon, time or will wording.
+`case.json` `motives` gains "Unhappy marriage" ("Someone wanted to be free of Lord Blackwood, whatever it cost."), kept alphabetical (it sorts last). **Suggested by** the 20:54 row Reginald saw (`ev-reginald-overhears`, his overheard card): a wife crying "You wouldn't dare, Edmund!" at her husband. **Disproved by** the same card, which now gives her next words, "Leave me, but not on two hundred a year!", and by the burned letter. No new clue or fact. Grading is unchanged (the added motive is not the true one); a test grades a complete otherwise-winning accusation that cites "Unhappy marriage" as a loss and checks the ending equals that suspect's ordinary loss ending with no motive, weapon, time or will wording.
 
 ### CA-64 · Medium · Loss feedback: spec to Dexter (E20)
 

@@ -73,7 +73,7 @@ describe("Blackwood loads with the engine loader (contract v2)", () => {
     expect(c.victim.id).toBe("lord-blackwood");
     expect(c.characters.map((ch) => ch.id)).toEqual(["archibald", "gregory", "reginald", "victoria"]);
     expect(c.locations.map((l) => l.id).sort()).toEqual(["dining-room", "garden", "hall", "kitchen", "library"]);
-    expect(c.evidence.map((e) => e.id).sort()).toEqual(["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"]);
+    expect(c.evidence.map((e) => e.id).sort()).toEqual(["burned-letter", "fireplace-poker", "letter-opener", "library-key", "muddy-footprint", "silver-candlestick"]);
     expect(c.solution).toMatchObject({
       murdererId: "victoria",
       weaponId: "silver-candlestick",
@@ -710,11 +710,12 @@ describe("Blackwood round 2: Dexter's data notes", () => {
 
   it("the solution is still provable from the four clues alone", () => {
     const all = c.evidence.map((e) => e.id);
-    expect(all.sort()).toEqual(["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"]);
+    const core = ["burned-letter", "library-key", "muddy-footprint", "silver-candlestick"];
+    for (const k of core) expect(all).toContain(k);
     for (const k of ["library-key", "burned-letter"]) expect(all).toContain(k);
     const v = byId("victoria");
     const together = v.intendedLies.find((l) => l.id === "l-victoria-together")!;
-    expect(isLieBroken(c, together, { evidenceShownIds: all })).toBe(true);
+    expect(isLieBroken(c, together, { evidenceShownIds: core })).toBe(true);
   });
 });
 

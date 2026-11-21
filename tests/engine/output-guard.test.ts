@@ -7,6 +7,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { checkReply } from "@/ai/guard";
 import { prepareTurn } from "@/ai/perform-turn";
 import { loadCase } from "@/engine/case-loader";
+import { hasLocalOrEnvSolution } from "../helpers/has-solution";
 import type { LoadedCase } from "@/engine/case-schema";
 import { checkCaseReferences } from "@/engine/case-validation";
 import { createInitialGameState } from "@/engine/game-state";
@@ -146,10 +147,10 @@ describe("gatedTopics (#91)", () => {
 
 describe("checkReply hook and Tallyho integration (fixture guard attached in memory)", () => {
   let tallyho: LoadedCase;
-  let blackwood: LoadedCase;
+  let blackwood: LoadedCase | undefined;
   beforeAll(async () => {
     tallyho = attachGuard(await loadCase("tallyho"));
-    blackwood = await loadCase("blackwood");
+    if (hasLocalOrEnvSolution("blackwood")) blackwood = await loadCase("blackwood");
   });
 
   const turn = (c: LoadedCase, characterId: string, ev: string[] = []) => {
@@ -161,8 +162,10 @@ describe("checkReply hook and Tallyho integration (fixture guard attached in mem
   it("load-time validation accepts the fixture block on Tallyho and is a no-op on stock Blackwood", () => {
     expect(validateOutputGuard(tallyho)).toEqual([]);
     expect(checkCaseReferences(tallyho).filter((i) => i.path?.startsWith("guard"))).toEqual([]);
-    expect(blackwood.guard).toBeUndefined();
-    expect(validateOutputGuard(blackwood)).toEqual([]);
+    if (blackwood) {
+      expect(blackwood.guard).toBeUndefined();
+      expect(validateOutputGuard(blackwood)).toEqual([]);
+    }
   });
 
   it("does not put the guard block in the public case view", () => {
@@ -209,7 +212,7 @@ describe("checkReply hook and Tallyho integration (fixture guard attached in mem
   });
 });
 
-describe("Blackwood regression: no guard data, behaviour unchanged", () => {
+describe.skipIf(!hasLocalOrEnvSolution("blackwood"))("Blackwood regression: no guard data, behaviour unchanged", () => {
   let bw: LoadedCase;
   beforeAll(async () => {
     bw = await loadCase("blackwood");

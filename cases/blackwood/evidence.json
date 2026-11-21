@@ -119,5 +119,39 @@
       ]
     },
     "lockedLine": "The hearth is still holding out on you."
+  },
+  {
+    "id": "fireplace-poker",
+    "name": "Fireplace Poker",
+    "description": "A heavy iron poker in the stand by the library's coal fire. Around its foot, an unmoved stripe in the soot on the hearthstone. The fire was banked before dinner and fed without lifting the poker: it has sat in its stand since then.",
+    "discoveryLine": "A hefty poker, but the soot around its foot has not been disturbed since it was set in the stand. This one stayed home.",
+    "kind": "physical",
+    "weapon": true,
+    "icon": "🔥",
+    "locationId": "library",
+    "relatedFactIds": [
+      "f-reginald-banked-fire"
+    ],
+    "relatedCharacters": [
+      "reginald"
+    ],
+    "initiallyAvailable": false
+  },
+  {
+    "id": "letter-opener",
+    "name": "Brass Letter Opener",
+    "description": "Archibald's brass letter opener, left on the hall table on his side of the hall, among his gloves and unopened post. The blade has been wiped; a dark smear on the blotter looks nasty until you sniff it: ink, not blood. It is far too light and thin to have made the wound.",
+    "discoveryLine": "A brass letter opener, wiped clean, and a smear that turns out to be ink. Far too light for a blow like that.",
+    "kind": "physical",
+    "weapon": true,
+    "icon": "🗡️",
+    "locationId": "hall",
+    "relatedFactIds": [
+      "f-archibald-letter-opener"
+    ],
+    "relatedCharacters": [
+      "archibald"
+    ],
+    "initiallyAvailable": false
   }
 ]

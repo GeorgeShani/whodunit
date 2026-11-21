@@ -308,24 +308,18 @@ Characteristics:
 - Manipulative
 - Emotionally controlled
 
-For the first canonical case:
-
-Victoria is the murderer.
-
-She knows:
-
-- She killed Blackwood.
-- She used the candlestick.
-- Gregory may have seen her.
-- A burned letter could reveal her motive.
+The identity of the murderer, the weapon and the motive for this case are not
+recorded in this document. They live only in the server-only
+`CASE_SOLUTION_BLACKWOOD` environment variable, and in a local gitignored
+`cases/blackwood/solution.json` for authoring and tests.
 
 Primary goal:
 
-Avoid being exposed.
+Protect her position and her secrets.
 
 Secondary goal:
 
-Redirect suspicion toward another suspect.
+Steer attention toward someone else if suspicion falls on her.
 
 ---
 

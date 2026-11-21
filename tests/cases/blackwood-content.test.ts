@@ -8,6 +8,8 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import type { Endings } from "@/engine/endings";
+import { handleInvestigate } from "@/engine/investigate-handler";
+import { TEST_ENV } from "../helpers/grok-mock";
 
 let c: LoadedCase;
 let endings: Endings;
@@ -22,7 +24,9 @@ describe("Blackwood location search", () => {
   it("clues are found where the solution proof puts them", () => {
     expect(Object.fromEntries(c.evidence.map((e) => [e.id, e.locationId]))).toEqual({
       "silver-candlestick": "library",
+      "fireplace-poker": "library",
       "muddy-footprint": "hall",
+      "letter-opener": "hall",
       "burned-letter": "dining-room",
       "library-key": "dining-room",
     });
@@ -47,6 +51,29 @@ describe("Blackwood location search", () => {
 
   it("every clue has a discovery line", () => {
     for (const e of c.evidence) expect(e.discoveryLine, e.id).toBeDefined();
+  });
+
+  it("search replies and lead-close copy name no one weapon when weapons are found (#117)", () => {
+    const namesOneWeapon = /\bcandlesticks?\b|\bpokers?\b|\bletter[ -]?openers?\b/i;
+    const lead = c.leads?.find((l) => l.id === "lead-weapon");
+    expect(lead?.closesWhen).toEqual({
+      mode: "any",
+      evidenceIds: ["silver-candlestick", "fireplace-poker", "letter-opener"],
+    });
+    expect(lead?.closedLine).toBeTruthy();
+    expect(lead!.closedLine, "lead-weapon closedLine").not.toMatch(namesOneWeapon);
+
+    for (const locationId of ["library", "hall"] as const) {
+      const r = handleInvestigate({ locationId }, { caseData: c, env: TEST_ENV });
+      expect(r.status).toBe(200);
+      expect(r.body.found.some((e) => e.weapon === true), locationId).toBe(true);
+      const closeCopy = (r.body.progress?.leads ?? [])
+        .filter((l) => l.state === "closed")
+        .map((l) => l.closedLine ?? "")
+        .join("\n");
+      const reply = [...r.body.lines, closeCopy].join("\n");
+      expect(reply, `${locationId} search reply / lead-close copy`).not.toMatch(namesOneWeapon);
+    }
   });
 
   it("public flavour never names a suspect or the hidden facts", () => {
