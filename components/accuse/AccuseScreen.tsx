@@ -1,7 +1,7 @@
 "use client";
 
 import { accuseSuspectGrid } from "@/components/characters/suspect-layout";
-import { SCREEN_HEADER, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
+import { SCREEN_HEADER_CENTERED, SCREEN_HEADER_SPACER, SCREEN_TITLE } from "@/components/game/screen-header";
 import { weaponChoices } from "./weapon-choices";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRef, useState } from "react";
@@ -116,8 +116,8 @@ export function AccuseScreen({
   return (
     <main className="relative flex min-h-0 flex-1 flex-col bg-[radial-gradient(circle_at_top,#7f1d1d_0%,var(--backdrop)_70%)]">
       <div className="screen-scroll flex min-h-0 flex-1 flex-col items-center gap-5 px-4 pb-6 pt-3 sm:px-6 sm:pt-6">
-      <div className={`${SCREEN_HEADER} max-w-5xl`}>
-        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0" disabled={busy}>
+      <div className={`${SCREEN_HEADER_CENTERED} max-w-5xl`}>
+        <CartoonButton tone="white" onClick={onBack} aria-label="Back to suspects" className="order-1 min-h-12 shrink-0 lg:justify-self-start" disabled={busy}>
           ← <span className="max-sm:hidden">Back to suspects</span>
           <span className="sm:hidden">Back</span>
         </CartoonButton>
