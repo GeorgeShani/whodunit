@@ -9,7 +9,7 @@ import {
   resetGrokBreaker,
   TRANSIENT_BREAKER_MS,
 } from "@/ai/grok";
-import { confrontDownLine, displayNameOf, modelDownLine, pronounsOf, stillDownLine } from "@/ai/model-down";
+import { confrontDownLine, displayNameOf, modelDownLine, pronounsOf, stillDownLine, unavailable } from "@/ai/model-down";
 import { loadCase } from "@/engine/case-loader";
 import type { LoadedCase } from "@/engine/case-schema";
 import { createInitialGameState } from "@/engine/game-state";
@@ -167,24 +167,33 @@ describe("the player's lines", () => {
 });
 
 describe("display name and pronouns (#103)", () => {
-  it("uses the full case-data name, not a bare title or first token", () => {
-    const line = modelDownLine("busy", "Captain Horatio Bilge", 0, pronounsOf({ pronoun: "he" }));
-    expect(line).toContain("Captain Horatio Bilge");
+  const PRONOUN = /\b(their|they|them|themselves|his|her|hers|him)\b/i;
+
+  it("uses the full case-data name, not a bare title or first token, and no generic pronoun", () => {
+    const line = modelDownLine("busy", "Captain Horatio Bilge", 0);
+    expect(line).toBe(
+      "Captain Horatio Bilge falters and asks for a moment. Give it a breath, detective, then ask again.",
+    );
     expect(line).not.toMatch(/\bCaptain falters\b/);
     expect(line).not.toContain("bilge");
-    expect(line).toMatch(/collect his thoughts/);
-    expect(line).not.toMatch(/collect their thoughts/);
+    expect(line).not.toMatch(PRONOUN);
+    expect(line).not.toMatch(/collect \w+ thoughts/);
   });
 
-  it("agrees with she/her and falls back to they/them/their when no pronoun is given", () => {
-    expect(modelDownLine("busy", "Victoria Blackwood", 0, pronounsOf({ pronoun: "she" }))).toMatch(/collect her thoughts/);
-    expect(modelDownLine("busy", "A Guest", 0, pronounsOf({}))).toMatch(/collect their thoughts/);
-    expect(pronounsOf({ pronouns: { subject: "she", object: "her", possessive: "her" } }).possessive).toBe("her");
+  it("the client network-failure path (no pronouns argument) uses the display name and no pronoun", () => {
+    const captain = unavailable("busy", displayNameOf({ name: "Captain Horatio Bilge" }), 0).line;
+    const archibald = unavailable("busy", displayNameOf({ name: "Archibald Crane" }), 0).line;
+    expect(captain).toContain("Captain Horatio Bilge falters and asks for a moment.");
+    expect(archibald).toContain("Archibald Crane falters and asks for a moment.");
+    expect(captain).not.toMatch(PRONOUN);
+    expect(archibald).not.toMatch(PRONOUN);
     expect(displayNameOf({ name: "Captain Horatio Bilge" })).toBe("Captain Horatio Bilge");
     expect(displayNameOf({ name: "  " }, "They")).toBe("They");
+    // pronounsOf remains for other system lines (breather, etc.).
+    expect(pronounsOf({ pronouns: { subject: "she", object: "her", possessive: "her" } }).possessive).toBe("her");
   });
 
-  it("the interrogate fallback uses the character's display name and pronoun, not a bare title", async () => {
+  it("the interrogate fallback uses the character's display name and no pronoun, not a bare title", async () => {
     const tagged = structuredClone(c);
     const who = tagged.characters.find((ch) => ch.id === "archibald")!;
     who.name = "Captain Horatio Bilge";
@@ -198,7 +207,8 @@ describe("display name and pronouns (#103)", () => {
     expect(r.status).toBe(503);
     expect(line).toContain("Captain Horatio Bilge");
     expect(line).not.toMatch(/\bCaptain falters\b/);
-    expect(line).toMatch(/collect his thoughts/);
+    expect(line).toContain("falters and asks for a moment.");
+    expect(line).not.toMatch(PRONOUN);
     expect(line).not.toMatch(FORBIDDEN_WORDS);
   });
 });

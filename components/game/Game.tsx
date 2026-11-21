@@ -17,7 +17,7 @@ import { HowToPlayButton, HowToPlayDialog } from "@/components/help/HowToPlay";
 import { GRADING_SECTION_ID, type Manual } from "@/lib/how-to-play";
 import { addContradiction, itemName, presentQuestion, type ContradictionNotes, type NotebookItem } from "@/components/evidence/notebook-model";
 import type { Contradiction } from "@/ai/interrogate-schema";
-import { confrontDownLine, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
+import { confrontDownLine, displayNameOf, downLineFor, parseUnavailable, retryOffer, retryWaitSeconds, unavailable as unavailableLine, type Unavailable } from "@/ai/model-down";
 import { parsePublicConfrontLines, parsePublicReply, type PublicConfrontLine, type PublicReply } from "@/ai/public-reply";
 import { getAudio, registerCaseAudio } from "@/components/effects/audio";
 import { bedForScreen, bedFadeMs, heartbeatFor } from "@/components/effects/audio-scenes";
@@ -531,7 +531,7 @@ export function Game({
             ...(stateToken.current ? { stateToken: stateToken.current } : {}),
           },
           turn,
-          view.suspects.find((s) => s.id === characterId)?.name ?? "They",
+          displayNameOf(view.suspects.find((s) => s.id === characterId)),
         );
         if (ahead) {
           loadAhead.current(ahead);

@@ -29,7 +29,7 @@ const BASE = {
   portrait: "h-36 md:h-60",
   info: "flex min-w-0 flex-1 flex-col items-start gap-1 md:w-full md:flex-none md:items-center",
   name: "text-balance font-display text-[1.7rem] leading-[1.05] tracking-wide md:mt-3 md:text-3xl",
-  role: "text-base font-semibold italic text-neutral-700",
+  role: "min-w-0 max-w-full px-1 text-base font-semibold italic leading-snug text-pretty break-words text-neutral-700",
 };
 
 /** The phone (< 560px) compact overrides, as max-[559px] variants so 560px+ is the plain card. */
@@ -39,7 +39,7 @@ const COMPACT = {
   portrait: "max-[559px]:h-[6.5rem]",
   info: "max-[559px]:w-full max-[559px]:flex-none max-[559px]:items-center max-[559px]:gap-0.5",
   name: "max-[559px]:text-xl max-[559px]:leading-none",
-  role: "max-[559px]:text-sm max-[559px]:leading-tight",
+  role: "max-[559px]:px-0.5 max-[559px]:text-sm max-[559px]:leading-snug",
 };
 
 export function suspectLayout(n: number): SuspectLayout {
