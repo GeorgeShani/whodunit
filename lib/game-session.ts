@@ -25,6 +25,14 @@ export const SESSION_VERSION = 1;
 /** What an older saved game may hold for one clue: an id, or a whole object (rebuilt from the server on resume). */
 export type StoredEvidence = PublicEvidence | string;
 
+/**
+ * The notebook a resume puts in state: the server's snapshot (rebuilt by id from the case, weapon flag included), else
+ * the page's public case view. Stored evidence objects are never used (old blobs only hand over their token).
+ */
+export function resumedEvidence(snap: { evidence: readonly PublicEvidence[] } | null | undefined, viewEvidence: PublicEvidence[]): PublicEvidence[] {
+  return snap?.evidence.length ? [...snap.evidence] : viewEvidence;
+}
+
 /** Saved-game entries worth keeping: ids and well-formed evidence objects (anything else is dropped). */
 export function storedEvidence(raw: readonly unknown[]): StoredEvidence[] {
   return raw.filter(
