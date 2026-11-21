@@ -104,6 +104,15 @@ export function toPublicEvidence(e: Evidence, features?: Record<string, unknown>
   return { id, name, description, kind, locationId, image, ...(icon ? { icon } : {}), ...(discoveryLine ? { discoveryLine } : {}), ...(weapon ? { weapon: true } : {}), ...(features ? { features } : {}) };
 }
 
+/**
+ * The notebook for a set of discovered ids, rebuilt from the case (case order, public fields only, `weapon` included).
+ * Every client-facing evidence list goes through here or toPublicEvidence, so no route can drop a public flag.
+ */
+export function notebookEvidence(c: PlayableCase, discoveredIds: Iterable<string>): PublicEvidence[] {
+  const discovered = new Set(discoveredIds);
+  return c.evidence.filter((e) => discovered.has(e.id)).map((e) => toPublicEvidence(e, clueFeatures(c, e.id)));
+}
+
 export function getPublicCaseView(
   c: PlayableCase,
   options: {
@@ -113,7 +122,6 @@ export function getPublicCaseView(
     portraitSprites?: Record<string, { spriteDir?: string; anchors?: Record<string, PublicAnchorSet> }>;
   } = {},
 ): PublicCaseView {
-  const discovered = new Set(options.discoveredEvidenceIds ?? initialDiscoveredEvidenceIds(c));
   const features = publicFeatures(c);
   return {
     meta: { id: c.id, title: c.title, tagline: c.tagline, intro: c.intro, ...(c.howToPlayTips?.length ? { howToPlayTips: [...c.howToPlayTips] } : {}) },
@@ -135,7 +143,7 @@ export function getPublicCaseView(
         emotion: { ...ch.initialEmotion },
       };
     }),
-    evidence: c.evidence.filter((e) => discovered.has(e.id)).map((e) => toPublicEvidence(e, clueFeatures(c, e.id))),
+    evidence: notebookEvidence(c, options.discoveredEvidenceIds ?? initialDiscoveredEvidenceIds(c)),
     weaponsMarked: c.evidence.some((e) => e.weapon),
     ...(c.accuse?.askHelper ? { askHelper: true as const } : {}),
     progress: publicProgress(c, createInitialGameState(c)),
