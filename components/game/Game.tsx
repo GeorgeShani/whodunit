@@ -38,7 +38,7 @@ import type { StressReading } from "@/engine/stress";
 import type { PublicTestimony } from "@/engine/testimony";
 import type { Emotion } from "@/engine/types";
 import { CaseNotReady } from "@/components/progress/CaseNotReady";
-import { NewLeadToast } from "@/components/progress/NewLeadToast";
+import { LeadToastHost, leadsToAnnounce, useLeadToasts } from "@/components/progress/LeadToastHost";
 import type { PublicProgress } from "@/engine/progress";
 import { cabinetAhead, resumeNotice, swappedSnapshot, withNotice, type CabinetAhead } from "./cabinet-notice";
 import { clearGame, clearSavePointer, isPublicProgress, loadSavePointer, resumedEvidence, readTokenFallback, writeSavePointer, writeTokenFallback } from "@/lib/game-session";
@@ -266,8 +266,27 @@ export function Game({
   /** Phase 10 (3.8): the cases this one opens ("NEXT CASE" on a win, "Next case" on the title once open). */
   unlock?: CaseUnlockInfo;
 }) {
+  // The toast host wraps the session so applyProgress can push into one global queue, and so
+  // the sting is never a child of `.stage` or a screen transition layer.
+  return (
+    <LeadToastHost>
+      <GameMain view={view} manual={manual} unlock={unlock} />
+    </LeadToastHost>
+  );
+}
+
+function GameMain({
+  view,
+  manual,
+  unlock,
+}: {
+  view: PublicCaseView;
+  manual?: Manual;
+  unlock?: CaseUnlockInfo;
+}) {
   const caseId = view.meta.id;
   const [screen, setScreen] = useState<Screen>("title");
+  const { pushLeads, clearLeads, setSuppressed } = useLeadToasts();
   // How to Play overlay: UI state only, so opening it mid-case never touches the game.
   const [helpOpen, setHelpOpen] = useState(false);
   /** Deep link into the manual (e.g. the accuse form's "How am I graded?"); undefined = from the top. */
@@ -302,8 +321,7 @@ export function Game({
   const [testimonies, setTestimonies] = useState<PublicTestimony[]>([]);
   /** Progression (leads, locked rooms, accuse gate): server-reported with every route response; display only. */
   const [progress, setProgress] = useState<PublicProgress>(view.progress);
-  /** Leads waiting for their NEW LEAD sting, and leads the player has not looked at in the notebook yet. */
-  const [leadQueue, setLeadQueue] = useState<PublicProgress["leads"]>([]);
+  /** Leads the player has not looked at in the notebook yet. The NEW LEAD sting queue lives on LeadToastHost. */
   const [unseenLeadIds, setUnseenLeadIds] = useState<string[]>([]);
   const [notReady, setNotReady] = useState(false);
   const [searched, setSearched] = useState<string[]>([]);
@@ -494,21 +512,21 @@ export function Game({
     setStress({});
     setConfrontStatus({});
     setProgress(view.progress);
-    setLeadQueue([]);
+    clearLeads();
     setUnseenLeadIds([]);
-  }, [view.evidence, view.progress]);
+  }, [view.evidence, view.progress, clearLeads]);
 
   /** Take the server's progress; leads that just opened (or closed) get their sting. */
   const applyProgress = useCallback((p: PublicProgress | undefined) => {
     if (!p) return;
     setProgress(p);
-    const fresh = p.leads.filter((l) => p.newLeadIds.includes(l.id));
+    const fresh = leadsToAnnounce(p);
     if (fresh.length) {
-      setLeadQueue((q) => [...q, ...fresh]);
+      pushLeads(fresh);
       setUnseenLeadIds((u) => [...new Set([...u, ...fresh.map((l) => l.id)])]);
       getAudio().play("clue_stinger", { gain: 0.7 });
     }
-  }, []);
+  }, [pushLeads]);
 
   const askAs = useCallback(
     (characterId: string, { question, presentedEvidenceId, presentedTestimonyId }: AskInput, isRetry = false): boolean => {
@@ -982,6 +1000,10 @@ export function Game({
         ? `${pendingName} is still answering your last question`
         : null;
 
+  useEffect(() => {
+    setSuppressed(screen === "title" || screen === "intro" || screen === "ending" || stingQueue.length > 0 || beats.length > 0);
+  }, [screen, stingQueue.length, beats.length, setSuppressed]);
+
   return (
     // Stage: one viewport, clipped. Each screen is an absolutely positioned layer,
     // so enter/exit scale transforms never push the document into overflow.
@@ -1196,9 +1218,6 @@ export function Game({
       )}
     </AnimatePresence>
     {notReady && <CaseNotReady accuse={progress.accuse} onClose={() => setNotReady(false)} />}
-    {screen !== "title" && screen !== "intro" && screen !== "ending" && stingQueue.length === 0 && beats.length === 0 && (
-      <NewLeadToast lead={leadQueue[0] ?? null} onDone={() => setLeadQueue((q) => q.slice(1))} />
-    )}
     <ContradictionBeat beat={beats[0] ?? null} onDone={clearBeat} />
     <DiscoverySting clue={stingQueue[0] ?? null} remaining={Math.max(0, stingQueue.length - 1)} onDone={() => setStingQueue((q) => q.slice(1))} />
     {/* HOW TO PLAY pill, top right, on every in-case screen but the ending; hidden while another overlay owns the corner
